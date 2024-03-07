@@ -1,0 +1,58 @@
+commit 88f44d87d4c2251d7cf55d9aa9c3452a397ae19b
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Fri May 17 23:05:18 2013
+
+    Fix #223
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/struct/TestPOJOAsArray.java b/src/test/java/com/fasterxml/jackson/databind/struct/TestPOJOAsArray.java
+--- a/src/test/java/com/fasterxml/jackson/databind/struct/TestPOJOAsArray.java
++++ b/src/test/java/com/fasterxml/jackson/databind/struct/TestPOJOAsArray.java
+@@ -139,9 +149,12 @@
+-    }    
++    public void testNullColumn() throws Exception
++    {
++        assertEquals("[null,\"bar\"]", MAPPER.writeValueAsString(new TwoStringsBean()));
++    }
+ 
+     /*
+     /*****************************************************
+     /* Compatibility with "single-elem as array" feature
+     /*****************************************************
+      */
+     
+     // for [JACKSON-805]
+
+commit 39c5f2857a24638fa1d69fe6c4c37c422a4610c5
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Fri Sep 21 22:19:08 2012
+
+    Bit more work wrt [JACKSON-805], POJO-as-array feature, moving tests around
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/struct/TestPOJOAsArray.java b/src/test/java/com/fasterxml/jackson/databind/struct/TestPOJOAsArray.java
+--- a/src/test/java/com/fasterxml/jackson/databind/struct/TestPOJOAsArray.java
++++ b/src/test/java/com/fasterxml/jackson/databind/struct/TestPOJOAsArray.java
+@@ -128,4 +138,9 @@
+     }    
+ 
+     /*
+     /*****************************************************
++    /* Compatibility with "single-elem as array" feature
++    /*****************************************************
++     */
++    
++    // for [JACKSON-805]
+
+commit f86494d04c66f11885ec64f8ba424f3cfb729684
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Fri Jul 20 20:11:31 2012
+
+    Unit test weeding
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/struct/TestPojoAsArrayDeserialization.java b/src/test/java/com/fasterxml/jackson/databind/struct/TestPOJOAsArray.java
+--- a/src/test/java/com/fasterxml/jackson/databind/struct/TestPojoAsArrayDeserialization.java
++++ b/src/test/java/com/fasterxml/jackson/databind/struct/TestPOJOAsArray.java
+@@ -91,0 +108,4 @@
++    }    
++
++    /*
++    /*****************************************************

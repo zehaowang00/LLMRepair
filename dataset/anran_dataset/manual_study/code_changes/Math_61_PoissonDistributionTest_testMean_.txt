@@ -1,0 +1,161 @@
+commit f76efe5f4ef36fadc677c94269927076f2f42eb9
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Sat Sep 25 19:06:34 2010
+
+    MATH-349
+    Removed deprecated methods.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1001331 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/distribution/PoissonDistributionTest.java b/src/test/java/org/apache/commons/math/distribution/PoissonDistributionTest.java
+--- a/src/test/java/org/apache/commons/math/distribution/PoissonDistributionTest.java
++++ b/src/test/java/org/apache/commons/math/distribution/PoissonDistributionTest.java
+@@ -135,12 +137,13 @@
+     public void testMean() {
+-        PoissonDistribution dist = new PoissonDistributionImpl(DEFAULT_TEST_POISSON_PARAMETER);
++        PoissonDistribution dist;
+         try {
+-            dist.setMean(-1);
+-            fail("negative mean.  IllegalArgumentException expected");
+-        } catch(IllegalArgumentException ex) {
++            dist = new PoissonDistributionImpl(-1);
++            fail("negative mean: NotStrictlyPositiveException expected");
++        } catch(NotStrictlyPositiveException ex) {
++            // Expected.
+         }
+ 
+-        dist.setMean(10.0);
++        dist = new PoissonDistributionImpl(10.0);
+         assertEquals(10.0, dist.getMean(), 0.0);
+     }
+ 
+
+commit 26dac5a0e7fc9c6be9571b3e71a15d8502480d96
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sat Sep 5 13:36:48 2009
+
+    Removed trailing spaces.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@811685 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/distribution/PoissonDistributionTest.java b/src/test/java/org/apache/commons/math/distribution/PoissonDistributionTest.java
+--- a/src/test/java/org/apache/commons/math/distribution/PoissonDistributionTest.java
++++ b/src/test/java/org/apache/commons/math/distribution/PoissonDistributionTest.java
+@@ -134,12 +134,12 @@
+     public void testMean() {
+         PoissonDistribution dist = new PoissonDistributionImpl(DEFAULT_TEST_POISSON_PARAMETER);
+         try {
+             dist.setMean(-1);
+             fail("negative mean.  IllegalArgumentException expected");
+         } catch(IllegalArgumentException ex) {
+         }
+-        
++
+         dist.setMean(10.0);
+         assertEquals(10.0, dist.getMean(), 0.0);
+     }
+-    
++
+
+commit d086678c5fab5b04d67355a20889e6e0bc274026
+Author: Brent Worden <brentworden@apache.org>
+Date:   Thu Jun 7 10:35:04 2007
+
+    Removed dependency on DistributionFactory.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@545192 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/distribution/PoissonDistributionTest.java b/src/test/org/apache/commons/math/distribution/PoissonDistributionTest.java
+--- a/src/test/org/apache/commons/math/distribution/PoissonDistributionTest.java
++++ b/src/test/org/apache/commons/math/distribution/PoissonDistributionTest.java
+@@ -128,12 +127,12 @@
+     public void testMean() {
+-        PoissonDistribution dist = DistributionFactory.newInstance().createPoissonDistribution(DEFAULT_TEST_POISSON_PARAMETER);
++        PoissonDistribution dist = new PoissonDistributionImpl(DEFAULT_TEST_POISSON_PARAMETER);
+         try {
+             dist.setMean(-1);
+             fail("negative mean.  IllegalArgumentException expected");
+         } catch(IllegalArgumentException ex) {
+         }
+         
+         dist.setMean(10.0);
+         assertEquals(10.0, dist.getMean(), 0.0);
+     }
+     
+
+commit ad6929ea0c89c085422c1e43bb3f763a0e3d25e4
+Author: Brent Worden <brentworden@apache.org>
+Date:   Mon Aug 22 22:27:17 2005
+
+    Merged changes in MATH_1_1 branch to trunk.  This includes revision 232577 through revision 234481.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@239294 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/distribution/PoissonDistributionTest.java b/src/test/org/apache/commons/math/distribution/PoissonDistributionTest.java
+--- a/src/test/org/apache/commons/math/distribution/PoissonDistributionTest.java
++++ b/src/test/org/apache/commons/math/distribution/PoissonDistributionTest.java
+@@ -125,11 +127,12 @@
+     public void testMean() {
+         PoissonDistribution dist = DistributionFactory.newInstance().createPoissonDistribution(DEFAULT_TEST_POISSON_PARAMETER);
+         try {
+             dist.setMean(-1);
+             fail("negative mean.  IllegalArgumentException expected");
+         } catch(IllegalArgumentException ex) {
+         }
+         
+         dist.setMean(10.0);
+         assertEquals(10.0, dist.getMean(), 0.0);
+     }
++    
+
+commit 88bb991fe4d45f197400b5dfa9f4775c1ea19ce3
+Author: Brent Worden <brentworden@apache.org>
+Date:   Wed Feb 23 22:59:05 2005
+
+    added cauchy distribution
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@155159 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/distribution/PoissonDistributionTest.java b/src/test/org/apache/commons/math/distribution/PoissonDistributionTest.java
+--- a/src/test/org/apache/commons/math/distribution/PoissonDistributionTest.java
++++ b/src/test/org/apache/commons/math/distribution/PoissonDistributionTest.java
+@@ -120,5 +125,11 @@
+-          PoissonDistribution dist = new PoissonDistributionImpl(
+-                    DEFAULT_TEST_POISSON_PARAMETER);
+-            assertEquals(Integer.MAX_VALUE, dist.inverseCumulativeProbability(1.0d));
+-            assertEquals(-1, dist.inverseCumulativeProbability(0d));
++    public void testMean() {
++        PoissonDistribution dist = DistributionFactory.newInstance().createPoissonDistribution(DEFAULT_TEST_POISSON_PARAMETER);
++        try {
++            dist.setMean(-1);
++            fail("negative mean.  IllegalArgumentException expected");
++        } catch(IllegalArgumentException ex) {
++        }
++        
++        dist.setMean(10.0);
++        assertEquals(10.0, dist.getMean(), 0.0);
+     }
+
+commit 5fa559b2cfc336442b8fabffdbdb136f67e15d89
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sat Nov 6 22:32:49 2004
+
+    Refactored distribution package so that more general distributions can be
+    represented and added Poisson distribution.
+    1) Added Distribution, AbstractDistribution
+    2) Added IntegerDistribution, AbstractIntegerDistribution
+    3) Added PoissonDistribution contributed by Fredrik Norin (PR #31688)
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@141491 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/distribution/PoissonDistributionTest.java b/src/test/org/apache/commons/math/distribution/PoissonDistributionTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/math/distribution/PoissonDistributionTest.java
+@@ -0,0 +120,5 @@
++          PoissonDistribution dist = new PoissonDistributionImpl(
++                    DEFAULT_TEST_POISSON_PARAMETER);
++            assertEquals(Integer.MAX_VALUE, dist.inverseCumulativeProbability(1.0d));
++            assertEquals(-1, dist.inverseCumulativeProbability(0d));
++    }

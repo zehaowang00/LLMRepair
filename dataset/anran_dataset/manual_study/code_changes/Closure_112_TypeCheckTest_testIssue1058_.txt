@@ -1,0 +1,37 @@
+commit b168c8822b2d3d12515ec6477812674c8805bcf3
+Author: Ben Lickly <blickly@google.com>
+Date:   Tue Oct 8 19:04:11 2013
+
+    Don't infer class template keys when inferring method template keys.
+    Fixes issue 1058.
+    -------------
+    Created by MOE: http://code.google.com/p/moe-java
+    MOE_MIGRATED_REVID=53874505
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- a/test/com/google/javascript/jscomp/TypeCheckTest.java
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -12140,0 +12159,23 @@
++  public void testIssue1058() throws Exception {
++    testTypes(
++        "/**\n" +
++        "  * @constructor\n" +
++        "  * @template CLASS\n" +
++        "  */\n" +
++        "var Class = function() {};\n" +
++        "\n" +
++        "/**\n" +
++        "  * @param {function(CLASS):CLASS} a\n" +
++        "  * @template T\n" +
++        "  */\n" +
++        "Class.prototype.foo = function(a) {\n" +
++        "  return 'string';\n" +
++        "};\n" +
++        "\n" +
++        "/** @param {number} a\n" +
++        "  * @return {string} */\n" +
++        "var a = function(a) { return '' };\n" +
++        "\n" +
++        "new Class().foo(a);");
++  }
++

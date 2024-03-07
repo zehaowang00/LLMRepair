@@ -1,0 +1,18 @@
+commit 3880640ee6268a2ecb2912e1ae896153dc2229e5
+Author: Henri Yandell <bayard@apache.org>
+Date:   Wed Jun 6 03:10:30 2007
+
+    Applying the patches from Brian Egge in CLI-133
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/branches/cli-1.0.x@544744 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/UtilTest.java b/src/test/org/apache/commons/cli/UtilTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/cli/UtilTest.java
+@@ -0,0 +25,6 @@
++    public void testStripLeadingHyphens() {
++        assertEquals("f", Util.stripLeadingHyphens("-f"));
++        assertEquals("foo", Util.stripLeadingHyphens("--foo"));
++        assertNull(Util.stripLeadingHyphens(null));
++    }
++}

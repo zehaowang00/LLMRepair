@@ -1,0 +1,23 @@
+commit 984778f3c264df5d608eb9697df2a268122ac66f
+Author: Matthew Jason Benson <mbenson@apache.org>
+Date:   Wed Jan 10 17:54:59 2007
+
+    [JXPATH-68] Throw meaningful exception when imminent stack overflow is detected
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/jxpath/trunk@495025 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/jxpath/ri/model/beans/BadlyImplementedFactoryTest.java b/src/test/org/apache/commons/jxpath/ri/model/beans/BadlyImplementedFactoryTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/jxpath/ri/model/beans/BadlyImplementedFactoryTest.java
+@@ -0,0 +59,10 @@
++    public void testBadFactoryImplementation() {
++        try {
++            context.createPath("foo/bar");
++            fail("should fail with JXPathException caused by JXPathAbstractFactoryException");
++        } catch (JXPathException e) {
++            assertTrue(e.getCause() instanceof JXPathAbstractFactoryException);
++        }
++    }
++
++}

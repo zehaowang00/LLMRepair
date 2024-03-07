@@ -1,0 +1,126 @@
+commit 143ede68fe70e043ca8f73cc1fbe83af944fa14a
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Tue Apr 5 13:53:55 2016
+
+    Make prefix namespaces work
+    
+    Initial PR only supported root xmlns, not prefixed tags and their
+    namespaces.
+
+diff --git a/src/test/java/org/jsoup/helper/W3CDomTest.java b/src/test/java/org/jsoup/helper/W3CDomTest.java
+index 5b37adff..569fbf18 100644
+--- a/src/test/java/org/jsoup/helper/W3CDomTest.java
++++ b/src/test/java/org/jsoup/helper/W3CDomTest.java
+@@ -4,12 +4,12 @@
+ import org.jsoup.integration.ParseTest;
+ import org.junit.Test;
+ import org.w3c.dom.Document;
++import org.w3c.dom.Node;
+ 
+ import java.io.File;
+ import java.io.IOException;
+ 
+ import static org.jsoup.TextUtil.LE;
+-
+ import static org.junit.Assert.assertEquals;
+ import static org.junit.Assert.assertTrue;
+ 
+@@ -45,30 +45,39 @@ public void convertsGoogle() throws IOException {
+ 
+         W3CDom w3c = new W3CDom();
+         Document wDoc = w3c.fromJsoup(doc);
++        Node htmlEl = wDoc.getChildNodes().item(0);
++        assertEquals(null, htmlEl.getNamespaceURI());
++        assertEquals("html", htmlEl.getLocalName());
++        assertEquals("html", htmlEl.getNodeName());
++
+         String out = w3c.asString(wDoc);
+         assertTrue(out.contains("ipod"));
+     }
+-    
++
+     @Test
+-    public void namespacePreservation()
+-    {
+-    	File in = ParseTest.getFile("/htmltests/cover.xhtml");
+-    	org.jsoup.nodes.Document jsoupDoc = null;
+-    	Document doc = null;
+-		try {
+-			jsoupDoc = Jsoup.parse(in, "UTF-8");
+-			//then, convert it back into a WC3 Dom document
+-	    	org.jsoup.helper.W3CDom jDom = new org.jsoup.helper.W3CDom();
+-	    	doc = jDom.fromJsoup(jsoupDoc);
+-		} catch (IOException e) {
+-			// TODO Auto-generated catch block
+-			e.printStackTrace();
+-		}
+-    	if (doc != null)
+-    	{
+-    		assertEquals(doc.getChildNodes().item(0).getNamespaceURI(), "http://www.w3.org/1999/xhtml");
+-    		assertEquals(doc.getChildNodes().item(0).getLocalName(), "html");
+-    	}
++    public void namespacePreservation() throws IOException {
++        File in = ParseTest.getFile("/htmltests/namespaces.xhtml");
++        org.jsoup.nodes.Document jsoupDoc;
++        jsoupDoc = Jsoup.parse(in, "UTF-8");
++
++        Document doc;
++        org.jsoup.helper.W3CDom jDom = new org.jsoup.helper.W3CDom();
++        doc = jDom.fromJsoup(jsoupDoc);
++
++        Node htmlEl = doc.getChildNodes().item(0);
++        assertEquals("http://www.w3.org/1999/xhtml", htmlEl.getNamespaceURI());
++        assertEquals("html", htmlEl.getLocalName());
++        assertEquals("html", htmlEl.getNodeName());
++
++        Node epubTitle = htmlEl.getChildNodes().item(2).getChildNodes().item(3);
++        assertEquals("http://www.idpf.org/2007/ops", epubTitle.getNamespaceURI());
++        assertEquals("title", epubTitle.getLocalName());
++        assertEquals("epub:title", epubTitle.getNodeName());
++
++        Node xSection = epubTitle.getNextSibling().getNextSibling();
++        assertEquals("urn:test", xSection.getNamespaceURI());
++        assertEquals("section", xSection.getLocalName());
++        assertEquals("x:section", xSection.getNodeName());
+     }
+ }
+ 
+
+commit 1dec69d8df78aee955205d8ae8bed0dfe86056f8
+Author: Elshad Kasumov <ekasumov@ebsco.com>
+Date:   Wed Jan 27 16:26:11 2016
+
+    Fix for bug 671: namespace is included in W3CDom.fromJsoup
+
+diff --git a/src/test/java/org/jsoup/helper/W3CDomTest.java b/src/test/java/org/jsoup/helper/W3CDomTest.java
+index 09718db6..5b37adff 100644
+--- a/src/test/java/org/jsoup/helper/W3CDomTest.java
++++ b/src/test/java/org/jsoup/helper/W3CDomTest.java
+@@ -48,5 +48,27 @@ public void convertsGoogle() throws IOException {
+         String out = w3c.asString(wDoc);
+         assertTrue(out.contains("ipod"));
+     }
++    
++    @Test
++    public void namespacePreservation()
++    {
++    	File in = ParseTest.getFile("/htmltests/cover.xhtml");
++    	org.jsoup.nodes.Document jsoupDoc = null;
++    	Document doc = null;
++		try {
++			jsoupDoc = Jsoup.parse(in, "UTF-8");
++			//then, convert it back into a WC3 Dom document
++	    	org.jsoup.helper.W3CDom jDom = new org.jsoup.helper.W3CDom();
++	    	doc = jDom.fromJsoup(jsoupDoc);
++		} catch (IOException e) {
++			// TODO Auto-generated catch block
++			e.printStackTrace();
++		}
++    	if (doc != null)
++    	{
++    		assertEquals(doc.getChildNodes().item(0).getNamespaceURI(), "http://www.w3.org/1999/xhtml");
++    		assertEquals(doc.getChildNodes().item(0).getLocalName(), "html");
++    	}
++    }
+ }
+ 

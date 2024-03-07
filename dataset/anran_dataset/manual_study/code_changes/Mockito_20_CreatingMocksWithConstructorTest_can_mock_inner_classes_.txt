@@ -1,0 +1,62 @@
+commit 1ba7cea80b63a67f45c2ea50a423fe4b92fc000c
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sun Nov 16 17:16:10 2014
+
+    Improved exception messages.
+    
+    Issue #92
+
+diff --git a/test/org/mockitousage/constructor/CreatingMocksWithConstructorTest.java b/test/org/mockitousage/constructor/CreatingMocksWithConstructorTest.java
+--- a/test/org/mockitousage/constructor/CreatingMocksWithConstructorTest.java
++++ b/test/org/mockitousage/constructor/CreatingMocksWithConstructorTest.java
+@@ -46,5 +46,10 @@
+     public void can_mock_inner_classes() {
+         InnerClass mock = mock(InnerClass.class, withSettings().useConstructor().outerInstance(this).defaultAnswer(CALLS_REAL_METHODS));
+         assertEquals("hey!", mock.getMessage());
+     }
+ 
++    static class HasConstructor {
++        HasConstructor(String x) {}
++    }
++
++    @Test
+
+commit 9e725017713095deba16eb4646ec03a103cf66f6
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sun Nov 16 14:51:25 2014
+
+    Added documentation and new convenience API in top level Mockito class.
+    
+    Issue #92
+
+diff --git a/test/org/mockitousage/constructor/CreatingMocksWithConstructorTest.java b/test/org/mockitousage/constructor/CreatingMocksWithConstructorTest.java
+--- a/test/org/mockitousage/constructor/CreatingMocksWithConstructorTest.java
++++ b/test/org/mockitousage/constructor/CreatingMocksWithConstructorTest.java
+@@ -43,7 +46,5 @@
+     public void can_mock_inner_classes() {
+         InnerClass mock = mock(InnerClass.class, withSettings().useConstructor().outerInstance(this).defaultAnswer(CALLS_REAL_METHODS));
+-
+-        //the message is a part of state of the mocked type that gets initialized in constructor
+         assertEquals("hey!", mock.getMessage());
+     }
+ 
+
+commit 016386354024cc9f76a11553ebdbc34afd44df6b
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sun Nov 16 10:18:14 2014
+
+    Basic support for creating mocks of inner classes using constructor
+    
+    Fixed #92
+
+diff --git a/test/org/mockitousage/constructor/CreatingMocksWithConstructor.java b/test/org/mockitousage/constructor/CreatingMocksWithConstructor.java
+--- a/test/org/mockitousage/constructor/CreatingMocksWithConstructor.java
++++ b/test/org/mockitousage/constructor/CreatingMocksWithConstructor.java
+@@ -39,0 +43,7 @@
++    public void can_mock_inner_classes() {
++        InnerClass mock = mock(InnerClass.class, withSettings().useConstructor().outerInstance(this).defaultAnswer(CALLS_REAL_METHODS));
++
++        //the message is a part of state of the mocked type that gets initialized in constructor
++        assertEquals("hey!", mock.getMessage());
++    }
++

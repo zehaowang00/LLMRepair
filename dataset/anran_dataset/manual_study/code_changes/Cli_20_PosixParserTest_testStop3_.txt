@@ -1,0 +1,25 @@
+commit 99aa05af2bfef3980ad8f94230cd077e8d30c5ea
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Mon Jul 28 05:47:05 2008
+
+    Fixed PosixParser when an unrecognized long option is found (CLI-165)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/branches/cli-1.x@680299 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/PosixParserTest.java b/src/test/org/apache/commons/cli/PosixParserTest.java
+--- a/src/test/org/apache/commons/cli/PosixParserTest.java
++++ b/src/test/org/apache/commons/cli/PosixParserTest.java
+@@ -159,0 +159,13 @@
++    public void testStop3() throws Exception
++    {
++        String[] args = new String[]{"--zop==1",
++                                     "-abtoast",
++                                     "--b=bar"};
++
++        CommandLine cl = parser.parse(options, args, true);
++
++        assertFalse("Confirm -a is not set", cl.hasOption("a"));
++        assertFalse("Confirm -b is not set", cl.hasOption("b"));
++        assertTrue("Confirm  3 extra args: " + cl.getArgList().size(), cl.getArgList().size() == 3);
++    }
++

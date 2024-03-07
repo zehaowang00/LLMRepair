@@ -1,0 +1,44 @@
+commit 58fac658aba985ba77f8bd0156c6d01bec8d991b
+Author: Matthew Jason Benson <mbenson@apache.org>
+Date:   Tue Jul 10 17:59:45 2007
+
+    [JXPATH-93] relational operators did not conform to XPath spec
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/jxpath/trunk@555094 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/jxpath/ri/compiler/CoreOperationTest.java b/src/test/org/apache/commons/jxpath/ri/compiler/CoreOperationTest.java
+--- a/src/test/org/apache/commons/jxpath/ri/compiler/CoreOperationTest.java
++++ b/src/test/org/apache/commons/jxpath/ri/compiler/CoreOperationTest.java
+@@ -97,1 +99,15 @@
++    public void testNodeSetOperations() {
++        assertXPathValue(context, "$array > 0", Boolean.TRUE, Boolean.class);
++        assertXPathValue(context, "$array >= 0", Boolean.TRUE, Boolean.class);
++        assertXPathValue(context, "$array = 0", Boolean.FALSE, Boolean.class);
++        assertXPathValue(context, "$array = 0.25", Boolean.TRUE, Boolean.class);
++        assertXPathValue(context, "$array = 0.5", Boolean.TRUE, Boolean.class);
++        assertXPathValue(context, "$array = 0.50000", Boolean.TRUE, Boolean.class);
++        assertXPathValue(context, "$array = 0.75", Boolean.TRUE, Boolean.class);
++        assertXPathValue(context, "$array < 1", Boolean.TRUE, Boolean.class);
++        assertXPathValue(context, "$array <= 1", Boolean.TRUE, Boolean.class);
++        assertXPathValue(context, "$array = 1", Boolean.FALSE, Boolean.class);
++        assertXPathValue(context, "$array > 1", Boolean.FALSE, Boolean.class);
++        assertXPathValue(context, "$array < 0", Boolean.FALSE, Boolean.class);
++    }
+ }
+\ No newline at end of file
+
+commit a966d3b853aa757fd5556191c6ea18ffa6591ce1
+Author: Dmitri Plotnikov <dmitri@apache.org>
+Date:   Sat Oct 19 23:48:23 2002
+
+    Complete overhaul of the test suites
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/jxpath/trunk@136823 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/jxpath/ri/compiler/CoreOperationTest.java b/src/test/org/apache/commons/jxpath/ri/compiler/CoreOperationTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/jxpath/ri/compiler/CoreOperationTest.java
+@@ -0,0 +156,1 @@
++}
+\ No newline at end of file

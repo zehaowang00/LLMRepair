@@ -1,0 +1,89 @@
+commit 48aea0ff7d027507362007415963a4b662fb10a7
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Jun 14 20:09:44 2011
+
+    Encode the null byte more correctly, because we have to be careful
+    of look ahead.
+    Contributed by kosmo.zb
+    Fixes issue 486
+    
+    R=acleung
+    DELTA=9  (4 added, 1 deleted, 4 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=2280
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1179 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -1230,6 +1230,7 @@
+   public void testZero() {
+-    assertPrint("var x ='\\0';", "var x=\"\\0\"");
+-    assertPrint("var x ='\\x00';", "var x=\"\\0\"");
+-    assertPrint("var x ='\\u0000';", "var x=\"\\0\"");
++    assertPrint("var x ='\\0';", "var x=\"\\000\"");
++    assertPrint("var x ='\\x00';", "var x=\"\\000\"");
++    assertPrint("var x ='\\u0000';", "var x=\"\\000\"");
++    assertPrint("var x ='\\u00003';", "var x=\"\\0003\"");
+   }
+ 
+
+commit ee8344091722c28c9351e78dcb4155fbfddfd1af
+Author: zhuyi@google.com <zhuyi@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Apr 15 12:10:54 2011
+
+    Codepoint U+007f should not appear raw in output
+    Fixes issue 416
+    http://code.google.com/p/closure-compiler/issues/detail?id=416
+    
+    R=johnlenz
+    DELTA=7  (6 added, 0 deleted, 1 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=1489
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1014 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -1206,5 +1206,6 @@
+   public void testZero() {
+     assertPrint("var x ='\\0';", "var x=\"\\0\"");
+     assertPrint("var x ='\\x00';", "var x=\"\\0\"");
+     assertPrint("var x ='\\u0000';", "var x=\"\\0\"");
+   }
++
+
+commit b88400ce0e9c1a0dadfd3417c256b02a82f38fe1
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Mar 17 20:03:17 2011
+
+    Special case the NUL character.
+    Fixes issue 383
+    
+    R=nicksantos
+    DELTA=7  (7 added, 0 deleted, 0 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=928
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@904 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -1177,0 +1178,5 @@
++  public void testZero() {
++    assertPrint("var x ='\\0';", "var x=\"\\0\"");
++    assertPrint("var x ='\\x00';", "var x=\"\\0\"");
++    assertPrint("var x ='\\u0000';", "var x=\"\\0\"");
++  }

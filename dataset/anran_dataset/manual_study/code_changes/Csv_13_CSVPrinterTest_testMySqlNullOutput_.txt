@@ -1,0 +1,133 @@
+commit f8b80e83417c3c7eeed1282118f64fa0e85c4787
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Mon Jan 18 21:34:19 2016
+
+    [CSV-168] CsvFormat.nullString should not be escaped. [CSV-170]
+    CSVFormat.MYSQL nullString should be "\N".
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/csv/trunk@1725407 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVPrinterTest.java b/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
+@@ -305,0 +323,120 @@
++    public void testMySqlNullOutput() throws IOException {
++        Object[] s = new String[] { "NULL", null };
++        CSVFormat format = CSVFormat.MYSQL.withQuote('"').withNullString("NULL").withQuoteMode(QuoteMode.NON_NUMERIC);
++        StringWriter writer = new StringWriter();
++        CSVPrinter printer = new CSVPrinter(writer, format);
++        printer.printRecord(s);
++        printer.close();
++        String expected = "\"NULL\"\tNULL\n";
++        assertEquals(expected, writer.toString());
++        String[] record0 = toFirstRecordValues(expected, format);
++        assertArrayEquals(new Object[2], record0);
++
++        s = new String[] { "\\N", null };
++        format = CSVFormat.MYSQL.withNullString("\\N");
++        writer = new StringWriter();
++        printer = new CSVPrinter(writer, format);
++        printer.printRecord(s);
++        printer.close();
++        expected = "\\\\N\t\\N\n";
++        assertEquals(expected, writer.toString());
++        record0 = toFirstRecordValues(expected, format);
++        assertArrayEquals(expectNulls(s, format), record0);
++
++        s = new String[] { "\\N", "A" };
++        format = CSVFormat.MYSQL.withNullString("\\N");
++        writer = new StringWriter();
++        printer = new CSVPrinter(writer, format);
++        printer.printRecord(s);
++        printer.close();
++        expected = "\\\\N\tA\n";
++        assertEquals(expected, writer.toString());
++        record0 = toFirstRecordValues(expected, format);
++        assertArrayEquals(expectNulls(s, format), record0);
++
++        s = new String[] { "\n", "A" };
++        format = CSVFormat.MYSQL.withNullString("\\N");
++        writer = new StringWriter();
++        printer = new CSVPrinter(writer, format);
++        printer.printRecord(s);
++        printer.close();
++        expected = "\\n\tA\n";
++        assertEquals(expected, writer.toString());
++        record0 = toFirstRecordValues(expected, format);
++        assertArrayEquals(expectNulls(s, format), record0);
++
++        s = new String[] { "", null };
++        format = CSVFormat.MYSQL.withNullString("NULL");
++        writer = new StringWriter();
++        printer = new CSVPrinter(writer, format);
++        printer.printRecord(s);
++        printer.close();
++        expected = "\tNULL\n";
++        assertEquals(expected, writer.toString());
++        record0 = toFirstRecordValues(expected, format);
++        assertArrayEquals(expectNulls(s, format), record0);
++
++        s = new String[] { "", null };
++        format = CSVFormat.MYSQL;
++        writer = new StringWriter();
++        printer = new CSVPrinter(writer, format);
++        printer.printRecord(s);
++        printer.close();
++        expected = "\t\\N\n";
++        assertEquals(expected, writer.toString());
++        record0 = toFirstRecordValues(expected, format);
++        assertArrayEquals(expectNulls(s, format), record0);
++
++        s = new String[] { "\\N", "", "\u000e,\\\r" };
++        format = CSVFormat.MYSQL;
++        writer = new StringWriter();
++        printer = new CSVPrinter(writer, format);
++        printer.printRecord(s);
++        printer.close();
++        expected = "\\\\N\t\t\u000e,\\\\\\r\n";
++        assertEquals(expected, writer.toString());
++        record0 = toFirstRecordValues(expected, format);
++        assertArrayEquals(expectNulls(s, format), record0);
++
++        s = new String[] { "NULL", "\\\r" };
++        format = CSVFormat.MYSQL;
++        writer = new StringWriter();
++        printer = new CSVPrinter(writer, format);
++        printer.printRecord(s);
++        printer.close();
++        expected = "NULL\t\\\\\\r\n";
++        assertEquals(expected, writer.toString());
++        record0 = toFirstRecordValues(expected, format);
++        assertArrayEquals(expectNulls(s, format), record0);
++
++        s = new String[] { "\\\r" };
++        format = CSVFormat.MYSQL;
++        writer = new StringWriter();
++        printer = new CSVPrinter(writer, format);
++        printer.printRecord(s);
++        printer.close();
++        expected = "\\\\\\r\n";
++        assertEquals(expected, writer.toString());
++        record0 = toFirstRecordValues(expected, format);
++        assertArrayEquals(expectNulls(s, format), record0);
++    }
++
++    /**
++     * Converts an input CSV array into expected output values WRT NULLs. NULL strings are converted to null values
++     * because the parser will convert these strings to null.
++     */
++    private <T> T[] expectNulls(T[] original, CSVFormat csvFormat) {
++        T[] fixed = original.clone();
++        for (int i = 0; i < fixed.length; i++) {
++            if (ObjectUtils.equals(csvFormat.getNullString(), fixed[i])) {
++                fixed[i] = null;
++            }
++        }
++        return fixed;
++    }
++
++    private String[] toFirstRecordValues(final String expected, CSVFormat format) throws IOException {
++        return CSVParser.parse(expected, format).getRecords().get(0).values();
++    }
++
++    @Test

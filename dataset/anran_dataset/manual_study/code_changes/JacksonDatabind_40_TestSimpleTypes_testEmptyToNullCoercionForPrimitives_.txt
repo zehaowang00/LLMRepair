@@ -1,0 +1,17 @@
+commit 21ca92134c900809278c987cd02d0b2335f4fb1f
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Sat Jan 30 02:01:19 2016
+
+    Fix #1095
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/deser/TestSimpleTypes.java b/src/test/java/com/fasterxml/jackson/databind/deser/TestSimpleTypes.java
+--- a/src/test/java/com/fasterxml/jackson/databind/deser/TestSimpleTypes.java
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/TestSimpleTypes.java
+@@ -262,0 +262,7 @@
++    public void testEmptyToNullCoercionForPrimitives() throws Exception {
++        _testEmptyToNullCoercion(int.class, Integer.valueOf(0));
++        _testEmptyToNullCoercion(long.class, Long.valueOf(0));
++        _testEmptyToNullCoercion(double.class, Double.valueOf(0.0));
++        _testEmptyToNullCoercion(float.class, Float.valueOf(0.0f));
++    }
++

@@ -1,0 +1,44 @@
+commit b8c2d9d9dc9aab45f83cf49ac93cfa8546e4c08e
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Mon Jul 13 18:33:28 2009
+
+    [CODEC-77] Base64 bug with empty input (new byte[0])
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/codec/trunk@793734 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/codec/binary/Base64OutputStreamTest.java b/src/test/org/apache/commons/codec/binary/Base64OutputStreamTest.java
+--- a/src/test/org/apache/commons/codec/binary/Base64OutputStreamTest.java
++++ b/src/test/org/apache/commons/codec/binary/Base64OutputStreamTest.java
+@@ -46,4 +50,12 @@
++    public void testBase64EmptyOutputStream() throws Exception {
++        byte[] emptyEncoded = new byte[0];
++        byte[] emptyDecoded = new byte[0];
++        testByteByByte(emptyEncoded, emptyDecoded, 76, CRLF);
++        testByChunk(emptyEncoded, emptyDecoded, 76, CRLF);
++    }    
++
++    /**
+      * Test the Base64OutputStream implementation
+      *
+      * @throws Exception for some failure scenarios.
+      */
+
+commit e2df85024e2ab99645a788b4b2836ba1cfdb87f5
+Author: Jochen Wiedmann <jochen@apache.org>
+Date:   Wed Jun 18 15:16:03 2008
+
+    PR: CODED-69
+    Submitted-By: Julius Davies <juliusdavies@gmail.com>
+    Added the Base64InputStream and the Base64OutputStream.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/codec/trunk@669256 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/codec/binary/Base64OutputStreamTest.java b/src/test/org/apache/commons/codec/binary/Base64OutputStreamTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/codec/binary/Base64OutputStreamTest.java
+@@ -0,0 +46,4 @@
++     * Test the Base64OutputStream implementation
++     *
++     * @throws Exception for some failure scenarios.
++     */

@@ -1,0 +1,494 @@
+commit f015344879f1bc3505bc616fc7ae517cf9f60838
+Author: Mike Mole <michael.mole@lookout.com>
+Date:   Fri Oct 28 08:03:48 2016
+
+    COMPRESS-367 Throw ZipException on invalid entry with ZipArchiveInputStream
+    
+    ZipArchiveInputStream.getNextZipEntry() throws a ZipException rather
+    than returning null if an invalid entry is encountered in order to
+    differentiate between "no more entries" and "error" conditions.
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java b/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
+--- a/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
++++ b/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
+@@ -242,35 +243,42 @@
+     public void testListAllFilesWithNestedArchive() throws Exception {
+         final File input = getFile("OSX_ArchiveWithNestedArchive.zip");
+ 
+         final List<String> results = new ArrayList<>();
++        final List<ZipException> expectedExceptions = new ArrayList<>();
+ 
+         final InputStream is = new FileInputStream(input);
+         ArchiveInputStream in = null;
+         try {
+             in = new ArchiveStreamFactory().createArchiveInputStream("zip", is);
+ 
+             ZipArchiveEntry entry = null;
+-            while((entry = (ZipArchiveEntry)in.getNextEntry()) != null) {
++            while ((entry = (ZipArchiveEntry) in.getNextEntry()) != null) {
+                 results.add(entry.getName());
+ 
+                 final ArchiveInputStream nestedIn = new ArchiveStreamFactory().createArchiveInputStream("zip", in);
+-                ZipArchiveEntry nestedEntry = null;
+-                while((nestedEntry = (ZipArchiveEntry)nestedIn.getNextEntry()) != null) {
+-                    results.add(nestedEntry.getName());
++                try {
++                    ZipArchiveEntry nestedEntry = null;
++                    while ((nestedEntry = (ZipArchiveEntry) nestedIn.getNextEntry()) != null) {
++                        results.add(nestedEntry.getName());
++                    }
++                } catch (ZipException ex) {
++                    // expected since you cannot create a final ArchiveInputStream from test3.xml
++                    expectedExceptions.add(ex);
+                 }
+-               // nested stream must not be closed here
++                // nested stream must not be closed here
+             }
+         } finally {
+             if (in != null) {
+                 in.close();
+             }
+         }
+         is.close();
+ 
+-        results.contains("NestedArchiv.zip");
+-        results.contains("test1.xml");
+-        results.contains("test2.xml");
+-        results.contains("test3.xml");
++        assertTrue(results.contains("NestedArchiv.zip"));
++        assertTrue(results.contains("test1.xml"));
++        assertTrue(results.contains("test2.xml"));
++        assertTrue(results.contains("test3.xml"));
++        assertEquals(1, expectedExceptions.size());
+     }
+ 
+     @Test
+
+commit e2d348e17210d17060394d16c491f0e20783c10c
+Author: Gary Gregory <ggregory@apache.org>
+Date:   Sat Jun 25 17:22:10 2016
+
+    Remove Redundant specification of type (Java 7).
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java b/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
+--- a/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
++++ b/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
+@@ -208,35 +208,35 @@
+     public void testListAllFilesWithNestedArchive() throws Exception {
+         final File input = getFile("OSX_ArchiveWithNestedArchive.zip");
+ 
+-        final List<String> results = new ArrayList<String>();
++        final List<String> results = new ArrayList<>();
+ 
+         final InputStream is = new FileInputStream(input);
+         ArchiveInputStream in = null;
+         try {
+             in = new ArchiveStreamFactory().createArchiveInputStream("zip", is);
+ 
+             ZipArchiveEntry entry = null;
+             while((entry = (ZipArchiveEntry)in.getNextEntry()) != null) {
+                 results.add(entry.getName());
+ 
+                 final ArchiveInputStream nestedIn = new ArchiveStreamFactory().createArchiveInputStream("zip", in);
+                 ZipArchiveEntry nestedEntry = null;
+                 while((nestedEntry = (ZipArchiveEntry)nestedIn.getNextEntry()) != null) {
+                     results.add(nestedEntry.getName());
+                 }
+                // nested stream must not be closed here
+             }
+         } finally {
+             if (in != null) {
+                 in.close();
+             }
+         }
+         is.close();
+ 
+         results.contains("NestedArchiv.zip");
+         results.contains("test1.xml");
+         results.contains("test2.xml");
+         results.contains("test3.xml");
+     }
+ 
+     @Test
+
+commit 3f2c760a4eb82d880e62a03cb9450d9dcf2793f7
+Author: ggregory <ggregory@apache.org>
+Date:   Sat Apr 9 13:10:28 2016
+
+    Add final modifier to local variables.
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java b/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
+--- a/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
++++ b/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
+@@ -208,35 +208,35 @@
+     public void testListAllFilesWithNestedArchive() throws Exception {
+         final File input = getFile("OSX_ArchiveWithNestedArchive.zip");
+ 
+-        List<String> results = new ArrayList<String>();
++        final List<String> results = new ArrayList<String>();
+ 
+         final InputStream is = new FileInputStream(input);
+         ArchiveInputStream in = null;
+         try {
+             in = new ArchiveStreamFactory().createArchiveInputStream("zip", is);
+ 
+             ZipArchiveEntry entry = null;
+             while((entry = (ZipArchiveEntry)in.getNextEntry()) != null) {
+                 results.add(entry.getName());
+ 
+-                ArchiveInputStream nestedIn = new ArchiveStreamFactory().createArchiveInputStream("zip", in);
++                final ArchiveInputStream nestedIn = new ArchiveStreamFactory().createArchiveInputStream("zip", in);
+                 ZipArchiveEntry nestedEntry = null;
+                 while((nestedEntry = (ZipArchiveEntry)nestedIn.getNextEntry()) != null) {
+                     results.add(nestedEntry.getName());
+                 }
+                // nested stream must not be closed here
+             }
+         } finally {
+             if (in != null) {
+                 in.close();
+             }
+         }
+         is.close();
+ 
+         results.contains("NestedArchiv.zip");
+         results.contains("test1.xml");
+         results.contains("test2.xml");
+         results.contains("test3.xml");
+     }
+ 
+     @Test
+
+commit 0bbe5b59af443da2c3101cb9259e7ad68152dd13
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Tue Feb 17 12:40:54 2015
+
+    COMPRESS-305 Convert all tests to JUnit4 style
+    Convert the AbstractTestCase test cases
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1660457 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java b/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
+--- a/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
++++ b/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
+@@ -199,34 +208,35 @@
+     public void testListAllFilesWithNestedArchive() throws Exception {
+         final File input = getFile("OSX_ArchiveWithNestedArchive.zip");
+ 
+         List<String> results = new ArrayList<String>();
+ 
+         final InputStream is = new FileInputStream(input);
+         ArchiveInputStream in = null;
+         try {
+             in = new ArchiveStreamFactory().createArchiveInputStream("zip", is);
+ 
+             ZipArchiveEntry entry = null;
+             while((entry = (ZipArchiveEntry)in.getNextEntry()) != null) {
+                 results.add(entry.getName());
+ 
+                 ArchiveInputStream nestedIn = new ArchiveStreamFactory().createArchiveInputStream("zip", in);
+                 ZipArchiveEntry nestedEntry = null;
+                 while((nestedEntry = (ZipArchiveEntry)nestedIn.getNextEntry()) != null) {
+                     results.add(nestedEntry.getName());
+                 }
+                // nested stream must not be closed here
+             }
+         } finally {
+             if (in != null) {
+                 in.close();
+             }
+         }
+         is.close();
+ 
+         results.contains("NestedArchiv.zip");
+         results.contains("test1.xml");
+         results.contains("test2.xml");
+         results.contains("test3.xml");
+     }
+ 
++    @Test
+
+commit 8a2f04c551c6da91e95e20d6a9e95d9468755d32
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Fri Dec 20 12:11:27 2013
+
+    Remove some unnecessary parentheses.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1552740 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java b/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
+--- a/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
++++ b/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
+@@ -193,34 +193,34 @@
+     public void testListAllFilesWithNestedArchive() throws Exception {
+         final File input = getFile("OSX_ArchiveWithNestedArchive.zip");
+ 
+         List<String> results = new ArrayList<String>();
+ 
+         final InputStream is = new FileInputStream(input);
+         ArchiveInputStream in = null;
+         try {
+             in = new ArchiveStreamFactory().createArchiveInputStream("zip", is);
+ 
+             ZipArchiveEntry entry = null;
+             while((entry = (ZipArchiveEntry)in.getNextEntry()) != null) {
+-                results.add((entry.getName()));
++                results.add(entry.getName());
+ 
+                 ArchiveInputStream nestedIn = new ArchiveStreamFactory().createArchiveInputStream("zip", in);
+                 ZipArchiveEntry nestedEntry = null;
+                 while((nestedEntry = (ZipArchiveEntry)nestedIn.getNextEntry()) != null) {
+                     results.add(nestedEntry.getName());
+                 }
+                // nested stream must not be closed here
+             }
+         } finally {
+             if (in != null) {
+                 in.close();
+             }
+         }
+         is.close();
+ 
+         results.contains("NestedArchiv.zip");
+         results.contains("test1.xml");
+         results.contains("test2.xml");
+         results.contains("test3.xml");
+     }
+ 
+
+commit 39c93f49db5bc064eba73478c339c5aee61de3fd
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Sat Mar 31 08:30:09 2012
+
+    Trailing spaces
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1307789 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java b/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
+--- a/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
++++ b/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
+@@ -168,34 +168,34 @@
+     public void testListAllFilesWithNestedArchive() throws Exception {
+         final File input = getFile("OSX_ArchiveWithNestedArchive.zip");
+-       
++
+         List<String> results = new ArrayList<String>();
+ 
+         final InputStream is = new FileInputStream(input);
+         ArchiveInputStream in = null;
+         try {
+             in = new ArchiveStreamFactory().createArchiveInputStream("zip", is);
+ 
+             ZipArchiveEntry entry = null;
+             while((entry = (ZipArchiveEntry)in.getNextEntry()) != null) {
+                 results.add((entry.getName()));
+ 
+                 ArchiveInputStream nestedIn = new ArchiveStreamFactory().createArchiveInputStream("zip", in);
+                 ZipArchiveEntry nestedEntry = null;
+                 while((nestedEntry = (ZipArchiveEntry)nestedIn.getNextEntry()) != null) {
+                     results.add(nestedEntry.getName());
+                 }
+                // nested stream must not be closed here
+             }
+         } finally {
+             if (in != null) {
+                 in.close();
+             }
+         }
+         is.close();
+-        
++
+         results.contains("NestedArchiv.zip");
+         results.contains("test1.xml");
+         results.contains("test2.xml");
+         results.contains("test3.xml");
+     }
+ 
+
+commit 3553cda8108998a2340591056ad0b2474079214b
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Sat Aug 6 09:01:16 2011
+
+    compile without warnings using -Xlint:unchecked
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1154512 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java b/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
+--- a/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
++++ b/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
+@@ -168,34 +168,34 @@
+     public void testListAllFilesWithNestedArchive() throws Exception {
+         final File input = getFile("OSX_ArchiveWithNestedArchive.zip");
+        
+-        List results = new ArrayList();
++        List<String> results = new ArrayList<String>();
+ 
+         final InputStream is = new FileInputStream(input);
+         ArchiveInputStream in = null;
+         try {
+             in = new ArchiveStreamFactory().createArchiveInputStream("zip", is);
+ 
+             ZipArchiveEntry entry = null;
+             while((entry = (ZipArchiveEntry)in.getNextEntry()) != null) {
+                 results.add((entry.getName()));
+ 
+                 ArchiveInputStream nestedIn = new ArchiveStreamFactory().createArchiveInputStream("zip", in);
+                 ZipArchiveEntry nestedEntry = null;
+                 while((nestedEntry = (ZipArchiveEntry)nestedIn.getNextEntry()) != null) {
+                     results.add(nestedEntry.getName());
+                 }
+                // nested stream must not be closed here
+             }
+         } finally {
+             if (in != null) {
+                 in.close();
+             }
+         }
+         is.close();
+         
+         results.contains("NestedArchiv.zip");
+         results.contains("test1.xml");
+         results.contains("test2.xml");
+         results.contains("test3.xml");
+     }
+ 
+
+commit a180778776229d5c6a39543dc768b76ffe8413ae
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Sat Aug 1 15:17:58 2009
+
+    check name/directory/size and lastModified read from zip is consistent with what we write
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@799909 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java b/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
+--- a/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
++++ b/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
+@@ -123,33 +126,34 @@
+     public void testListAllFilesWithNestedArchive() throws Exception {
+         final File input = getFile("OSX_ArchiveWithNestedArchive.zip");
+        
+         List results = new ArrayList();
+ 
+         final InputStream is = new FileInputStream(input);
+         ArchiveInputStream in = null;
+         try {
+             in = new ArchiveStreamFactory().createArchiveInputStream("zip", is);
+ 
+             ZipArchiveEntry entry = null;
+             while((entry = (ZipArchiveEntry)in.getNextEntry()) != null) {
+                 results.add((entry.getName()));
+ 
+                 ArchiveInputStream nestedIn = new ArchiveStreamFactory().createArchiveInputStream("zip", in);
+                 ZipArchiveEntry nestedEntry = null;
+                 while((nestedEntry = (ZipArchiveEntry)nestedIn.getNextEntry()) != null) {
+                     results.add(nestedEntry.getName());
+                 }
+                // nested stream must not be closed here
+             }
+         } finally {
+             if (in != null) {
+                 in.close();
+             }
+         }
+         is.close();
+         
+         results.contains("NestedArchiv.zip");
+         results.contains("test1.xml");
+         results.contains("test2.xml");
+         results.contains("test3.xml");
+     }
++
+
+commit ddbd61f0e75b7d98873b9a9bf6398218edcfd17b
+Author: Christian Grobmeier <grobmeier@apache.org>
+Date:   Wed Apr 22 01:51:28 2009
+
+    moved one up due one test depends on the folder contents
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@767380 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java b/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
+--- a/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
++++ b/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
+@@ -123,33 +123,33 @@
+     public void testListAllFilesWithNestedArchive() throws Exception {
+-        final File input = getFile("archives/OSX_ArchiveWithNestedArchive.zip");
++        final File input = getFile("OSX_ArchiveWithNestedArchive.zip");
+        
+         List results = new ArrayList();
+ 
+         final InputStream is = new FileInputStream(input);
+         ArchiveInputStream in = null;
+         try {
+             in = new ArchiveStreamFactory().createArchiveInputStream("zip", is);
+ 
+             ZipArchiveEntry entry = null;
+             while((entry = (ZipArchiveEntry)in.getNextEntry()) != null) {
+                 results.add((entry.getName()));
+ 
+                 ArchiveInputStream nestedIn = new ArchiveStreamFactory().createArchiveInputStream("zip", in);
+                 ZipArchiveEntry nestedEntry = null;
+                 while((nestedEntry = (ZipArchiveEntry)nestedIn.getNextEntry()) != null) {
+                     results.add(nestedEntry.getName());
+                 }
+                // nested stream must not be closed here
+             }
+         } finally {
+             if (in != null) {
+                 in.close();
+             }
+         }
+         is.close();
+         
+         results.contains("NestedArchiv.zip");
+         results.contains("test1.xml");
+         results.contains("test2.xml");
+         results.contains("test3.xml");
+     }
+
+commit 08c05022df949a1ae0ced740d6305d9374f5cd13
+Author: Christian Grobmeier <grobmeier@apache.org>
+Date:   Sun Apr 19 07:07:42 2009
+
+    added test which reads the entries from a nested archive
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@766447 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java b/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
+--- a/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
++++ b/src/test/java/org/apache/commons/compress/archivers/ZipTestCase.java
+@@ -113,0 +123,33 @@
++    public void testListAllFilesWithNestedArchive() throws Exception {
++        final File input = getFile("archives/OSX_ArchiveWithNestedArchive.zip");
++       
++        List results = new ArrayList();
++
++        final InputStream is = new FileInputStream(input);
++        ArchiveInputStream in = null;
++        try {
++            in = new ArchiveStreamFactory().createArchiveInputStream("zip", is);
++
++            ZipArchiveEntry entry = null;
++            while((entry = (ZipArchiveEntry)in.getNextEntry()) != null) {
++                results.add((entry.getName()));
++
++                ArchiveInputStream nestedIn = new ArchiveStreamFactory().createArchiveInputStream("zip", in);
++                ZipArchiveEntry nestedEntry = null;
++                while((nestedEntry = (ZipArchiveEntry)nestedIn.getNextEntry()) != null) {
++                    results.add(nestedEntry.getName());
++                }
++               // nested stream must not be closed here
++            }
++        } finally {
++            if (in != null) {
++                in.close();
++            }
++        }
++        is.close();
++        
++        results.contains("NestedArchiv.zip");
++        results.contains("test1.xml");
++        results.contains("test2.xml");
++        results.contains("test3.xml");
++    }

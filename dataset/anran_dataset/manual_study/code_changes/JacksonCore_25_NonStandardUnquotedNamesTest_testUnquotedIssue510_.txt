@@ -1,0 +1,56 @@
+commit ad47c206f4fbf22f439f3d66871757891f549f6a
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Thu Jan 17 02:06:00 2019
+
+    Fix #510
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/read/NonStandardUnquotedNamesTest.java b/src/test/java/com/fasterxml/jackson/core/read/NonStandardUnquotedNamesTest.java
+--- a/src/test/java/com/fasterxml/jackson/core/read/NonStandardUnquotedNamesTest.java
++++ b/src/test/java/com/fasterxml/jackson/core/read/NonStandardUnquotedNamesTest.java
+@@ -28,6 +35,28 @@
++    public void testUnquotedIssue510() throws Exception
++    {
++        // NOTE! Requires longer input buffer to trigger longer codepath
++        char[] fullChars = new char[4001];
++        for (int i = 0; i < 3998; i++) {
++             fullChars[i] = ' ';
++        }
++        fullChars[3998] = '{';
++        fullChars[3999] = 'a';
++        fullChars[4000] = 256;
++
++        JsonParser p = UNQUOTED_FIELDS_F.createParser(new java.io.StringReader(new String(fullChars)));
++        assertToken(JsonToken.START_OBJECT, p.nextToken());
++        try {
++            p.nextToken();
++            fail("Should not pass");
++        } catch (JsonParseException e) {
++            ; // should fail here
++        }
++        p.close();
++    }
++
+     /*
+     /****************************************************************
+     /* Secondary test methods
+     /****************************************************************
+      */
+-
++    
+
+commit 3d3dedc656e331ab1a9e28efcde96bf71c347daa
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Thu Jan 17 01:50:30 2019
+
+    Test refactoring
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/read/NonStandardUnquotedNamesTest.java b/src/test/java/com/fasterxml/jackson/core/read/NonStandardUnquotedNamesTest.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/core/read/NonStandardUnquotedNamesTest.java
+@@ -0,0 +28,6 @@
++    /*
++    /****************************************************************
++    /* Secondary test methods
++    /****************************************************************
++     */
++

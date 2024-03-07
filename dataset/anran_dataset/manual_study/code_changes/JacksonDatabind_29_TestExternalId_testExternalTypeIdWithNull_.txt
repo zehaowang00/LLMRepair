@@ -1,0 +1,82 @@
+commit 30b5469753686548ca7a590dd1bc5114181e68a9
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Wed Sep 30 00:10:19 2015
+
+    Fix #942 (slightly differently)
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java
+--- a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java
++++ b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java
+@@ -284,6 +283,19 @@
++    public void testExternalTypeIdWithNull() throws Exception
++    {
++        ObjectMapper mapper = new ObjectMapper();
++        mapper.registerSubtypes(ValueBean.class);
++        ExternalBean b;
++        b = mapper.readValue(aposToQuotes("{'bean':null,'extType':'vbean'}"),
++                ExternalBean.class);
++        assertNotNull(b);
++        b = mapper.readValue(aposToQuotes("{'extType':'vbean','bean':null}"),
++                ExternalBean.class);
++        assertNotNull(b);
++    }
++
+     /*
+     /**********************************************************
+     /* Unit tests, deserialization
+     /**********************************************************
+      */
+     
+
+commit 231be531579336ce5528ebc6ead81c09e5c5138b
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Fri Oct 26 21:19:42 2012
+
+    Fix issues #94 and #96
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java
+--- a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java
++++ b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java
+@@ -204,6 +219,6 @@
+     /*
+     /**********************************************************
+     /* Unit tests, deserialization
+     /**********************************************************
+      */
+-
++    
+
+commit e1ceccd484643cd7a8e213de14bc3a85eebb3c11
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sun Mar 4 22:52:36 2012
+
+    Fix [JACKSON-798]
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java
+--- a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java
++++ b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java
+@@ -109,6 +180,6 @@
+     /*
+     /**********************************************************
+     /* Unit tests, deserialization
+     /**********************************************************
+      */
+-    
++
+
+commit a63c2038a03c7090ce4773d6cf54809150e59350
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 03:26:53 2011
+
+    Add unit tests, almost compilable
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java
+@@ -0,0 +109,6 @@
++    /*
++    /**********************************************************
++    /* Unit tests, deserialization
++    /**********************************************************
++     */
++    

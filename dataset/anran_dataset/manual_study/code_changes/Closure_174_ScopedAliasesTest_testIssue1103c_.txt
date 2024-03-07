@@ -1,0 +1,44 @@
+commit d2b3ca66b6088c1c08437c120ae215d91d313b7c
+Author: Nick Santos <nicholas.j.santos@gmail.com>
+Date:   Sat Sep 28 15:18:56 2013
+
+    Make sure ScopedAliases doesn't crash when there's a dangling var ref. Fixes issue 1103
+    R=dimvar
+
+diff --git a/test/com/google/javascript/jscomp/ScopedAliasesTest.java b/test/com/google/javascript/jscomp/ScopedAliasesTest.java
+--- a/test/com/google/javascript/jscomp/ScopedAliasesTest.java
++++ b/test/com/google/javascript/jscomp/ScopedAliasesTest.java
+@@ -525,2 +540,9 @@
++  public void testIssue1103c() {
++    test("goog.scope(function () {" +
++         "  /** @type {number} */ var a;" +
++         "});",
++         SCOPE_NAMESPACE + "/** @type {number} */ $jscomp.scope.a;");
++  }
++
+   // Alias Recording Tests
+   // TODO(tylerg) : update these to EasyMock style tests once available
+
+commit 8c4a625cdec89e6b1fa452fbb73c6f8d4c56b701
+Author: tylerg@google.com <tylerg@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Apr 12 14:46:02 2011
+
+    Implement ScopedAliases to record Aliases from goog.scope blocks.
+    Easymock Dependency pulleded out for now to get the Changes working.  Will pull in and update tests as soon as dependency can be added to builds.
+    
+    R=nicksantos
+    DELTA=206  (188 added, 2 deleted, 16 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=1371
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@999 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/ScopedAliasesTest.java b/test/com/google/javascript/jscomp/ScopedAliasesTest.java
+--- a/test/com/google/javascript/jscomp/ScopedAliasesTest.java
++++ b/test/com/google/javascript/jscomp/ScopedAliasesTest.java
+@@ -378,0 +391,2 @@
++  // Alias Recording Tests
++  // TODO(tylerg) : update these to EasyMock style tests once available

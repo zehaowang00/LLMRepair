@@ -1,0 +1,69 @@
+commit bd8f05c4dda4b5b00e525e08fd6c95d256423c97
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Thu Jun 4 16:07:29 2009
+
+    fixed detection of not positive definite matrices
+    JIRA: MATH-274
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@781845 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/linear/CholeskyDecompositionImplTest.java b/src/test/org/apache/commons/math/linear/CholeskyDecompositionImplTest.java
+--- a/src/test/org/apache/commons/math/linear/CholeskyDecompositionImplTest.java
++++ b/src/test/org/apache/commons/math/linear/CholeskyDecompositionImplTest.java
+@@ -88,17 +82,12 @@
+-    public void testNotPositiveDefinite() {
+-        try {
+-            new CholeskyDecompositionImpl(MatrixUtils.createRealMatrix(new double[][] {
+-                    { 14, 11, 13, 15, 24 },
+-                    { 11, 34, 13, 8,  25 },
+-                    { 13, 13, 14, 15, 21 },
+-                    { 15, 8,  15, 18, 23 },
+-                    { 24, 25, 21, 23, 45 }
+-            }));
+-        } catch (NotPositiveDefiniteMatrixException e) {
+-            // expected behavior
+-        } catch (Exception e) {
+-            fail("wrong exception caught");
+-        }
++    public void testMath274() throws MathException {
++        new CholeskyDecompositionImpl(MatrixUtils.createRealMatrix(new double[][] {
++                { 0.40434286, -0.09376327, 0.30328980, 0.04909388 },
++                {-0.09376327,  0.10400408, 0.07137959, 0.04762857 },
++                { 0.30328980,  0.07137959, 0.30458776, 0.04882449 },
++                { 0.04909388,  0.04762857, 0.04882449, 0.07543265 }
++            
++        }));
+     }
+ 
+     /** test A = LLT */
++    @Test
+
+commit 4b1e08ea11ba68f8900b6a6f0fd423715c2c0fd9
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sun Feb 15 12:53:32 2009
+
+    added Cholesky decomposition
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@744708 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/linear/CholeskyDecompositionImplTest.java b/src/test/org/apache/commons/math/linear/CholeskyDecompositionImplTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/math/linear/CholeskyDecompositionImplTest.java
+@@ -0,0 +81,17 @@
++    public void testNotPositiveDefinite() {
++        try {
++            new CholeskyDecompositionImpl(MatrixUtils.createRealMatrix(new double[][] {
++                    { 14, 11, 13, 15, 24 },
++                    { 11, 34, 13, 8,  25 },
++                    { 13, 13, 14, 15, 21 },
++                    { 15, 8,  15, 18, 23 },
++                    { 24, 25, 21, 23, 45 }
++            }));
++        } catch (NotPositiveDefiniteMatrixException e) {
++            // expected behavior
++        } catch (Exception e) {
++            fail("wrong exception caught");
++        }
++    }
++
++    /** test A = LLT */

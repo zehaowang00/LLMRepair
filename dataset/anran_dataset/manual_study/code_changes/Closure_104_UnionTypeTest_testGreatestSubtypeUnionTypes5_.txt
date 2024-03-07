@@ -1,0 +1,48 @@
+commit 67289ae4cbaba3ae70cd2e8fb92f3f2898039dfb
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Feb 22 17:55:41 2010
+
+    Fixes a bug in getGreatestSubtype (Andrew)
+    
+    Fixes some typos in html5 externs. Fixes issue 114. (Nick)
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@113 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/rhino/jstype/UnionTypeTest.java b/test/com/google/javascript/rhino/jstype/UnionTypeTest.java
+--- a/test/com/google/javascript/rhino/jstype/UnionTypeTest.java
++++ b/test/com/google/javascript/rhino/jstype/UnionTypeTest.java
+@@ -151,6 +157,9 @@
+-        numStr.getGreatestSubtype(ERROR_TYPE));
++  public void testGreatestSubtypeUnionTypes5() throws Exception {
++    JSType errUnion = createUnionType(EVAL_ERROR_TYPE, URI_ERROR_TYPE);
++    assertEquals(NO_OBJECT_TYPE,
++        errUnion.getGreatestSubtype(STRING_OBJECT_TYPE));
+   }
+ 
+   /**
+    * Tests subtyping of union types.
+    */
+
+commit 1be1c2636ef14071afa7da5cb8988972bd90149f
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Feb 22 14:05:09 2010
+
+    Fix getGreatestSubtype for UnionTypes by always returning the meet of
+    the two types. (Andrew)
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@112 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/rhino/jstype/UnionTypeTest.java b/test/com/google/javascript/rhino/jstype/UnionTypeTest.java
+--- /dev/null
++++ b/test/com/google/javascript/rhino/jstype/UnionTypeTest.java
+@@ -0,0 +151,6 @@
++        numStr.getGreatestSubtype(ERROR_TYPE));
++  }
++
++  /**
++   * Tests subtyping of union types.
++   */

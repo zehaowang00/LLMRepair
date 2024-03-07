@@ -1,0 +1,111 @@
+commit d2a5bc02c002acfa220ce8bad23b9e8af137f47d
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Wed Sep 1 09:45:55 2010
+
+    MATH-370
+    Removed deprecated methods.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@991535 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/util/MathUtilsTest.java b/src/test/java/org/apache/commons/math/util/MathUtilsTest.java
+--- a/src/test/java/org/apache/commons/math/util/MathUtilsTest.java
++++ b/src/test/java/org/apache/commons/math/util/MathUtilsTest.java
+@@ -442,21 +442,23 @@
+     public void testArrayEquals() {
+         assertFalse(MathUtils.equals(new double[] { 1d }, null));
+         assertFalse(MathUtils.equals(null, new double[] { 1d }));
+         assertTrue(MathUtils.equals((double[]) null, (double[]) null));
+ 
+         assertFalse(MathUtils.equals(new double[] { 1d }, new double[0]));
+         assertTrue(MathUtils.equals(new double[] { 1d }, new double[] { 1d }));
+         assertTrue(MathUtils.equals(new double[] {
+-                                      Double.NaN, Double.POSITIVE_INFINITY,
++                                      Double.POSITIVE_INFINITY,
+                                       Double.NEGATIVE_INFINITY, 1d, 0d
+                                     }, new double[] {
+-                                      Double.NaN, Double.POSITIVE_INFINITY,
++                                      Double.POSITIVE_INFINITY,
+                                       Double.NEGATIVE_INFINITY, 1d, 0d
+                                     }));
++        assertFalse(MathUtils.equals(new double[] { Double.NaN },
++                                     new double[] { Double.NaN }));
+         assertFalse(MathUtils.equals(new double[] { Double.POSITIVE_INFINITY },
+                                      new double[] { Double.NEGATIVE_INFINITY }));
+         assertFalse(MathUtils.equals(new double[] { 1d },
+-                                     new double[] { FastMath.nextAfter(1d, 2d) }));
++                                     new double[] { FastMath.nextAfter(FastMath.nextAfter(1d, 2d), 2d) }));
+ 
+     }
+ 
+
+commit 80b1e90b42a34856b61cec628fcea6633d1000cd
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sun Aug 29 18:04:09 2010
+
+    added FastMath and used it everywhere in replacement of java.util.Math
+    the unit tests have not been added yet (waiting for dfp library addition)
+    JIRA: MATH-375
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@990658 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/util/MathUtilsTest.java b/src/test/java/org/apache/commons/math/util/MathUtilsTest.java
+--- a/src/test/java/org/apache/commons/math/util/MathUtilsTest.java
++++ b/src/test/java/org/apache/commons/math/util/MathUtilsTest.java
+@@ -442,21 +442,21 @@
+     public void testArrayEquals() {
+         assertFalse(MathUtils.equals(new double[] { 1d }, null));
+         assertFalse(MathUtils.equals(null, new double[] { 1d }));
+         assertTrue(MathUtils.equals((double[]) null, (double[]) null));
+ 
+         assertFalse(MathUtils.equals(new double[] { 1d }, new double[0]));
+         assertTrue(MathUtils.equals(new double[] { 1d }, new double[] { 1d }));
+         assertTrue(MathUtils.equals(new double[] {
+                                       Double.NaN, Double.POSITIVE_INFINITY,
+                                       Double.NEGATIVE_INFINITY, 1d, 0d
+                                     }, new double[] {
+                                       Double.NaN, Double.POSITIVE_INFINITY,
+                                       Double.NEGATIVE_INFINITY, 1d, 0d
+                                     }));
+         assertFalse(MathUtils.equals(new double[] { Double.POSITIVE_INFINITY },
+                                      new double[] { Double.NEGATIVE_INFINITY }));
+         assertFalse(MathUtils.equals(new double[] { 1d },
+-                                     new double[] { MathUtils.nextAfter(1d, 2d) }));
++                                     new double[] { FastMath.nextAfter(1d, 2d) }));
+ 
+     }
+ 
+
+commit b8a46f6657147be4ddc194c04bcbd5aa00abf23f
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Fri Feb 8 06:22:35 2008
+
+    added equals and hash methods for double arrays (supporting null) in MathUtils
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@619836 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/util/MathUtilsTest.java b/src/test/org/apache/commons/math/util/MathUtilsTest.java
+--- a/src/test/org/apache/commons/math/util/MathUtilsTest.java
++++ b/src/test/org/apache/commons/math/util/MathUtilsTest.java
+@@ -212,0 +212,21 @@
++    public void testArrayEquals() {
++        assertFalse(MathUtils.equals(new double[] { 1d }, null));
++        assertFalse(MathUtils.equals(null, new double[] { 1d }));
++        assertTrue(MathUtils.equals((double[]) null, (double[]) null));
++
++        assertFalse(MathUtils.equals(new double[] { 1d }, new double[0]));
++        assertTrue(MathUtils.equals(new double[] { 1d }, new double[] { 1d }));
++        assertTrue(MathUtils.equals(new double[] {
++                                      Double.NaN, Double.POSITIVE_INFINITY,
++                                      Double.NEGATIVE_INFINITY, 1d, 0d
++                                    }, new double[] {
++                                      Double.NaN, Double.POSITIVE_INFINITY,
++                                      Double.NEGATIVE_INFINITY, 1d, 0d
++                                    }));
++        assertFalse(MathUtils.equals(new double[] { Double.POSITIVE_INFINITY },
++                                     new double[] { Double.NEGATIVE_INFINITY }));
++        assertFalse(MathUtils.equals(new double[] { 1d },
++                                     new double[] { MathUtils.nextAfter(1d, 2d) }));
++
++    }
++

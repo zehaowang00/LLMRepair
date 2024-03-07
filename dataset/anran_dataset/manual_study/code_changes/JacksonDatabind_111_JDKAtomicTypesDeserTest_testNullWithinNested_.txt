@@ -1,0 +1,36 @@
+commit f36222e5c0b318e2b739e2b77b93c5d2c919413f
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Tue May 7 23:48:24 2019
+
+    Fix #2303
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/deser/jdk/JDKAtomicTypesTest.java b/src/test/java/com/fasterxml/jackson/databind/deser/jdk/JDKAtomicTypesDeserTest.java
+--- a/src/test/java/com/fasterxml/jackson/databind/deser/jdk/JDKAtomicTypesTest.java
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/jdk/JDKAtomicTypesDeserTest.java
+@@ -281,1 +288,14 @@
++    public void testNullWithinNested() throws Exception
++    {
++        final ObjectReader r = MAPPER.readerFor(MyBean2303.class);
++        MyBean2303 intRef = r.readValue(" {\"refRef\": 2 } ");
++        assertNotNull(intRef.refRef);
++        assertNotNull(intRef.refRef.get());
++        assertEquals(intRef.refRef.get().get(), new Integer(2));
++
++        MyBean2303 nullRef = r.readValue(" {\"refRef\": null } ");
++        assertNotNull(nullRef.refRef);
++        assertNotNull(nullRef.refRef.get());
++        assertNull(nullRef.refRef.get().get());
++    }
+ }
+
+commit a63c2038a03c7090ce4773d6cf54809150e59350
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 03:26:53 2011
+
+    Add unit tests, almost compilable
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/deser/TestSimpleAtomicTypes.java b/src/test/java/com/fasterxml/jackson/databind/deser/TestSimpleAtomicTypes.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/TestSimpleAtomicTypes.java
+@@ -0,0 +45,1 @@
++}

@@ -1,0 +1,56 @@
+commit 4b0dde413a3c38a77461ac64ad278a042d6eea68
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sat Apr 14 13:48:29 2012
+
+    If a node has no parent, return null on previousSibling and nextSibling instead of throwing a null pointer exception.
+    
+    Fixes #184
+
+diff --git a/src/test/java/org/jsoup/nodes/NodeTest.java b/src/test/java/org/jsoup/nodes/NodeTest.java
+index 2db32db2..16fad9c2 100644
+--- a/src/test/java/org/jsoup/nodes/NodeTest.java
++++ b/src/test/java/org/jsoup/nodes/NodeTest.java
+@@ -3,9 +3,12 @@
+ import org.jsoup.Jsoup;
+ import org.jsoup.TextUtil;
+ import org.jsoup.parser.Tag;
++import org.jsoup.select.Elements;
+ import org.jsoup.select.NodeVisitor;
+ import org.junit.Test;
+ 
++import java.util.List;
++
+ import static org.junit.Assert.*;
+ /**
+  Tests Nodes
+@@ -178,4 +181,30 @@ public void tail(Node node, int depth) {
+         });
+         assertEquals("<div><p><#text></#text></p></div>", accum.toString());
+     }
++
++    @Test public void orphanNodeReturnsNullForSiblingElements() {
++        Node node = new Element(Tag.valueOf("p"), "");
++        Element el = new Element(Tag.valueOf("p"), "");
++
++        assertEquals(0, node.siblingIndex());
++        assertEquals(0, node.siblingNodes().size());
++
++        assertNull(node.previousSibling());
++        assertNull(node.nextSibling());
++
++        assertEquals(0, el.siblingElements().size());
++        assertNull(el.previousElementSibling());
++        assertNull(el.nextElementSibling());
++    }
++
++    @Test public void nodeIsNotASiblingOfItself() {
++        Document doc = Jsoup.parse("<div><p>One<p>Two<p>Three</div>");
++        Element p2 = doc.select("p").get(1);
++
++        assertEquals("Two", p2.text());
++        List<Node> nodes = p2.siblingNodes();
++        assertEquals(2, nodes.size());
++        assertEquals("<p>One</p>", nodes.get(0).outerHtml());
++        assertEquals("<p>Three</p>", nodes.get(1).outerHtml());
++    }
+ }

@@ -1,0 +1,58 @@
+commit f5bcee992bf149fa39f9eafc870ea2046d5809b4
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Dec 6 14:03:54 2011
+
+    Rewrite how AnalyzePrototypeProperties reasons about contextual information.
+    This fixes a lot of bugs in how local and captured variables are handled.
+    Fixes issue 600.
+    
+    R=johnlenz
+    DELTA=344  (260 added, 15 deleted, 69 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3915
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1662 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CrossModuleMethodMotionTest.java b/test/com/google/javascript/jscomp/CrossModuleMethodMotionTest.java
+--- a/test/com/google/javascript/jscomp/CrossModuleMethodMotionTest.java
++++ b/test/com/google/javascript/jscomp/CrossModuleMethodMotionTest.java
+@@ -433,1 +534,20 @@
++  public void testIssue600e() {
++    testSame(
++        createModuleChain(
++            "var jQuery2 = function() {};\n" +
++            "(function() {" +
++            "  var theLoneliestNumber = 1;\n" +
++            "  jQuery2.prototype = {\n" +
++            "    size: function() {\n" +
++            "      return theLoneliestNumber;\n" +
++            "    }\n" +
++            "  };\n" +
++            "})();",
++
++            "(function() {" +
++            "  var div = jQuery2('div');" +
++            "  div.size();" +
++            "})();"));
++  }
++
+ }
+
+commit 6b49cfd9022fe111bdad745c78ea877fbc2f7ba3
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 3 18:51:57 2009
+
+    Initial commit.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CrossModuleMethodMotionTest.java b/test/com/google/javascript/jscomp/CrossModuleMethodMotionTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/CrossModuleMethodMotionTest.java
+@@ -0,0 +258,1 @@
++}

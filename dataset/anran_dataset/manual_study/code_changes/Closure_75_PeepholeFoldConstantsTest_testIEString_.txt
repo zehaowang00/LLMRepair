@@ -1,0 +1,140 @@
+commit c6cc58a9bc617483366141386e047b085b4e83ff
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Apr 4 13:02:56 2011
+
+    Fix "string-to-number" conversions in the presense of verical tabs.
+    Fixes issue 395.
+    
+    R=nicksantos
+    DELTA=20  (14 added, 1 deleted, 5 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=1246
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@963 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+--- a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
++++ b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+@@ -991,24 +991,28 @@
++  public void testIEString() {
++    testSame("!+'\\v1'");
++  }
++
+   private static final List<String> LITERAL_OPERANDS =
+       ImmutableList.of(
+           "null",
+           "undefined",
+           "void 0",
+           "true",
+           "false",
+           "0",
+           "1",
+           "''",
+           "'123'",
+           "'abc'",
+           "'def'",
+           "NaN",
+           "Infinity"
+           // TODO(nicksantos): Add more literals
+           //-Infinity
+           //"({})",
+           //"[]",
+           //"[0]",
+           //"Object",
+           //"(function() {})"
+           );
+ 
+
+commit bb877849306e221202b283f9b8eb3873d7bdc9ae
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Wed Jan 19 18:22:46 2011
+
+    More constant folding tweaks.
+    - Remove extraneous unary "+"
+    - Convert number to integer for BIT ops (not shift)
+    - reduce literals in numberic contexts
+    
+    R=nicksantos
+    DELTA=275  (225 added, 30 deleted, 20 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=319
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@712 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+--- a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
++++ b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+@@ -796,22 +903,24 @@
+   private static final List<String> LITERAL_OPERANDS =
+       ImmutableList.of(
+           "null",
+           "undefined",
+           "void 0",
+           "true",
+           "false",
+           "0",
+           "1",
+           "''",
++          "'123'",
+           "'abc'",
+           "'def'",
+           "NaN",
+           "Infinity"
+           // TODO(nicksantos): Add more literals
++          //-Infinity
+           //"({})",
+           //"[]",
+           //"[0]",
+           //"Object",
+           //"(function() {})"
+           );
+ 
+
+commit eaaa156632369f88e9667f55c7761cef8367cf57
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 30 15:10:26 2010
+
+    Create some exhaustive tests for binary ops
+    
+    R=johnlenz
+    DELTA=181  (180 added, 0 deleted, 1 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=27
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@577 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+--- a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
++++ b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+@@ -716,0 +738,22 @@
++  private static final List<String> LITERAL_OPERANDS =
++      ImmutableList.of(
++          "null",
++          "undefined",
++          "void 0",
++          "true",
++          "false",
++          "0",
++          "1",
++          "''",
++          "'abc'",
++          "'def'",
++          "NaN",
++          "Infinity"
++          // TODO(nicksantos): Add more literals
++          //"({})",
++          //"[]",
++          //"[0]",
++          //"Object",
++          //"(function() {})"
++          );
++

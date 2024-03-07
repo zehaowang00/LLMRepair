@@ -1,0 +1,42 @@
+commit 196e63174afdb3df1529c1b97bb8437b16831cc3
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sun Mar 10 08:01:00 2013
+
+    Fixed creation of generic array.
+    
+    Thanks to Piotr Wydrych.
+    
+    JIRA: MATH-942
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1454840 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math3/distribution/DiscreteRealDistributionTest.java b/src/test/java/org/apache/commons/math3/distribution/DiscreteRealDistributionTest.java
+--- a/src/test/java/org/apache/commons/math3/distribution/DiscreteRealDistributionTest.java
++++ b/src/test/java/org/apache/commons/math3/distribution/DiscreteRealDistributionTest.java
+@@ -202,1 +208,8 @@
++    public void testIssue942() {
++        List<Pair<Object,Double>> list = new ArrayList<Pair<Object, Double>>();
++        list.add(new Pair<Object, Double>(new Object() {}, new Double(0)));
++        list.add(new Pair<Object, Double>(new Object() {}, new Double(1)));
++        Assert.assertEquals(1, new DiscreteDistribution<Object>(list).sample(1).length);
++    }
++
+ }
+
+commit bfb0859514bc4f8412653c9e418c5cc9820d0d44
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Fri Mar 8 10:59:29 2013
+
+    Added discrete distributions.
+    
+    Patch contributed by Piotr Wydrych.
+    
+    JIRA: MATH-941
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1454439 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math3/distribution/DiscreteRealDistributionTest.java b/src/test/java/org/apache/commons/math3/distribution/DiscreteRealDistributionTest.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/math3/distribution/DiscreteRealDistributionTest.java
+@@ -0,0 +202,1 @@
++}

@@ -1,0 +1,18 @@
+commit 029413a6e381bb04b7b0a420730d3119e9cc0961
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Fri Apr 28 00:10:46 2017
+
+    Fix #1592
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/introspect/TypeCoercion1592Test.java b/src/test/java/com/fasterxml/jackson/databind/introspect/TypeCoercion1592Test.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/introspect/TypeCoercion1592Test.java
+@@ -0,0 +28,8 @@
++    public void testTypeCoercion1592() throws Exception
++    {
++        // first, serialize
++        MAPPER.writeValueAsString(new Bean1592());
++        Bean1592 result = MAPPER.readValue("{}", Bean1592.class);
++        assertNotNull(result);
++    }
++}

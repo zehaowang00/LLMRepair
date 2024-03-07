@@ -1,0 +1,52 @@
+commit 5909c3db59b16886917456ab950ef9661a7fe6b1
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Oct 4 21:25:00 2011
+
+    numbers are hard!
+    fixes issue 569
+    
+    R=johnlenz
+    DELTA=15  (14 added, 0 deleted, 1 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3410
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1491 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -1257,1 +1257,15 @@
++  public void testNumericKeys() {
++    assertPrint("var x = {010: 1};", "var x={8:1}");
++    assertPrint("var x = {'010': 1};", "var x={\"010\":1}");
++
++    assertPrint("var x = {0x10: 1};", "var x={16:1}");
++    assertPrint("var x = {'0x10': 1};", "var x={\"0x10\":1}");
++
++    // I was surprised at this result too.
++    assertPrint("var x = {.2: 1};", "var x={\"0.2\":1}");
++    assertPrint("var x = {'.2': 1};", "var x={\".2\":1}");
++
++    assertPrint("var x = {0.2: 1};", "var x={\"0.2\":1}");
++    assertPrint("var x = {'0.2': 1};", "var x={\"0.2\":1}");
++  }
+ }
+
+commit 6b49cfd9022fe111bdad745c78ea877fbc2f7ba3
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 3 18:51:57 2009
+
+    Initial commit.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -0,0 +619,1 @@
++}

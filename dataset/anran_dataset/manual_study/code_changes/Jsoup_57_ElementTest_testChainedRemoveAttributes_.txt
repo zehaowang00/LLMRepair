@@ -1,0 +1,32 @@
+commit 2c58e975ab00eb369ee3dfbba07a4a78a1ef9e19
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Wed Oct 26 15:58:24 2016
+
+    Remove attributes using iterator to avoid CMEs.
+    
+    Fixes #759
+
+diff --git a/src/test/java/org/jsoup/nodes/ElementTest.java b/src/test/java/org/jsoup/nodes/ElementTest.java
+index e4e61821..6eef9a96 100644
+--- a/src/test/java/org/jsoup/nodes/ElementTest.java
++++ b/src/test/java/org/jsoup/nodes/ElementTest.java
+@@ -957,4 +957,19 @@ public void testNamespacedElements() {
+         assertEquals(1, els.size());
+         assertEquals("html > body > fb|comments", els.get(0).cssSelector());
+     }
++
++    @Test
++    public void testChainedRemoveAttributes() {
++        String html = "<a one two three four>Text</a>";
++        Document doc = Jsoup.parse(html);
++        Element a = doc.select("a").first();
++        a
++            .removeAttr("zero")
++            .removeAttr("one")
++            .removeAttr("two")
++            .removeAttr("three")
++            .removeAttr("four")
++            .removeAttr("five");
++        assertEquals("<a>Text</a>", a.outerHtml());
++    }
+ }

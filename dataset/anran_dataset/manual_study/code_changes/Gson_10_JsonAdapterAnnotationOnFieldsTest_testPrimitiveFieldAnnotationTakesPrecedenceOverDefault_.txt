@@ -1,0 +1,25 @@
+commit 3ff16c30dbcd2a66209935a3e71a5f21f696d896
+Author: Inderjeet Singh <inder@peel.com>
+Date:   Tue May 17 16:30:59 2016
+
+    Don't use a runtime wrapper if a JsonAdapter annotation is present on a field.
+    
+    This ensures that JsonAdapter annotation works correctly on a primitive field.
+    This is a potentially backward incompatible change.
+
+diff --git a/gson/src/test/java/com/google/gson/functional/JsonAdapterAnnotationOnFieldsTest.java b/gson/src/test/java/com/google/gson/functional/JsonAdapterAnnotationOnFieldsTest.java
+--- a/gson/src/test/java/com/google/gson/functional/JsonAdapterAnnotationOnFieldsTest.java
++++ b/gson/src/test/java/com/google/gson/functional/JsonAdapterAnnotationOnFieldsTest.java
+@@ -223,0 +233,12 @@
++  public void testPrimitiveFieldAnnotationTakesPrecedenceOverDefault() {
++    Gson gson = new Gson();
++    String json = gson.toJson(new GadgetWithPrimitivePart(42));
++    assertEquals("{\"part\":\"42\"}", json);
++    GadgetWithPrimitivePart gadget = gson.fromJson(json, GadgetWithPrimitivePart.class);
++    assertEquals(42, gadget.part);
++  }
++
++  private static final class GadgetWithPrimitivePart {
++    @JsonAdapter(LongToStringTypeAdapterFactory.class)
++    final long part;
++

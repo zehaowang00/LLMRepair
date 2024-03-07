@@ -1,0 +1,16 @@
+commit 1dfc3e3a2cd42a1b890596038b9c1fdd8f9391c2
+Author: Hugh Hamill <hughwphamill@gmail.com>
+Date:   Fri Sep 26 06:59:22 2014
+
+    Adding more appropriate .equals() method to DelegatingMethod
+
+diff --git a/test/org/mockito/internal/creation/DelegatingMethodTest.java b/test/org/mockito/internal/creation/DelegatingMethodTest.java
+--- /dev/null
++++ b/test/org/mockito/internal/creation/DelegatingMethodTest.java
+@@ -0,0 +28,6 @@
++    public void equals_should_return_true_when_equal() throws Exception {
++        DelegatingMethod equal = new DelegatingMethod(someMethod);
++        assertTrue(delegatingMethod.equals(equal));
++    }
++
++    @Test

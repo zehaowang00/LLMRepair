@@ -1,0 +1,608 @@
+commit 29f1d08cebf3e13af884b6155988c0bf90dc51bf
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Mon Mar 30 11:07:54 2009
+
+    make closeArchiveEntry a NOP if called repeatedly.  This makes ArTestCase fail for all platforms consistently 8-)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@760000 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/ArTestCase.java b/src/test/java/org/apache/commons/compress/archivers/ArTestCase.java
+--- a/src/test/java/org/apache/commons/compress/archivers/ArTestCase.java
++++ b/src/test/java/org/apache/commons/compress/archivers/ArTestCase.java
+@@ -89,89 +89,92 @@
+     public void testArDelete() throws Exception {
+         final File output = new File(dir, "bla.ar");
+ 
++        final File file1 = getFile("test1.xml");
++        final File file2 = getFile("test2.xml");
+         {
+             // create
+-            final File file1 = getFile("test1.xml");
+-            final File file2 = getFile("test2.xml");
+ 
+             final OutputStream out = new FileOutputStream(output);
+             final ArchiveOutputStream os = new ArchiveStreamFactory().createArchiveOutputStream("ar", out);
+             os.putArchiveEntry(new ArArchiveEntry("test1.xml", file1.length()));
+             IOUtils.copy(new FileInputStream(file1), os);
+             os.closeArchiveEntry();
+ 
+             os.putArchiveEntry(new ArArchiveEntry("test2.xml", file2.length()));
+             IOUtils.copy(new FileInputStream(file2), os);
+             os.closeArchiveEntry();
+             os.close();
+             out.close();
+         }
+ 
+-        assertEquals(282, output.length());
++        assertEquals(8
++                     + 60 + file1.length() + (file1.length() % 2)
++                     + 60 + file2.length() + (file2.length() % 2),
++                     output.length());
+ 
+         final File output2 = new File(dir, "bla2.ar");
+ 
+         int copied = 0;
+         int deleted = 0;
+ 
+         {
+             // remove all but one file
+ 
+             final InputStream is = new FileInputStream(output);
+             final OutputStream os = new FileOutputStream(output2);
+             final ArchiveOutputStream aos = new ArchiveStreamFactory().createArchiveOutputStream("ar", os);
+             final ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(new BufferedInputStream(is));
+             while(true) {
+                 final ArArchiveEntry entry = (ArArchiveEntry)ais.getNextEntry();
+                 if (entry == null) {
+                     break;
+                 }
+ 
+                 if ("test1.xml".equals(entry.getName())) {
+                     aos.putArchiveEntry(entry);
+                     IOUtils.copy(ais, aos);
+                     aos.closeArchiveEntry();
+                     copied++;
+                 } else {
+                     IOUtils.copy(ais, new ByteArrayOutputStream());
+                     deleted++;
+                 }
+ 
+             }
+             ais.close();
+             aos.close();
+             is.close();
+             os.close();
+         }
+ 
+         assertEquals(1, copied);
+         assertEquals(1, deleted);
+         assertEquals(144, output2.length());
+ 
+         long files = 0;
+         long sum = 0;
+ 
+         {
+             final InputStream is = new FileInputStream(output2);
+             final ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(new BufferedInputStream(is));
+             while(true) {
+                 final ArArchiveEntry entry = (ArArchiveEntry)ais.getNextEntry();
+                 if (entry == null) {
+                     break;
+                 }
+ 
+                 IOUtils.copy(ais, new ByteArrayOutputStream());
+ 
+                 sum +=  entry.getLength();
+                 files++;
+             }
+             ais.close();
+             is.close();
+         }
+ 
+         assertEquals(1, files);
+         assertEquals(76, sum);
+ 
+     }
+ 
+ }
+
+commit e0b8b9495baf6d69ba7d773539faec09405c6014
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Mon Mar 30 10:41:14 2009
+
+    whitespace
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@759992 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/ArTestCase.java b/src/test/java/org/apache/commons/compress/archivers/ArTestCase.java
+--- a/src/test/java/org/apache/commons/compress/archivers/ArTestCase.java
++++ b/src/test/java/org/apache/commons/compress/archivers/ArTestCase.java
+@@ -87,91 +89,89 @@
+-	}
+-
+-	public void testArDelete() throws Exception {
+-		final File output = new File(dir, "bla.ar");
+-		
+-		{
+-			// create
+-			final File file1 = getFile("test1.xml");
+-			final File file2 = getFile("test2.xml");
+-			
+-			final OutputStream out = new FileOutputStream(output);
+-	        final ArchiveOutputStream os = new ArchiveStreamFactory().createArchiveOutputStream("ar", out);
+-			os.putArchiveEntry(new ArArchiveEntry("test1.xml", file1.length()));
+-			IOUtils.copy(new FileInputStream(file1), os);
+-			os.closeArchiveEntry();
+-			
+-			os.putArchiveEntry(new ArArchiveEntry("test2.xml", file2.length()));
+-			IOUtils.copy(new FileInputStream(file2), os);
+-			os.closeArchiveEntry();
+-			os.close();
+-			out.close();
+-		}
+-		
+-		assertEquals(282, output.length());
+-		
+-		final File output2 = new File(dir, "bla2.ar");		
+-
+-		int copied = 0;
+-		int deleted = 0;
+-
+-		{
+-			// remove all but one file
+-
+-			final InputStream is = new FileInputStream(output);
+-			final OutputStream os = new FileOutputStream(output2);
+-			final ArchiveOutputStream aos = new ArchiveStreamFactory().createArchiveOutputStream("ar", os);
+-			final ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(new BufferedInputStream(is));
+-			while(true) {
+-				final ArArchiveEntry entry = (ArArchiveEntry)ais.getNextEntry();
+-				if (entry == null) {
+-					break;
+-				}
+-				
+-				if ("test1.xml".equals(entry.getName())) {
+-					aos.putArchiveEntry(entry);
+-					IOUtils.copy(ais, aos);
+-					aos.closeArchiveEntry();
+-					copied++;
+-				} else {
+-			        IOUtils.copy(ais, new ByteArrayOutputStream());
+-			        deleted++;
+-				}
+-			
+-			}
+-			ais.close();
+-			aos.close();
+-			is.close();
+-			os.close();			
+-		}
+-
+-		assertEquals(1, copied);
+-		assertEquals(1, deleted);
+-		assertEquals(144, output2.length());
+-		
+-		long files = 0;
+-		long sum = 0;
+-
+-		{
+-			final InputStream is = new FileInputStream(output2);
+-			final ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(new BufferedInputStream(is));
+-			while(true) {
+-				final ArArchiveEntry entry = (ArArchiveEntry)ais.getNextEntry();
+-				if (entry == null) {
+-					break;
+-				}
+-				
+-		        IOUtils.copy(ais, new ByteArrayOutputStream());
+-		        
+-		        sum +=  entry.getLength();
+-		        files++;
+-			}
+-			ais.close();
+-			is.close();			
+-		}
+-
+-		assertEquals(1, files);
+-		assertEquals(76, sum);
+-		
+-	}
++    public void testArDelete() throws Exception {
++        final File output = new File(dir, "bla.ar");
++
++        {
++            // create
++            final File file1 = getFile("test1.xml");
++            final File file2 = getFile("test2.xml");
++
++            final OutputStream out = new FileOutputStream(output);
++            final ArchiveOutputStream os = new ArchiveStreamFactory().createArchiveOutputStream("ar", out);
++            os.putArchiveEntry(new ArArchiveEntry("test1.xml", file1.length()));
++            IOUtils.copy(new FileInputStream(file1), os);
++            os.closeArchiveEntry();
++
++            os.putArchiveEntry(new ArArchiveEntry("test2.xml", file2.length()));
++            IOUtils.copy(new FileInputStream(file2), os);
++            os.closeArchiveEntry();
++            os.close();
++            out.close();
++        }
++
++        assertEquals(282, output.length());
++
++        final File output2 = new File(dir, "bla2.ar");
++
++        int copied = 0;
++        int deleted = 0;
++
++        {
++            // remove all but one file
++
++            final InputStream is = new FileInputStream(output);
++            final OutputStream os = new FileOutputStream(output2);
++            final ArchiveOutputStream aos = new ArchiveStreamFactory().createArchiveOutputStream("ar", os);
++            final ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(new BufferedInputStream(is));
++            while(true) {
++                final ArArchiveEntry entry = (ArArchiveEntry)ais.getNextEntry();
++                if (entry == null) {
++                    break;
++                }
++
++                if ("test1.xml".equals(entry.getName())) {
++                    aos.putArchiveEntry(entry);
++                    IOUtils.copy(ais, aos);
++                    aos.closeArchiveEntry();
++                    copied++;
++                } else {
++                    IOUtils.copy(ais, new ByteArrayOutputStream());
++                    deleted++;
++                }
++
++            }
++            ais.close();
++            aos.close();
++            is.close();
++            os.close();
++        }
++
++        assertEquals(1, copied);
++        assertEquals(1, deleted);
++        assertEquals(144, output2.length());
++
++        long files = 0;
++        long sum = 0;
++
++        {
++            final InputStream is = new FileInputStream(output2);
++            final ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(new BufferedInputStream(is));
++            while(true) {
++                final ArArchiveEntry entry = (ArArchiveEntry)ais.getNextEntry();
++                if (entry == null) {
++                    break;
++                }
++
++                IOUtils.copy(ais, new ByteArrayOutputStream());
++
++                sum +=  entry.getLength();
++                files++;
++            }
++            ais.close();
++            is.close();
++        }
++
++        assertEquals(1, files);
++        assertEquals(76, sum);
++
++    }
+ 
+ }
+
+commit c3a8a1c58e4e249aa39dc1ccd0b9b7b49efe5e97
+Author: Torsten Curdt <tcurdt@apache.org>
+Date:   Fri Mar 27 17:08:27 2009
+
+    tracked down the problem of https://issues.apache.org/jira/browse/COMPRESS-11
+    
+    
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@759352 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/ArTestCase.java b/src/test/java/org/apache/commons/compress/archivers/ArTestCase.java
+--- a/src/test/java/org/apache/commons/compress/archivers/ArTestCase.java
++++ b/src/test/java/org/apache/commons/compress/archivers/ArTestCase.java
+@@ -87,76 +87,91 @@
+ 	}
+ 
+ 	public void testArDelete() throws Exception {
+ 		final File output = new File(dir, "bla.ar");
+ 		
+ 		{
+ 			// create
+ 			final File file1 = getFile("test1.xml");
+ 			final File file2 = getFile("test2.xml");
+ 			
+ 			final OutputStream out = new FileOutputStream(output);
+ 	        final ArchiveOutputStream os = new ArchiveStreamFactory().createArchiveOutputStream("ar", out);
+ 			os.putArchiveEntry(new ArArchiveEntry("test1.xml", file1.length()));
+ 			IOUtils.copy(new FileInputStream(file1), os);
+ 			os.closeArchiveEntry();
+ 			
+ 			os.putArchiveEntry(new ArArchiveEntry("test2.xml", file2.length()));
+ 			IOUtils.copy(new FileInputStream(file2), os);
+ 			os.closeArchiveEntry();
+ 			os.close();
+ 			out.close();
+ 		}
+ 		
++		assertEquals(282, output.length());
++		
+ 		final File output2 = new File(dir, "bla2.ar");		
+ 
++		int copied = 0;
++		int deleted = 0;
++
+ 		{
+ 			// remove all but one file
++
+ 			final InputStream is = new FileInputStream(output);
+ 			final OutputStream os = new FileOutputStream(output2);
+ 			final ArchiveOutputStream aos = new ArchiveStreamFactory().createArchiveOutputStream("ar", os);
+ 			final ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(new BufferedInputStream(is));
+ 			while(true) {
+ 				final ArArchiveEntry entry = (ArArchiveEntry)ais.getNextEntry();
+ 				if (entry == null) {
+ 					break;
+ 				}
+ 				
+ 				if ("test1.xml".equals(entry.getName())) {
+ 					aos.putArchiveEntry(entry);
+ 					IOUtils.copy(ais, aos);
++					aos.closeArchiveEntry();
++					copied++;
+ 				} else {
+ 			        IOUtils.copy(ais, new ByteArrayOutputStream());
++			        deleted++;
+ 				}
+ 			
+ 			}
+ 			ais.close();
+ 			aos.close();
+ 			is.close();
+ 			os.close();			
+ 		}
+ 
++		assertEquals(1, copied);
++		assertEquals(1, deleted);
++		assertEquals(144, output2.length());
+ 		
++		long files = 0;
+ 		long sum = 0;
+ 
+ 		{
+ 			final InputStream is = new FileInputStream(output2);
+ 			final ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(new BufferedInputStream(is));
+ 			while(true) {
+ 				final ArArchiveEntry entry = (ArArchiveEntry)ais.getNextEntry();
+ 				if (entry == null) {
+ 					break;
+ 				}
+ 				
+ 		        IOUtils.copy(ais, new ByteArrayOutputStream());
+ 		        
+ 		        sum +=  entry.getLength();
++		        files++;
+ 			}
+ 			ais.close();
+ 			is.close();			
+ 		}
+ 
++		assertEquals(1, files);
+ 		assertEquals(76, sum);
+ 		
+ 	}
+ 
+ }
+
+commit cd71b5e41d3a001cda232275ade26f2b77fe0854
+Author: Torsten Curdt <tcurdt@apache.org>
+Date:   Fri Mar 27 16:35:23 2009
+
+    fixed the testcase
+    
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@759335 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/ArTestCase.java b/src/test/java/org/apache/commons/compress/archivers/ArTestCase.java
+--- a/src/test/java/org/apache/commons/compress/archivers/ArTestCase.java
++++ b/src/test/java/org/apache/commons/compress/archivers/ArTestCase.java
+@@ -87,73 +87,76 @@
+ 	}
+ 
+ 	public void testArDelete() throws Exception {
+ 		final File output = new File(dir, "bla.ar");
+ 		
+ 		{
+ 			// create
+ 			final File file1 = getFile("test1.xml");
+ 			final File file2 = getFile("test2.xml");
+ 			
+ 			final OutputStream out = new FileOutputStream(output);
+ 	        final ArchiveOutputStream os = new ArchiveStreamFactory().createArchiveOutputStream("ar", out);
+ 			os.putArchiveEntry(new ArArchiveEntry("test1.xml", file1.length()));
+ 			IOUtils.copy(new FileInputStream(file1), os);
+ 			os.closeArchiveEntry();
+ 			
+ 			os.putArchiveEntry(new ArArchiveEntry("test2.xml", file2.length()));
+ 			IOUtils.copy(new FileInputStream(file2), os);
+ 			os.closeArchiveEntry();
+ 			os.close();
+ 			out.close();
+ 		}
+ 		
+ 		final File output2 = new File(dir, "bla2.ar");		
+ 
+ 		{
+ 			// remove all but one file
+ 			final InputStream is = new FileInputStream(output);
+ 			final OutputStream os = new FileOutputStream(output2);
+ 			final ArchiveOutputStream aos = new ArchiveStreamFactory().createArchiveOutputStream("ar", os);
+ 			final ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(new BufferedInputStream(is));
+ 			while(true) {
+ 				final ArArchiveEntry entry = (ArArchiveEntry)ais.getNextEntry();
+ 				if (entry == null) {
+ 					break;
+ 				}
+ 				
+ 				if ("test1.xml".equals(entry.getName())) {
+ 					aos.putArchiveEntry(entry);
++					IOUtils.copy(ais, aos);
++				} else {
++			        IOUtils.copy(ais, new ByteArrayOutputStream());
+ 				}
++			
+ 			}
+ 			ais.close();
+ 			aos.close();
+ 			is.close();
+ 			os.close();			
+ 		}
+ 
+ 		
+ 		long sum = 0;
+ 
+ 		{
+ 			final InputStream is = new FileInputStream(output2);
+-			final ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(is);
++			final ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(new BufferedInputStream(is));
+ 			while(true) {
+ 				final ArArchiveEntry entry = (ArArchiveEntry)ais.getNextEntry();
+ 				if (entry == null) {
+ 					break;
+ 				}
+ 				
+-				final ByteArrayOutputStream os = new ByteArrayOutputStream();
+-		        IOUtils.copy(ais, os);
++		        IOUtils.copy(ais, new ByteArrayOutputStream());
+ 		        
+ 		        sum +=  entry.getLength();
+ 			}
+ 			ais.close();
+ 			is.close();			
+ 		}
+ 
+-		assertEquals(0, sum);
++		assertEquals(76, sum);
+ 		
+ 	}
+ 
+ }
+
+commit 99696beab393fbaf96cf040c64b798c76e921cd9
+Author: Torsten Curdt <tcurdt@apache.org>
+Date:   Fri Mar 27 16:09:40 2009
+
+    reproduce https://issues.apache.org/jira/browse/COMPRESS-11
+    
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@759326 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/ArTestCase.java b/src/test/java/org/apache/commons/compress/archivers/ArTestCase.java
+--- a/src/test/java/org/apache/commons/compress/archivers/ArTestCase.java
++++ b/src/test/java/org/apache/commons/compress/archivers/ArTestCase.java
+@@ -85,3 +87,73 @@
+ 	}
+ 
++	public void testArDelete() throws Exception {
++		final File output = new File(dir, "bla.ar");
++		
++		{
++			// create
++			final File file1 = getFile("test1.xml");
++			final File file2 = getFile("test2.xml");
++			
++			final OutputStream out = new FileOutputStream(output);
++	        final ArchiveOutputStream os = new ArchiveStreamFactory().createArchiveOutputStream("ar", out);
++			os.putArchiveEntry(new ArArchiveEntry("test1.xml", file1.length()));
++			IOUtils.copy(new FileInputStream(file1), os);
++			os.closeArchiveEntry();
++			
++			os.putArchiveEntry(new ArArchiveEntry("test2.xml", file2.length()));
++			IOUtils.copy(new FileInputStream(file2), os);
++			os.closeArchiveEntry();
++			os.close();
++			out.close();
++		}
++		
++		final File output2 = new File(dir, "bla2.ar");		
++
++		{
++			// remove all but one file
++			final InputStream is = new FileInputStream(output);
++			final OutputStream os = new FileOutputStream(output2);
++			final ArchiveOutputStream aos = new ArchiveStreamFactory().createArchiveOutputStream("ar", os);
++			final ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(new BufferedInputStream(is));
++			while(true) {
++				final ArArchiveEntry entry = (ArArchiveEntry)ais.getNextEntry();
++				if (entry == null) {
++					break;
++				}
++				
++				if ("test1.xml".equals(entry.getName())) {
++					aos.putArchiveEntry(entry);
++				}
++			}
++			ais.close();
++			aos.close();
++			is.close();
++			os.close();			
++		}
++
++		
++		long sum = 0;
++
++		{
++			final InputStream is = new FileInputStream(output2);
++			final ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(is);
++			while(true) {
++				final ArArchiveEntry entry = (ArArchiveEntry)ais.getNextEntry();
++				if (entry == null) {
++					break;
++				}
++				
++				final ByteArrayOutputStream os = new ByteArrayOutputStream();
++		        IOUtils.copy(ais, os);
++		        
++		        sum +=  entry.getLength();
++			}
++			ais.close();
++			is.close();			
++		}
++
++		assertEquals(0, sum);
++		
++	}
++
+ }
+
+commit a8a9e645e7c5ac3d5354580b9eb22df67acba520
+Author: Torsten Curdt <tcurdt@apache.org>
+Date:   Sat Jul 19 18:18:44 2008
+
+    removed author tags in favor of NOTICE file,
+    split up testcases,
+    nitpicking
+    
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/sandbox/compress/branches/redesign@678234 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/ArTestCase.java b/src/test/java/org/apache/commons/compress/archivers/ArTestCase.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/compress/archivers/ArTestCase.java
+@@ -0,0 +83,3 @@
++	}
++
++}

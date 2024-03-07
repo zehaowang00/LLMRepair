@@ -1,0 +1,15 @@
+commit 42b391d4209024292b6101048389570e4ec36b2a
+Author: Brice Dutheil <brice.dutheil@gmail.com>
+Date:   Fri Apr 17 05:45:21 2015
+
+    Fixes #187 : print mock name even when default answer is bogus
+
+diff --git a/test/org/mockito/exceptions/ReporterTest.java b/test/org/mockito/exceptions/ReporterTest.java
+--- a/test/org/mockito/exceptions/ReporterTest.java
++++ b/test/org/mockito/exceptions/ReporterTest.java
+@@ -26,0 +77,5 @@
++    public void can_use_print_mock_name_even_when_mock_bogus_default_answer_and_when_reporting_injection_failure() throws Exception {
++        IMethods mock_with_bogus_default_answer = mock(IMethods.class, new Returns(false));
++        new Reporter().cannotInjectDependency(someField(), mock_with_bogus_default_answer, new Exception());
++    }
++

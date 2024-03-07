@@ -1,0 +1,93 @@
+commit a71a00e595f87a8eb4a58778e21cf8dab788eb04
+Author: Cowtowncoder <tatu.saloranta@iki.fi>
+Date:   Thu Jul 30 20:03:11 2015
+
+    Add the failing test for #207
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/sym/TestByteBasedSymbols.java b/src/test/java/com/fasterxml/jackson/core/sym/TestByteBasedSymbols.java
+--- a/src/test/java/com/fasterxml/jackson/core/sym/TestByteBasedSymbols.java
++++ b/src/test/java/com/fasterxml/jackson/core/sym/TestByteBasedSymbols.java
+@@ -100,7 +102,27 @@
+-    
++    public void testIssue207() throws Exception
++    {
++        ByteQuadsCanonicalizer nc = ByteQuadsCanonicalizer.createRoot(-523743345);
++        Field byteSymbolCanonicalizerField = JsonFactory.class.getDeclaredField("_byteSymbolCanonicalizer");
++        byteSymbolCanonicalizerField.setAccessible(true);
++        JsonFactory jsonF = new JsonFactory();
++        byteSymbolCanonicalizerField.set(jsonF, nc);
++
++        StringBuilder stringBuilder = new StringBuilder();
++        stringBuilder.append("{\n");
++        stringBuilder.append("    \"expectedGCperPosition\": null");
++        for (int i = 0; i < 60; ++i) {
++            stringBuilder.append(",\n    \"").append(i + 1).append("\": null");
++        }
++        stringBuilder.append("\n}");
++
++        JsonParser p = jsonF.createParser(stringBuilder.toString().getBytes("UTF-8"));
++        while (p.nextToken() != null) { }
++        p.close();
++    }
++
+     /*
+     /**********************************************************
+     /* Helper methods
+     /**********************************************************
+      */
+ 
+
+commit 50ac85338f0bf0c4f70327f5683286c71f15d7f5
+Author: Cowtowncoder <tatu.saloranta@iki.fi>
+Date:   Thu Feb 5 19:52:01 2015
+
+    Fixes to diagnostics, minor improvement to 2-quad hashing cache
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/sym/TestByteBasedSymbols.java b/src/test/java/com/fasterxml/jackson/core/sym/TestByteBasedSymbols.java
+--- a/src/test/java/com/fasterxml/jackson/core/sym/TestByteBasedSymbols.java
++++ b/src/test/java/com/fasterxml/jackson/core/sym/TestByteBasedSymbols.java
+@@ -105,6 +127,7 @@
++    
+     /*
+     /**********************************************************
+     /* Helper methods
+     /**********************************************************
+      */
+ 
+
+commit b3dfdea27efc5c309deda8e4404c4b9aa9a9c4ee
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Fri Nov 16 01:40:48 2012
+
+    eclipse warning cleanup
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/sym/TestByteBasedSymbols.java b/src/test/java/com/fasterxml/jackson/core/sym/TestByteBasedSymbols.java
+--- a/src/test/java/com/fasterxml/jackson/core/sym/TestByteBasedSymbols.java
++++ b/src/test/java/com/fasterxml/jackson/core/sym/TestByteBasedSymbols.java
+@@ -105,6 +105,6 @@
+     /*
+-    ////////////////////////////////////////////
+-    // Helper methods
+-    ////////////////////////////////////////////
++    /**********************************************************
++    /* Helper methods
++    /**********************************************************
+      */
+ 
+
+commit 5ff8a2d9a72f0741f9465bf7f04584a3c3e8c28f
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 00:52:24 2011
+
+    Add unit tests from 1.x, all but 2 passing
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/json/TestByteBasedSymbols.java b/src/test/java/com/fasterxml/jackson/core/json/TestByteBasedSymbols.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/core/json/TestByteBasedSymbols.java
+@@ -0,0 +104,6 @@
++    /*
++    ////////////////////////////////////////////
++    // Helper methods
++    ////////////////////////////////////////////
++     */
++

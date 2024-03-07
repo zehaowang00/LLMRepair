@@ -1,0 +1,67 @@
+commit b6c54cf06167b7ef8b45a67e8ddfa427e63c6c20
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Sat Oct 20 17:22:07 2018
+
+    More work for #488, now handling coercions to `double`, `float` better to avoid drastic performance issue as per suggestions by @wujimin
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/read/NumberParsingTest.java b/src/test/java/com/fasterxml/jackson/core/read/NumberParsingTest.java
+--- a/src/test/java/com/fasterxml/jackson/core/read/NumberParsingTest.java
++++ b/src/test/java/com/fasterxml/jackson/core/read/NumberParsingTest.java
+@@ -104,8 +104,8 @@
+     public void testSimpleLong() throws Exception
+     {
+         _testSimpleLong(MODE_INPUT_STREAM);
+         _testSimpleLong(MODE_INPUT_STREAM_THROTTLED);
+         _testSimpleLong(MODE_READER);
+         _testSimpleLong(MODE_DATA_INPUT);
+     }
+-    
++
+
+commit 20fa9e7486000d8c11e2354e635752487d7b2e24
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Wed May 18 01:15:46 2016
+
+    fixes to DataInput, number parsing
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/read/NumberParsingTest.java b/src/test/java/com/fasterxml/jackson/core/read/NumberParsingTest.java
+--- a/src/test/java/com/fasterxml/jackson/core/read/NumberParsingTest.java
++++ b/src/test/java/com/fasterxml/jackson/core/read/NumberParsingTest.java
+@@ -101,2 +101,8 @@
+     public void testSimpleLong() throws Exception
+     {
++        _testSimpleLong(MODE_INPUT_STREAM);
++        _testSimpleLong(MODE_INPUT_STREAM_THROTTLED);
++        _testSimpleLong(MODE_READER);
++        _testSimpleLong(MODE_DATA_INPUT);
++    }
++    
+
+commit 10e43bd859b88d7202755a5d095b68f7468b17f0
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Thu May 8 00:13:09 2014
+
+    more testing
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/json/TestNumericValues.java b/src/test/java/com/fasterxml/jackson/core/json/TestNumericValues.java
+--- a/src/test/java/com/fasterxml/jackson/core/json/TestNumericValues.java
++++ b/src/test/java/com/fasterxml/jackson/core/json/TestNumericValues.java
+@@ -79,3 +102,2 @@
+-    public void testSimpleLong()
+-        throws Exception
++    public void testSimpleLong() throws Exception
+     {
+
+commit 5ff8a2d9a72f0741f9465bf7f04584a3c3e8c28f
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 00:52:24 2011
+
+    Add unit tests from 1.x, all but 2 passing
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/main/TestNumericValues.java b/src/test/java/com/fasterxml/jackson/core/main/TestNumericValues.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/core/main/TestNumericValues.java
+@@ -0,0 +69,3 @@
++    public void testSimpleLong()
++        throws Exception
++    {

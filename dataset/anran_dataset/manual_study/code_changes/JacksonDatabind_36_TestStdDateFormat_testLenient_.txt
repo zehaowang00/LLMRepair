@@ -1,0 +1,50 @@
+commit c48e992652125eb74aea8ead8cbda5fd0b44976a
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Wed Dec 23 03:12:59 2015
+
+    Fix #803
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/TestStdDateFormat.java b/src/test/java/com/fasterxml/jackson/databind/TestStdDateFormat.java
+--- a/src/test/java/com/fasterxml/jackson/databind/TestStdDateFormat.java
++++ b/src/test/java/com/fasterxml/jackson/databind/TestStdDateFormat.java
+@@ -17,0 +19,40 @@
++    public void testLenient() throws Exception
++    {
++        StdDateFormat f = StdDateFormat.instance;
++
++        // default should be lenient
++        assertTrue(f.isLenient());
++
++        StdDateFormat f2 = f.clone();
++        assertTrue(f2.isLenient());
++
++        f2.setLenient(false);
++        assertFalse(f2.isLenient());
++
++        f2.setLenient(true);
++        assertTrue(f2.isLenient());
++
++        // and for testing, finally, leave as non-lenient
++        f2.setLenient(false);
++        assertFalse(f2.isLenient());
++        StdDateFormat f3 = f2.clone();
++        assertFalse(f3.isLenient());
++
++        // first, legal dates are... legal
++        Date dt = f3.parse("2015-11-30");
++        assertNotNull(dt);
++
++        // but as importantly, when not lenient, do not allow
++        try {
++            f3.parse("2015-11-32");
++            fail("Should not pass");
++        } catch (ParseException e) {
++            verifyException(e, "can not parse date");
++        }
++
++        // ... yet, with lenient, do allow
++        f3.setLenient(true);
++        dt = f3.parse("2015-11-32");
++        assertNotNull(dt);
++    }
++    

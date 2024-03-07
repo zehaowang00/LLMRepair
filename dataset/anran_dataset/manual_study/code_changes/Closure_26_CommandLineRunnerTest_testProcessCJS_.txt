@@ -1,0 +1,79 @@
+commit 372eb11e44b8559004bfe78a5b4003caf0072135
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri May 18 19:57:52 2012
+
+    don't bother with module exports if there's nothing to export
+    Fixes issue 732
+    
+    R=malteubl
+    DELTA=35  (8 added, 18 deleted, 9 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=4830
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1982 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+--- a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
++++ b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+@@ -1044,10 +1044,8 @@
+   public void testProcessCJS() {
+     args.add("--process_common_js_modules");
+     args.add("--common_js_entry_module=foo/bar");
+     setFilename(0, "foo/bar.js");
+     test("exports.test = 1",
+-        "var module$foo$bar={test:1}; " +
+-        "module$foo$bar.module$exports && " +
+-        "(module$foo$bar=module$foo$bar.module$exports)");
++        "var module$foo$bar={test:1};");
+   }
+ 
+
+commit 5ef7a8a0a8263e8fd0291c7f11ad0bf4bd9cb1a4
+Author: malteubl@google.com <malteubl@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Wed Dec 14 15:52:19 2011
+
+    First class support for AMD[1] and Common JS[2] modules in closure compiler.
+    
+    The AMD specific pass, compiles AMD modules to CJS modules. The CJS pass
+    turns the modules into a form that can be concatenated without the need
+    to enclose the code in an immediate function to protect the scope. This makes
+    applying our optimizations significantly more effective.
+    
+    Attempts to set up correct requires and provides for each module and to order
+    modules correctly. This part of my CL needs some help. I'm having trouble
+    understanding the original design and feel that what I wrote looks
+    sub-optimal.
+    
+    I did integration testing by compiling the dojo library which uses AMD.
+    Size reduction looks good and cross module code motion as well as dead
+    code elimination works.
+    [1] https://github.com/amdjs/amdjs-api/wiki/AMD
+    [2] http://wiki.commonjs.org/wiki/Modules/1.1.1
+    
+    R=johnlenz,nicksantos
+    DELTA=1113  (1109 added, 0 deleted, 4 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3981
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1684 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+--- a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
++++ b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+@@ -898,0 +907,10 @@
++  public void testProcessCJS() {
++    args.add("--process_common_js_modules");
++    args.add("--common_js_entry_module=foo/bar");
++    setFilename(0, "foo/bar.js");
++    test("exports.test = 1",
++        "var module$foo$bar={test:1}; " +
++        "module$foo$bar.module$exports && " +
++        "(module$foo$bar=module$foo$bar.module$exports)");
++  }
++

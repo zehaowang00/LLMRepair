@@ -1,0 +1,59 @@
+commit 6d38965a1e0a3a61435b9bebc91ff1ba0a64013a
+Author: Nick Santos <nicholas.j.santos@gmail.com>
+Date:   Tue Jun 18 05:52:07 2013
+
+    Handle prototype assignments much better. Fixes issue #1023.
+    
+    R=blickly
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- a/test/com/google/javascript/jscomp/TypeCheckTest.java
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -6755,5 +6755,21 @@
++  public void testIssue1023() throws Exception {
++    testTypes(
++        "/** @constructor */" +
++        "function F() {}" +
++        "(function () {" +
++        "  F.prototype = {" +
++        "    /** @param {string} x */" +
++        "    bar: function (x) {  }" +
++        "  };" +
++        "})();" +
++        "(new F()).bar(true)",
++        "actual parameter 1 of F.prototype.bar does not match formal parameter\n" +
++        "found   : boolean\n" +
++        "required: string");
++  }
++
+   /**
+    * Tests that the || operator is type checked correctly, that is of
+    * the type of the first argument or of the second argument. See
+    * bugid 592170 for more details.
+    */
+
+commit 77b7c78d4aeeb6471f2f668a06c0f61a68f95ccd
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Jan 4 15:18:21 2010
+
+    Add more unit tests for type checking.
+    
+    Add phase optimization.
+    
+    Fix a type inference bug.
+    
+    String.prototype.split may not return null.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@55 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -0,0 +3907,5 @@
++  /**
++   * Tests that the || operator is type checked correctly, that is of
++   * the type of the first argument or of the second argument. See
++   * bugid 592170 for more details.
++   */

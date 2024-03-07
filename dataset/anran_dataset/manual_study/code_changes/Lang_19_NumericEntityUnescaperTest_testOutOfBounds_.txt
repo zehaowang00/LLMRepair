@@ -1,0 +1,40 @@
+commit 0b3a8a3128890f710700d04e38df48b883d11d91
+Author: Henri Yandell <bayard@apache.org>
+Date:   Sun Jul 3 03:55:33 2011
+
+    Adding tests and resolving LANG-710, reported by Benjamin Valentin. Note that this changed such that the code will now escape an unfinished entity (i.e. &#030). This matches browser behaviour.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@1142389 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaperTest.java b/src/test/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaperTest.java
+--- a/src/test/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaperTest.java
++++ b/src/test/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaperTest.java
+@@ -37,4 +37,9 @@
+     public void testOutOfBounds() {
+         NumericEntityUnescaper neu = new NumericEntityUnescaper();
+-        String input = "Test &";
+-        String expected = input;
++
++        assertEquals("Failed to ignore when last character is &", "Test &", neu.translate("Test &"));
++        assertEquals("Failed to ignore when last character is &", "Test &#", neu.translate("Test &#"));
++        assertEquals("Failed to ignore when last character is &", "Test &#x", neu.translate("Test &#x"));
++        assertEquals("Failed to ignore when last character is &", "Test &#X", neu.translate("Test &#X"));
++    }
++
+
+commit 8bbab3898bb91f1efa442b3997f92be8ce191d02
+Author: Henri Yandell <bayard@apache.org>
+Date:   Sun Jan 30 03:01:19 2011
+
+    Implemented TODO to protect unescaper from ArrayIndexOutOfBounds
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@1065215 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaperTest.java b/src/test/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaperTest.java
+--- a/src/test/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaperTest.java
++++ b/src/test/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaperTest.java
+@@ -37,0 +37,4 @@
++    public void testOutOfBounds() {
++        NumericEntityUnescaper neu = new NumericEntityUnescaper();
++        String input = "Test &";
++        String expected = input;

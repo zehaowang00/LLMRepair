@@ -1,0 +1,79 @@
+commit 9c1eea2dc00e2feb14c13e9a00d6a392f680df17
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Aug 26 14:44:33 2010
+
+    make the externs validations default to WARNING
+    
+    R=johnlenz
+    DELTA=19  (5 added, 0 deleted, 14 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=195036
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@387 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/VarCheckTest.java b/test/com/google/javascript/jscomp/VarCheckTest.java
+--- a/test/com/google/javascript/jscomp/VarCheckTest.java
++++ b/test/com/google/javascript/jscomp/VarCheckTest.java
+@@ -126,10 +128,13 @@
+   public void testPropReferenceInExterns3() {
+-    externValidationpErrorLevel = CheckLevel.WARNING;
+-    test("asdf.foo;", "", "",
+-        VarCheck.UNDEFINED_VAR_ERROR, VarCheck.UNDEFINED_EXTERN_VAR_ERROR);
++    testSame("asdf.foo;", "var asdf;",
++        VarCheck.UNDEFINED_EXTERN_VAR_ERROR);
++
++    externValidationErrorLevel = CheckLevel.ERROR;
++    test(
++        "asdf.foo;", "var asdf;", "",
++         VarCheck.UNDEFINED_EXTERN_VAR_ERROR, null);
+ 
+-    externValidationpErrorLevel = CheckLevel.OFF;
+-    test("asdf.foo;", "", "",
+-        VarCheck.UNDEFINED_VAR_ERROR, null);
++    externValidationErrorLevel = CheckLevel.OFF;
++    test("asdf.foo;", "var asdf;", "var asdf;", null, null);
+   }
+ 
+
+commit 9de5e9b4671773bb3f2d5932e57c1b4186b9b777
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Jul 1 10:38:39 2010
+
+    Change on 2010/06/30 15:06:33 by johnlenz
+    
+            Add a diagnostic group so that projects with weird externs can opt-out of the stricter extern checks.
+    
+            R=nicksantos
+            DELTA=54  (52 added, 0 deleted, 2 changed)
+    
+    Change on 2010/06/30 17:56:51 by johnlenz
+    
+            Revert warning levels until after a release is put out to control them.
+    
+            R=nicksantos
+            DELTA=4  (2 added, 0 deleted, 2 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=47002
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@260 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/VarCheckTest.java b/test/com/google/javascript/jscomp/VarCheckTest.java
+--- a/test/com/google/javascript/jscomp/VarCheckTest.java
++++ b/test/com/google/javascript/jscomp/VarCheckTest.java
+@@ -121,0 +128,10 @@
++  public void testPropReferenceInExterns3() {
++    externValidationpErrorLevel = CheckLevel.WARNING;
++    test("asdf.foo;", "", "",
++        VarCheck.UNDEFINED_VAR_ERROR, VarCheck.UNDEFINED_EXTERN_VAR_ERROR);
++
++    externValidationpErrorLevel = CheckLevel.OFF;
++    test("asdf.foo;", "", "",
++        VarCheck.UNDEFINED_VAR_ERROR, null);
++  }
++

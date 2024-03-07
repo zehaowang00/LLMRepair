@@ -1,0 +1,36 @@
+commit e609670bb56e0c7216c9476a5f6a5594e7f1acdb
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Nov 12 15:02:06 2009
+
+    - Fix issue #19
+    - attach jsdoc comments without annotations to nodes
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@8 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CheckSideEffectsTest.java b/test/com/google/javascript/jscomp/CheckSideEffectsTest.java
+--- a/test/com/google/javascript/jscomp/CheckSideEffectsTest.java
++++ b/test/com/google/javascript/jscomp/CheckSideEffectsTest.java
+@@ -84,1 +85,5 @@
++  public void testJSDocComments() {
++    test("function A() { /** This is a jsdoc comment */ this.foo; }", ok);
++    test("function A() { /* This is a normal comment */ this.foo; }", e);
++  }
+ }
+
+commit 6b49cfd9022fe111bdad745c78ea877fbc2f7ba3
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 3 18:51:57 2009
+
+    Initial commit.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CheckSideEffectsTest.java b/test/com/google/javascript/jscomp/CheckSideEffectsTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/CheckSideEffectsTest.java
+@@ -0,0 +84,1 @@
++}

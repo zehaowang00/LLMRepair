@@ -1,0 +1,281 @@
+commit 8d11b8cc7a6183222b61c9bd398fed5448c59109
+Author: Ben Lickly <blickly@google.com>
+Date:   Fri Jun 28 19:06:38 2013
+
+    Printing of IN statement inside HOOK inside FOR.
+    
+    Fixes issue 1033
+    -------------
+    Created by MOE: http://code.google.com/p/moe-java
+    MOE_MIGRATED_REVID=48696718
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -439,32 +439,35 @@
+   public void testPrintInOperatorInForLoop() {
+     // Check for in expression in for's init expression.
+     // Check alone, with + (higher precedence), with ?: (lower precedence),
+     // and with conditional.
+     assertPrint("var a={}; for (var i = (\"length\" in a); i;) {}",
+         "var a={};for(var i=(\"length\"in a);i;);");
+     assertPrint("var a={}; for (var i = (\"length\" in a) ? 0 : 1; i;) {}",
+         "var a={};for(var i=(\"length\"in a)?0:1;i;);");
+     assertPrint("var a={}; for (var i = (\"length\" in a) + 1; i;) {}",
+         "var a={};for(var i=(\"length\"in a)+1;i;);");
+     assertPrint("var a={};for (var i = (\"length\" in a|| \"size\" in a);;);",
+         "var a={};for(var i=(\"length\"in a)||(\"size\"in a);;);");
+     assertPrint("var a={};for (var i = a || a || (\"size\" in a);;);",
+         "var a={};for(var i=a||a||(\"size\"in a);;);");
+ 
+     // Test works with unary operators and calls.
+     assertPrint("var a={}; for (var i = -(\"length\" in a); i;) {}",
+         "var a={};for(var i=-(\"length\"in a);i;);");
+     assertPrint("var a={};function b_(p){ return p;};" +
+         "for(var i=1,j=b_(\"length\" in a);;) {}",
+         "var a={};function b_(p){return p}" +
+             "for(var i=1,j=b_(\"length\"in a);;);");
+ 
+     // Test we correctly handle an in operator in the test clause.
+     assertPrint("var a={}; for (;(\"length\" in a);) {}",
+         "var a={};for(;\"length\"in a;);");
+ 
+     // Test we correctly handle an in operator inside a comma.
+     assertPrintSame("for(x,(y in z);;)foo()");
+     assertPrintSame("for(var x,w=(y in z);;)foo()");
++
++    // And in operator inside a hook.
++    assertPrintSame("for(a=c?0:(0 in d);;)foo()");
+   }
+ 
+
+commit c4f38043f0aa21e74c341f3056a0d9b556a44c3e
+Author: Ben Lickly <blickly@google.com>
+Date:   Fri May 17 19:03:09 2013
+
+    Fix bug with IN inside FOR in CodeGenerator.
+    
+    This was exposed by the new MinimizeConditions algorithm.
+    -------------
+    Created by MOE: http://code.google.com/p/moe-java
+    MOE_MIGRATED_REVID=46735852
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -431,28 +431,32 @@
+   public void testPrintInOperatorInForLoop() {
+     // Check for in expression in for's init expression.
+     // Check alone, with + (higher precedence), with ?: (lower precedence),
+     // and with conditional.
+     assertPrint("var a={}; for (var i = (\"length\" in a); i;) {}",
+         "var a={};for(var i=(\"length\"in a);i;);");
+     assertPrint("var a={}; for (var i = (\"length\" in a) ? 0 : 1; i;) {}",
+         "var a={};for(var i=(\"length\"in a)?0:1;i;);");
+     assertPrint("var a={}; for (var i = (\"length\" in a) + 1; i;) {}",
+         "var a={};for(var i=(\"length\"in a)+1;i;);");
+     assertPrint("var a={};for (var i = (\"length\" in a|| \"size\" in a);;);",
+         "var a={};for(var i=(\"length\"in a)||(\"size\"in a);;);");
+     assertPrint("var a={};for (var i = a || a || (\"size\" in a);;);",
+         "var a={};for(var i=a||a||(\"size\"in a);;);");
+ 
+     // Test works with unary operators and calls.
+     assertPrint("var a={}; for (var i = -(\"length\" in a); i;) {}",
+         "var a={};for(var i=-(\"length\"in a);i;);");
+     assertPrint("var a={};function b_(p){ return p;};" +
+         "for(var i=1,j=b_(\"length\" in a);;) {}",
+         "var a={};function b_(p){return p}" +
+             "for(var i=1,j=b_(\"length\"in a);;);");
+ 
+     // Test we correctly handle an in operator in the test clause.
+     assertPrint("var a={}; for (;(\"length\" in a);) {}",
+         "var a={};for(;\"length\"in a;);");
++
++    // Test we correctly handle an in operator inside a comma.
++    assertPrintSame("for(x,(y in z);;)foo()");
++    assertPrintSame("for(var x,w=(y in z);;)foo()");
+   }
+ 
+
+commit fe5f03ca2181173fab182a6b048d46cf5c821a2a
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Oct 22 20:47:06 2012
+
+    Automated g4 rollback
+    
+    *** Reason for rollback ***
+    
+    i'm going to make this an option instead
+    
+    *** Original change description ***
+    
+    Use single quotes by default for command-line runners.
+    Fixes issue 836.
+    
+    R=johnlenz
+    DELTA=265  (0 added, 20 deleted, 245 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=5695
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2275 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -370,28 +366,28 @@
+   public void testPrintInOperatorInForLoop() {
+     // Check for in expression in for's init expression.
+     // Check alone, with + (higher precedence), with ?: (lower precedence),
+     // and with conditional.
+-    assertPrint("var a={}; for (var i = ('length' in a); i;) {}",
+-        "var a={};for(var i=('length'in a);i;);");
+-    assertPrint("var a={}; for (var i = ('length' in a) ? 0 : 1; i;) {}",
+-        "var a={};for(var i=('length'in a)?0:1;i;);");
+-    assertPrint("var a={}; for (var i = ('length' in a) + 1; i;) {}",
+-        "var a={};for(var i=('length'in a)+1;i;);");
+-    assertPrint("var a={};for (var i = ('length' in a|| 'size' in a);;);",
+-        "var a={};for(var i=('length'in a)||('size'in a);;);");
+-    assertPrint("var a={};for (var i = a || a || ('size' in a);;);",
+-        "var a={};for(var i=a||a||('size'in a);;);");
++    assertPrint("var a={}; for (var i = (\"length\" in a); i;) {}",
++        "var a={};for(var i=(\"length\"in a);i;);");
++    assertPrint("var a={}; for (var i = (\"length\" in a) ? 0 : 1; i;) {}",
++        "var a={};for(var i=(\"length\"in a)?0:1;i;);");
++    assertPrint("var a={}; for (var i = (\"length\" in a) + 1; i;) {}",
++        "var a={};for(var i=(\"length\"in a)+1;i;);");
++    assertPrint("var a={};for (var i = (\"length\" in a|| \"size\" in a);;);",
++        "var a={};for(var i=(\"length\"in a)||(\"size\"in a);;);");
++    assertPrint("var a={};for (var i = a || a || (\"size\" in a);;);",
++        "var a={};for(var i=a||a||(\"size\"in a);;);");
+ 
+     // Test works with unary operators and calls.
+-    assertPrint("var a={}; for (var i = -('length' in a); i;) {}",
+-        "var a={};for(var i=-('length'in a);i;);");
++    assertPrint("var a={}; for (var i = -(\"length\" in a); i;) {}",
++        "var a={};for(var i=-(\"length\"in a);i;);");
+     assertPrint("var a={};function b_(p){ return p;};" +
+-        "for(var i=1,j=b_('length' in a);;) {}",
++        "for(var i=1,j=b_(\"length\" in a);;) {}",
+         "var a={};function b_(p){return p}" +
+-            "for(var i=1,j=b_('length'in a);;);");
++            "for(var i=1,j=b_(\"length\"in a);;);");
+ 
+     // Test we correctly handle an in operator in the test clause.
+-    assertPrint("var a={}; for (;('length' in a);) {}",
+-        "var a={};for(;'length'in a;);");
++    assertPrint("var a={}; for (;(\"length\" in a);) {}",
++        "var a={};for(;\"length\"in a;);");
+   }
+ 
+
+commit e61c3d71fcb983d38a30996bae7a3ed738bb1871
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Oct 15 11:37:10 2012
+
+    Use single quotes by default for command-line runners.
+    Fixes issue 836.
+    
+    R=johnlenz
+    DELTA=265  (20 added, 0 deleted, 245 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=5652
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2258 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -366,28 +370,28 @@
+   public void testPrintInOperatorInForLoop() {
+     // Check for in expression in for's init expression.
+     // Check alone, with + (higher precedence), with ?: (lower precedence),
+     // and with conditional.
+-    assertPrint("var a={}; for (var i = (\"length\" in a); i;) {}",
+-        "var a={};for(var i=(\"length\"in a);i;);");
+-    assertPrint("var a={}; for (var i = (\"length\" in a) ? 0 : 1; i;) {}",
+-        "var a={};for(var i=(\"length\"in a)?0:1;i;);");
+-    assertPrint("var a={}; for (var i = (\"length\" in a) + 1; i;) {}",
+-        "var a={};for(var i=(\"length\"in a)+1;i;);");
+-    assertPrint("var a={};for (var i = (\"length\" in a|| \"size\" in a);;);",
+-        "var a={};for(var i=(\"length\"in a)||(\"size\"in a);;);");
+-    assertPrint("var a={};for (var i = a || a || (\"size\" in a);;);",
+-        "var a={};for(var i=a||a||(\"size\"in a);;);");
++    assertPrint("var a={}; for (var i = ('length' in a); i;) {}",
++        "var a={};for(var i=('length'in a);i;);");
++    assertPrint("var a={}; for (var i = ('length' in a) ? 0 : 1; i;) {}",
++        "var a={};for(var i=('length'in a)?0:1;i;);");
++    assertPrint("var a={}; for (var i = ('length' in a) + 1; i;) {}",
++        "var a={};for(var i=('length'in a)+1;i;);");
++    assertPrint("var a={};for (var i = ('length' in a|| 'size' in a);;);",
++        "var a={};for(var i=('length'in a)||('size'in a);;);");
++    assertPrint("var a={};for (var i = a || a || ('size' in a);;);",
++        "var a={};for(var i=a||a||('size'in a);;);");
+ 
+     // Test works with unary operators and calls.
+-    assertPrint("var a={}; for (var i = -(\"length\" in a); i;) {}",
+-        "var a={};for(var i=-(\"length\"in a);i;);");
++    assertPrint("var a={}; for (var i = -('length' in a); i;) {}",
++        "var a={};for(var i=-('length'in a);i;);");
+     assertPrint("var a={};function b_(p){ return p;};" +
+-        "for(var i=1,j=b_(\"length\" in a);;) {}",
++        "for(var i=1,j=b_('length' in a);;) {}",
+         "var a={};function b_(p){return p}" +
+-            "for(var i=1,j=b_(\"length\"in a);;);");
++            "for(var i=1,j=b_('length'in a);;);");
+ 
+     // Test we correctly handle an in operator in the test clause.
+-    assertPrint("var a={}; for (;(\"length\" in a);) {}",
+-        "var a={};for(;\"length\"in a;);");
++    assertPrint("var a={}; for (;('length' in a);) {}",
++        "var a={};for(;'length'in a;);");
+   }
+ 
+
+commit 6b49cfd9022fe111bdad745c78ea877fbc2f7ba3
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 3 18:51:57 2009
+
+    Initial commit.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -0,0 +275,28 @@
++  public void testPrintInOperatorInForLoop() {
++    // Check for in expression in for's init expression.
++    // Check alone, with + (higher precedence), with ?: (lower precedence),
++    // and with conditional.
++    assertPrint("var a={}; for (var i = (\"length\" in a); i;) {}",
++        "var a={};for(var i=(\"length\"in a);i;);");
++    assertPrint("var a={}; for (var i = (\"length\" in a) ? 0 : 1; i;) {}",
++        "var a={};for(var i=(\"length\"in a)?0:1;i;);");
++    assertPrint("var a={}; for (var i = (\"length\" in a) + 1; i;) {}",
++        "var a={};for(var i=(\"length\"in a)+1;i;);");
++    assertPrint("var a={};for (var i = (\"length\" in a|| \"size\" in a);;);",
++        "var a={};for(var i=(\"length\"in a)||(\"size\"in a);;);");
++    assertPrint("var a={};for (var i = a || a || (\"size\" in a);;);",
++        "var a={};for(var i=a||a||(\"size\"in a);;);");
++
++    // Test works with unary operators and calls.
++    assertPrint("var a={}; for (var i = -(\"length\" in a); i;) {}",
++        "var a={};for(var i=-(\"length\"in a);i;);");
++    assertPrint("var a={};function b_(p){ return p;};" +
++        "for(var i=1,j=b_(\"length\" in a);;) {}",
++        "var a={};function b_(p){return p}" +
++            "for(var i=1,j=b_(\"length\"in a);;);");
++
++    // Test we correctly handle an in operator in the test clause.
++    assertPrint("var a={}; for (;(\"length\" in a);) {}",
++        "var a={};for(;\"length\"in a;);");
++  }
++

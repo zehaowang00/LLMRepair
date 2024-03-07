@@ -1,0 +1,36 @@
+commit da30f170f29e983f014fb029fe5779bfd5d3b04f
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Mar 18 18:51:03 2010
+
+    Fix assorted type system bugs and crashes.
+    Fixes issue 124. (Nick)
+    R=andrew
+    DELTA=161  (122 added, 9 deleted, 30 changed)
+    
+    Fix unique name inverter  to prevent masking needed global names. (John)
+    R=nick
+    DELTA=315  (225 added, 46 deleted, 44 changed)
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@142 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/MakeDeclaredNamesUniqueTest.java b/test/com/google/javascript/jscomp/MakeDeclaredNamesUniqueTest.java
+--- a/test/com/google/javascript/jscomp/MakeDeclaredNamesUniqueTest.java
++++ b/test/com/google/javascript/jscomp/MakeDeclaredNamesUniqueTest.java
+@@ -158,0 +204,13 @@
++  public void testArguments() {
++    // Set the test type
++    this.useDefaultRenamer = true;
++
++    invert = true;
++    // Don't distinguish between "arguments", it can't be made unique.
++    testSameWithInversion(
++        "function foo(){var arguments;function bar(){var arguments;}}");
++    // Don't introduce new references to arguments, it is special.
++    testSameWithInversion(
++        "function foo(){var arguments$$1;}");
++  }
++

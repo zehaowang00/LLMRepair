@@ -1,0 +1,46 @@
+commit 6cf7092809515b6add5f0e83fd837b8e013c5256
+Author: Matthew Jason Benson <mbenson@apache.org>
+Date:   Sat Feb 2 18:16:01 2008
+
+    [JXPATH-114] properly implement node()
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/jxpath/trunk@617923 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+--- a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
++++ b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+@@ -467,9 +467,11 @@
+     public void testAxisPreceding() {
+         // preceding::
+         assertXPathPointer(
+                 context,
+                 "//location[2]/preceding-sibling::location//street",
+         "/vendor[1]/location[1]/address[1]/street[1]");
+-        assertXPathPointer(context, "//location[2]/preceding::node()[1]", "/vendor[1]/location[1]/employeeCount[1]");
++        assertXPathPointer(context, "//location[2]/preceding::*[1]", "/vendor[1]/location[1]/employeeCount[1]");
++        assertXPathPointer(context, "//location[2]/preceding::node()[3]", "/vendor[1]/location[1]/employeeCount[1]/text()[1]");
++        assertXPathPointer(context, "//location[2]/preceding::node()[4]", "/vendor[1]/location[1]/employeeCount[1]");
+     }
+ 
+
+commit cd7b5363f4d505070c4438436caf0cdcdae3b5ec
+Author: Matthew Jason Benson <mbenson@apache.org>
+Date:   Mon Dec 24 14:56:25 2007
+
+    [JXPATH-111] ClassCastException in PrecedingOrFollowingContext
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/jxpath/trunk@606733 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+--- a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
++++ b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+@@ -467,0 +467,9 @@
++    public void testAxisPreceding() {
++        // preceding::
++        assertXPathPointer(
++                context,
++                "//location[2]/preceding-sibling::location//street",
++        "/vendor[1]/location[1]/address[1]/street[1]");
++        assertXPathPointer(context, "//location[2]/preceding::node()[1]", "/vendor[1]/location[1]/employeeCount[1]");
++    }
++

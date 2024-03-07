@@ -1,0 +1,219 @@
+commit 0b2b82ad923b0455cde93286e3f504a1abd0863b
+Author: Henri Yandell <bayard@apache.org>
+Date:   Sun Jan 16 23:30:05 2011
+
+    Adding first method check from Math's MathUtils.gcd method; and unit tests showing that this was needed. Bug reported and solved by Christian Semrau [LANG-662]
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@1059749 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/math/FractionTest.java b/src/test/java/org/apache/commons/lang3/math/FractionTest.java
+--- a/src/test/java/org/apache/commons/lang3/math/FractionTest.java
++++ b/src/test/java/org/apache/commons/lang3/math/FractionTest.java
+@@ -605,43 +610,48 @@
+     public void testReduce() {
+         Fraction f = null;
+         
+         f = Fraction.getFraction(50, 75);
+         Fraction result = f.reduce();
+         assertEquals(2, result.getNumerator());
+         assertEquals(3, result.getDenominator());
+ 
+         f = Fraction.getFraction(-2, -3);
+         result = f.reduce();
+         assertEquals(2, result.getNumerator());
+         assertEquals(3, result.getDenominator());
+ 
+         f = Fraction.getFraction(2, -3);
+         result = f.reduce();
+         assertEquals(-2, result.getNumerator());
+         assertEquals(3, result.getDenominator());
+ 
+         f = Fraction.getFraction(-2, 3);
+         result = f.reduce();
+         assertEquals(-2, result.getNumerator());
+         assertEquals(3, result.getDenominator());
+         assertSame(f, result);
+ 
+         f = Fraction.getFraction(2, 3);
+         result = f.reduce();
+         assertEquals(2, result.getNumerator());
+         assertEquals(3, result.getDenominator());
+         assertSame(f, result);
+ 
+         f = Fraction.getFraction(0, 1);
+         result = f.reduce();
+         assertEquals(0, result.getNumerator());
+         assertEquals(1, result.getDenominator());
+         assertSame(f, result);
+ 
+         f = Fraction.getFraction(0, 100);
+         result = f.reduce();
+         assertEquals(0, result.getNumerator());
+         assertEquals(1, result.getDenominator());
+         assertSame(result, Fraction.ZERO);
++
++        f = Fraction.getFraction(Integer.MIN_VALUE, 2);
++        result = f.reduce();
++        assertEquals(Integer.MIN_VALUE / 2, result.getNumerator());
++        assertEquals(1, result.getDenominator());
+     }
+     
+
+commit 3905071819a14403d1cdb9437d2e005adf18fc70
+Author: Matthew Jason Benson <mbenson@apache.org>
+Date:   Thu Nov 29 11:25:30 2007
+
+    [LANG-380] tests
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@599499 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/math/FractionTest.java b/src/test/org/apache/commons/lang/math/FractionTest.java
+--- a/src/test/org/apache/commons/lang/math/FractionTest.java
++++ b/src/test/org/apache/commons/lang/math/FractionTest.java
+@@ -616,31 +616,43 @@
+     public void testReduce() {
+         Fraction f = null;
+         
+         f = Fraction.getFraction(50, 75);
+         Fraction result = f.reduce();
+         assertEquals(2, result.getNumerator());
+         assertEquals(3, result.getDenominator());
+ 
+         f = Fraction.getFraction(-2, -3);
+         result = f.reduce();
+         assertEquals(2, result.getNumerator());
+         assertEquals(3, result.getDenominator());
+ 
+         f = Fraction.getFraction(2, -3);
+         result = f.reduce();
+         assertEquals(-2, result.getNumerator());
+         assertEquals(3, result.getDenominator());
+ 
+         f = Fraction.getFraction(-2, 3);
+         result = f.reduce();
+         assertEquals(-2, result.getNumerator());
+         assertEquals(3, result.getDenominator());
+         assertSame(f, result);
+ 
+         f = Fraction.getFraction(2, 3);
+         result = f.reduce();
+         assertEquals(2, result.getNumerator());
+         assertEquals(3, result.getDenominator());
+         assertSame(f, result);
++
++        f = Fraction.getFraction(0, 1);
++        result = f.reduce();
++        assertEquals(0, result.getNumerator());
++        assertEquals(1, result.getDenominator());
++        assertSame(f, result);
++
++        f = Fraction.getFraction(0, 100);
++        result = f.reduce();
++        assertEquals(0, result.getNumerator());
++        assertEquals(1, result.getDenominator());
++        assertSame(result, Fraction.ZERO);
+     }
+     
+
+commit ed2a8da1bf10db5cb3c7701b60accd0165dc2e10
+Author: Stephen Colebourne <scolebourne@apache.org>
+Date:   Sat Sep 10 05:55:12 2005
+
+    Document and fix fraction reduction
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@279983 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/math/FractionTest.java b/src/test/org/apache/commons/lang/math/FractionTest.java
+--- a/src/test/org/apache/commons/lang/math/FractionTest.java
++++ b/src/test/org/apache/commons/lang/math/FractionTest.java
+@@ -614,14 +614,31 @@
+     public void testReduce() {
+         Fraction f = null;
+         
+         f = Fraction.getFraction(50, 75);
+-        f = f.reduce();
+-        assertEquals(2, f.getNumerator());
+-        assertEquals(3, f.getDenominator());
++        Fraction result = f.reduce();
++        assertEquals(2, result.getNumerator());
++        assertEquals(3, result.getDenominator());
++
++        f = Fraction.getFraction(-2, -3);
++        result = f.reduce();
++        assertEquals(2, result.getNumerator());
++        assertEquals(3, result.getDenominator());
++
++        f = Fraction.getFraction(2, -3);
++        result = f.reduce();
++        assertEquals(-2, result.getNumerator());
++        assertEquals(3, result.getDenominator());
++
++        f = Fraction.getFraction(-2, 3);
++        result = f.reduce();
++        assertEquals(-2, result.getNumerator());
++        assertEquals(3, result.getDenominator());
++        assertSame(f, result);
+ 
+         f = Fraction.getFraction(2, 3);
+-        f = f.reduce();
+-        assertEquals(2, f.getNumerator());
+-        assertEquals(3, f.getDenominator());
++        result = f.reduce();
++        assertEquals(2, result.getNumerator());
++        assertEquals(3, result.getDenominator());
++        assertSame(f, result);
+     }
+     
+
+commit 9a662f1bfd76c49bfcb9e9947f008aade2db54eb
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sun Jul 11 19:20:17 2004
+
+    Fixed numeric problems reported in PR #29294
+    Submitted by: C. Scott Ananian
+    Reviewed by: Phil Steitz
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137879 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/math/FractionTest.java b/src/test/org/apache/commons/lang/math/FractionTest.java
+--- a/src/test/org/apache/commons/lang/math/FractionTest.java
++++ b/src/test/org/apache/commons/lang/math/FractionTest.java
+@@ -556,9 +618,14 @@
+     public void testReduce() {
+         Fraction f = null;
+         
+         f = Fraction.getFraction(50, 75);
+         f = f.reduce();
+         assertEquals(2, f.getNumerator());
+         assertEquals(3, f.getDenominator());
++
++        f = Fraction.getFraction(2, 3);
++        f = f.reduce();
++        assertEquals(2, f.getNumerator());
++        assertEquals(3, f.getDenominator());
+     }
+     
+
+commit 7e8976d60b8a24f9fc03f89d98304d77e6153b6d
+Author: Stephen Colebourne <scolebourne@apache.org>
+Date:   Sun Dec 22 14:39:39 2002
+
+    Add Fraction class and associated tests
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137198 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/math/FractionTest.java b/src/test/org/apache/commons/lang/math/FractionTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/lang/math/FractionTest.java
+@@ -0,0 +544,9 @@
++    public void testReduce() {
++        Fraction f = null;
++        
++        f = Fraction.getFraction(50, 75);
++        f = f.reduce();
++        assertEquals(2, f.getNumerator());
++        assertEquals(3, f.getDenominator());
++    }
++    

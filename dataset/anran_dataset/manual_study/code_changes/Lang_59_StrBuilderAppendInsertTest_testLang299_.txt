@@ -1,0 +1,33 @@
+commit c04cd2337786ce7d54ed1fb757192fb8bc8c5e41
+Author: Henri Yandell <bayard@apache.org>
+Date:   Tue Dec 12 17:34:39 2006
+
+    Applying a unit test for LANG-299 and the fix that Francisco Benavent suggests.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@486377 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/text/StrBuilderAppendInsertTest.java b/src/test/org/apache/commons/lang/text/StrBuilderAppendInsertTest.java
+--- a/src/test/org/apache/commons/lang/text/StrBuilderAppendInsertTest.java
++++ b/src/test/org/apache/commons/lang/text/StrBuilderAppendInsertTest.java
+@@ -599,1 +600,7 @@
++    public void testLang299() {
++        StrBuilder sb = new StrBuilder(1);
++        sb.appendFixedWidthPadRight("foo", 1, '-');
++        assertEquals("f", sb.toString());
++    }
++
+     //-----------------------------------------------------------------------
+
+commit 1e095ef79a0fc10f365cbfaf71f96545d9b2fb0d
+Author: Stephen Colebourne <scolebourne@apache.org>
+Date:   Sun Aug 14 17:45:47 2005
+
+    Add StrMatcher and update StrBuilder and test cases to use it, plus fix other bugs
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@232652 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/text/StrBuilderAppendInsertTest.java b/src/test/org/apache/commons/lang/text/StrBuilderAppendInsertTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/lang/text/StrBuilderAppendInsertTest.java
+@@ -0,0 +585,1 @@
++    //-----------------------------------------------------------------------

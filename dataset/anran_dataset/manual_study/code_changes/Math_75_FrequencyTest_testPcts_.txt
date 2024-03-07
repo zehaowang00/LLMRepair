@@ -1,0 +1,233 @@
+commit 523df0c13719150b1397a6094f410274bfaf1475
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sat Jan 16 15:01:17 2010
+
+    Fixed regression in Frequency.getPct(Object) introduced in 2.0. Cumulative
+    percent was being returned for Object arguments in place of percent.
+    
+    JIRA: MATH-329
+    Reported by Will Wu
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@900016 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/stat/FrequencyTest.java b/src/test/java/org/apache/commons/math/stat/FrequencyTest.java
+--- a/src/test/java/org/apache/commons/math/stat/FrequencyTest.java
++++ b/src/test/java/org/apache/commons/math/stat/FrequencyTest.java
+@@ -135,24 +135,26 @@
+     public void testPcts() {
+         f.addValue(oneL);
+         f.addValue(twoL);
+         f.addValue(oneI);
+         f.addValue(twoI);
+         f.addValue(threeL);
+         f.addValue(threeL);
+         f.addValue(3);
+         f.addValue(threeI);
+         assertEquals("one pct",0.25,f.getPct(1),tolerance);
+         assertEquals("two pct",0.25,f.getPct(Long.valueOf(2)),tolerance);
+         assertEquals("three pct",0.5,f.getPct(threeL),tolerance);
++        // MATH-329
++        assertEquals("three (Object) pct",0.5,f.getPct((Object) (Integer.valueOf(3))),tolerance);
+         assertEquals("five pct",0,f.getPct(5),tolerance);
+         assertEquals("foo pct",0,f.getPct("foo"),tolerance);
+         assertEquals("one cum pct",0.25,f.getCumPct(1),tolerance);
+         assertEquals("two cum pct",0.50,f.getCumPct(Long.valueOf(2)),tolerance);
+         assertEquals("Integer argument",0.50,f.getCumPct(Integer.valueOf(2)),tolerance);
+         assertEquals("three cum pct",1.0,f.getCumPct(threeL),tolerance);
+         assertEquals("five cum pct",1.0,f.getCumPct(5),tolerance);
+         assertEquals("zero cum pct",0.0,f.getCumPct(0),tolerance);
+         assertEquals("foo cum pct",0,f.getCumPct("foo"),tolerance);
+     }
+ 
+     /** test adding incomparable values */
+
+commit 26dac5a0e7fc9c6be9571b3e71a15d8502480d96
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sat Sep 5 13:36:48 2009
+
+    Removed trailing spaces.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@811685 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/stat/FrequencyTest.java b/src/test/java/org/apache/commons/math/stat/FrequencyTest.java
+--- a/src/test/java/org/apache/commons/math/stat/FrequencyTest.java
++++ b/src/test/java/org/apache/commons/math/stat/FrequencyTest.java
+@@ -135,24 +135,24 @@
+     public void testPcts() {
+         f.addValue(oneL);
+         f.addValue(twoL);
+         f.addValue(oneI);
+         f.addValue(twoI);
+         f.addValue(threeL);
+         f.addValue(threeL);
+         f.addValue(3);
+         f.addValue(threeI);
+         assertEquals("one pct",0.25,f.getPct(1),tolerance);
+         assertEquals("two pct",0.25,f.getPct(Long.valueOf(2)),tolerance);
+         assertEquals("three pct",0.5,f.getPct(threeL),tolerance);
+         assertEquals("five pct",0,f.getPct(5),tolerance);
+         assertEquals("foo pct",0,f.getPct("foo"),tolerance);
+         assertEquals("one cum pct",0.25,f.getCumPct(1),tolerance);
+         assertEquals("two cum pct",0.50,f.getCumPct(Long.valueOf(2)),tolerance);
+         assertEquals("Integer argument",0.50,f.getCumPct(Integer.valueOf(2)),tolerance);
+         assertEquals("three cum pct",1.0,f.getCumPct(threeL),tolerance);
+         assertEquals("five cum pct",1.0,f.getCumPct(5),tolerance);
+         assertEquals("zero cum pct",0.0,f.getCumPct(0),tolerance);
+         assertEquals("foo cum pct",0,f.getCumPct("foo"),tolerance);
+     }
+-    
++
+     /** test adding incomparable values */
+
+commit fd0f87590d1c88c18f669e9b168c8fd20631f23c
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Tue Jun 10 15:32:52 2008
+
+    replaced inefficient use of constructors for Integer, Long, Float and Double
+    by the recommended static valueOf methods that cache results
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/branches/MATH_2_0@666292 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/stat/FrequencyTest.java b/src/test/org/apache/commons/math/stat/FrequencyTest.java
+--- a/src/test/org/apache/commons/math/stat/FrequencyTest.java
++++ b/src/test/org/apache/commons/math/stat/FrequencyTest.java
+@@ -134,24 +134,24 @@
+     public void testPcts() {
+         f.addValue(oneL);
+         f.addValue(twoL);
+         f.addValue(oneI);
+         f.addValue(twoI);
+         f.addValue(threeL);
+         f.addValue(threeL);
+         f.addValue(3);
+         f.addValue(threeI);
+         assertEquals("one pct",0.25,f.getPct(1),tolerance);
+-        assertEquals("two pct",0.25,f.getPct(new Long(2)),tolerance);
++        assertEquals("two pct",0.25,f.getPct(Long.valueOf(2)),tolerance);
+         assertEquals("three pct",0.5,f.getPct(threeL),tolerance);
+         assertEquals("five pct",0,f.getPct(5),tolerance);
+         assertEquals("foo pct",0,f.getPct("foo"),tolerance);
+         assertEquals("one cum pct",0.25,f.getCumPct(1),tolerance);
+-        assertEquals("two cum pct",0.50,f.getCumPct(new Long(2)),tolerance);
+-        assertEquals("Integer argument",0.50,f.getCumPct(new Integer(2)),tolerance);
++        assertEquals("two cum pct",0.50,f.getCumPct(Long.valueOf(2)),tolerance);
++        assertEquals("Integer argument",0.50,f.getCumPct(Integer.valueOf(2)),tolerance);
+         assertEquals("three cum pct",1.0,f.getCumPct(threeL),tolerance);
+         assertEquals("five cum pct",1.0,f.getCumPct(5),tolerance);
+         assertEquals("zero cum pct",0.0,f.getCumPct(0),tolerance);
+         assertEquals("foo cum pct",0,f.getCumPct("foo"),tolerance);
+     }
+     
+     /** test adding incomparable values */
+
+commit 849284f1db2aa7c1620897db0ec50b1b38bd9684
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sun Sep 19 18:47:27 2004
+
+    Fixed error computing cumulative frequencies when actual parameter is an Integer.  Reported to commons-dev list by Jon Langlois.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@141445 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/stat/FrequencyTest.java b/src/test/org/apache/commons/math/stat/FrequencyTest.java
+--- a/src/test/org/apache/commons/math/stat/FrequencyTest.java
++++ b/src/test/org/apache/commons/math/stat/FrequencyTest.java
+@@ -115,23 +116,24 @@
+     public void testPcts() {
+         f.addValue(oneL);
+         f.addValue(twoL);
+         f.addValue(oneI);
+         f.addValue(twoI);
+         f.addValue(threeL);
+         f.addValue(threeL);
+         f.addValue(3);
+         f.addValue(threeI);
+         assertEquals("one pct",0.25,f.getPct(1),tolerance);
+         assertEquals("two pct",0.25,f.getPct(new Long(2)),tolerance);
+         assertEquals("three pct",0.5,f.getPct(threeL),tolerance);
+         assertEquals("five pct",0,f.getPct(5),tolerance);
+         assertEquals("foo pct",0,f.getPct("foo"),tolerance);
+         assertEquals("one cum pct",0.25,f.getCumPct(1),tolerance);
+         assertEquals("two cum pct",0.50,f.getCumPct(new Long(2)),tolerance);
++        assertEquals("Integer argument",0.50,f.getCumPct(new Integer(2)),tolerance);
+         assertEquals("three cum pct",1.0,f.getCumPct(threeL),tolerance);
+         assertEquals("five cum pct",1.0,f.getCumPct(5),tolerance);
+         assertEquals("zero cum pct",0.0,f.getCumPct(0),tolerance);
+         assertEquals("foo cum pct",0,f.getCumPct("foo"),tolerance);
+     }
+     
+     /** test adding incomparable values */
+
+commit d740b517d5ecd91b1bcdce96977b57a80823c3fb
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sun Feb 8 14:51:25 2004
+
+    Refactored Frequency to support cummulative frequency counts and percentages. Also eliminated the name property.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@141089 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/stat/FrequencyTest.java b/src/test/org/apache/commons/math/stat/FrequencyTest.java
+--- a/src/test/org/apache/commons/math/stat/FrequencyTest.java
++++ b/src/test/org/apache/commons/math/stat/FrequencyTest.java
+@@ -109,14 +117,23 @@
+     public void testPcts() {
+-        Frequency f = new Frequency("test pcts"); 
+         f.addValue(oneL);
+         f.addValue(twoL);
+         f.addValue(oneI);
+         f.addValue(twoI);
+-        f.addValue("foo");
+-        f.addValue("foo");
+-        f.addValue("foo");
+-        f.addValue("foo");
+-        assertEquals("one pct",0.25,f.getPct("1"),tolerance);
+-        assertEquals("two pct",0.25,f.getPct("2"),tolerance);
+-        assertEquals("foo pct",0.5,f.getPct("foo"),tolerance);
+-        assertEquals("bar pct",0,f.getPct("bar"),tolerance);
++        f.addValue(threeL);
++        f.addValue(threeL);
++        f.addValue(3);
++        f.addValue(threeI);
++        assertEquals("one pct",0.25,f.getPct(1),tolerance);
++        assertEquals("two pct",0.25,f.getPct(new Long(2)),tolerance);
++        assertEquals("three pct",0.5,f.getPct(threeL),tolerance);
++        assertEquals("five pct",0,f.getPct(5),tolerance);
++        assertEquals("foo pct",0,f.getPct("foo"),tolerance);
++        assertEquals("one cum pct",0.25,f.getCumPct(1),tolerance);
++        assertEquals("two cum pct",0.50,f.getCumPct(new Long(2)),tolerance);
++        assertEquals("three cum pct",1.0,f.getCumPct(threeL),tolerance);
++        assertEquals("five cum pct",1.0,f.getCumPct(5),tolerance);
++        assertEquals("zero cum pct",0.0,f.getCumPct(0),tolerance);
++        assertEquals("foo cum pct",0,f.getCumPct("foo"),tolerance);
++    }
++    
++    /** test adding incomparable values */
+
+commit 0a904461932f2c0455611e77ec6a8d8aced2980b
+Author: Mark R. Diggory <mdiggory@apache.org>
+Date:   Fri Nov 14 17:25:28 2003
+
+    Attempting to recover last revision.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@141013 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/stat/FrequencyTest.java b/src/test/org/apache/commons/math/stat/FrequencyTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/math/stat/FrequencyTest.java
+@@ -0,0 +109,14 @@
++    public void testPcts() {
++        Frequency f = new Frequency("test pcts"); 
++        f.addValue(oneL);
++        f.addValue(twoL);
++        f.addValue(oneI);
++        f.addValue(twoI);
++        f.addValue("foo");
++        f.addValue("foo");
++        f.addValue("foo");
++        f.addValue("foo");
++        assertEquals("one pct",0.25,f.getPct("1"),tolerance);
++        assertEquals("two pct",0.25,f.getPct("2"),tolerance);
++        assertEquals("foo pct",0.5,f.getPct("foo"),tolerance);
++        assertEquals("bar pct",0,f.getPct("bar"),tolerance);

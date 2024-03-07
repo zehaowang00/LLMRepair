@@ -1,0 +1,73 @@
+commit 308ed4ed89b32d119b5994e457597275c6a0af7d
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Sat Jan 30 01:29:46 2016
+
+    Fix #1108
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestPolymorphicWithDefaultImpl.java b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestPolymorphicWithDefaultImpl.java
+--- a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestPolymorphicWithDefaultImpl.java
++++ b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestPolymorphicWithDefaultImpl.java
+@@ -196,8 +215,25 @@
+-    
++    public void testUnknownTypeIDRecovery() throws Exception
++    {
++        ObjectReader reader = MAPPER.readerFor(CallRecord.class).without(
++                DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
++        String json = aposToQuotes("{'version':0.0,'application':'123',"
++                +"'item':{'type':'xevent','location':'location1'},"
++                +"'item2':{'type':'event','location':'location1'}}");
++        // can't read item2 - which is valid
++        CallRecord r = reader.readValue(json);
++        assertNull(r.item);
++        assertNotNull(r.item2);
++
++        json = aposToQuotes("{'item':{'type':'xevent','location':'location1'}, 'version':0.0,'application':'123'}");
++        CallRecord r3 = reader.readValue(json);
++        assertNull(r3.item);
++        assertEquals("123", r3.application);
++    }
++
+     /*
+     /**********************************************************
+     /* Unit tests, serialization
+     /**********************************************************
+      */
+ 
+     /*
+
+commit 966dd97fa4d4cef3a10b4b37f6fdf9ebb2a0f6a4
+Author: Cowtowncoder <tatu.saloranta@iki.fi>
+Date:   Wed Dec 17 14:07:24 2014
+
+    Add unit test for #656
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestPolymorphicWithDefaultImpl.java b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestPolymorphicWithDefaultImpl.java
+--- a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestPolymorphicWithDefaultImpl.java
++++ b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestPolymorphicWithDefaultImpl.java
+@@ -180,7 +196,8 @@
++    
+     /*
+     /**********************************************************
+     /* Unit tests, serialization
+     /**********************************************************
+      */
+ 
+     /*
+
+commit 6f5cf623ba7a3e7a9e27917955ab388e35769687
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Mon Dec 8 02:11:49 2014
+
+    Further work on general-purpose virtual properties (not quite complete yet)
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestTypedDeserializationWithDefault.java b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestPolymorphicWithDefaultImpl.java
+--- a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestTypedDeserializationWithDefault.java
++++ b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestPolymorphicWithDefaultImpl.java
+@@ -154,0 +163,7 @@
++    /*
++    /**********************************************************
++    /* Unit tests, serialization
++    /**********************************************************
++     */
++
++    /*

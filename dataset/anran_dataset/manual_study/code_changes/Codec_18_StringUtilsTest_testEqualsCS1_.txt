@@ -1,0 +1,22 @@
+commit 5ef5bd199a4e3df74479b4b363fa29b0b3092547
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Sun Mar 26 17:43:36 2017
+
+    CODEC-231 StringUtils.equals(CharSequence cs1, CharSequence cs2) can fail with String Index OBE
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/codec/trunk@1788777 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/codec/binary/StringUtilsTest.java b/src/test/java/org/apache/commons/codec/binary/StringUtilsTest.java
+--- a/src/test/java/org/apache/commons/codec/binary/StringUtilsTest.java
++++ b/src/test/java/org/apache/commons/codec/binary/StringUtilsTest.java
+@@ -211,0 +224,10 @@
++    public void testEqualsCS1() {
++        Assert.assertFalse(StringUtils.equals(new StringBuilder("abc"), null));
++        Assert.assertFalse(StringUtils.equals(null, new StringBuilder("abc")));
++        Assert.assertTrue(StringUtils.equals(new StringBuilder("abc"), new StringBuilder("abc")));
++        Assert.assertFalse(StringUtils.equals(new StringBuilder("abc"), new StringBuilder("abcd")));
++        Assert.assertFalse(StringUtils.equals(new StringBuilder("abcd"), new StringBuilder("abc")));
++        Assert.assertFalse(StringUtils.equals(new StringBuilder("abc"), new StringBuilder("ABC")));
++    }
++
++    @Test

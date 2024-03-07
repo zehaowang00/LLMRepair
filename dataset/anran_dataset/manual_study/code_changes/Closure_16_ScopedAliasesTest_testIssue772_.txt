@@ -1,0 +1,103 @@
+commit 3b97e5e4212c769daa22a96094ed19b4658c8760
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Jul 9 12:18:36 2012
+
+    When expanding goog.scope aliases in type expressions, do not
+    expand the alias until previous aliases have been expanded.
+    fixes issue 772
+    
+    R=johnlenz
+    DELTA=49  (39 added, 1 deleted, 9 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=5126
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2077 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/ScopedAliasesTest.java b/test/com/google/javascript/jscomp/ScopedAliasesTest.java
+--- a/test/com/google/javascript/jscomp/ScopedAliasesTest.java
++++ b/test/com/google/javascript/jscomp/ScopedAliasesTest.java
+@@ -406,4 +406,12 @@
++  public void testIssue772() {
++    testTypes(
++        "var b = a.b;" +
++        "var c = b.c;",
++        "/** @param {c.MyType} x */ types.actual;" +
++        "/** @param {a.b.c.MyType} x */ types.expected;");
++  }
++
+   // TODO(robbyw): What if it's recursive?  var goog = goog.dom;
+ 
+   // FAILURE CASES
+ 
+
+commit ffe67f22a342291ecfed36c1c6ee7c01186f9eff
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue May 11 14:43:14 2010
+
+    Change on 2010/05/07 by robby
+    
+            Add diagnostics to the ScopedAliases pass.
+    
+            R=nick
+            DELTA=141  (95 added, 1 deleted, 45 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=vohmth
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@205 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/ScopedAliasesTest.java b/test/com/google/javascript/jscomp/ScopedAliasesTest.java
+--- a/test/com/google/javascript/jscomp/ScopedAliasesTest.java
++++ b/test/com/google/javascript/jscomp/ScopedAliasesTest.java
+@@ -94,2 +93,4 @@
+   // TODO(robbyw): What if it's recursive?  var goog = goog.dom;
+ 
++  // FAILURE CASES
++
+
+commit 58c3e4ce1d17ec619bcc4964bdeebc676f93567d
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue May 4 10:39:54 2010
+
+    Change on 2010/05/03 by robby
+    
+            Preliminary: goog.scope support for closure-compiler
+    
+            R=nick,john
+            DELTA=318  (318 added, 0 deleted, 0 changed)
+    
+    Change on 2010/05/03 by nick
+    
+            Add a bit more smarts to type resolution. Also, give it a
+            "forceResolve" method so that it will try to resolve type names,
+            even if the registry is in a lazy mode.
+    
+            R=robert
+            DELTA=205  (133 added, 54 deleted, 18 changed)
+    
+    Change on 2010/05/03 by alan
+    
+            Enable Flow Sensitive Inlining by default. Passes GMail automation test.
+    
+            R=nick
+            DELTA=1  (0 added, 0 deleted, 1 changed)
+    
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=cmvhwl
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@202 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/ScopedAliasesTest.java b/test/com/google/javascript/jscomp/ScopedAliasesTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/ScopedAliasesTest.java
+@@ -0,0 +94,2 @@
++  // TODO(robbyw): What if it's recursive?  var goog = goog.dom;
++

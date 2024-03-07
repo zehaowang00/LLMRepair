@@ -1,0 +1,30 @@
+commit d06ac163013a3779fcec7c2f544ba99d08f69f58
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Aug 10 15:39:40 2012
+
+    Fix may-use data flow analysis in the presence of ON_EX edges.
+    Fixes issue 794
+    
+    R=acleung
+    DELTA=43  (42 added, 0 deleted, 1 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=5337
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2136 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/FlowSensitiveInlineVariablesTest.java b/test/com/google/javascript/jscomp/FlowSensitiveInlineVariablesTest.java
+--- a/test/com/google/javascript/jscomp/FlowSensitiveInlineVariablesTest.java
++++ b/test/com/google/javascript/jscomp/FlowSensitiveInlineVariablesTest.java
+@@ -503,0 +512,9 @@
++  public void testIssue794b() {
++    noInline(
++        "var x = 1; " +
++        "try { x = x + someFunction(); } catch (e) {}" +
++        "x = x + 1;" +
++        "try { x = x + someFunction(); } catch (e) {}" +
++        "return x;");
++  }
++

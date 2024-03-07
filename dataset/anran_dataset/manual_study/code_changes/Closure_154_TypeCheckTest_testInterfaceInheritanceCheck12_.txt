@@ -1,0 +1,35 @@
+commit 09ed556367fbe81b3003881dfacad643939664c0
+Author: zhuyi@google.com <zhuyi@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Feb 28 11:08:39 2011
+
+    Fixes issue 204
+    Add support for data members on interfaces
+    
+    R=johnlenz,nicksantos,acleung
+    DELTA=211  (77 added, 125 deleted, 9 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=692
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@829 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- a/test/com/google/javascript/jscomp/TypeCheckTest.java
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -6715,0 +6716,14 @@
++  public void testInterfaceInheritanceCheck12() throws Exception {
++    testTypes(
++        "/** @interface */ function I() {};\n" +
++        "/** @type {string} */ I.prototype.foobar;\n" +
++        "/** \n * @constructor \n * @implements {I} */\n" +
++        "function C() {\n" +
++        "/** \n * @type {number} */ this.foobar = 2;};\n" +
++        "/** @type {I} */ \n var test = new C(); alert(test.foobar);",
++        "mismatch of the foobar property type and the type of the property" +
++        " it overrides from interface I\n" +
++        "original: string\n" +
++        "override: number");
++  }
++

@@ -1,0 +1,37 @@
+commit 7e93d521cb67ce33018315234fafe8a5aa30ee1e
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Feb 21 12:27:03 2012
+
+    Prevent unsupport JavaScript variants that Rhino can parse from
+    crashing the compiler in "ide mode".
+    Fixes issue 663
+    
+    R=nicksantos
+    DELTA=42  (41 added, 0 deleted, 1 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=4239
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1786 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/IntegrationTest.java b/test/com/google/javascript/jscomp/IntegrationTest.java
+--- a/test/com/google/javascript/jscomp/IntegrationTest.java
++++ b/test/com/google/javascript/jscomp/IntegrationTest.java
+@@ -1937,0 +1937,15 @@
++  public void testIncompleteFunction() {
++    CompilerOptions options = createCompilerOptions();
++    options.ideMode = true;
++    DiagnosticType[] warnings = new DiagnosticType[]{
++        RhinoErrorReporter.PARSE_ERROR,
++        RhinoErrorReporter.PARSE_ERROR,
++        RhinoErrorReporter.PARSE_ERROR,
++        RhinoErrorReporter.PARSE_ERROR};
++    test(options,
++        new String[] { "var foo = {bar: function(e) }" },
++        new String[] { "var foo = {bar: function(e){}};" },
++        warnings
++    );
++  }
++

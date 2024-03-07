@@ -1,0 +1,88 @@
+commit 8e432a5f5fde4694834ce23c5ac1503ce8d381bc
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Thu Mar 5 13:09:53 2020
+
+    Java8 and JUnit5 (#1335)
+    
+    * Migration to java8.
+    
+    * Tests ported to JUnit 5.
+    
+    * Surefire plugin added.
+    
+    * Assertions and Rules ported to JUnit 5.
+    
+    * JUnit 4 dependency removed.
+    
+    * MultiLocale annotation renamed and changed to include the @ParameterizedTest;
+    multi locale tests need only a single annotation now.
+
+diff --git a/src/test/java/org/jsoup/nodes/AttributeTest.java b/src/test/java/org/jsoup/nodes/AttributeTest.java
+index c8edfd09..0ee16185 100644
+--- a/src/test/java/org/jsoup/nodes/AttributeTest.java
++++ b/src/test/java/org/jsoup/nodes/AttributeTest.java
+@@ -1,12 +1,13 @@
+ package org.jsoup.nodes;
+ 
+ import org.jsoup.Jsoup;
+-import org.junit.Test;
++import org.junit.jupiter.api.Test;
+ 
+-import static org.junit.Assert.*;
++import static org.junit.jupiter.api.Assertions.*;
+ 
+ public class AttributeTest {
+-    @Test public void html() {
++    @Test
++    public void html() {
+         Attribute attr = new Attribute("key", "value &");
+         assertEquals("key=\"value &amp;\"", attr.html());
+         assertEquals(attr.html(), attr.toString());
+@@ -19,13 +20,15 @@
+         assertEquals(attr.html(), attr.toString());
+     }
+ 
+-    @Test(expected = IllegalArgumentException.class) public void validatesKeysNotEmpty() {
+-        Attribute attr = new Attribute(" ", "Check");
++    @Test public void validatesKeysNotEmpty() {
++        assertThrows(IllegalArgumentException.class, () -> new Attribute(" ", "Check"));
+     }
+ 
+-    @Test(expected = IllegalArgumentException.class) public void validatesKeysNotEmptyViaSet() {
+-        Attribute attr = new Attribute("One", "Check");
+-        attr.setKey(" ");
++    @Test public void validatesKeysNotEmptyViaSet() {
++        assertThrows(IllegalArgumentException.class, () -> {
++            Attribute attr = new Attribute("One", "Check");
++            attr.setKey(" ");
++        });
+     }
+ 
+     @Test public void booleanAttributesAreEmptyStringValues() {
+
+commit 25ba713e1d1a97ebfee38c0df3e7e6d4d9615f97
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sat Dec 22 20:28:00 2018
+
+    Validate new attribute names correctly
+    
+    Fixes #1159
+
+diff --git a/src/test/java/org/jsoup/nodes/AttributeTest.java b/src/test/java/org/jsoup/nodes/AttributeTest.java
+index 4789a006..651019ed 100644
+--- a/src/test/java/org/jsoup/nodes/AttributeTest.java
++++ b/src/test/java/org/jsoup/nodes/AttributeTest.java
+@@ -17,4 +17,13 @@
+         assertEquals(s + "=\"A" + s + "B\"", attr.html());
+         assertEquals(attr.html(), attr.toString());
+     }
++
++    @Test(expected = IllegalArgumentException.class) public void validatesKeysNotEmpty() {
++        Attribute attr = new Attribute(" ", "Check");
++    }
++
++    @Test(expected = IllegalArgumentException.class) public void validatesKeysNotEmptyViaSet() {
++        Attribute attr = new Attribute("One", "Check");
++        attr.setKey(" ");
++    }
+ }

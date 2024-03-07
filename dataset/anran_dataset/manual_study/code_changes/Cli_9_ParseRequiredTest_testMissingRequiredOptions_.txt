@@ -1,0 +1,66 @@
+commit fea35870b69c0d37ab36ab6783edbc7aacc0842c
+Author: Henri Yandell <bayard@apache.org>
+Date:   Thu May 8 02:56:36 2008
+
+    Adding comma delimited whitespace to the exception message that lists missing required options as requested in CLI-149. I didn't add the requested -, as it could be -- or some other prefix. Unit tests also added.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/branches/cli-1.x@654431 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/ParseRequiredTest.java b/src/test/org/apache/commons/cli/ParseRequiredTest.java
+--- a/src/test/org/apache/commons/cli/ParseRequiredTest.java
++++ b/src/test/org/apache/commons/cli/ParseRequiredTest.java
+@@ -108,10 +118,26 @@
++    public void testMissingRequiredOptions()
++    {
++        String[] args = new String[] { "-a" };
++
++        _options.addOption( OptionBuilder.withLongOpt( "cfile" )
++                                     .hasArg()
++                                     .isRequired()
++                                     .withDescription( "set the value of [c]" )
++                                     .create( 'c' ) );
++
++        try
++        {
++            CommandLine cl = parser.parse(_options,args);
++            fail( "exception should have been thrown" );
++        }
++        catch (MissingOptionException e)
++        {
++            assertEquals( "Incorrect exception message", "Missing required options: b, c", e.getMessage() );
++        }
+         catch (ParseException e)
+         {
+-            if( !( e instanceof MissingOptionException ) )
+-            {
+-                fail( "expected to catch MissingOptionException" );
+-            }
++            fail( "expected to catch MissingOptionException" );
+         }
+     }
+ 
+ }
+
+commit aae50c585ec3ac33c6a9af792e80378904a73195
+Author: James Strachan <jstrachan@apache.org>
+Date:   Mon Jun 10 14:01:16 2002
+
+    moved cli over from the sandbox to commons proper
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129767 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/ParseRequiredTest.java b/src/test/org/apache/commons/cli/ParseRequiredTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/cli/ParseRequiredTest.java
+@@ -0,0 +101,10 @@
++        catch (ParseException e)
++        {
++            if( !( e instanceof MissingOptionException ) )
++            {
++                fail( "expected to catch MissingOptionException" );
++            }
++        }
++    }
++
++}

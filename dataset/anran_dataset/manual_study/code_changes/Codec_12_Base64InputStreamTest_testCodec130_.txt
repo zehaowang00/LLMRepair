@@ -1,0 +1,156 @@
+commit caa142d0399f10ce3ec6fb843e679e2d8c07c43f
+Author: Thomas Neidhart <tn@apache.org>
+Date:   Sun Mar 18 17:45:43 2012
+
+    [CODEC-130] Added unit test for Base32InputStream, improved Base64 unit test.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/codec/trunk@1302231 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/codec/binary/Base64InputStreamTest.java b/src/test/java/org/apache/commons/codec/binary/Base64InputStreamTest.java
+--- a/src/test/java/org/apache/commons/codec/binary/Base64InputStreamTest.java
++++ b/src/test/java/org/apache/commons/codec/binary/Base64InputStreamTest.java
+@@ -60,27 +60,22 @@
+     public void testCodec130() throws IOException {
+         ByteArrayOutputStream bos = new ByteArrayOutputStream();
+         Base64OutputStream base64os = new Base64OutputStream(bos);
+ 
+-        base64os.write(STRING_FIXTURE.getBytes());
++        base64os.write(StringUtils.getBytesUtf8(STRING_FIXTURE));
++        base64os.close();
+ 
+         ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+         Base64InputStream ins = new Base64InputStream(bis);
+ 
+         // we skip the first character read from the reader
+         ins.skip(1);
+-        StringBuffer sb = new StringBuffer();
+-        int len = 0;
+-        byte[] bytes = new byte[10];
+-        while ((len = ins.read(bytes)) != -1) {
+-            String s = new String(bytes, 0, len, "iso-8859-1");
+-            sb.append(s);
+-        }
+-        String str = sb.toString();
++        byte[] decodedBytes = Base64TestData.streamToBytes(ins, new byte[64]);
++        String str = StringUtils.newStringUtf8(decodedBytes);
+ 
+         assertEquals(STRING_FIXTURE.substring(1), str);
+     }
+ 
+     /**
+      * Tests the bug reported in CODEC-105. Bad interactions with InputStream when reading one byte at a time.
+      */
+     @Test
+
+commit 10d8fc1dad1191f593c79cf6dad79af5cabe3ccf
+Author: Thomas Neidhart <tn@apache.org>
+Date:   Sat Mar 17 14:37:35 2012
+
+    Use existing string resource for unit test.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/codec/trunk@1301976 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/codec/binary/Base64InputStreamTest.java b/src/test/java/org/apache/commons/codec/binary/Base64InputStreamTest.java
+--- a/src/test/java/org/apache/commons/codec/binary/Base64InputStreamTest.java
++++ b/src/test/java/org/apache/commons/codec/binary/Base64InputStreamTest.java
+@@ -61,27 +61,27 @@
+     public void testCodec130() throws IOException {
+         ByteArrayOutputStream bos = new ByteArrayOutputStream();
+         Base64OutputStream base64os = new Base64OutputStream(bos);
+ 
+-        base64os.write("Hello World!".getBytes());
++        base64os.write(STRING_FIXTURE.getBytes());
+ 
+         ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+         Base64InputStream ins = new Base64InputStream(bis);
+ 
+         // we skip the first character read from the reader
+         ins.skip(1);
+         StringBuffer sb = new StringBuffer();
+         int len = 0;
+         byte[] bytes = new byte[10];
+         while ((len = ins.read(bytes)) != -1) {
+             String s = new String(bytes, 0, len, "iso-8859-1");
+             sb.append(s);
+         }
+         String str = sb.toString();
+ 
+-        assertEquals("ello World!", str);
++        assertEquals(STRING_FIXTURE.substring(1), str);
+     }
+ 
+     /**
+      * Tests the bug reported in CODEC-105. Bad interactions with InputStream when reading one byte at a time.
+      */
+     @Test
+
+commit 2697108cc9f1c7b089053143097c9f8843185462
+Author: Thomas Neidhart <tn@apache.org>
+Date:   Sat Mar 17 14:32:14 2012
+
+    Added unit test for CODEC-130.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/codec/trunk@1301974 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/codec/binary/Base64InputStreamTest.java b/src/test/java/org/apache/commons/codec/binary/Base64InputStreamTest.java
+--- a/src/test/java/org/apache/commons/codec/binary/Base64InputStreamTest.java
++++ b/src/test/java/org/apache/commons/codec/binary/Base64InputStreamTest.java
+@@ -54,3 +61,27 @@
++    public void testCodec130() throws IOException {
++        ByteArrayOutputStream bos = new ByteArrayOutputStream();
++        Base64OutputStream base64os = new Base64OutputStream(bos);
++
++        base64os.write("Hello World!".getBytes());
++
++        ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
++        Base64InputStream ins = new Base64InputStream(bis);
++
++        // we skip the first character read from the reader
++        ins.skip(1);
++        StringBuffer sb = new StringBuffer();
++        int len = 0;
++        byte[] bytes = new byte[10];
++        while ((len = ins.read(bytes)) != -1) {
++            String s = new String(bytes, 0, len, "iso-8859-1");
++            sb.append(s);
++        }
++        String str = sb.toString();
++
++        assertEquals("ello World!", str);
++    }
++
++    /**
+      * Tests the bug reported in CODEC-105. Bad interactions with InputStream when reading one byte at a time.
+      */
+     @Test
+
+commit 8ffb4fb5e09446845f520fa8e759e9b8566d633e
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Fri Apr 1 16:59:03 2011
+
+    Migrate to JUnit 4 https://issues.apache.org/jira/browse/CODEC-120
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/codec/trunk@1087894 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/codec/binary/Base64InputStreamTest.java b/src/test/org/apache/commons/codec/binary/Base64InputStreamTest.java
+--- a/src/test/org/apache/commons/codec/binary/Base64InputStreamTest.java
++++ b/src/test/org/apache/commons/codec/binary/Base64InputStreamTest.java
+@@ -53,2 +49,3 @@
+      * Tests the bug reported in CODEC-105. Bad interactions with InputStream when reading one byte at a time.
+      */
++    @Test
+
+commit 2c13032a16e37b7bc9e0272d25fc185b5c82b42e
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Sun Jan 23 19:46:09 2011
+
+    [CODEC-105] ArrayIndexOutOfBoundsException when doing multiple reads() on encoding b64InputStream. https://issues.apache.org/jira/browse/CODEC-105
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/codec/trunk@1062592 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/codec/binary/Base64InputStreamTest.java b/src/test/org/apache/commons/codec/binary/Base64InputStreamTest.java
+--- a/src/test/org/apache/commons/codec/binary/Base64InputStreamTest.java
++++ b/src/test/org/apache/commons/codec/binary/Base64InputStreamTest.java
+@@ -52,0 +53,2 @@
++     * Tests the bug reported in CODEC-105. Bad interactions with InputStream when reading one byte at a time.
++     */

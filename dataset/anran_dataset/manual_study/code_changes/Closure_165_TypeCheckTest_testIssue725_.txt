@@ -1,0 +1,64 @@
+commit 61336bdc14f94b57ba58042f958c2a3227a55a3f
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon May 21 11:58:30 2012
+
+    Better property checks, by creating a notion of "synthetic" types
+    that we use for internal bookkeeping, and not using those
+    for property checks.
+    fixes issue 725
+    
+    R=johnlenz
+    DELTA=63  (58 added, 0 deleted, 5 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=4832
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1984 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- a/test/com/google/javascript/jscomp/TypeCheckTest.java
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -5851,5 +5851,15 @@
++  public void testIssue725() throws Exception {
++    testTypes(
++        "/** @typedef {{name: string}} */ var RecordType1;" +
++        "/** @typedef {{name2: string}} */ var RecordType2;" +
++        "/** @param {RecordType1} rec */ function f(rec) {" +
++        "  alert(rec.name2);" +
++        "}",
++        "Property name2 never defined on rec");
++  }
++
+   /**
+    * Tests that the || operator is type checked correctly, that is of
+    * the type of the first argument or of the second argument. See
+    * bugid 592170 for more details.
+    */
+
+commit 77b7c78d4aeeb6471f2f668a06c0f61a68f95ccd
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Jan 4 15:18:21 2010
+
+    Add more unit tests for type checking.
+    
+    Add phase optimization.
+    
+    Fix a type inference bug.
+    
+    String.prototype.split may not return null.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@55 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -0,0 +3907,5 @@
++  /**
++   * Tests that the || operator is type checked correctly, that is of
++   * the type of the first argument or of the second argument. See
++   * bugid 592170 for more details.
++   */

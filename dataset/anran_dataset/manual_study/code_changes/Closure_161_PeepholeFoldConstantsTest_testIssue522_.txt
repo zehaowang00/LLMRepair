@@ -1,0 +1,193 @@
+commit 89441fcc27e2d7f36d7b2f3990bbc894235bb5b4
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Aug 2 15:34:59 2011
+
+    Don't try to fold array literal accesses that are acting as a
+    assignment target.
+    Fixes issue 522.
+    
+    R=acleung
+    DELTA=116  (69 added, 45 deleted, 2 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=2859
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1315 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+--- a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
++++ b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+@@ -926,26 +926,30 @@
++  public void testIssue522() {
++    testSame("[][1] = 1;");
++  }
++
+   private static final List<String> LITERAL_OPERANDS =
+       ImmutableList.of(
+           "null",
+           "undefined",
+           "void 0",
+           "true",
+           "false",
+           "!0",
+           "!1",
+           "0",
+           "1",
+           "''",
+           "'123'",
+           "'abc'",
+           "'def'",
+           "NaN",
+           "Infinity"
+           // TODO(nicksantos): Add more literals
+           // "-Infinity",
+           //"({})",
+           // "[]"
+           //"[0]",
+           //"Object",
+           //"(function() {})"
+           );
+ 
+
+commit 03fee32a06ccf8257b2da67b9034270be38805ae
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Apr 8 15:27:37 2011
+
+    Fix more regressions caused by TRUE/FALSE denormalization.
+    Fixes issue 413
+    
+    R=acleung
+    DELTA=55  (46 added, 1 deleted, 8 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=1308
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@982 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+--- a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
++++ b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+@@ -1042,24 +1068,26 @@
+   private static final List<String> LITERAL_OPERANDS =
+       ImmutableList.of(
+           "null",
+           "undefined",
+           "void 0",
+           "true",
+           "false",
++          "!0",
++          "!1",
+           "0",
+           "1",
+           "''",
+           "'123'",
+           "'abc'",
+           "'def'",
+           "NaN",
+           "Infinity"
+           // TODO(nicksantos): Add more literals
+-          //-Infinity
++          // "-Infinity",
+           //"({})",
+-          //"[]",
++          // "[]"
+           //"[0]",
+           //"Object",
+           //"(function() {})"
+           );
+ 
+
+commit bb877849306e221202b283f9b8eb3873d7bdc9ae
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Wed Jan 19 18:22:46 2011
+
+    More constant folding tweaks.
+    - Remove extraneous unary "+"
+    - Convert number to integer for BIT ops (not shift)
+    - reduce literals in numberic contexts
+    
+    R=nicksantos
+    DELTA=275  (225 added, 30 deleted, 20 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=319
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@712 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+--- a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
++++ b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+@@ -796,22 +903,24 @@
+   private static final List<String> LITERAL_OPERANDS =
+       ImmutableList.of(
+           "null",
+           "undefined",
+           "void 0",
+           "true",
+           "false",
+           "0",
+           "1",
+           "''",
++          "'123'",
+           "'abc'",
+           "'def'",
+           "NaN",
+           "Infinity"
+           // TODO(nicksantos): Add more literals
++          //-Infinity
+           //"({})",
+           //"[]",
+           //"[0]",
+           //"Object",
+           //"(function() {})"
+           );
+ 
+
+commit eaaa156632369f88e9667f55c7761cef8367cf57
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 30 15:10:26 2010
+
+    Create some exhaustive tests for binary ops
+    
+    R=johnlenz
+    DELTA=181  (180 added, 0 deleted, 1 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=27
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@577 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+--- a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
++++ b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+@@ -716,0 +738,22 @@
++  private static final List<String> LITERAL_OPERANDS =
++      ImmutableList.of(
++          "null",
++          "undefined",
++          "void 0",
++          "true",
++          "false",
++          "0",
++          "1",
++          "''",
++          "'abc'",
++          "'def'",
++          "NaN",
++          "Infinity"
++          // TODO(nicksantos): Add more literals
++          //"({})",
++          //"[]",
++          //"[0]",
++          //"Object",
++          //"(function() {})"
++          );
++

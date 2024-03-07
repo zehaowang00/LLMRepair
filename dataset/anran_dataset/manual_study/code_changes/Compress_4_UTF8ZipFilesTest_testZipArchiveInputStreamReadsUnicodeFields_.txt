@@ -1,0 +1,58 @@
+commit 008ca948dadacea8d1a2662c577fdcb25f32d5e2
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Thu Mar 26 18:29:59 2009
+
+    support as much as possible of ZipFile as a stream can do in ZipArchiveInputStream, COMPRESS-47
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@758896 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/zip/UTF8ZipFilesTest.java b/src/test/java/org/apache/commons/compress/archivers/zip/UTF8ZipFilesTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/zip/UTF8ZipFilesTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/zip/UTF8ZipFilesTest.java
+@@ -122,15 +177,18 @@
++    public void testZipArchiveInputStreamReadsUnicodeFields()
++        throws IOException {
++        File file = File.createTempFile("unicode-test", ".zip");
+         ZipFile zf = null;
+         try {
+             createTestFile(file, US_ASCII, false, true);
+             zf = new ZipFile(file, US_ASCII, true);
+             assertNotNull(zf.getEntry(ASCII_TXT));
+             assertNotNull(zf.getEntry(EURO_FOR_DOLLAR_TXT));
+             assertNotNull(zf.getEntry(OIL_BARREL_TXT));
+         } finally {
+             ZipFile.closeQuietly(zf);
+             if (file.exists()) {
+                 file.delete();
+             }
+         }
+     }
+ 
+
+commit 1cef96536a04d2ea96aa251f9a7330bc64ce1a58
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Thu Feb 26 08:15:14 2009
+
+    optionally use UnicodeExtraFields to set names and comments of entries when reading.  SANDBOX-176
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/sandbox/compress/trunk@748133 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/zip/UTF8ZipFilesTest.java b/src/test/java/org/apache/commons/compress/archivers/zip/UTF8ZipFilesTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/zip/UTF8ZipFilesTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/zip/UTF8ZipFilesTest.java
+@@ -102,0 +104,15 @@
++        ZipFile zf = null;
++        try {
++            createTestFile(file, US_ASCII, false, true);
++            zf = new ZipFile(file, US_ASCII, true);
++            assertNotNull(zf.getEntry(ASCII_TXT));
++            assertNotNull(zf.getEntry(EURO_FOR_DOLLAR_TXT));
++            assertNotNull(zf.getEntry(OIL_BARREL_TXT));
++        } finally {
++            ZipFile.closeQuietly(zf);
++            if (file.exists()) {
++                file.delete();
++            }
++        }
++    }
++

@@ -1,0 +1,37 @@
+commit 8612f9e5b88c1bea933ef9ab1e431f5db3006b48
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Mon Dec 2 14:14:41 2013
+
+    Fix NPE in Partial.with()
+    
+    Also ensure unsupported duration fields are compared properly
+    Fixes #93
+
+diff --git a/src/test/java/org/joda/time/TestPartial_Basics.java b/src/test/java/org/joda/time/TestPartial_Basics.java
+--- a/src/test/java/org/joda/time/TestPartial_Basics.java
++++ b/src/test/java/org/joda/time/TestPartial_Basics.java
+@@ -451,1 +467,9 @@
++    public void testWith_baseAndArgHaveNoRange() {
++        Partial test = new Partial(DateTimeFieldType.year(), 1);
++        Partial result = test.with(DateTimeFieldType.era(), 1);
++        assertEquals(2, result.size());
++        assertEquals(0, result.indexOf(DateTimeFieldType.era()));
++        assertEquals(1, result.indexOf(DateTimeFieldType.year()));
++    }
++
+     //-----------------------------------------------------------------------
+
+commit b86efe73e72ece8e5ceeed48d05228aa1725c9ad
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Sun Jun 26 19:29:36 2005
+
+    Add Partial, new immutable implementation of ReadablePartial
+    
+    
+    git-svn-id: https://joda-time.svn.sourceforge.net/svnroot/joda-time/trunk@796 1e1cfbb7-5c0e-0410-a2f0-f98d92ec03a1
+
+diff --git a/JodaTime/src/test/org/joda/time/TestPartial_Basics.java b/JodaTime/src/test/org/joda/time/TestPartial_Basics.java
+--- /dev/null
++++ b/JodaTime/src/test/org/joda/time/TestPartial_Basics.java
+@@ -0,0 +451,1 @@
++    //-----------------------------------------------------------------------

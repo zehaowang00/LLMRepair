@@ -1,0 +1,133 @@
+commit 1a7ba5cb0111dd3ed9afd9691cab39b3c341e408
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Nov 3 17:10:49 2011
+
+    Modify normalization to distinguish function expression names from
+    parameters and local variables.
+    Fixes issue 539.
+    
+    R=nicksantos
+    DELTA=246  (61 added, 11 deleted, 174 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3615
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1552 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/InlineFunctionsTest.java b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+--- a/test/com/google/javascript/jscomp/InlineFunctionsTest.java
++++ b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+@@ -2167,14 +2167,14 @@
+   public void testAnonymous1() {
+     assumeMinimumCapture = false;
+     test("(function(){var a=10;(function(){var b=a;a++;alert(b)})()})();",
+-         "{var a$$inline_2=10;" +
+-         "{var b$$inline_3=a$$inline_2;" +
+-         "a$$inline_2++;alert(b$$inline_3)}}");
++         "{var a$$inline_0=10;" +
++         "{var b$$inline_1=a$$inline_0;" +
++         "a$$inline_0++;alert(b$$inline_1)}}");
+ 
+     assumeMinimumCapture = true;
+     test("(function(){var a=10;(function(){var b=a;a++;alert(b)})()})();",
+-        "{var a$$inline_4=10;" +
+-        "{var b$$inline_1=a$$inline_4;" +
+-        "a$$inline_4++;alert(b$$inline_1)}}");
++        "{var a$$inline_2=10;" +
++        "{var b$$inline_0=a$$inline_2;" +
++        "a$$inline_2++;alert(b$$inline_0)}}");
+   }
+ 
+
+commit de20cf30dfdf0f885c9b97dfb75f8425df0280b9
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Aug 22 20:34:25 2011
+
+    Add an inliner option to inline function without considering whether "capture" of variables. Traditionally, we have avoiding inlining function with closure into scope (because they might capture unintended values) or inline functions that require temporaries into scopes that contain closures (because the temps might leak into the closure scopes).
+    This CL does not include a means of enabling the option.
+    
+    R=acleung
+    DELTA=332  (313 added, 0 deleted, 19 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3089
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1378 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/InlineFunctionsTest.java b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+--- a/test/com/google/javascript/jscomp/InlineFunctionsTest.java
++++ b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+@@ -1944,7 +2167,14 @@
+   public void testAnonymous1() {
++    assumeMinimumCapture = false;
+     test("(function(){var a=10;(function(){var b=a;a++;alert(b)})()})();",
+          "{var a$$inline_2=10;" +
+          "{var b$$inline_3=a$$inline_2;" +
+          "a$$inline_2++;alert(b$$inline_3)}}");
++
++    assumeMinimumCapture = true;
++    test("(function(){var a=10;(function(){var b=a;a++;alert(b)})()})();",
++        "{var a$$inline_4=10;" +
++        "{var b$$inline_1=a$$inline_4;" +
++        "a$$inline_4++;alert(b$$inline_1)}}");
+   }
+ 
+
+commit 869c65d5c43d96526d90c7ea9a186df9edd67eb0
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Aug 19 14:37:39 2011
+
+    Automated g4 rollback.
+    
+    *** Reason for rollback ***
+    
+    Be less aggressive about inlining functions contains inner function
+    (go back to limiting this to global scope).
+    From the the original change:
+    
+    Tweaks to function inlining:
+    - an unnamed function expression containing a inner unnamed function
+    expression should not be disallow because the names are the same.
+    - a caller that contains the function definition to be inlined
+    should not consider the candidate to be a capturing function.
+    - allow inlining a function containing an inner function that
+    references arguments.
+    - disallow inlining a function into a function containing
+    eval if intoducing names.
+    - when inlining a function containing a function declaration, rewrite
+    it a var declarations and function expressions to avoid introducing
+    function declaraions into contexts disallowed by ES5 strict.
+    
+    *** Original change description ***
+    
+    Automated g4 rollback of changelist 23059472.
+    
+    *** Reason for rollback ***
+    
+    Breaks things
+    
+    R=acleung
+    DELTA=149  (127 added, 0 deleted, 22 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3079
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1368 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/InlineFunctionsTest.java b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+--- a/test/com/google/javascript/jscomp/InlineFunctionsTest.java
++++ b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+@@ -1905,0 +1944,7 @@
++  public void testAnonymous1() {
++    test("(function(){var a=10;(function(){var b=a;a++;alert(b)})()})();",
++         "{var a$$inline_2=10;" +
++         "{var b$$inline_3=a$$inline_2;" +
++         "a$$inline_2++;alert(b$$inline_3)}}");
++  }
++

@@ -1,0 +1,44 @@
+commit b675d1da9d5f8b36849db4943f580969105901a4
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Aug 10 15:49:41 2012
+
+    Add a heuristic for figuring out the type of an inferred variable
+    that is read across multiple scopes. This isn't perfect, but it should
+    catch a lot of common cases.
+    Fixes issue 726
+    
+    Tested:
+    yes
+    
+    QA: yes
+    
+    R=johnlenz,dimvar
+    DELTA=254  (211 added, 17 deleted, 26 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=5338
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2137 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- a/test/com/google/javascript/jscomp/TypeCheckTest.java
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -5976,0 +5976,16 @@
++  public void testIssue726() throws Exception {
++    testTypes(
++        "/** @constructor */ function Foo() {}" +
++        "/** @param {number} x */ Foo.prototype.bar = function(x) {};" +
++        "/** @return {!Function} */ " +
++        "Foo.prototype.getDeferredBar = function() { " +
++        "  var self = this;" +
++        "  return function() {" +
++        "    self.bar(true);" +
++        "  };" +
++        "};",
++        "actual parameter 1 of Foo.prototype.bar does not match formal parameter\n" +
++        "found   : boolean\n" +
++        "required: number");
++  }
++

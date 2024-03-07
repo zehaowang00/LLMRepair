@@ -1,0 +1,150 @@
+commit 2c6120826245f89fedf2f936ab4a0c3edd8717f3
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Thu May 2 21:10:34 2013
+
+    CSV-58 Unescape handling needs rethinking
+    Fixed up most issues.
+    TODO should TAB, FF and BACKSPACE be un/escaped?
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/csv/trunk@1478621 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVLexerTest.java b/src/test/java/org/apache/commons/csv/CSVLexerTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVLexerTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVLexerTest.java
+@@ -335,8 +332,7 @@
+     public void testEscapedMySqlNullValue() throws Exception {
+         // MySQL uses \N to symbolize null values. We have to restore this
+         final Lexer lexer = getLexer("character\\NEscaped", formatWithEscaping);
+         assertThat(lexer.nextToken(new Token()), hasContent("character\\NEscaped"));
+     }
+ 
+-    // FIXME this should work after CSV-58 is resolved. Currently the result will be "characteraEscaped"
+     @Test
+
+commit 16e12d213016d30376e2bcc5cabc299bcfa765f7
+Author: Benedikt Ritter <britter@apache.org>
+Date:   Wed Apr 10 14:15:36 2013
+
+    Change wrong input data of test. Test now fails because of CSV-58 and is therefore changed to be @Ignore.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/csv/trunk@1466604 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVLexerTest.java b/src/test/java/org/apache/commons/csv/CSVLexerTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVLexerTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVLexerTest.java
+@@ -333,8 +335,8 @@
+     public void testEscapedMySqlNullValue() throws Exception {
+         // MySQL uses \N to symbolize null values. We have to restore this
+-        final Lexer lexer = getLexer("character\\\\NEscaped", formatWithEscaping);
++        final Lexer lexer = getLexer("character\\NEscaped", formatWithEscaping);
+         assertThat(lexer.nextToken(new Token()), hasContent("character\\NEscaped"));
+     }
+ 
+     // FIXME this should work after CSV-58 is resolved. Currently the result will be "characteraEscaped"
+     @Test
+
+commit 09a6e887b891152ebebb3c2df9e0d8a8dcfa3a52
+Author: Benedikt Ritter <britter@apache.org>
+Date:   Mon Apr 1 13:15:31 2013
+
+    Use hasContent matcher token type is not relevant (correct token type recognition is tested by other tests methods)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/csv/trunk@1463210 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVLexerTest.java b/src/test/java/org/apache/commons/csv/CSVLexerTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVLexerTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVLexerTest.java
+@@ -313,8 +315,8 @@
+     public void testEscapedMySqlNullValue() throws Exception {
+         // MySQL uses \N to symbolize null values. We have to restore this
+         final Lexer lexer = getLexer("character\\\\NEscaped", formatWithEscaping);
+-        assertTokenEquals(EOF, "character\\NEscaped", lexer.nextToken(new Token()));
++        assertThat(lexer.nextToken(new Token()), hasContent("character\\NEscaped"));
+     }
+ 
+     // FIXME this should work after CSV-58 is resolved. Currently the result will be "characteraEscaped"
+     @Test
+
+commit dbbae1eccdf486c70204f99f1a938c26fc062e2f
+Author: Benedikt Ritter <britter@apache.org>
+Date:   Sun Mar 24 09:36:16 2013
+
+    Initialize format used by several test methods in setUp
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/csv/trunk@1460367 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVLexerTest.java b/src/test/java/org/apache/commons/csv/CSVLexerTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVLexerTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVLexerTest.java
+@@ -306,8 +314,8 @@
+     public void testEscapedMySqlNullValue() throws Exception {
+         // MySQL uses \N to symbolize null values. We have to restore this
+-        final Lexer lexer = getLexer("character\\\\NEscaped", CSVFormat.newBuilder().withEscape('\\').build());
++        final Lexer lexer = getLexer("character\\\\NEscaped", formatWithEscaping);
+         assertTokenEquals(EOF, "character\\NEscaped", lexer.nextToken(new Token()));
+     }
+ 
+     // FIXME this should work after CSV-58 is resolved. Currently the result will be "characteraEscaped"
+     @Test
+
+commit 3a1806ba26c3088de58ed5898f278dcd075b0552
+Author: Benedikt Ritter <britter@apache.org>
+Date:   Sun Mar 24 09:29:22 2013
+
+    Split up escape testing into separate methods, add escaping tests that should work after CSV-58 is resolved (currently ignored)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/csv/trunk@1460364 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVLexerTest.java b/src/test/java/org/apache/commons/csv/CSVLexerTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVLexerTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVLexerTest.java
+@@ -292,14 +323,8 @@
+-    public void testEscaping() throws Exception {
+-        final String code = "plain," +
+-        		"CR!" + CR + "Escaped," +
+-        		"LF!" + LF +"Escaped," +
+-                "TAB!" + TAB +"Escaped," +
+-                "BACKSPACE!" + BACKSPACE +"Escaped," +
+-                "FF!" + FF +"Escaped";
+-        final Lexer lexer = getLexer(code, CSVFormat.newBuilder().withEscape('!').build());
+-        assertTokenEquals(TOKEN, "plain", lexer.nextToken(new Token()));
+-        assertTokenEquals(TOKEN, "CR" + CR + "Escaped", lexer.nextToken(new Token()));
+-        assertTokenEquals(TOKEN, "LF" + LF + "Escaped", lexer.nextToken(new Token()));
+-        assertTokenEquals(TOKEN, "TAB" + TAB + "Escaped", lexer.nextToken(new Token()));
+-        assertTokenEquals(TOKEN, "BACKSPACE" + BACKSPACE + "Escaped", lexer.nextToken(new Token()));
+-        assertTokenEquals(EOF, "FF" + FF + "Escaped", lexer.nextToken(new Token()));
++    public void testEscapedMySqlNullValue() throws Exception {
++        // MySQL uses \N to symbolize null values. We have to restore this
++        final Lexer lexer = getLexer("character\\\\NEscaped", CSVFormat.newBuilder().withEscape('\\').build());
++        assertTokenEquals(EOF, "character\\NEscaped", lexer.nextToken(new Token()));
++    }
++
++    // FIXME this should work after CSV-58 is resolved. Currently the result will be "characteraEscaped"
++    @Test
+
+commit 2e543f41f3f76649524707337bfaf2731dc735d0
+Author: Benedikt Ritter <britter@apache.org>
+Date:   Sat Mar 23 09:07:04 2013
+
+    Add some unit tests for escape handling in preparation for CSV-58
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/csv/trunk@1460138 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVLexerTest.java b/src/test/java/org/apache/commons/csv/CSVLexerTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVLexerTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVLexerTest.java
+@@ -285,0 +292,14 @@
++    public void testEscaping() throws Exception {
++        final String code = "plain," +
++        		"CR!" + CR + "Escaped," +
++        		"LF!" + LF +"Escaped," +
++                "TAB!" + TAB +"Escaped," +
++                "BACKSPACE!" + BACKSPACE +"Escaped," +
++                "FF!" + FF +"Escaped";
++        final Lexer lexer = getLexer(code, CSVFormat.newBuilder().withEscape('!').build());
++        assertTokenEquals(TOKEN, "plain", lexer.nextToken(new Token()));
++        assertTokenEquals(TOKEN, "CR" + CR + "Escaped", lexer.nextToken(new Token()));
++        assertTokenEquals(TOKEN, "LF" + LF + "Escaped", lexer.nextToken(new Token()));
++        assertTokenEquals(TOKEN, "TAB" + TAB + "Escaped", lexer.nextToken(new Token()));
++        assertTokenEquals(TOKEN, "BACKSPACE" + BACKSPACE + "Escaped", lexer.nextToken(new Token()));
++        assertTokenEquals(EOF, "FF" + FF + "Escaped", lexer.nextToken(new Token()));

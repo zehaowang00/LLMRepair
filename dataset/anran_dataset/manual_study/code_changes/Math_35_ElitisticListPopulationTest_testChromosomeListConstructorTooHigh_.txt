@@ -1,0 +1,60 @@
+commit a5d8d115cb85149c62059a23e8f4d318cac0e903
+Author: Thomas Neidhart <tn@apache.org>
+Date:   Mon Apr 2 14:46:42 2012
+
+    [MATH-776] Use same range check in ctor as in setter for ElitisticListPopulation.
+    Thanks to Reid Hochstedler
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1308454 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math3/genetics/ElitisticListPopulationTest.java b/src/test/java/org/apache/commons/math3/genetics/ElitisticListPopulationTest.java
+--- a/src/test/java/org/apache/commons/math3/genetics/ElitisticListPopulationTest.java
++++ b/src/test/java/org/apache/commons/math3/genetics/ElitisticListPopulationTest.java
+@@ -39,4 +86,9 @@
++    public void testChromosomeListConstructorTooHigh() {
++        final List<Chromosome> chromosomes = Collections.emptyList();
++        final double rate = 1.25;
++        new ElitisticListPopulation(chromosomes, 100, rate);
++    }
+ 
+     private static class DummyChromosome extends Chromosome {
+         private final int fitness;
+ 
+
+commit 26dac5a0e7fc9c6be9571b3e71a15d8502480d96
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sat Sep 5 13:36:48 2009
+
+    Removed trailing spaces.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@811685 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/genetics/ElitisticListPopulationTest.java b/src/test/java/org/apache/commons/math/genetics/ElitisticListPopulationTest.java
+--- a/src/test/java/org/apache/commons/math/genetics/ElitisticListPopulationTest.java
++++ b/src/test/java/org/apache/commons/math/genetics/ElitisticListPopulationTest.java
+@@ -39,4 +39,4 @@
+-    
++
+     private static class DummyChromosome extends Chromosome {
+         private final int fitness;
+-        
++
+
+commit 602e3fec32294ab720a30c11b743cd04140f3ff7
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sun Jun 14 15:04:32 2009
+
+    Added Genetic Algorithm implementation.
+    JIRA: MATH-207
+    Contributed by David Stefka
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@784604 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/genetics/ElitisticListPopulationTest.java b/src/test/org/apache/commons/math/genetics/ElitisticListPopulationTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/math/genetics/ElitisticListPopulationTest.java
+@@ -0,0 +39,4 @@
++    
++    private static class DummyChromosome extends Chromosome {
++        private final int fitness;
++        

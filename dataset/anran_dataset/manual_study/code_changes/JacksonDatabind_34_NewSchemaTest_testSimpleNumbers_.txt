@@ -1,0 +1,17 @@
+commit 6b471c37efce0a3205dff387efd3473980be648f
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Sat Dec 12 14:29:04 2015
+
+    Fix #1045
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/jsonschema/NewSchemaTest.java b/src/test/java/com/fasterxml/jackson/databind/jsonschema/NewSchemaTest.java
+--- a/src/test/java/com/fasterxml/jackson/databind/jsonschema/NewSchemaTest.java
++++ b/src/test/java/com/fasterxml/jackson/databind/jsonschema/NewSchemaTest.java
+@@ -128,0 +139,7 @@
++    public void testSimpleNumbers() throws Exception
++    {
++        final StringBuilder sb = new StringBuilder();
++        
++        MAPPER.acceptJsonFormatVisitor(Numbers.class,
++                new JsonFormatVisitorWrapper.Base() {
++            @Override

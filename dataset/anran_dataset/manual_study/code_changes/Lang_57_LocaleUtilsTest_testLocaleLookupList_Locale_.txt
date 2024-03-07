@@ -1,0 +1,97 @@
+commit 1463c01840c5738bd4daa1e50640d71b3ae751c3
+Author: Stephen Colebourne <scolebourne@apache.org>
+Date:   Sat Oct 8 05:55:25 2005
+
+    Handle differences between JDK1.3 and JDK1.4
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@307279 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/LocaleUtilsTest.java b/src/test/org/apache/commons/lang/LocaleUtilsTest.java
+--- a/src/test/org/apache/commons/lang/LocaleUtilsTest.java
++++ b/src/test/org/apache/commons/lang/LocaleUtilsTest.java
+@@ -262,19 +269,19 @@
+     public void testLocaleLookupList_Locale() {
+         assertLocaleLookupList(null, null, new Locale[0]);
+         assertLocaleLookupList(LOCALE_QQ, null, new Locale[]{LOCALE_QQ});
+         assertLocaleLookupList(LOCALE_EN, null, new Locale[]{LOCALE_EN});
+         assertLocaleLookupList(LOCALE_EN, null, new Locale[]{LOCALE_EN});
+         assertLocaleLookupList(LOCALE_EN_US, null,
+             new Locale[] {
+                 LOCALE_EN_US,
+                 LOCALE_EN});
+         assertLocaleLookupList(LOCALE_EN_US_ZZZZ, null,
+             new Locale[] {
+                 LOCALE_EN_US_ZZZZ,
+                 LOCALE_EN_US,
+-                new Locale("en", "")});
++                LOCALE_EN});
+     }        
+ 
+     /**
+      * Test localeLookupList() method.
+      */
+
+commit 5eb9d16d15146edb6698bfb28c5d8f60ae401924
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Tue Oct 4 18:21:40 2005
+
+    Tsk, tsk: This class did not compile with Java 1.3.1. The test also fails on 1.3.1_15 but works on 1.4.2_09.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@294934 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/LocaleUtilsTest.java b/src/test/org/apache/commons/lang/LocaleUtilsTest.java
+--- a/src/test/org/apache/commons/lang/LocaleUtilsTest.java
++++ b/src/test/org/apache/commons/lang/LocaleUtilsTest.java
+@@ -262,19 +262,19 @@
+     public void testLocaleLookupList_Locale() {
+         assertLocaleLookupList(null, null, new Locale[0]);
+         assertLocaleLookupList(LOCALE_QQ, null, new Locale[]{LOCALE_QQ});
+         assertLocaleLookupList(LOCALE_EN, null, new Locale[]{LOCALE_EN});
+         assertLocaleLookupList(LOCALE_EN, null, new Locale[]{LOCALE_EN});
+         assertLocaleLookupList(LOCALE_EN_US, null,
+             new Locale[] {
+                 LOCALE_EN_US,
+                 LOCALE_EN});
+         assertLocaleLookupList(LOCALE_EN_US_ZZZZ, null,
+             new Locale[] {
+                 LOCALE_EN_US_ZZZZ,
+                 LOCALE_EN_US,
+-                new Locale("en")});
++                new Locale("en", "")});
+     }        
+ 
+     /**
+      * Test localeLookupList() method.
+      */
+
+commit ddd4f84525178a0722ecbc01229d919d11c526f7
+Author: Stephen Colebourne <scolebourne@apache.org>
+Date:   Fri Sep 23 19:17:31 2005
+
+    Test LocaleUtils
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@291219 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/LocaleUtilsTest.java b/src/test/org/apache/commons/lang/LocaleUtilsTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/lang/LocaleUtilsTest.java
+@@ -0,0 +262,19 @@
++    public void testLocaleLookupList_Locale() {
++        assertLocaleLookupList(null, null, new Locale[0]);
++        assertLocaleLookupList(LOCALE_QQ, null, new Locale[]{LOCALE_QQ});
++        assertLocaleLookupList(LOCALE_EN, null, new Locale[]{LOCALE_EN});
++        assertLocaleLookupList(LOCALE_EN, null, new Locale[]{LOCALE_EN});
++        assertLocaleLookupList(LOCALE_EN_US, null,
++            new Locale[] {
++                LOCALE_EN_US,
++                LOCALE_EN});
++        assertLocaleLookupList(LOCALE_EN_US_ZZZZ, null,
++            new Locale[] {
++                LOCALE_EN_US_ZZZZ,
++                LOCALE_EN_US,
++                new Locale("en")});
++    }        
++
++    /**
++     * Test localeLookupList() method.
++     */

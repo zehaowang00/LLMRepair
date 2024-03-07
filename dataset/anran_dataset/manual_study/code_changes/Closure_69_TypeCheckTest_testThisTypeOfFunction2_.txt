@@ -1,0 +1,29 @@
+commit 63df133d0850805818d1e280ba47dcefc9763c89
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue May 31 11:14:56 2011
+
+    Make sure that functions are called with a 'this' type.
+    Fixes issue 440
+    
+    R=zhuyi
+    DELTA=60  (59 added, 0 deleted, 1 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=2097
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1147 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- a/test/com/google/javascript/jscomp/TypeCheckTest.java
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -4546,0 +4552,8 @@
++  public void testThisTypeOfFunction2() throws Exception {
++    testTypes(
++        "/** @constructor */ function F() {}" +
++        "/** @type {function(this:F)} */ function f() {}" +
++        "f();",
++        "\"function (this:F): ?\" must be called with a \"this\" type");
++  }
++

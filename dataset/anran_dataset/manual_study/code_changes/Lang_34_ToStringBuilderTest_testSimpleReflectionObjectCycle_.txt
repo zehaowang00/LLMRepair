@@ -1,0 +1,134 @@
+commit 496525b0d626dd5049528cdef61d71681154b660
+Author: Matthew Jason Benson <mbenson@apache.org>
+Date:   Thu Feb 4 16:57:58 2010
+
+    [LANG-586] part 2: refactor ToStringStyle and ToStringBuilderTest to verify that we are unsetting the registry when no longer needed
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@906676 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/builder/ToStringBuilderTest.java b/src/test/java/org/apache/commons/lang3/builder/ToStringBuilderTest.java
+--- a/src/test/java/org/apache/commons/lang3/builder/ToStringBuilderTest.java
++++ b/src/test/java/org/apache/commons/lang3/builder/ToStringBuilderTest.java
+@@ -504,13 +504,12 @@
+     public void testSimpleReflectionObjectCycle() throws Exception {
+         SimpleReflectionTestFixture simple = new SimpleReflectionTestFixture();
+         simple.o = simple;
+-        assertTrue(ToStringStyle.getRegistry().isEmpty());
+         assertEquals(this.toBaseString(simple) + "[o=" + this.toBaseString(simple) + "]", simple.toString());
+-        this.validateEmptyToStringStyleRegistry();
++        this.validateNullToStringStyleRegistry();
+     }
+ 
+     /**
+      * Test a class that defines an ivar pointing to itself.
+-     * 
++     *
+      * @throws Exception
+      */
+
+commit 43b2a5b6808d7b6aceb8895eb5cd221dd57483cc
+Author: Henri Yandell <bayard@apache.org>
+Date:   Sat Jan 27 02:11:08 2007
+
+    Applying a modified version of Maarten Coene's patch for #LANG-69. All unit tests pass; opinions would be very welcome though.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@500495 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java b/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java
+--- a/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java
++++ b/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java
+@@ -514,13 +514,13 @@
+     public void testSimpleReflectionObjectCycle() throws Exception {
+         SimpleReflectionTestFixture simple = new SimpleReflectionTestFixture();
+         simple.o = simple;
+-        assertTrue(ReflectionToStringBuilder.getRegistry().isEmpty());
++        assertTrue(ToStringStyle.getRegistry().isEmpty());
+         assertEquals(this.toBaseString(simple) + "[o=" + this.toBaseString(simple) + "]", simple.toString());
+-        this.validateEmptyReflectionRegistry();
++        this.validateEmptyToStringStyleRegistry();
+     }
+ 
+     /**
+      * Test a class that defines an ivar pointing to itself.
+      * 
+      * @throws Exception
+      */
+
+commit e945ec8ac7ebd5d450acfa70dc391e32b47e0a1b
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Mon Jul 26 17:39:21 2004
+
+    Added testSelfInstanceVarReflectionObjectCycle to replicate an example in http://issues.apache.org/bugzilla/show_bug.cgi?id=19331.
+    This is a bit redundant with other tests, but insures the given example is handled.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137885 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java b/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java
+--- a/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java
++++ b/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java
+@@ -483,9 +495,13 @@
+     public void testSimpleReflectionObjectCycle() throws Exception {
+         SimpleReflectionTestFixture simple = new SimpleReflectionTestFixture();
+         simple.o = simple;
+         assertTrue(ReflectionToStringBuilder.getRegistry().isEmpty());
+         assertEquals(this.toBaseString(simple) + "[o=" + this.toBaseString(simple) + "]", simple.toString());
+         this.validateEmptyReflectionRegistry();
+     }
+ 
+     /**
++     * Test a class that defines an ivar pointing to itself.
++     * 
++     * @throws Exception
++     */
+
+commit e970c5c37ed8e3a78c09d97a2e31d1271ece6d4c
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Tue Jun 3 16:15:32 2003
+
+    Refactor code in ToStringBuilder.reflectionToString(...) into a new subclass called ReflectionToStringBuilder.
+    All of the ToStringBuilder.reflectionToString(...) forward their calls to equivalent methods in ReflectionToStringBuilde.
+    ReflectionToStringBuilder can  be subclassed to provide Field or value filtering.
+    Since the unit tests exercis ToStringBuilder.reflectionToString(...) which then forwards those calls to ReflectionToStringBuilder, and ReflectionToStringBuilder does not provide new features (yet), there are no new unit test cases (yet).
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137354 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java b/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java
+--- a/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java
++++ b/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java
+@@ -545,9 +549,9 @@
+     public void testSimpleReflectionObjectCycle() throws Exception {
+         SimpleReflectionTestFixture simple = new SimpleReflectionTestFixture();
+         simple.o = simple;
+-        assertTrue(ToStringBuilder.getReflectionRegistry().isEmpty());
++        assertTrue(ReflectionToStringBuilder.getRegistry().isEmpty());
+         assertEquals(this.toBaseString(simple) + "[o=" + this.toBaseString(simple) + "]", simple.toString());
+         this.validateEmptyReflectionRegistry();
+     }
+ 
+     /**
+
+commit b0be90e86c346b320f52ad7b7065f110a7e1d272
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Thu Mar 27 03:55:22 2003
+
+    Fix bug 16676: StackOverflow due to ToStringBuilder
+    (http://issues.apache.org/bugzilla/show_bug.cgi?id=16676)
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137276 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java b/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java
+--- a/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java
++++ b/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java
+@@ -399,0 +545,9 @@
++    public void testSimpleReflectionObjectCycle() throws Exception {
++        SimpleReflectionTestFixture simple = new SimpleReflectionTestFixture();
++        simple.o = simple;
++        assertTrue(ToStringBuilder.getReflectionRegistry().isEmpty());
++        assertEquals(this.toBaseString(simple) + "[o=" + this.toBaseString(simple) + "]", simple.toString());
++        this.validateEmptyReflectionRegistry();
++    }
++
++    /**

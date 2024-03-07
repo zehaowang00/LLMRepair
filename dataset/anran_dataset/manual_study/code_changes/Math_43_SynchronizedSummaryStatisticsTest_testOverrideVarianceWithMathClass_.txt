@@ -1,0 +1,23 @@
+commit dcae84b2e8f025e93340307d8bc04d406202c323
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sun Nov 27 00:20:09 2011
+
+    Fixed errors in SummaryStatistics causing overriden statistics not to be updated if the supplied impls are commons-math classes.  JIRA: MATH-691.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1206666 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/stat/descriptive/SummaryStatisticsTest.java b/src/test/java/org/apache/commons/math/stat/descriptive/SummaryStatisticsTest.java
+--- a/src/test/java/org/apache/commons/math/stat/descriptive/SummaryStatisticsTest.java
++++ b/src/test/java/org/apache/commons/math/stat/descriptive/SummaryStatisticsTest.java
+@@ -308,0 +317,11 @@
++    public void testOverrideVarianceWithMathClass() throws Exception {
++        double[] scores = {1, 2, 3, 4};
++        SummaryStatistics stats = new SummaryStatistics();
++        stats.setVarianceImpl(new Variance(false)); //use "population variance"
++        for(double i : scores) {
++          stats.addValue(i);
++        }
++        Assert.assertEquals((new Variance(false)).evaluate(scores),stats.getVariance(), 0); 
++    }
++    
++    @Test

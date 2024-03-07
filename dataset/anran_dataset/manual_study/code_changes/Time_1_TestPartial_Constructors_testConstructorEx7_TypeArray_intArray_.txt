@@ -1,0 +1,73 @@
+commit b86efe73e72ece8e5ceeed48d05228aa1725c9ad
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Sun Jun 26 19:29:36 2005
+
+    Add Partial, new immutable implementation of ReadablePartial
+    
+    
+    git-svn-id: https://joda-time.svn.sourceforge.net/svnroot/joda-time/trunk@796 1e1cfbb7-5c0e-0410-a2f0-f98d92ec03a1
+
+diff --git a/JodaTime/src/test/org/joda/time/TestPartial_Constructors.java b/JodaTime/src/test/org/joda/time/TestPartial_Constructors.java
+--- /dev/null
++++ b/JodaTime/src/test/org/joda/time/TestPartial_Constructors.java
+@@ -0,0 +274,60 @@
++    public void testConstructorEx7_TypeArray_intArray() throws Throwable {
++        int[] values = new int[] {1, 1, 1};
++        DateTimeFieldType[] types = new DateTimeFieldType[] {
++            DateTimeFieldType.dayOfMonth(), DateTimeFieldType.year(), DateTimeFieldType.monthOfYear() };
++        try {
++            new Partial(types, values);
++            fail();
++        } catch (IllegalArgumentException ex) {
++            assertMessageContains(ex, "must be in order", "largest-smallest");
++        }
++        
++        types = new DateTimeFieldType[] {
++            DateTimeFieldType.year(), DateTimeFieldType.dayOfMonth(), DateTimeFieldType.monthOfYear() };
++        try {
++            new Partial(types, values);
++            fail();
++        } catch (IllegalArgumentException ex) {
++            assertMessageContains(ex, "must be in order", "largest-smallest");
++        }
++        
++        types = new DateTimeFieldType[] {
++            DateTimeFieldType.year(), DateTimeFieldType.era(), DateTimeFieldType.monthOfYear() };
++        try {
++            new Partial(types, values);
++            fail();
++        } catch (IllegalArgumentException ex) {
++            assertMessageContains(ex, "must be in order", "largest-smallest");
++        }
++        
++        types = new DateTimeFieldType[] {
++            DateTimeFieldType.year(), DateTimeFieldType.dayOfMonth(), DateTimeFieldType.era() };
++        try {
++            new Partial(types, values);
++            fail();
++        } catch (IllegalArgumentException ex) {
++            assertMessageContains(ex, "must be in order", "largest-smallest");
++        }
++        
++        types = new DateTimeFieldType[] {
++            DateTimeFieldType.year(), DateTimeFieldType.dayOfMonth(), DateTimeFieldType.dayOfYear() };
++        try {
++            new Partial(types, values);
++            fail();
++        } catch (IllegalArgumentException ex) {
++            assertMessageContains(ex, "must be in order", "largest-smallest");
++        }
++        
++        types = new DateTimeFieldType[] {
++            DateTimeFieldType.yearOfEra(), DateTimeFieldType.year(), DateTimeFieldType.dayOfYear() };
++        try {
++            new Partial(types, values);
++            fail();
++        } catch (IllegalArgumentException ex) {
++            assertMessageContains(ex, "must be in order", "largest-smallest");
++        }
++    }
++
++    /**
++     * Test constructor
++     */

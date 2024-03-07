@@ -1,0 +1,38 @@
+commit 1566dd339f6efc2347b0962fac7fce22adbc31ff
+Author: Thomas Neidhart <tn@apache.org>
+Date:   Wed Aug 1 17:24:27 2012
+
+    [MATH-836] Improve overflow check for negative values in Fraction constructor.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1368253 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math3/fraction/FractionTest.java b/src/test/java/org/apache/commons/math3/fraction/FractionTest.java
+--- a/src/test/java/org/apache/commons/math3/fraction/FractionTest.java
++++ b/src/test/java/org/apache/commons/math3/fraction/FractionTest.java
+@@ -134,5 +135,7 @@
+     public void testIntegerOverflow() {
+         checkIntegerOverflow(0.75000000001455192);
+         checkIntegerOverflow(1.0e10);
++        checkIntegerOverflow(-1.0e10);
++        checkIntegerOverflow(-43979.60679604749);
+     }
+ 
+
+commit c7b489f1e9cf9ceaff0f5844fdcf6630224ebf16
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Fri Feb 1 07:02:12 2008
+
+    added checks for integer overflows during double to Fraction conversion
+    JIRA: MATH-182
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@617482 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/fraction/FractionTest.java b/src/test/org/apache/commons/math/fraction/FractionTest.java
+--- a/src/test/org/apache/commons/math/fraction/FractionTest.java
++++ b/src/test/org/apache/commons/math/fraction/FractionTest.java
+@@ -136,0 +136,5 @@
++    public void testIntegerOverflow() {
++        checkIntegerOverflow(0.75000000001455192);
++        checkIntegerOverflow(1.0e10);
++    }
++

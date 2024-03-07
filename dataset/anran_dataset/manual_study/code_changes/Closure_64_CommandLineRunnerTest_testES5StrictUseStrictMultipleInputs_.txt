@@ -1,0 +1,52 @@
+commit de726510af4329fb8eeb8a54b2d93d8d37c87545
+Author: zhuyi@google.com <zhuyi@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Jun 17 17:36:04 2011
+
+    When -language_in=ECMASCRIPT5_STRICT, only print 'use strict' in the first input file.
+    Fixes Issue 489.
+    
+    R=acleung
+    DELTA=22  (18 added, 0 deleted, 4 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=2325
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1192 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+--- a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
++++ b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+@@ -790,2 +797,11 @@
++  public void testES5StrictUseStrictMultipleInputs() {
++    args.add("--language_in=ECMASCRIPT5_STRICT");
++    Compiler compiler = compile(new String[] {"var x = f.function",
++        "var y = f.function", "var z = f.function"});
++    String outputSource = compiler.toSource();
++    assertEquals("'use strict'", outputSource.substring(0, 12));
++    assertEquals(outputSource.substring(13).indexOf("'use strict'"), -1);
++  }
++
+   /* Helper functions */
+ 
+
+commit 6a6ea480bae01f40f9795218ac911bb7de18d34a
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Nov 19 16:23:04 2009
+
+    Don't warn about duplicate variable declarations unless warning_level is
+    set to VERBOSE.
+    
+    Implementation of libary function goog.base.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@13 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CompilerRunnerTest.java b/test/com/google/javascript/jscomp/CompilerRunnerTest.java
+--- a/test/com/google/javascript/jscomp/CompilerRunnerTest.java
++++ b/test/com/google/javascript/jscomp/CompilerRunnerTest.java
+@@ -95,0 +98,2 @@
++  /* Helper functions */
++

@@ -1,0 +1,31 @@
+commit 43c245f0ff8d409e81e25687e69d34666b7cf26a
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Jan 18 13:02:32 2011
+
+    fix a bug in open-source args parsing.
+    Fixes issue 319.
+    
+    R=johnlenz
+    DELTA=24  (23 added, 0 deleted, 1 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=299
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@700 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+--- a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
++++ b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+@@ -595,0 +600,10 @@
++  public void testVersionFlag2() {
++    lastArg = "--version";
++    testSame("");
++    assertEquals(
++        0,
++        new String(errReader.toByteArray()).indexOf(
++            "Closure Compiler (http://code.google.com/closure/compiler)\n" +
++            "Version: "));
++  }
++

@@ -1,0 +1,80 @@
+commit 4597738e8898f738c1f969fe90479728be81cc80
+Author: Ben Lickly <blickly@google.com>
+Date:   Tue Oct 1 19:09:00 2013
+
+    Automated g4 rollback of changelist 53511956.
+    
+    *** Reason for rollback ***
+    
+    Broke people
+    
+    *** Original change description ***
+    
+    Nerf direct function inlining when the function be inlined has side-effects and the call arguments can be effected.
+    Fixes issue 1101
+    -------------
+    Created by MOE: http://code.google.com/p/moe-java
+    MOE_MIGRATED_REVID=53524738
+
+diff --git a/test/com/google/javascript/jscomp/InlineFunctionsTest.java b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+--- a/test/com/google/javascript/jscomp/InlineFunctionsTest.java
++++ b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+@@ -1100,8 +1097,8 @@
+   public void testDoubleInlining1() {
+     allowBlockInlining = false;
+-    test("var foo = function(a) { return nochg(a); };" +
++    test("var foo = function(a) { return getWindow(a); };" +
+          "var bar = function(b) { return b; };" +
+          "foo(bar(x));",
+-         "nochg(x)");
++         "getWindow(x)");
+   }
+ 
+
+commit b80dfd3b0e5e4b490b7afb469320d18bac4520b4
+Author: Ben Lickly <blickly@google.com>
+Date:   Tue Oct 1 19:05:37 2013
+
+    Nerf direct function inlining when the function be inlined has side-effects and the call arguments can be effected.
+    Fixes issue 1101
+    -------------
+    Created by MOE: http://code.google.com/p/moe-java
+    MOE_MIGRATED_REVID=53511956
+
+diff --git a/test/com/google/javascript/jscomp/InlineFunctionsTest.java b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+--- a/test/com/google/javascript/jscomp/InlineFunctionsTest.java
++++ b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+@@ -1097,8 +1100,8 @@
+   public void testDoubleInlining1() {
+     allowBlockInlining = false;
+-    test("var foo = function(a) { return getWindow(a); };" +
++    test("var foo = function(a) { return nochg(a); };" +
+          "var bar = function(b) { return b; };" +
+          "foo(bar(x));",
+-         "getWindow(x)");
++         "nochg(x)");
+   }
+ 
+
+commit 6b49cfd9022fe111bdad745c78ea877fbc2f7ba3
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 3 18:51:57 2009
+
+    Initial commit.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/InlineFunctionsTest.java b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+@@ -0,0 +915,8 @@
++  public void testDoubleInlining1() {
++    allowBlockInlining = false;
++    test("var foo = function(a) { return getWindow(a); };" +
++         "var bar = function(b) { return b; };" +
++         "foo(bar(x));",
++         "getWindow(x)");
++  }
++

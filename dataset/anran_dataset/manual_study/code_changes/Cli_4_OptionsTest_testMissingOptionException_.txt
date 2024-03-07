@@ -1,0 +1,38 @@
+commit f78959477b207bf710049aa35730ef7659f0a1b9
+Author: Henri Yandell <bayard@apache.org>
+Date:   Tue Jun 5 00:01:08 2007
+
+    Applying Brian Egge's improvement from CLI-132
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/branches/cli-1.0.x@544360 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/OptionsTest.java b/src/test/org/apache/commons/cli/OptionsTest.java
+--- a/src/test/org/apache/commons/cli/OptionsTest.java
++++ b/src/test/org/apache/commons/cli/OptionsTest.java
+@@ -97,1 +97,11 @@
++    public void testMissingOptionException() throws ParseException {
++        Options options = new Options();
++        options.addOption(OptionBuilder.isRequired().create("f"));
++        try {
++            new PosixParser().parse(options, new String[0]);
++            fail("Expected MissingOptionException to be thrown");
++        } catch (MissingOptionException e) {
++            assertEquals("Missing required option: f", e.getMessage());
++        }
++    }
+ 
+
+commit 0f52eff086c74ad246c23a82f01b39a39c107ffa
+Author: John Keyes <jkeyes@apache.org>
+Date:   Mon Nov 18 19:16:18 2002
+
+    some bug fixes submitted by Rob, removed duff println, add new OptionsTest submitted by Rob
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129847 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/OptionsTest.java b/src/test/org/apache/commons/cli/OptionsTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/cli/OptionsTest.java
+@@ -0,0 +141,1 @@
++

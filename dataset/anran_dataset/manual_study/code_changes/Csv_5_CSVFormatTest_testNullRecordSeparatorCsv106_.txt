@@ -1,0 +1,34 @@
+commit 73cc5246cf789db8f459e2f539831b6e91bedd26
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Wed Mar 12 20:16:57 2014
+
+    [CSV-106] CSVFormat.format always append null.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/csv/trunk@1577011 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVFormatTest.java b/src/test/java/org/apache/commons/csv/CSVFormatTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVFormatTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVFormatTest.java
+@@ -232,1 +233,8 @@
++    public void testNullRecordSeparatorCsv106() {
++        final CSVFormat format = CSVFormat.newFormat(';').withSkipHeaderRecord(true).withHeader("H1", "H2");
++        final String formatStr = format.format("A", "B");
++        assertNotNull(formatStr);
++        assertFalse(formatStr.endsWith("null"));
++    }
++
+     @Test(expected = IllegalStateException.class)
+
+commit 75f39a81a77b3680c21cd3f810da62ebbe9944b8
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Tue Jul 30 10:42:32 2013
+
+    [CSV-99] Revert Builder implementation in CSVFormat.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/csv/trunk@1508470 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVFormatTest.java b/src/test/java/org/apache/commons/csv/CSVFormatTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVFormatTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVFormatTest.java
+@@ -214,0 +289,1 @@
++    @Test(expected = IllegalStateException.class)

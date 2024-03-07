@@ -1,0 +1,61 @@
+commit ce86cc8e460060e1280f365f22ccd5c375e2f5ed
+Author: Ben Lickly <blickly@google.com>
+Date:   Mon Jul 15 19:05:31 2013
+
+    Prototype properties should not be auto-declared as non-object types.
+    Fixes issue 1042.
+    -------------
+    Created by MOE: http://code.google.com/p/moe-java
+    MOE_MIGRATED_REVID=49400223
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- a/test/com/google/javascript/jscomp/TypeCheckTest.java
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -11992,1 +11992,32 @@
++  public void testIssue1024() throws Exception {
++     testTypes(
++        "/** @param {Object} a */\n" +
++        "function f(a) {\n" +
++        "  a.prototype = '__proto'\n" +
++        "}\n" +
++        "/** @param {Object} b\n" +
++        " *  @return {!Object}\n" +
++        " */\n" +
++        "function g(b) {\n" +
++        "  return b.prototype\n" +
++        "}\n");
++     /* TODO(blickly): Make this warning go away.
++      * This is old behavior, but it doesn't make sense to warn about since
++      * both assignments are inferred.
++      */
++     testTypes(
++        "/** @param {Object} a */\n" +
++        "function f(a) {\n" +
++        "  a.prototype = {foo:3};\n" +
++        "}\n" +
++        "/** @param {Object} b\n" +
++        " */\n" +
++        "function g(b) {\n" +
++        "  b.prototype = function(){};\n" +
++        "}\n",
++        "assignment to property prototype of Object\n" +
++        "found   : {foo: number}\n" +
++        "required: function (): undefined");
++  }
++
+ 
+
+commit cc0f81d4520fabbd78ea38aaa283db5805d8946e
+Author: Ben Lickly <blickly@google.com>
+Date:   Mon May 20 19:14:01 2013
+
+    Suggestions in missing properties warning.
+    -------------
+    Created by MOE: http://code.google.com/p/moe-java
+    MOE_MIGRATED_REVID=46893799
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- a/test/com/google/javascript/jscomp/TypeCheckTest.java
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -11863,0 +11870,1 @@
++

@@ -1,0 +1,33 @@
+commit c7a581e55fc988bd90fa4bb1b0acece5181b7c5f
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Sun Dec 5 16:27:36 2010
+
+    DateTimeZone.convertLocalToUTC [bugs 3102760,2182444,2553453]
+    New method now retains the offset wherever possible during calculations
+    This affects higher methods like withHourOfDay/withMinuteOfHour/withSecondOfMinute/withMillisOfSecond which now do not change offset when called within a DST overlap
+    
+    git-svn-id: https://joda-time.svn.sourceforge.net/svnroot/joda-time/trunk@1595 1e1cfbb7-5c0e-0410-a2f0-f98d92ec03a1
+
+diff --git a/JodaTime/src/test/java/org/joda/time/TestDateTimeZoneCutover.java b/JodaTime/src/test/java/org/joda/time/TestDateTimeZoneCutover.java
+--- a/JodaTime/src/test/java/org/joda/time/TestDateTimeZoneCutover.java
++++ b/JodaTime/src/test/java/org/joda/time/TestDateTimeZoneCutover.java
+@@ -1061,0 +1153,19 @@
++    public void testBug2182444_usCentral() {
++        Chronology chronUSCentral = GregorianChronology.getInstance(DateTimeZone.forID("US/Central"));
++        Chronology chronUTC = GregorianChronology.getInstance(DateTimeZone.UTC);
++        DateTime usCentralStandardInUTC = new DateTime(2008, 11, 2, 7, 0, 0, 0, chronUTC);
++        DateTime usCentralDaylightInUTC = new DateTime(2008, 11, 2, 6, 0, 0, 0, chronUTC);
++        assertTrue("Should be standard time", chronUSCentral.getZone().isStandardOffset(usCentralStandardInUTC.getMillis()));
++        assertFalse("Should be daylight time", chronUSCentral.getZone().isStandardOffset(usCentralDaylightInUTC.getMillis()));
++        
++        DateTime usCentralStandardInUSCentral = usCentralStandardInUTC.toDateTime(chronUSCentral);
++        DateTime usCentralDaylightInUSCentral = usCentralDaylightInUTC.toDateTime(chronUSCentral);
++        assertEquals(1, usCentralStandardInUSCentral.getHourOfDay());
++        assertEquals(usCentralStandardInUSCentral.getHourOfDay(), usCentralDaylightInUSCentral.getHourOfDay());
++        assertTrue(usCentralStandardInUSCentral.getMillis() != usCentralDaylightInUSCentral.getMillis());
++        assertEquals(usCentralStandardInUSCentral, usCentralStandardInUSCentral.withHourOfDay(1));
++        assertEquals(usCentralStandardInUSCentral.getMillis() + 3, usCentralStandardInUSCentral.withMillisOfSecond(3).getMillis());
++        assertEquals(usCentralDaylightInUSCentral, usCentralDaylightInUSCentral.withHourOfDay(1));
++        assertEquals(usCentralDaylightInUSCentral.getMillis() + 3, usCentralDaylightInUSCentral.withMillisOfSecond(3).getMillis());
++    }
++

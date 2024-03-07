@@ -1,0 +1,23 @@
+commit 7c3b90966c58a93d28c87c3060b36afe25de18f2
+Author: Joshua Jones <jjones@criticalmix.com>
+Date:   Mon Mar 27 11:28:59 2017
+
+    add unit tests
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/deser/builder/BuilderWithUnwrappedTest.java b/src/test/java/com/fasterxml/jackson/databind/deser/builder/BuilderWithUnwrappedTest.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/builder/BuilderWithUnwrappedTest.java
+@@ -0,0 +169,13 @@
++    public void testWithUnwrappedAndCreatorSingleParameterAtBeginning() throws Exception {
++        final String json = aposToQuotes("{'person_id':1234,'first_name':'John','last_name':'Doe','years_old':30,'living':true}");
++
++        final ObjectMapper mapper = new ObjectMapper();
++        Person person = mapper.readValue(json, Person.class);
++        assertEquals(1234, person.getId());
++        assertNotNull(person.getName());
++        assertEquals("John", person.getName().getFirst());
++        assertEquals("Doe", person.getName().getLast());
++        assertEquals(30, person.getAge());
++        assertEquals(true, person.isAlive());
++    }
++

@@ -1,0 +1,43 @@
+commit fe32b967f6b029a10ec1d40f7e12c8b37ba32ee8
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Wed May 25 01:15:03 2016
+
+    Fix #1223
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/ser/TestFeatures.java b/src/test/java/com/fasterxml/jackson/databind/ser/TestFeatures.java
+--- a/src/test/java/com/fasterxml/jackson/databind/ser/TestFeatures.java
++++ b/src/test/java/com/fasterxml/jackson/databind/ser/TestFeatures.java
+@@ -269,1 +283,21 @@
++    public void testVisibilityFeatures() throws Exception
++    {
++        ObjectMapper om = new ObjectMapper();
++        // Only use explicitly specified values to be serialized/deserialized (i.e., JSONProperty).
++        om.configure(MapperFeature.AUTO_DETECT_FIELDS, false);
++        om.configure(MapperFeature.AUTO_DETECT_GETTERS, false);
++        om.configure(MapperFeature.AUTO_DETECT_SETTERS, false);
++        om.configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false);
++        om.configure(MapperFeature.USE_GETTERS_AS_SETTERS, false);
++        om.configure(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS, true);
++        om.configure(MapperFeature.INFER_PROPERTY_MUTATORS, false);
++        om.configure(MapperFeature.USE_ANNOTATIONS, true);
++
++        JavaType javaType = om.getTypeFactory().constructType(TCls.class);        
++        BeanDescription desc = (BeanDescription) om.getSerializationConfig().introspect(javaType);
++        List<BeanPropertyDefinition> props = desc.findProperties();
++        if (props.size() != 1) {
++            fail("Should find 1 property, not "+props.size()+"; properties = "+props);
++        }
++    }
+ }
+
+commit a63c2038a03c7090ce4773d6cf54809150e59350
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 03:26:53 2011
+
+    Add unit tests, almost compilable
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/ser/TestFeatures.java b/src/test/java/com/fasterxml/jackson/databind/ser/TestFeatures.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/ser/TestFeatures.java
+@@ -0,0 +227,1 @@
++}

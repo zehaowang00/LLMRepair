@@ -1,0 +1,40 @@
+commit 9917c94d94a285ece80e6c9f3d2b9fba06d98fd7
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Sun Aug 9 17:19:48 2015
+
+    Fix #890
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/deser/TestArrayDeserialization.java b/src/test/java/com/fasterxml/jackson/databind/deser/TestArrayDeserialization.java
+--- a/src/test/java/com/fasterxml/jackson/databind/deser/TestArrayDeserialization.java
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/TestArrayDeserialization.java
+@@ -552,4 +561,15 @@
++    public void testByteArrayTypeOverride890() throws Exception
++    {
++        HiddenBinaryBean890 result = MAPPER.readValue(
++                aposToQuotes("{'someBytes':'AQIDBA=='}"), HiddenBinaryBean890.class);
++        assertNotNull(result);
++        assertNotNull(result.someBytes);
++        assertEquals(byte[].class, result.someBytes.getClass());
++    }
++    
++    /*
++    /**********************************************************
+     /* And custom deserializers too
+     /**********************************************************
+      */
+ 
+
+commit a63c2038a03c7090ce4773d6cf54809150e59350
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 03:26:53 2011
+
+    Add unit tests, almost compilable
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/deser/TestArrayDeserialization.java b/src/test/java/com/fasterxml/jackson/databind/deser/TestArrayDeserialization.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/TestArrayDeserialization.java
+@@ -0,0 +533,4 @@
++    /* And custom deserializers too
++    /**********************************************************
++     */
++

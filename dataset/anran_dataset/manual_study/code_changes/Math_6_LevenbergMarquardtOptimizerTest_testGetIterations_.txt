@@ -1,0 +1,41 @@
+commit 419a052c6842192e78f747d9f5af619c2ca56e78
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Tue Mar 19 10:51:30 2013
+
+    MATH-949
+    Increment iteration counter.
+    By default, the maximum number of iterations is "Integer.MAX_VALUE".
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1458323 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math3/optim/nonlinear/vector/jacobian/AbstractLeastSquaresOptimizerAbstractTest.java b/src/test/java/org/apache/commons/math3/optim/nonlinear/vector/jacobian/AbstractLeastSquaresOptimizerAbstractTest.java
+--- a/src/test/java/org/apache/commons/math3/optim/nonlinear/vector/jacobian/AbstractLeastSquaresOptimizerAbstractTest.java
++++ b/src/test/java/org/apache/commons/math3/optim/nonlinear/vector/jacobian/AbstractLeastSquaresOptimizerAbstractTest.java
+@@ -109,0 +109,26 @@
++    public void testGetIterations() {
++        AbstractLeastSquaresOptimizer optim = createOptimizer();
++        optim.optimize(new MaxEval(100), new Target(new double[] { 1 }),
++                       new Weight(new double[] { 1 }),
++                       new InitialGuess(new double[] { 3 }),
++                       new ModelFunction(new MultivariateVectorFunction() {
++                               @Override
++                               public double[] value(double[] point) {
++                                   return new double[] {
++                                       FastMath.pow(point[0], 4)
++                                   };
++                               }
++                           }),
++                       new ModelFunctionJacobian(new MultivariateMatrixFunction() {
++                               @Override
++                               public double[][] value(double[] point) {
++                                   return new double[][] {
++                                       { 0.25 * FastMath.pow(point[0], 3) }
++                                   };
++                               }
++                           }));
++
++        Assert.assertTrue(optim.getIterations() > 0);
++    }
++
++    @Test

@@ -1,0 +1,27 @@
+commit ce843ec83988e3e3318fa7db38133b06be741a1f
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Mon Aug 16 08:57:41 2010
+
+    Initial implementation of Connection
+
+diff --git a/src/test/java/org/jsoup/helper/DataUtilTest.java b/src/test/java/org/jsoup/helper/DataUtilTest.java
+new file mode 100644
+index 00000000..96a191af
+--- /dev/null
++++ b/src/test/java/org/jsoup/helper/DataUtilTest.java
+@@ -0,0 +1,15 @@
++package org.jsoup.helper;
++
++import static org.junit.Assert.assertEquals;
++import org.junit.Test;
++
++public class DataUtilTest {
++    @Test
++    public void testCharset() {
++        assertEquals("UTF-8", DataUtil.getCharsetFromContentType("text/html;charset=utf-8 "));
++        assertEquals("UTF-8", DataUtil.getCharsetFromContentType("text/html; charset=UTF-8"));
++        assertEquals("ISO-8859-1", DataUtil.getCharsetFromContentType("text/html; charset=ISO-8859-1"));
++        assertEquals(null, DataUtil.getCharsetFromContentType("text/html"));
++        assertEquals(null, DataUtil.getCharsetFromContentType(null));
++    }
++}

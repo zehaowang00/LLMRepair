@@ -1,0 +1,25 @@
+commit d1f25380b5d74c5303533491e36ae4b33a50e2da
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Feb 5 13:31:28 2010
+
+    Type-checking fix when the prototype is assigned directly. Fixes issue 59.
+    
+    Also, make sure that DevirtualizePrototypeMethods maintains type info.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@93 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- a/test/com/google/javascript/jscomp/TypeCheckTest.java
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -2635,0 +2635,9 @@
++  public void testGoodExtends9() throws Exception {
++    testTypes(
++        "/** @constructor */ function Super() {}" +
++        "Super.prototype.foo = function() {};" +
++        "/** @constructor \n * @extends {Super} */ function Sub() {}" +
++        "Sub.prototype = new Super();" +
++        "/** @override */ Sub.prototype.foo = function() {};");
++  }
++

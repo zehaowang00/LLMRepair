@@ -1,0 +1,74 @@
+commit 58fa9a673547c884cd1f11a8927414e563480358
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Mon Feb 16 19:40:20 2015
+
+    COMPRESS-305 Convert all tests to JUnit4 style
+    All but AbstractTestCase and subclasses
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1660261 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+@@ -132,4 +141,5 @@
+     public void testRoundTripOctalOrBinary8() {
+         testRoundTripOctalOrBinary(8);
+     }
+ 
++    @Test
+
+commit 23aa5b4a91da0df095f411d1634272e57289a3d1
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Sun Mar 4 00:30:14 2012
+
+    some additional test cases
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1296751 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+@@ -139,3 +139,4 @@
+     public void testRoundTripOctalOrBinary8() {
+         testRoundTripOctalOrBinary(8);
+     }
++
+
+commit b90b1f445d5b2317360b797afae22ecfccbdac94
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Sat Mar 3 00:28:55 2012
+
+    Our parser for STAR-encoded binary values was wrong, STAR only uses 7 or 11 bytes and can encode negative values as twos complement signaled by the first byte being 0xff rather than 0x80.  COMPRESS-182
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1296576 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+@@ -139,5 +139,3 @@
+-    public void testRoundTripOctalOrBinary() {
+-        checkRoundTripOctalOrBinary(0, 8);
+-        checkRoundTripOctalOrBinary(1, 8);
+-        checkRoundTripOctalOrBinary(Long.MAX_VALUE, 8); // [0x7f ff ff ff ff ff ff ff
+-        checkRoundTripOctalOrBinary(TarConstants.MAXSIZE, 8); // will need binary format
++    public void testRoundTripOctalOrBinary8() {
++        testRoundTripOctalOrBinary(8);
++    }
+
+commit 915e8ef9a42c4fc2561917116620543402cace91
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Wed Feb 22 19:36:15 2012
+
+    COMPRESS-179 TarUtils.formatLongOctalOrBinaryBytes() assumes the field will be 12 bytes long
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1292596 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+@@ -127,0 +145,5 @@
++    public void testRoundTripOctalOrBinary() {
++        checkRoundTripOctalOrBinary(0, 8);
++        checkRoundTripOctalOrBinary(1, 8);
++        checkRoundTripOctalOrBinary(Long.MAX_VALUE, 8); // [0x7f ff ff ff ff ff ff ff
++        checkRoundTripOctalOrBinary(TarConstants.MAXSIZE, 8); // will need binary format

@@ -1,0 +1,63 @@
+commit c25df7eca2462861bf42ad8b74215099c3f81ae6
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Apr 6 02:58:16 2010
+
+    Make lists the canonical representation of compiler sources.
+    They're so much easier to sort and mutate, which is going to
+    make a difference once we start sorting sources. (Nick)
+    R=robert
+    DELTA=97  (58 added, 6 deleted, 33 changed)
+    
+    include everything in the @license tag. (Nick)
+    R=robert
+    DELTA=78  (32 added, 19 deleted, 27 changed)
+    
+    tag externs files with the @externs tag. (Nick)
+    R=alan
+    DELTA=45  (45 added, 0 deleted, 0 changed)
+    
+    fix for issue 58.
+    work-around a bug in IE where it gets confused if the comparator
+    passed to Array.prototype.sort writes to its own parameters. (Nick)
+    R=alan
+    DELTA=33  (30 added, 0 deleted, 3 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=dpiluc
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@171 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CoalesceVariableNamesTest.java b/test/com/google/javascript/jscomp/CoalesceVariableNamesTest.java
+--- a/test/com/google/javascript/jscomp/CoalesceVariableNamesTest.java
++++ b/test/com/google/javascript/jscomp/CoalesceVariableNamesTest.java
+@@ -188,4 +188,7 @@
+   public void testParameter4() {
+-    // Make sure that we are taking advantage of correct merge opportunities.
++    // Make sure that we do not merge two-arg functions because of the
++    // IE sort bug (see comments in computeEscaped)
+     test("function FUNC(x, y) {var a,b; y; a=0; a; x; b=0; b}",
+-         "function FUNC(x, y) {         y; y=0; y; x; x=0; x}");
++         "function FUNC(x, y) {var a; y; a=0; a; x; a=0; a}");
++  }
++
+
+commit 6b49cfd9022fe111bdad745c78ea877fbc2f7ba3
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 3 18:51:57 2009
+
+    Initial commit.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CoalesceVariableNamesTest.java b/test/com/google/javascript/jscomp/CoalesceVariableNamesTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/CoalesceVariableNamesTest.java
+@@ -0,0 +176,4 @@
++  public void testParameter4() {
++    // Make sure that we are taking advantage of correct merge opportunities.
++    test("function FUNC(x, y) {var a,b; y; a=0; a; x; b=0; b}",
++         "function FUNC(x, y) {         y; y=0; y; x; x=0; x}");

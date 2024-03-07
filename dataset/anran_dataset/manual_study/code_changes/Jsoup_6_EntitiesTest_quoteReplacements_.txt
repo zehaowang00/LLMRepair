@@ -1,0 +1,24 @@
+commit 20ed24cefb5df53c48021459af98bef83c55f241
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Tue Aug 31 20:07:10 2010
+
+    Fixed issue in Entities when unescaping &#36; ("$")
+    
+    Fixes #34
+
+diff --git a/src/test/java/org/jsoup/nodes/EntitiesTest.java b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+index 3eeba5b0..1965765d 100644
+--- a/src/test/java/org/jsoup/nodes/EntitiesTest.java
++++ b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+@@ -34,4 +34,11 @@
+         String escaped = "&Uuml; &uuml; &amp; &AMP";
+         assertEquals("Ã Ã¼ & &", Entities.unescape(escaped));
+     }
++    
++    @Test public void quoteReplacements() {
++        String escaped = "&#92; &#36;";
++        String unescaped = "\\ $";
++        
++        assertEquals(unescaped, Entities.unescape(escaped));
++    }
+ }

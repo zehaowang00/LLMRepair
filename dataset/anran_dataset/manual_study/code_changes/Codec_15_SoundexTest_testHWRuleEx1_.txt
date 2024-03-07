@@ -1,0 +1,276 @@
+commit 28b7b958d39730fc278fd1919bf335c52133a1a2
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Sun Mar 22 14:48:52 2015
+
+    [CODEC-199] Bug in HW rule in Soundex.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/codec/trunk@1668441 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/codec/language/SoundexTest.java b/src/test/java/org/apache/commons/codec/language/SoundexTest.java
+--- a/src/test/java/org/apache/commons/codec/language/SoundexTest.java
++++ b/src/test/java/org/apache/commons/codec/language/SoundexTest.java
+@@ -224,15 +224,17 @@
+     public void testHWRuleEx1() {
+         // From
+         // http://www.archives.gov/research_room/genealogy/census/soundex.html:
+         // Ashcraft is coded A-261 (A, 2 for the S, C ignored, 6 for the R, 1
+         // for the F). It is not coded A-226.
+         Assert.assertEquals("A261", this.getStringEncoder().encode("Ashcraft"));
+         Assert.assertEquals("A261", this.getStringEncoder().encode("Ashcroft"));
++        Assert.assertEquals("Y330", this.getStringEncoder().encode("yehudit"));
++        Assert.assertEquals("Y330", this.getStringEncoder().encode("yhwdyt"));
+     }
+ 
+     /**
+      * Consonants from the same code group separated by W or H are treated as one.
+      *
+      * Test data from http://www.myatt.demon.co.uk/sxalg.htm
+      */
+     @Test
+
+commit 8fc193527df27beeeb638e6e812e8c4df6c72f46
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Sun Mar 22 13:32:16 2015
+
+    "Ashcroft" is also coded as A261.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/codec/trunk@1668417 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/codec/language/SoundexTest.java b/src/test/java/org/apache/commons/codec/language/SoundexTest.java
+--- a/src/test/java/org/apache/commons/codec/language/SoundexTest.java
++++ b/src/test/java/org/apache/commons/codec/language/SoundexTest.java
+@@ -224,14 +224,15 @@
+     public void testHWRuleEx1() {
+         // From
+         // http://www.archives.gov/research_room/genealogy/census/soundex.html:
+         // Ashcraft is coded A-261 (A, 2 for the S, C ignored, 6 for the R, 1
+         // for the F). It is not coded A-226.
+         Assert.assertEquals("A261", this.getStringEncoder().encode("Ashcraft"));
++        Assert.assertEquals("A261", this.getStringEncoder().encode("Ashcroft"));
+     }
+ 
+     /**
+      * Consonants from the same code group separated by W or H are treated as one.
+      *
+      * Test data from http://www.myatt.demon.co.uk/sxalg.htm
+      */
+     @Test
+
+commit c1e0ec2ef4af22f490391871fed4339530717f7d
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Wed Nov 28 16:13:01 2012
+
+    Refactor tests to use generics.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/codec/trunk@1414922 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/codec/language/SoundexTest.java b/src/test/java/org/apache/commons/codec/language/SoundexTest.java
+--- a/src/test/java/org/apache/commons/codec/language/SoundexTest.java
++++ b/src/test/java/org/apache/commons/codec/language/SoundexTest.java
+@@ -233,14 +225,14 @@
+     public void testHWRuleEx1() {
+         // From
+         // http://www.archives.gov/research_room/genealogy/census/soundex.html:
+         // Ashcraft is coded A-261 (A, 2 for the S, C ignored, 6 for the R, 1
+         // for the F). It is not coded A-226.
+-        Assert.assertEquals("A261", this.getSoundexEncoder().encode("Ashcraft"));
++        Assert.assertEquals("A261", this.getStringEncoder().encode("Ashcraft"));
+     }
+ 
+     /**
+      * Consonants from the same code group separated by W or H are treated as one.
+      *
+      * Test data from http://www.myatt.demon.co.uk/sxalg.htm
+      */
+     @Test
+
+commit b66d41a25fe44847c828bfb188d60cba98117568
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Wed Jun 20 15:04:08 2012
+
+    Fix Checkstyle issues: Line has trailing spaces.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/codec/trunk@1352268 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/codec/language/SoundexTest.java b/src/test/java/org/apache/commons/codec/language/SoundexTest.java
+--- a/src/test/java/org/apache/commons/codec/language/SoundexTest.java
++++ b/src/test/java/org/apache/commons/codec/language/SoundexTest.java
+@@ -233,14 +233,14 @@
+     public void testHWRuleEx1() {
+         // From
+         // http://www.archives.gov/research_room/genealogy/census/soundex.html:
+         // Ashcraft is coded A-261 (A, 2 for the S, C ignored, 6 for the R, 1
+         // for the F). It is not coded A-226.
+         Assert.assertEquals("A261", this.getSoundexEncoder().encode("Ashcraft"));
+     }
+ 
+     /**
+      * Consonants from the same code group separated by W or H are treated as one.
+-     * 
++     *
+      * Test data from http://www.myatt.demon.co.uk/sxalg.htm
+      */
+     @Test
+
+commit 8ffb4fb5e09446845f520fa8e759e9b8566d633e
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Fri Apr 1 16:59:03 2011
+
+    Migrate to JUnit 4 https://issues.apache.org/jira/browse/CODEC-120
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/codec/trunk@1087894 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/codec/language/SoundexTest.java b/src/test/org/apache/commons/codec/language/SoundexTest.java
+--- a/src/test/org/apache/commons/codec/language/SoundexTest.java
++++ b/src/test/org/apache/commons/codec/language/SoundexTest.java
+@@ -225,13 +233,14 @@
+     public void testHWRuleEx1() {
+         // From
+         // http://www.archives.gov/research_room/genealogy/census/soundex.html:
+         // Ashcraft is coded A-261 (A, 2 for the S, C ignored, 6 for the R, 1
+         // for the F). It is not coded A-226.
+         Assert.assertEquals("A261", this.getSoundexEncoder().encode("Ashcraft"));
+     }
+ 
+     /**
+      * Consonants from the same code group separated by W or H are treated as one.
+      * 
+      * Test data from http://www.myatt.demon.co.uk/sxalg.htm
+      */
++    @Test
+
+commit 921a97182e6df7b8ee31d142a83f056811cf66c2
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Mon Feb 28 12:10:15 2011
+
+    Refactor encoding tests.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/codec/trunk@1075426 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/codec/language/SoundexTest.java b/src/test/org/apache/commons/codec/language/SoundexTest.java
+--- a/src/test/org/apache/commons/codec/language/SoundexTest.java
++++ b/src/test/org/apache/commons/codec/language/SoundexTest.java
+@@ -243,14 +223,13 @@
+     public void testHWRuleEx1() {
+         // From
+         // http://www.archives.gov/research_room/genealogy/census/soundex.html:
+         // Ashcraft is coded A-261 (A, 2 for the S, C ignored, 6 for the R, 1
+         // for the F). It is not coded A-226.
+-        assertEquals("A261", this.getEncoder().encode("Ashcraft"));
++        Assert.assertEquals("A261", this.getSoundexEncoder().encode("Ashcraft"));
+     }
+ 
+     /**
+-     * Consonants from the same code group separated by W or H are treated as
+-     * one.
+-     *
++     * Consonants from the same code group separated by W or H are treated as one.
++     * 
+      * Test data from http://www.myatt.demon.co.uk/sxalg.htm
+      */
+
+commit d911f5f22724170639c9968581764b1a84017b52
+Author: Niall Kegan Pemberton <niallp@apache.org>
+Date:   Wed May 21 15:57:51 2008
+
+    Remove tabs
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/codec/trunk@658834 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/codec/language/SoundexTest.java b/src/test/org/apache/commons/codec/language/SoundexTest.java
+--- a/src/test/org/apache/commons/codec/language/SoundexTest.java
++++ b/src/test/org/apache/commons/codec/language/SoundexTest.java
+@@ -250,14 +250,14 @@
+     public void testHWRuleEx1() {
+         // From
+         // http://www.archives.gov/research_room/genealogy/census/soundex.html:
+         // Ashcraft is coded A-261 (A, 2 for the S, C ignored, 6 for the R, 1
+         // for the F). It is not coded A-226.
+         assertEquals("A261", this.getEncoder().encode("Ashcraft"));
+     }
+ 
+     /**
+-	 * Consonants from the same code group separated by W or H are treated as
+-	 * one.
+-	 *
+-	 * Test data from http://www.myatt.demon.co.uk/sxalg.htm
+-	 */
++     * Consonants from the same code group separated by W or H are treated as
++     * one.
++     *
++     * Test data from http://www.myatt.demon.co.uk/sxalg.htm
++     */
+
+commit 31d080c31f10e40952a113b2cb656a6f5d631dbe
+Author: Dirk Verbeeck <dirkv@apache.org>
+Date:   Mon Jan 31 16:03:02 2005
+
+    change http://nagoya.apache.org/bugzilla
+    to http://issues.apache.org/bugzilla
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/codec/trunk@149300 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/codec/language/SoundexTest.java b/src/test/org/apache/commons/codec/language/SoundexTest.java
+--- a/src/test/org/apache/commons/codec/language/SoundexTest.java
++++ b/src/test/org/apache/commons/codec/language/SoundexTest.java
+@@ -249,14 +249,14 @@
+     public void testHWRuleEx1() {
+         // From
+         // http://www.archives.gov/research_room/genealogy/census/soundex.html:
+         // Ashcraft is coded A-261 (A, 2 for the S, C ignored, 6 for the R, 1
+         // for the F). It is not coded A-226.
+         assertEquals("A261", this.getEncoder().encode("Ashcraft"));
+     }
+ 
+     /**
+ 	 * Consonants from the same code group separated by W or H are treated as
+ 	 * one.
+-	 * 
++	 *
+ 	 * Test data from http://www.myatt.demon.co.uk/sxalg.htm
+ 	 */
+
+commit 6b0e4534b45d9344d13b71ff5f5369d6dbefb8c9
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Thu Nov 6 11:31:47 2003
+
+    Soundex encoding bugs.
+    http://issues.apache.org/bugzilla/show_bug.cgi?id=24471
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/codec/trunk@130229 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/codec/language/SoundexTest.java b/src/test/org/apache/commons/codec/language/SoundexTest.java
+--- a/src/test/org/apache/commons/codec/language/SoundexTest.java
++++ b/src/test/org/apache/commons/codec/language/SoundexTest.java
+@@ -151,1 +254,14 @@
+-    
++    public void testHWRuleEx1() {
++        // From
++        // http://www.archives.gov/research_room/genealogy/census/soundex.html:
++        // Ashcraft is coded A-261 (A, 2 for the S, C ignored, 6 for the R, 1
++        // for the F). It is not coded A-226.
++        assertEquals("A261", this.getEncoder().encode("Ashcraft"));
++    }
++
++    /**
++	 * Consonants from the same code group separated by W or H are treated as
++	 * one.
++	 * 
++	 * Test data from http://www.myatt.demon.co.uk/sxalg.htm
++	 */
+
+commit 9da7d2a69e0c19bb33a6e3ca18ab1c6a2298d61d
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Mon Nov 3 21:43:09 2003
+
+    More Soundex test data and code clean up.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/codec/trunk@130228 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/codec/language/SoundexTest.java b/src/test/org/apache/commons/codec/language/SoundexTest.java
+--- a/src/test/org/apache/commons/codec/language/SoundexTest.java
++++ b/src/test/org/apache/commons/codec/language/SoundexTest.java
+@@ -109,0 +151,1 @@
++    

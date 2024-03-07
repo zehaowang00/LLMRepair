@@ -1,0 +1,49 @@
+commit 03a72e752ef68269990f984c9fd613cfd59224bc
+Author: Andrey Mogilev <amogilev@gmail.com>
+Date:   Mon Jul 31 13:50:29 2017
+
+    Fix StackOverflowError on resolving types with TypeVariable recursion (#1128)
+    
+    * Fix StackOverflowError on resolving types with TypeVariable recursion
+    
+    Sample failing code:
+      private static class TestType<X> {
+        TestType<? super X> superType;
+      }
+      ...
+      new Gson().getAdapter(TestType.class);
+    
+    * fix build errors
+
+diff --git a/gson/src/test/java/com/google/gson/internal/bind/RecursiveTypesResolveTest.java b/gson/src/test/java/com/google/gson/internal/bind/RecursiveTypesResolveTest.java
+--- a/gson/src/test/java/com/google/gson/internal/bind/RecursiveTypesResolveTest.java
++++ b/gson/src/test/java/com/google/gson/internal/bind/RecursiveTypesResolveTest.java
+@@ -89,1 +107,8 @@
++  public void testRecursiveTypeVariablesResolve12() throws Exception {
++    TypeAdapter<TestType2> adapter = new Gson().getAdapter(TestType2.class);
++    assertNotNull(adapter);
++  }
+ }
++
++
++
+
+commit a300148003e3a067875b1444e8268b6e0f0e0e02
+Author: Andrey Mogilev <amogilev@gmail.com>
+Date:   Tue May 30 20:47:04 2017
+
+    Fix StackOverflowError on resolving recursive types by collapsing chains of type bounds (#1075)
+    
+    * Fixes StackOverflowError on resolving recursive types.
+    
+    See Issue #440, Issue #603, tests.
+    
+    * fix 'codacy' coding style warnings
+    
+    * added copyright header
+
+diff --git a/gson/src/test/java/com/google/gson/internal/bind/RecursiveTypesResolveTest.java b/gson/src/test/java/com/google/gson/internal/bind/RecursiveTypesResolveTest.java
+--- /dev/null
++++ b/gson/src/test/java/com/google/gson/internal/bind/RecursiveTypesResolveTest.java
+@@ -0,0 +89,1 @@
++}

@@ -1,0 +1,37 @@
+commit a25e7f7abe7f6b3f4147febee4a917ce92241aab
+Author: Mikkel Meyer Andersen <mikl@apache.org>
+Date:   Fri Jun 8 07:04:11 2012
+
+    MATH-790: Patch applied to fix the overflow issue.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1348024 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math3/stat/inference/MannWhitneyUTestTest.java b/src/test/java/org/apache/commons/math3/stat/inference/MannWhitneyUTestTest.java
+--- a/src/test/java/org/apache/commons/math3/stat/inference/MannWhitneyUTestTest.java
++++ b/src/test/java/org/apache/commons/math3/stat/inference/MannWhitneyUTestTest.java
+@@ -103,1 +105,11 @@
++    public void testBigDataSet() throws Exception {
++        double[] d1 = new double[1500];
++        double[] d2 = new double[1500];
++        for (int i = 0; i < 1500; i++) {
++            d1[i] = 2 * i;
++            d2[i] = 2 * i + 1;
++        }
++        double result = testStatistic.mannWhitneyUTest(d1, d2);
++        Assert.assertTrue(result > 0.1);
++    }
+ }
+
+commit 37594a450a5b3435893b86d5802581e8b34b2e05
+Author: Mikkel Meyer Andersen <mikl@apache.org>
+Date:   Thu Dec 30 04:52:00 2010
+
+    Starting point for fixing MATH-431. Still some validation tests and documentation are missing.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1053836 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/stat/inference/MannWhitneyUTestTest.java b/src/test/java/org/apache/commons/math/stat/inference/MannWhitneyUTestTest.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/math/stat/inference/MannWhitneyUTestTest.java
+@@ -0,0 +101,1 @@
++}

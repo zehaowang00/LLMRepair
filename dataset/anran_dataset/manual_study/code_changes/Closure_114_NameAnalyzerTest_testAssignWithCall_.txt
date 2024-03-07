@@ -1,0 +1,22 @@
+commit 5f03c6817341d39d8dead76c7511fd6bb0b9009f
+Author: Ben Lickly <blickly@google.com>
+Date:   Thu Oct 3 19:04:27 2013
+
+    SmartNamePass shouldn't record assignment dependencies if the rhs is a call. The rhs is used by the context, so we don't want it removed if the lhs isn't used.
+    
+    Fixes issue 1085.
+    -------------
+    Created by MOE: http://code.google.com/p/moe-java
+    MOE_MIGRATED_REVID=53691900
+
+diff --git a/test/com/google/javascript/jscomp/NameAnalyzerTest.java b/test/com/google/javascript/jscomp/NameAnalyzerTest.java
+--- a/test/com/google/javascript/jscomp/NameAnalyzerTest.java
++++ b/test/com/google/javascript/jscomp/NameAnalyzerTest.java
+@@ -1235,0 +1235,7 @@
++  public void testAssignWithCall() {
++    test("var fun, x; (fun = function(){ x; })();",
++        "var x; (function(){ x; })();");
++  }
++
++  // Currently this crashes the compiler because it erroneoursly removes var x
++  // and later a sanity check fails.

@@ -1,0 +1,24 @@
+commit ea2b0d7a9b2df8ac4f56b015883c5b09a37cc8c7
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Sun Sep 25 21:57:25 2016
+
+    Try reproducing #1384, seems to pass with 2.7(.8)
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/jsontype/TypeRefinementForMapTest.java b/src/test/java/com/fasterxml/jackson/databind/jsontype/TypeRefinementForMapTest.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/jsontype/TypeRefinementForMapTest.java
+@@ -0,0 +118,14 @@
++    public void testMapKeyRefinement1384() throws Exception
++    {
++        final String TEST_INSTANCE_SERIALIZED =
++                "{\"mapProperty\":[\"java.util.HashMap\",{\"Compound|Key\":\"Value\"}]}";
++        ObjectMapper mapper = new ObjectMapper().enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
++
++        TestClass testInstance = mapper.readValue(TEST_INSTANCE_SERIALIZED, TestClass.class);
++        assertEquals(1, testInstance.mapProperty.size());
++        Object key = testInstance.mapProperty.keySet().iterator().next();
++        assertEquals(CompoundKey.class, key.getClass());
++        String testInstanceSerialized = mapper.writeValueAsString(testInstance);
++        assertEquals(TEST_INSTANCE_SERIALIZED, testInstanceSerialized);
++    }
++}

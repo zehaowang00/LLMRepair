@@ -1,0 +1,120 @@
+commit b72b5c716ac18150396d05988d9eab745bea02b9
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Sat May 23 11:05:43 2015
+
+    COMPRESS-316 detect DEFLATE streams with ZLIB header, submitted by Nick Burch
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1681356 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/compressors/DetectCompressorTestCase.java b/src/test/java/org/apache/commons/compress/compressors/DetectCompressorTestCase.java
+--- a/src/test/java/org/apache/commons/compress/compressors/DetectCompressorTestCase.java
++++ b/src/test/java/org/apache/commons/compress/compressors/DetectCompressorTestCase.java
+@@ -90,26 +91,30 @@
+     public void testDetection() throws Exception {
+         CompressorInputStream bzip2 = getStreamFor("bla.txt.bz2"); 
+         assertNotNull(bzip2);
+         assertTrue(bzip2 instanceof BZip2CompressorInputStream);
+ 
+         CompressorInputStream gzip = getStreamFor("bla.tgz");
+         assertNotNull(gzip);
+         assertTrue(gzip instanceof GzipCompressorInputStream);
+         
+         CompressorInputStream pack200 = getStreamFor("bla.pack");
+         assertNotNull(pack200);
+         assertTrue(pack200 instanceof Pack200CompressorInputStream);
+ 
+         CompressorInputStream xz = getStreamFor("bla.tar.xz");
+         assertNotNull(xz);
+         assertTrue(xz instanceof XZCompressorInputStream);
+ 
++        CompressorInputStream zlib = getStreamFor("bla.tar.deflatez");
++        assertNotNull(zlib);
++        assertTrue(zlib instanceof DeflateCompressorInputStream);
++
+         try {
+             factory.createCompressorInputStream(new ByteArrayInputStream(new byte[0]));
+             fail("No exception thrown for an empty input stream");
+         } catch (CompressorException e) {
+             // expected
+         }
+     }
+ 
+     @Test
+
+commit 58fa9a673547c884cd1f11a8927414e563480358
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Mon Feb 16 19:40:20 2015
+
+    COMPRESS-305 Convert all tests to JUnit4 style
+    All but AbstractTestCase and subclasses
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1660261 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/compressors/DetectCompressorTestCase.java b/src/test/java/org/apache/commons/compress/compressors/DetectCompressorTestCase.java
+--- a/src/test/java/org/apache/commons/compress/compressors/DetectCompressorTestCase.java
++++ b/src/test/java/org/apache/commons/compress/compressors/DetectCompressorTestCase.java
+@@ -93,25 +90,26 @@
+     public void testDetection() throws Exception {
+         CompressorInputStream bzip2 = getStreamFor("bla.txt.bz2"); 
+         assertNotNull(bzip2);
+         assertTrue(bzip2 instanceof BZip2CompressorInputStream);
+ 
+         CompressorInputStream gzip = getStreamFor("bla.tgz");
+         assertNotNull(gzip);
+         assertTrue(gzip instanceof GzipCompressorInputStream);
+         
+         CompressorInputStream pack200 = getStreamFor("bla.pack");
+         assertNotNull(pack200);
+         assertTrue(pack200 instanceof Pack200CompressorInputStream);
+ 
+         CompressorInputStream xz = getStreamFor("bla.tar.xz");
+         assertNotNull(xz);
+         assertTrue(xz instanceof XZCompressorInputStream);
+ 
+         try {
+             factory.createCompressorInputStream(new ByteArrayInputStream(new byte[0]));
+             fail("No exception thrown for an empty input stream");
+         } catch (CompressorException e) {
+             // expected
+         }
+     }
+ 
++    @Test
+
+commit b1caea2095fda0685c40b46ea1f7f22da457c9f6
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Mon Feb 16 11:10:03 2015
+
+    Add test cases for concatenated compressed files
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1660151 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/compressors/DetectCompressorTestCase.java b/src/test/java/org/apache/commons/compress/compressors/DetectCompressorTestCase.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/compress/compressors/DetectCompressorTestCase.java
+@@ -0,0 +93,25 @@
++    public void testDetection() throws Exception {
++        CompressorInputStream bzip2 = getStreamFor("bla.txt.bz2"); 
++        assertNotNull(bzip2);
++        assertTrue(bzip2 instanceof BZip2CompressorInputStream);
++
++        CompressorInputStream gzip = getStreamFor("bla.tgz");
++        assertNotNull(gzip);
++        assertTrue(gzip instanceof GzipCompressorInputStream);
++        
++        CompressorInputStream pack200 = getStreamFor("bla.pack");
++        assertNotNull(pack200);
++        assertTrue(pack200 instanceof Pack200CompressorInputStream);
++
++        CompressorInputStream xz = getStreamFor("bla.tar.xz");
++        assertNotNull(xz);
++        assertTrue(xz instanceof XZCompressorInputStream);
++
++        try {
++            factory.createCompressorInputStream(new ByteArrayInputStream(new byte[0]));
++            fail("No exception thrown for an empty input stream");
++        } catch (CompressorException e) {
++            // expected
++        }
++    }
++

@@ -1,0 +1,36 @@
+commit 7a8983042131c5a9c2b5421ae42075cbb8ef1aeb
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon May 14 17:03:20 2012
+
+    Correct IR helpers for TRY nodes.
+    Fixes issue 727.
+    
+    R=nicksantos
+    DELTA=100  (96 added, 0 deleted, 4 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=4780
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1971 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/rhino/IRTest.java b/test/com/google/javascript/rhino/IRTest.java
+--- /dev/null
++++ b/test/com/google/javascript/rhino/IRTest.java
+@@ -0,0 +58,15 @@
++  public void testIssue727_2() {
++    testIR(
++        IR.tryCatch(
++            IR.block(),
++            IR.catchNode(
++                IR.name("e"),
++                IR.block())),
++        "TRY\n" +
++        "    BLOCK\n" +
++        "    BLOCK\n" +
++        "        CATCH\n" +
++        "            NAME e\n" +
++        "            BLOCK\n");
++  }
++

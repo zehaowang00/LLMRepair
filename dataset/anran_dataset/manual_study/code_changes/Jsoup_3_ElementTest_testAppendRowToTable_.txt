@@ -1,0 +1,38 @@
+commit 0081d162cca8ad23b500b53799195fec644f261b
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sun Jun 13 04:19:04 2010
+
+    Improved implicit close tag heuristic detection when parsing malformed HTML.
+    
+    Fixes an issue where appending / prepending rows to a table (or  to similar implicit
+    element structures) would create a redundant wrapping elements.
+    
+    Fixes #21
+
+diff --git a/src/test/java/org/jsoup/nodes/ElementTest.java b/src/test/java/org/jsoup/nodes/ElementTest.java
+index 7fc4ac57..d835314d 100644
+--- a/src/test/java/org/jsoup/nodes/ElementTest.java
++++ b/src/test/java/org/jsoup/nodes/ElementTest.java
+@@ -210,6 +210,22 @@
+         assertEquals("<html><head></head><body><div id=\"1\"><p>Hello</p><p>there</p><p class=\"second\">now</p></div></body></html>",
+                 TextUtil.stripNewlines(doc.html()));
+     }
++
++    @Test public void testAppendRowToTable() {
++        Document doc = Jsoup.parse("<table><tr><td>1</td></tr></table>");
++        Element table = doc.select("table").first();
++        table.append("<tr><td>2</td></tr>");
++
++        assertEquals("<table><tr><td>1</td></tr><tr><td>2</td></tr></table>", TextUtil.stripNewlines(doc.body().html()));
++    }
++
++        @Test public void testPrependRowToTable() {
++        Document doc = Jsoup.parse("<table><tr><td>1</td></tr></table>");
++        Element table = doc.select("table").first();
++        table.prepend("<tr><td>2</td></tr>");
++
++        assertEquals("<table><tr><td>2</td></tr><tr><td>1</td></tr></table>", TextUtil.stripNewlines(doc.body().html()));
++    }
+     
+     @Test public void testPrependElement() {
+         Document doc = Jsoup.parse("<div id=1><p>Hello</p></div>");

@@ -1,0 +1,166 @@
+commit 6a585453d385449dc23d90479488f92f02cd6b83
+Author: Henri Yandell <bayard@apache.org>
+Date:   Fri Feb 27 04:38:10 2009
+
+    Adjusting - best is to switch to an indent of 1 than do silly things like having every line have 1 character. CLI-162
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/branches/cli-1.x@748463 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/bug/BugCLI162Test.java b/src/test/org/apache/commons/cli/bug/BugCLI162Test.java
+--- a/src/test/org/apache/commons/cli/bug/BugCLI162Test.java
++++ b/src/test/org/apache/commons/cli/bug/BugCLI162Test.java
+@@ -264,39 +264,20 @@
+     public void testLongLineChunkingIndentIgnored() throws ParseException, IOException {
+         Options options = new Options();
+         options.addOption("x", "extralongarg", false, "This description is Long." );
+         HelpFormatter formatter = new HelpFormatter();
+         StringWriter sw = new StringWriter();
+         formatter.printHelp(new PrintWriter(sw), 22, this.getClass().getName(), "Header", options, 0, 5, "Footer");
++        System.err.println(sw.toString());
+         String expected = "usage:\n" +
+                           "       org.apache.comm\n" +
+                           "       ons.cli.bug.Bug\n" +
+                           "       CLI162Test\n" +
+                           "Header\n" +
+                           "-x,--extralongarg\n" +
+-                          "                     T\n" +
+-                          "                     h\n" +
+-                          "                     i\n" +
+-                          "                     s\n" +
+-                          "                     d\n" +
+-                          "                     e\n" +
+-                          "                     s\n" +
+-                          "                     c\n" +
+-                          "                     r\n" +
+-                          "                     i\n" +
+-                          "                     p\n" +
+-                          "                     t\n" +
+-                          "                     i\n" +
+-                          "                     o\n" +
+-                          "                     n\n" +
+-                          "                     i\n" +
+-                          "                     s\n" +
+-                          "                     L\n" +
+-                          "                     o\n" +
+-                          "                     n\n" +
+-                          "                     g\n" +
+-                          "                     .\n" +
++                          " This description is\n" +
++                          " Long.\n" +
+                           "Footer\n";
+         assertEquals( "Long arguments did not split as expected", expected, sw.toString() );
+     }
+ 
+ }
+
+commit 02dd7c20646bf67dcfb6f7da6beeb7cdffc6ac22
+Author: Henri Yandell <bayard@apache.org>
+Date:   Fri Feb 27 04:34:11 2009
+
+    Switching from the IllegalStateException to trying hard to work. A better user experience and didn't end up with the code being any more evil. CLI-162
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/branches/cli-1.x@748461 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/bug/BugCLI162Test.java b/src/test/org/apache/commons/cli/bug/BugCLI162Test.java
+--- a/src/test/org/apache/commons/cli/bug/BugCLI162Test.java
++++ b/src/test/org/apache/commons/cli/bug/BugCLI162Test.java
+@@ -263,10 +264,39 @@
+-        try {
+-            formatter.printHelp(new PrintWriter(sw), 22, this.getClass().getName(), "Header", options, 0, 5, "Footer");
+-            fail("IllegalStateException expected");
+-        } catch(IllegalStateException ise) {
+-            // expected
+-        }
+-
++    public void testLongLineChunkingIndentIgnored() throws ParseException, IOException {
++        Options options = new Options();
++        options.addOption("x", "extralongarg", false, "This description is Long." );
++        HelpFormatter formatter = new HelpFormatter();
++        StringWriter sw = new StringWriter();
++        formatter.printHelp(new PrintWriter(sw), 22, this.getClass().getName(), "Header", options, 0, 5, "Footer");
++        String expected = "usage:\n" +
++                          "       org.apache.comm\n" +
++                          "       ons.cli.bug.Bug\n" +
++                          "       CLI162Test\n" +
++                          "Header\n" +
++                          "-x,--extralongarg\n" +
++                          "                     T\n" +
++                          "                     h\n" +
++                          "                     i\n" +
++                          "                     s\n" +
++                          "                     d\n" +
++                          "                     e\n" +
++                          "                     s\n" +
++                          "                     c\n" +
++                          "                     r\n" +
++                          "                     i\n" +
++                          "                     p\n" +
++                          "                     t\n" +
++                          "                     i\n" +
++                          "                     o\n" +
++                          "                     n\n" +
++                          "                     i\n" +
++                          "                     s\n" +
++                          "                     L\n" +
++                          "                     o\n" +
++                          "                     n\n" +
++                          "                     g\n" +
++                          "                     .\n" +
++                          "Footer\n";
++        assertEquals( "Long arguments did not split as expected", expected, sw.toString() );
+     }
+ 
+ }
+
+commit 84234a65638f0e9e4be73dfcccaa6530a5b571af
+Author: Henri Yandell <bayard@apache.org>
+Date:   Fri Feb 20 00:00:59 2009
+
+    Applying additional patch to throw IllegalStateException when the specified width is not enough to fit the flags, indent and 1 character for the description. This closes out CLI-162 (for now :) ).
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/branches/cli-1.x@746137 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/bug/BugCLI162Test.java b/src/test/org/apache/commons/cli/bug/BugCLI162Test.java
+--- a/src/test/org/apache/commons/cli/bug/BugCLI162Test.java
++++ b/src/test/org/apache/commons/cli/bug/BugCLI162Test.java
+@@ -262,3 +263,10 @@
++        try {
++            formatter.printHelp(new PrintWriter(sw), 22, this.getClass().getName(), "Header", options, 0, 5, "Footer");
++            fail("IllegalStateException expected");
++        } catch(IllegalStateException ise) {
++            // expected
++        }
++
+     }
+ 
+ }
+
+commit 4141904a4bc95471d2f80ecf35d012e7fcf34bb3
+Author: Henri Yandell <bayard@apache.org>
+Date:   Thu Feb 19 02:14:40 2009
+
+    Adding another test
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/branches/cli-1.x@745762 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/bug/BugCLI162Test.java b/src/test/org/apache/commons/cli/bug/BugCLI162Test.java
+--- a/src/test/org/apache/commons/cli/bug/BugCLI162Test.java
++++ b/src/test/org/apache/commons/cli/bug/BugCLI162Test.java
+@@ -230,1 +262,3 @@
++    }
++
+ }
+
+commit 880a9f6c45dbcb14215bb35de21fdbbfaeb89c2e
+Author: Henri Yandell <bayard@apache.org>
+Date:   Sat Jan 17 04:30:53 2009
+
+    Changing the current OutOfMemoryError to a RuntimeException per CLI-162. A new ticket for the RuntimeException is at CLI-174
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/branches/cli-1.x@735257 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/bug/BugCLI162Test.java b/src/test/org/apache/commons/cli/bug/BugCLI162Test.java
+--- /dev/null
++++ b/src/test/org/apache/commons/cli/bug/BugCLI162Test.java
+@@ -0,0 +50,1 @@
++}

@@ -1,0 +1,19 @@
+commit 6537e18ad189603e19615226e6aa1a9cdd154b8f
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Wed Mar 24 18:11:51 2010
+
+    Fixed an error in events handling in ODE solvers. In some rare cases, events occurring close to a step start were handled without truncating the step, making them appear as is they occurred close to the step end
+    JIRA: MATH-358
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@927202 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/ode/nonstiff/DormandPrince853IntegratorTest.java b/src/test/java/org/apache/commons/math/ode/nonstiff/DormandPrince853IntegratorTest.java
+--- a/src/test/java/org/apache/commons/math/ode/nonstiff/DormandPrince853IntegratorTest.java
++++ b/src/test/java/org/apache/commons/math/ode/nonstiff/DormandPrince853IntegratorTest.java
+@@ -43,0 +44,6 @@
++  public void testMissedEndEvent() throws IntegratorException, DerivativeException {
++      final double   t0     = 1878250320.0000029;
++      final double   tEvent = 1878250379.9999986;
++      final double[] k  = { 1.0e-4, 1.0e-5, 1.0e-6 };
++      FirstOrderDifferentialEquations ode = new FirstOrderDifferentialEquations() {
++

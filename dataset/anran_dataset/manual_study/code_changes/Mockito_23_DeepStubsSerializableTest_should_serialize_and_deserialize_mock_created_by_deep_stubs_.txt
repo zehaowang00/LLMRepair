@@ -1,0 +1,156 @@
+commit afc5bb89eaae10a75e1baaa9f3bfcb19d930f17e
+Author: Marcin.Grzejszczak <marcin@grzejszczak.pl>
+Date:   Fri Jan 10 05:49:42 2014
+
+    Issue 399: Removed unnecessary implementation of Serializable interfaces, removed unnecessary transient fields, added proper field initialization
+
+diff --git a/test/org/mockitousage/stubbing/DeepStubsSerializableTest.java b/test/org/mockitousage/stubbing/DeepStubsSerializableTest.java
+--- a/test/org/mockitousage/stubbing/DeepStubsSerializableTest.java
++++ b/test/org/mockitousage/stubbing/DeepStubsSerializableTest.java
+@@ -17,16 +18,18 @@
+     public void should_serialize_and_deserialize_mock_created_by_deep_stubs() throws Exception {
+         // given
+         SampleClass sampleClass = mock(SampleClass.class, withSettings().defaultAnswer(Mockito.RETURNS_DEEP_STUBS).serializable());
+-        when(sampleClass.getSample().isSth()).thenReturn(STUBBED_VALUE);
++        when(sampleClass.getSample().isSth()).thenReturn(STUBBED_BOOLEAN_VALUE);
++        when(sampleClass.getSample().getNumber()).thenReturn(STUBBED_INTEGER_VALUE);
+ 
+         // when
+         Object o = SimpleSerializationUtil.serializeAndBack(sampleClass);
+ 
+         // then
+         assertThat(o).isInstanceOf(SampleClass.class);
+         SampleClass deserializedSample = (SampleClass) o;
+-        assertThat(deserializedSample.getSample().isSth()).isEqualTo(STUBBED_VALUE);
++        assertThat(deserializedSample.getSample().isSth()).isEqualTo(STUBBED_BOOLEAN_VALUE);
++        assertThat(deserializedSample.getSample().getNumber()).isEqualTo(STUBBED_INTEGER_VALUE);
+     }
+ 
+ 
+     class SampleClass implements Serializable {
+
+commit 62a976b93868c0868e16da7c30792bdf5782bf03
+Author: marcingrzejszczak <marcin@grzejszczak.pl>
+Date:   Mon Jan 6 18:34:08 2014
+
+    Converted manual serialization/deserialization to use SimpleSerializationUtil
+
+diff --git a/test/org/mockitousage/stubbing/DeepStubsSerializableTest.java b/test/org/mockitousage/stubbing/DeepStubsSerializableTest.java
+--- a/test/org/mockitousage/stubbing/DeepStubsSerializableTest.java
++++ b/test/org/mockitousage/stubbing/DeepStubsSerializableTest.java
+@@ -18,44 +17,16 @@
+-	public static final boolean STUBBED_VALUE = true;
+-
+-	@Test
+-	public void should_serialize_and_deserialize_mock_created_by_deep_stubs() throws Exception {
+-		// given
+-		SampleClass sampleClass = Mockito.mock(SampleClass.class, withSettings().defaultAnswer(Mockito.RETURNS_DEEP_STUBS).serializable());
+-		Mockito.when(sampleClass.getSample().isSth()).thenReturn(STUBBED_VALUE);
+-
+-		// when
+-		ByteArrayOutputStream serializationStream = serialize(sampleClass);
+-
+-		// then
+-		Object o = deserialize(serializationStream);
+-		assertThat(o).isInstanceOf(SampleClass.class);
+-		SampleClass deserializedSample = (SampleClass) o;
+-		assertThat(deserializedSample.getSample().isSth()).isEqualTo(STUBBED_VALUE);
+-	}
+-
+-	private ByteArrayOutputStream serialize(SampleClass sampleClass) throws IOException {
+-		ByteArrayOutputStream serializationStream = new ByteArrayOutputStream();
+-		ObjectOutputStream objectOutputStream = new ObjectOutputStream(serializationStream);
+-		objectOutputStream.writeObject(sampleClass);
+-		objectOutputStream.close();
+-		return serializationStream;
+-	}
+-
+-	private Object deserialize(ByteArrayOutputStream serializationStream) throws IOException, ClassNotFoundException {
+-		ByteArrayInputStream deserializationStream = new ByteArrayInputStream(serializationStream.toByteArray());
+-		ObjectInputStream is = new ObjectInputStream(deserializationStream);
+-		return is.readObject();
+-	}
+-
+-	class SampleClass implements Serializable {
+-		SampleClass2 getSample(){
+-			return new SampleClass2();
+-		}
+-	}
+-
+-	class SampleClass2 implements Serializable {
+-		boolean isSth(){
+-			return false;
+-		}
+-	}
+-	
++    public void should_serialize_and_deserialize_mock_created_by_deep_stubs() throws Exception {
++        // given
++        SampleClass sampleClass = mock(SampleClass.class, withSettings().defaultAnswer(Mockito.RETURNS_DEEP_STUBS).serializable());
++        when(sampleClass.getSample().isSth()).thenReturn(STUBBED_VALUE);
++
++        // when
++        Object o = SimpleSerializationUtil.serializeAndBack(sampleClass);
++
++        // then
++        assertThat(o).isInstanceOf(SampleClass.class);
++        SampleClass deserializedSample = (SampleClass) o;
++        assertThat(deserializedSample.getSample().isSth()).isEqualTo(STUBBED_VALUE);
++    }
++
++
++    class SampleClass implements Serializable {
+
+commit afac748f7c52c7165d8103266fd6f0ace5eaaa37
+Author: Marcin Grzejszczak <marcin@grzejszczak.pl>
+Date:   Thu Dec 26 19:34:33 2013
+
+    Issue 399: Added serialization for mocks returned by deep stubbing
+
+diff --git a/test/org/mockitousage/stubbing/DeepStubsSerializableTest.java b/test/org/mockitousage/stubbing/DeepStubsSerializableTest.java
+--- /dev/null
++++ b/test/org/mockitousage/stubbing/DeepStubsSerializableTest.java
+@@ -0,0 +18,44 @@
++	public static final boolean STUBBED_VALUE = true;
++
++	@Test
++	public void should_serialize_and_deserialize_mock_created_by_deep_stubs() throws Exception {
++		// given
++		SampleClass sampleClass = Mockito.mock(SampleClass.class, withSettings().defaultAnswer(Mockito.RETURNS_DEEP_STUBS).serializable());
++		Mockito.when(sampleClass.getSample().isSth()).thenReturn(STUBBED_VALUE);
++
++		// when
++		ByteArrayOutputStream serializationStream = serialize(sampleClass);
++
++		// then
++		Object o = deserialize(serializationStream);
++		assertThat(o).isInstanceOf(SampleClass.class);
++		SampleClass deserializedSample = (SampleClass) o;
++		assertThat(deserializedSample.getSample().isSth()).isEqualTo(STUBBED_VALUE);
++	}
++
++	private ByteArrayOutputStream serialize(SampleClass sampleClass) throws IOException {
++		ByteArrayOutputStream serializationStream = new ByteArrayOutputStream();
++		ObjectOutputStream objectOutputStream = new ObjectOutputStream(serializationStream);
++		objectOutputStream.writeObject(sampleClass);
++		objectOutputStream.close();
++		return serializationStream;
++	}
++
++	private Object deserialize(ByteArrayOutputStream serializationStream) throws IOException, ClassNotFoundException {
++		ByteArrayInputStream deserializationStream = new ByteArrayInputStream(serializationStream.toByteArray());
++		ObjectInputStream is = new ObjectInputStream(deserializationStream);
++		return is.readObject();
++	}
++
++	class SampleClass implements Serializable {
++		SampleClass2 getSample(){
++			return new SampleClass2();
++		}
++	}
++
++	class SampleClass2 implements Serializable {
++		boolean isSth(){
++			return false;
++		}
++	}
++	

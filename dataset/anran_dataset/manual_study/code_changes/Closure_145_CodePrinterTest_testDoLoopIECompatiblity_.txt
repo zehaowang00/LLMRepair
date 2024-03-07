@@ -1,0 +1,88 @@
+commit dff6e0114f19c20aeb63393d67aa0880ff5745b5
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Jun 25 19:56:52 2010
+
+    Change on 2010/06/25 by johnlenz
+    
+            Preserve blocks around problematic labelled statements.
+            Fixes issue 190
+    
+            R=nicksantos
+            DELTA=95  (86 added, 2 deleted, 7 changed)
+    
+    Change on 2010/06/25 by nicksantos
+    
+            more descriptive error messaging for CheckReturns.
+    
+    
+            R=acleung
+            DELTA=59  (21 added, 2 deleted, 36 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=42001
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@255 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -917,15 +917,27 @@
+   public void testDoLoopIECompatiblity() {
+     // Do loops within IFs cause syntax errors in IE6 and IE7.
+     assertPrint("function(){if(e1){do foo();while(e2)}else foo()}",
+         "function(){if(e1){do foo();while(e2)}else foo()}");
+ 
+     assertPrint("function(){if(e1)do foo();while(e2)else foo()}",
+         "function(){if(e1){do foo();while(e2)}else foo()}");
+ 
+     assertPrint("if(x){do{foo()}while(y)}else bar()",
+         "if(x){do foo();while(y)}else bar()");
+ 
+     assertPrint("if(x)do{foo()}while(y);else bar()",
+         "if(x){do foo();while(y)}else bar()");
++
++    assertPrint("if(x){do{foo()}while(y)}",
++        "if(x){do foo();while(y)}");
++
++    assertPrint("if(x)do{foo()}while(y);",
++        "if(x){do foo();while(y)}");
++
++    assertPrint("if(x)A:do{foo()}while(y);",
++        "if(x){A:do foo();while(y)}");
++    
++    assertPrint("var i = 0;a: do{b: do{i++;break b;} while(0);} while(0);",
++        "var i=0;a:do{b:do{i++;break b}while(0)}while(0)");
+   }
+ 
+
+commit 6b49cfd9022fe111bdad745c78ea877fbc2f7ba3
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 3 18:51:57 2009
+
+    Initial commit.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -0,0 +590,15 @@
++  public void testDoLoopIECompatiblity() {
++    // Do loops within IFs cause syntax errors in IE6 and IE7.
++    assertPrint("function(){if(e1){do foo();while(e2)}else foo()}",
++        "function(){if(e1){do foo();while(e2)}else foo()}");
++
++    assertPrint("function(){if(e1)do foo();while(e2)else foo()}",
++        "function(){if(e1){do foo();while(e2)}else foo()}");
++
++    assertPrint("if(x){do{foo()}while(y)}else bar()",
++        "if(x){do foo();while(y)}else bar()");
++
++    assertPrint("if(x)do{foo()}while(y);else bar()",
++        "if(x){do foo();while(y)}else bar()");
++  }
++

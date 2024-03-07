@@ -1,0 +1,24 @@
+commit 11840dfde044fec90b0cb4a715ce9d213acea3ca
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Tue Jun 7 12:23:48 2016
+
+    COMPRESS-351 restrict length of sanitized entry name
+
+diff --git a/src/test/java/org/apache/commons/compress/ArchiveUtilsTest.java b/src/test/java/org/apache/commons/compress/ArchiveUtilsTest.java
+--- a/src/test/java/org/apache/commons/compress/ArchiveUtilsTest.java
++++ b/src/test/java/org/apache/commons/compress/ArchiveUtilsTest.java
+@@ -70,0 +71,14 @@
++    public void sanitizeShortensString() {
++        String input = "012345678901234567890123456789012345678901234567890123456789"
++            + "012345678901234567890123456789012345678901234567890123456789"
++            + "012345678901234567890123456789012345678901234567890123456789"
++            + "012345678901234567890123456789012345678901234567890123456789"
++            + "012345678901234567890123456789012345678901234567890123456789";
++        String expected = "012345678901234567890123456789012345678901234567890123456789"
++            + "012345678901234567890123456789012345678901234567890123456789"
++            + "012345678901234567890123456789012345678901234567890123456789"
++            + "012345678901234567890123456789012345678901234567890123456789"
++            + "012345678901...";
++        assertEquals(expected, ArchiveUtils.sanitize(input));
++    }
++

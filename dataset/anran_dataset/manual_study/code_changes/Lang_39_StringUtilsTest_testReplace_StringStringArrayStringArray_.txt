@@ -1,0 +1,139 @@
+commit cb40e35f5e0990fad4c5278964fcc24e112dde8c
+Author: Henri Yandell <bayard@apache.org>
+Date:   Mon Dec 14 02:51:05 2009
+
+    Applying fix for LANG-552. StringUtils.replaceEach(String, String[], String[]) no longer NPEs when null appears in the last String[]
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@890212 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang3/StringUtilsTest.java b/src/test/org/apache/commons/lang3/StringUtilsTest.java
+--- a/src/test/org/apache/commons/lang3/StringUtilsTest.java
++++ b/src/test/org/apache/commons/lang3/StringUtilsTest.java
+@@ -1009,32 +1009,36 @@
+     public void testReplace_StringStringArrayStringArray() {
+ 
+         
+         //JAVADOC TESTS START
+         assertNull(StringUtils.replaceEach(null, new String[]{"a"}, new String[]{"b"}));
+         assertEquals(StringUtils.replaceEach("", new String[]{"a"}, new String[]{"b"}),"");
+         assertEquals(StringUtils.replaceEach("aba", null, null),"aba");
+         assertEquals(StringUtils.replaceEach("aba", new String[0], null),"aba");
+         assertEquals(StringUtils.replaceEach("aba", null, new String[0]),"aba");
+         assertEquals(StringUtils.replaceEach("aba", new String[]{"a"}, null),"aba");
+ 
+         assertEquals(StringUtils.replaceEach("aba", new String[]{"a"}, new String[]{""}),"b");
+         assertEquals(StringUtils.replaceEach("aba", new String[]{null}, new String[]{"a"}),"aba");
+         assertEquals(StringUtils.replaceEach("abcde", new String[]{"ab", "d"}, new String[]{"w", "t"}),"wcte");
+         assertEquals(StringUtils.replaceEach("abcde", new String[]{"ab", "d"}, new String[]{"d", "t"}),"dcte");
+         //JAVADOC TESTS END
+ 
+         assertEquals("bcc", StringUtils.replaceEach("abc", new String[]{"a", "b"}, new String[]{"b", "c"}));
+         assertEquals("q651.506bera", StringUtils.replaceEach("d216.102oren",
+             new String[]{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", 
+                 "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A", "B", "C", "D", 
+                 "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", 
+                 "U", "V", "W", "X", "Y", "Z", "1", "2", "3", "4", "5", "6", "7", "8", "9"},
+             new String[]{"n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "a", 
+                 "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "N", "O", "P", "Q", 
+                 "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "A", "B", "C", "D", "E", "F", "G", 
+                 "H", "I", "J", "K", "L", "M", "5", "6", "7", "8", "9", "1", "2", "3", "4"}));
++
++        // Test null safety inside arrays - LANG-552
++        assertEquals(StringUtils.replaceEach("aba", new String[]{"a"}, new String[]{null}),"aba");
++        assertEquals(StringUtils.replaceEach("aba", new String[]{"a", "b"}, new String[]{"c", null}),"cbc");
+     }
+ 
+     /**
+      * Test method for 'StringUtils.replaceEachRepeatedly(String, String[], String[])'
+      */
+
+commit 766da8f52f8966967fc99c66accf58987b660ff4
+Author: Henri Yandell <bayard@apache.org>
+Date:   Thu Dec 10 07:06:34 2009
+
+    Removing package name from comment - unnecessary. LANG-563
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@889225 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang3/StringUtilsTest.java b/src/test/org/apache/commons/lang3/StringUtilsTest.java
+--- a/src/test/org/apache/commons/lang3/StringUtilsTest.java
++++ b/src/test/org/apache/commons/lang3/StringUtilsTest.java
+@@ -1009,32 +1009,32 @@
+     public void testReplace_StringStringArrayStringArray() {
+ 
+         
+         //JAVADOC TESTS START
+         assertNull(StringUtils.replaceEach(null, new String[]{"a"}, new String[]{"b"}));
+         assertEquals(StringUtils.replaceEach("", new String[]{"a"}, new String[]{"b"}),"");
+         assertEquals(StringUtils.replaceEach("aba", null, null),"aba");
+         assertEquals(StringUtils.replaceEach("aba", new String[0], null),"aba");
+         assertEquals(StringUtils.replaceEach("aba", null, new String[0]),"aba");
+         assertEquals(StringUtils.replaceEach("aba", new String[]{"a"}, null),"aba");
+ 
+         assertEquals(StringUtils.replaceEach("aba", new String[]{"a"}, new String[]{""}),"b");
+         assertEquals(StringUtils.replaceEach("aba", new String[]{null}, new String[]{"a"}),"aba");
+         assertEquals(StringUtils.replaceEach("abcde", new String[]{"ab", "d"}, new String[]{"w", "t"}),"wcte");
+         assertEquals(StringUtils.replaceEach("abcde", new String[]{"ab", "d"}, new String[]{"d", "t"}),"dcte");
+         //JAVADOC TESTS END
+ 
+         assertEquals("bcc", StringUtils.replaceEach("abc", new String[]{"a", "b"}, new String[]{"b", "c"}));
+         assertEquals("q651.506bera", StringUtils.replaceEach("d216.102oren",
+             new String[]{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", 
+                 "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A", "B", "C", "D", 
+                 "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", 
+                 "U", "V", "W", "X", "Y", "Z", "1", "2", "3", "4", "5", "6", "7", "8", "9"},
+             new String[]{"n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "a", 
+                 "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "N", "O", "P", "Q", 
+                 "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "A", "B", "C", "D", "E", "F", "G", 
+                 "H", "I", "J", "K", "L", "M", "5", "6", "7", "8", "9", "1", "2", "3", "4"}));
+     }
+ 
+     /**
+-     * Test method for 'org.apache.commons.lang.StringUtils.replaceEachRepeatedly(String, String[], String[])'
++     * Test method for 'StringUtils.replaceEachRepeatedly(String, String[], String[])'
+      */
+
+commit e8600d357d98cbf727b573732052aba0fd7a1f69
+Author: Henri Yandell <bayard@apache.org>
+Date:   Tue Jan 29 00:33:17 2008
+
+    Applying my modified version of Chris Hyzer's patch from LANG-180 - adding a replaceEach(String, String[], String[]) and replaceRepeatedly(String, String[], String[]) pair of methods. The internal code to the private replaceEach method has not been fully reviewed yet - I wanted to get more eyes focused on the algorithm
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@616170 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/StringUtilsTest.java b/src/test/org/apache/commons/lang/StringUtilsTest.java
+--- a/src/test/org/apache/commons/lang/StringUtilsTest.java
++++ b/src/test/org/apache/commons/lang/StringUtilsTest.java
+@@ -1033,0 +1036,32 @@
++    public void testReplace_StringStringArrayStringArray() {
++
++        
++        //JAVADOC TESTS START
++        assertNull(StringUtils.replaceEach(null, new String[]{"a"}, new String[]{"b"}));
++        assertEquals(StringUtils.replaceEach("", new String[]{"a"}, new String[]{"b"}),"");
++        assertEquals(StringUtils.replaceEach("aba", null, null),"aba");
++        assertEquals(StringUtils.replaceEach("aba", new String[0], null),"aba");
++        assertEquals(StringUtils.replaceEach("aba", null, new String[0]),"aba");
++        assertEquals(StringUtils.replaceEach("aba", new String[]{"a"}, null),"aba");
++
++        assertEquals(StringUtils.replaceEach("aba", new String[]{"a"}, new String[]{""}),"b");
++        assertEquals(StringUtils.replaceEach("aba", new String[]{null}, new String[]{"a"}),"aba");
++        assertEquals(StringUtils.replaceEach("abcde", new String[]{"ab", "d"}, new String[]{"w", "t"}),"wcte");
++        assertEquals(StringUtils.replaceEach("abcde", new String[]{"ab", "d"}, new String[]{"d", "t"}),"dcte");
++        //JAVADOC TESTS END
++
++        assertEquals("bcc", StringUtils.replaceEach("abc", new String[]{"a", "b"}, new String[]{"b", "c"}));
++        assertEquals("q651.506bera", StringUtils.replaceEach("d216.102oren",
++            new String[]{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", 
++                "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A", "B", "C", "D", 
++                "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", 
++                "U", "V", "W", "X", "Y", "Z", "1", "2", "3", "4", "5", "6", "7", "8", "9"},
++            new String[]{"n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "a", 
++                "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "N", "O", "P", "Q", 
++                "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "A", "B", "C", "D", "E", "F", "G", 
++                "H", "I", "J", "K", "L", "M", "5", "6", "7", "8", "9", "1", "2", "3", "4"}));
++    }
++
++    /**
++     * Test method for 'org.apache.commons.lang.StringUtils.replaceEachRepeatedly(String, String[], String[])'
++     */

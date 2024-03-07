@@ -1,0 +1,67 @@
+commit 46da17d59abb4f9c48b6ffd31601c212490b970b
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Nov 14 12:12:46 2011
+
+    Fix issue 586.
+    Distinguishing declared functions from inferred functions is really hard!
+    
+    R=johnlenz
+    DELTA=62  (52 added, 1 deleted, 9 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3696
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1591 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- a/test/com/google/javascript/jscomp/TypeCheckTest.java
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -5442,5 +5442,20 @@
++  public void testIssue586() throws Exception {
++    testTypes(
++        "/** @constructor */" +
++        "var MyClass = function() {};" +
++        "/** @param {boolean} success */" +
++        "MyClass.prototype.fn = function(success) {};" +
++        "MyClass.prototype.test = function() {" +
++        "  this.fn();" +
++        "  this.fn = function() {};" +
++        "};",
++        "Function MyClass.prototype.fn: called with 0 argument(s). " +
++        "Function requires at least 1 argument(s) " +
++        "and no more than 1 argument(s).");
++  }
++
+   /**
+    * Tests that the || operator is type checked correctly, that is of
+    * the type of the first argument or of the second argument. See
+    * bugid 592170 for more details.
+    */
+
+commit 77b7c78d4aeeb6471f2f668a06c0f61a68f95ccd
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Jan 4 15:18:21 2010
+
+    Add more unit tests for type checking.
+    
+    Add phase optimization.
+    
+    Fix a type inference bug.
+    
+    String.prototype.split may not return null.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@55 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -0,0 +3907,5 @@
++  /**
++   * Tests that the || operator is type checked correctly, that is of
++   * the type of the first argument or of the second argument. See
++   * bugid 592170 for more details.
++   */

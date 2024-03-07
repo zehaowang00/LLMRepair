@@ -1,0 +1,1280 @@
+commit d26f5db9023b6b7cd331017551ea4353fff0ef91
+Author: Brice Dutheil <brice.dutheil@gmail.com>
+Date:   Tue Jun 2 08:06:50 2015
+
+    Removes all CRLF line ending created by misconfigured Windows IDE
+
+diff --git a/test/org/mockitousage/basicapi/ResetTest.java b/test/org/mockitousage/basicapi/ResetTest.java
+--- a/test/org/mockitousage/basicapi/ResetTest.java
++++ b/test/org/mockitousage/basicapi/ResetTest.java
+@@ -5,109 +46,9 @@
+-package org.mockitousage.basicapi;
+-
+-import static org.mockito.Matchers.*;
+-import static org.mockito.Mockito.*;
+-
+-import org.junit.Test;
+-import org.mockito.Mock;
+-import org.mockito.exceptions.misusing.MissingMethodInvocationException;
+-import org.mockito.exceptions.misusing.NotAMockException;
+-import org.mockito.exceptions.misusing.UnfinishedVerificationException;
+-import org.mockitousage.IMethods;
+-import org.mockitoutil.TestBase;
+-
+-public class ResetTest extends TestBase {
+-
+-    @Mock private IMethods mock;
+-    @Mock private IMethods mockTwo;
+-    
+-    @Test
+-    public void shouldResetOngoingStubbingSoThatMoreMeaningfulExceptionsAreRaised() {
+-        mock(IMethods.class);
+-        mock.booleanReturningMethod();
+-        reset(mock);
+-        try {
+-            when(null).thenReturn("anything");
+-            fail();
+-        } catch (MissingMethodInvocationException e) {
+-        }
+-    }
+-
+-    @Test(expected = NotAMockException.class)
+-    public void resettingNonMockIsSafe() {
+-        reset("");
+-    }
+-
+-    @Test(expected = NotAMockException.class)
+-    public void resettingNullIsSafe() {
+-        reset(new Object[] {null});
+-    }
+-
+-    @Test
+-    public void shouldRemoveAllStubbing() throws Exception {
+-        when(mock.objectReturningMethod(isA(Integer.class))).thenReturn(100);
+-        when(mock.objectReturningMethod(200)).thenReturn(200);
+-        reset(mock);
+-        assertNull(mock.objectReturningMethod(200));
+-        assertEquals("default behavior should return null", null, mock.objectReturningMethod("blah"));
+-    }
+-
+-    @Test
+-    public void shouldRemoveAllInteractions() throws Exception {
+-        mock.simpleMethod(1);
+-        reset(mock);
+-        verifyZeroInteractions(mock);
+-    }
+-
+-    @Test
+-    public void shouldRemoveStubbingToString() throws Exception {
+-        IMethods mockTwo = mock(IMethods.class);
+-        when(mockTwo.toString()).thenReturn("test");
+-        reset(mockTwo);
+-        assertContains("Mock for IMethods", mockTwo.toString());
+-    }
+-
+-    @Test
+-    public void shouldStubbingNotBeTreatedAsInteraction() {
+-        when(mock.simpleMethod("one")).thenThrow(new RuntimeException());
+-        doThrow(new RuntimeException()).when(mock).simpleMethod("two");
+-        reset(mock);
+-        verifyZeroInteractions(mock);
+-    }
+-
+-    @Test
+-    public void shouldNotAffectMockName() {
+-        IMethods mock = mock(IMethods.class, "mockie");
+-        IMethods mockTwo = mock(IMethods.class);
+-        reset(mock);
+-        assertContains("Mock for IMethods", "" + mockTwo);
+-        assertEquals("mockie", "" + mock);
+-    }
+-    
+-    @Test
+-    public void shouldResetMultipleMocks() {
+-        mock.simpleMethod();
+-        mockTwo.simpleMethod();
+-        reset(mock, mockTwo);
+-        verifyNoMoreInteractions(mock, mockTwo);
+-    }
+-    
+-    @Test
+-    public void shouldValidateStateWhenResetting() {
+-        //invalid verify:
+-        verify(mock);
+-        
+-        try {
+-            reset(mockTwo);
+-            fail();
+-        } catch (UnfinishedVerificationException e) {}
+-    }
+-    
+-    @Test
+-    public void shouldMaintainPreviousDefaultAnswer() {
+-        //given
+-        mock = mock(IMethods.class, RETURNS_MOCKS);
+-        //when
+-        reset(mock);
+-        //then
+-        assertNotNull(mock.iMethodsReturningMethod());
+-    }
++    public void shouldRemoveAllStubbing() throws Exception {
++        when(mock.objectReturningMethod(isA(Integer.class))).thenReturn(100);
++        when(mock.objectReturningMethod(200)).thenReturn(200);
++        reset(mock);
++        assertNull(mock.objectReturningMethod(200));
++        assertEquals("default behavior should return null", null, mock.objectReturningMethod("blah"));
++    }
++
++    @Test
+
+commit 39dbb0f10abda381e03711846d6e61099613d44f
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sun Apr 8 15:27:03 2012
+
+    Fixed a problem that reset(null) and reset(nonMock) gave NPE instead of a decent exception message.
+
+diff --git a/test/org/mockitousage/basicapi/ResetTest.java b/test/org/mockitousage/basicapi/ResetTest.java
+--- a/test/org/mockitousage/basicapi/ResetTest.java
++++ b/test/org/mockitousage/basicapi/ResetTest.java
+@@ -5,98 +5,109 @@
+ package org.mockitousage.basicapi;
+ 
+ import static org.mockito.Matchers.*;
+ import static org.mockito.Mockito.*;
+ 
+ import org.junit.Test;
+ import org.mockito.Mock;
+ import org.mockito.exceptions.misusing.MissingMethodInvocationException;
++import org.mockito.exceptions.misusing.NotAMockException;
+ import org.mockito.exceptions.misusing.UnfinishedVerificationException;
+ import org.mockitousage.IMethods;
+ import org.mockitoutil.TestBase;
+ 
+ public class ResetTest extends TestBase {
+ 
+     @Mock private IMethods mock;
+     @Mock private IMethods mockTwo;
+     
+     @Test
+     public void shouldResetOngoingStubbingSoThatMoreMeaningfulExceptionsAreRaised() {
+         mock(IMethods.class);
+         mock.booleanReturningMethod();
+         reset(mock);
+         try {
+             when(null).thenReturn("anything");
+             fail();
+         } catch (MissingMethodInvocationException e) {
+         }
+     }
+ 
++    @Test(expected = NotAMockException.class)
++    public void resettingNonMockIsSafe() {
++        reset("");
++    }
++
++    @Test(expected = NotAMockException.class)
++    public void resettingNullIsSafe() {
++        reset(new Object[] {null});
++    }
++
+     @Test
+     public void shouldRemoveAllStubbing() throws Exception {
+         when(mock.objectReturningMethod(isA(Integer.class))).thenReturn(100);
+         when(mock.objectReturningMethod(200)).thenReturn(200);
+         reset(mock);
+         assertNull(mock.objectReturningMethod(200));
+         assertEquals("default behavior should return null", null, mock.objectReturningMethod("blah"));
+     }
+ 
+     @Test
+     public void shouldRemoveAllInteractions() throws Exception {
+         mock.simpleMethod(1);
+         reset(mock);
+         verifyZeroInteractions(mock);
+     }
+ 
+     @Test
+     public void shouldRemoveStubbingToString() throws Exception {
+         IMethods mockTwo = mock(IMethods.class);
+         when(mockTwo.toString()).thenReturn("test");
+         reset(mockTwo);
+         assertContains("Mock for IMethods", mockTwo.toString());
+     }
+ 
+     @Test
+     public void shouldStubbingNotBeTreatedAsInteraction() {
+         when(mock.simpleMethod("one")).thenThrow(new RuntimeException());
+         doThrow(new RuntimeException()).when(mock).simpleMethod("two");
+         reset(mock);
+         verifyZeroInteractions(mock);
+     }
+ 
+     @Test
+     public void shouldNotAffectMockName() {
+         IMethods mock = mock(IMethods.class, "mockie");
+         IMethods mockTwo = mock(IMethods.class);
+         reset(mock);
+         assertContains("Mock for IMethods", "" + mockTwo);
+         assertEquals("mockie", "" + mock);
+     }
+     
+     @Test
+     public void shouldResetMultipleMocks() {
+         mock.simpleMethod();
+         mockTwo.simpleMethod();
+         reset(mock, mockTwo);
+         verifyNoMoreInteractions(mock, mockTwo);
+     }
+     
+     @Test
+     public void shouldValidateStateWhenResetting() {
+         //invalid verify:
+         verify(mock);
+         
+         try {
+             reset(mockTwo);
+             fail();
+         } catch (UnfinishedVerificationException e) {}
+     }
+     
+     @Test
+     public void shouldMaintainPreviousDefaultAnswer() {
+         //given
+         mock = mock(IMethods.class, RETURNS_MOCKS);
+         //when
+         reset(mock);
+         //then
+         assertNotNull(mock.iMethodsReturningMethod());
+     }
+
+commit b5403f8d1f780ed7b866801e459c861dd4d98798
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Fri May 22 18:05:28 2009
+
+    Finished fixing javadocs after changing ReturnValues into Answers
+    More rename job in the same domain
+    
+    --HG--
+    rename : src/org/mockito/internal/returnvalues/GloballyConfiguredAnswer.java => src/org/mockito/internal/stubbing/defaultanswers/GloballyConfiguredAnswer.java
+    rename : src/org/mockito/internal/returnvalues/ReturnsEmptyValues.java => src/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValues.java
+    rename : src/org/mockito/internal/returnvalues/ReturnsMocks.java => src/org/mockito/internal/stubbing/defaultanswers/ReturnsMocks.java
+    rename : src/org/mockito/internal/returnvalues/ReturnsMoreEmptyValues.java => src/org/mockito/internal/stubbing/defaultanswers/ReturnsMoreEmptyValues.java
+    rename : src/org/mockito/internal/returnvalues/ReturnsSmartNulls.java => src/org/mockito/internal/stubbing/defaultanswers/ReturnsSmartNulls.java
+    rename : src/org/mockito/internal/returnvalues/package.html => src/org/mockito/internal/stubbing/defaultanswers/package.html
+    rename : test/org/mockito/internal/returnvalues/HasPrimitiveMethods.java => test/org/mockito/internal/stubbing/defaultanswers/HasPrimitiveMethods.java
+    rename : test/org/mockito/internal/returnvalues/ReturnsEmptyValuesTest.java => test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java
+    rename : test/org/mockito/internal/returnvalues/ReturnsMocksTest.java => test/org/mockito/internal/stubbing/defaultanswers/ReturnsMocksTest.java
+    rename : test/org/mockito/internal/returnvalues/ReturnsMoreEmptyValuesTest.java => test/org/mockito/internal/stubbing/defaultanswers/ReturnsMoreEmptyValuesTest.java
+    rename : test/org/mockito/internal/returnvalues/ReturnsSmartNullsTest.java => test/org/mockito/internal/stubbing/defaultanswers/ReturnsSmartNullsTest.java
+    rename : test/org/mockitousage/stubbing/StubbingConsecutiveReturnValuesTest.java => test/org/mockitousage/stubbing/StubbingConsecutiveAnswersTest.java
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401448
+
+diff --git a/test/org/mockitousage/basicapi/ResetTest.java b/test/org/mockitousage/basicapi/ResetTest.java
+--- a/test/org/mockitousage/basicapi/ResetTest.java
++++ b/test/org/mockitousage/basicapi/ResetTest.java
+@@ -5,98 +5,98 @@
+ package org.mockitousage.basicapi;
+ 
+ import static org.mockito.Matchers.*;
+ import static org.mockito.Mockito.*;
+ 
+ import org.junit.Test;
+ import org.mockito.Mock;
+ import org.mockito.exceptions.misusing.MissingMethodInvocationException;
+ import org.mockito.exceptions.misusing.UnfinishedVerificationException;
+ import org.mockitousage.IMethods;
+ import org.mockitoutil.TestBase;
+ 
+ public class ResetTest extends TestBase {
+ 
+     @Mock private IMethods mock;
+     @Mock private IMethods mockTwo;
+     
+     @Test
+     public void shouldResetOngoingStubbingSoThatMoreMeaningfulExceptionsAreRaised() {
+         mock(IMethods.class);
+         mock.booleanReturningMethod();
+         reset(mock);
+         try {
+             when(null).thenReturn("anything");
+             fail();
+         } catch (MissingMethodInvocationException e) {
+         }
+     }
+ 
+     @Test
+     public void shouldRemoveAllStubbing() throws Exception {
+         when(mock.objectReturningMethod(isA(Integer.class))).thenReturn(100);
+         when(mock.objectReturningMethod(200)).thenReturn(200);
+         reset(mock);
+         assertNull(mock.objectReturningMethod(200));
+         assertEquals("default behavior should return null", null, mock.objectReturningMethod("blah"));
+     }
+ 
+     @Test
+     public void shouldRemoveAllInteractions() throws Exception {
+         mock.simpleMethod(1);
+         reset(mock);
+         verifyZeroInteractions(mock);
+     }
+ 
+     @Test
+     public void shouldRemoveStubbingToString() throws Exception {
+         IMethods mockTwo = mock(IMethods.class);
+         when(mockTwo.toString()).thenReturn("test");
+         reset(mockTwo);
+         assertContains("Mock for IMethods", mockTwo.toString());
+     }
+ 
+     @Test
+     public void shouldStubbingNotBeTreatedAsInteraction() {
+         when(mock.simpleMethod("one")).thenThrow(new RuntimeException());
+         doThrow(new RuntimeException()).when(mock).simpleMethod("two");
+         reset(mock);
+         verifyZeroInteractions(mock);
+     }
+ 
+     @Test
+     public void shouldNotAffectMockName() {
+         IMethods mock = mock(IMethods.class, "mockie");
+         IMethods mockTwo = mock(IMethods.class);
+         reset(mock);
+         assertContains("Mock for IMethods", "" + mockTwo);
+         assertEquals("mockie", "" + mock);
+     }
+     
+     @Test
+     public void shouldResetMultipleMocks() {
+         mock.simpleMethod();
+         mockTwo.simpleMethod();
+         reset(mock, mockTwo);
+         verifyNoMoreInteractions(mock, mockTwo);
+     }
+     
+     @Test
+     public void shouldValidateStateWhenResetting() {
+         //invalid verify:
+         verify(mock);
+         
+         try {
+             reset(mockTwo);
+             fail();
+         } catch (UnfinishedVerificationException e) {}
+     }
+     
+     @Test
+-    public void shouldMaintainPreviousReturnValuesStrategy() {
++    public void shouldMaintainPreviousDefaultAnswer() {
+         //given
+         mock = mock(IMethods.class, RETURNS_MOCKS);
+         //when
+         reset(mock);
+         //then
+         assertNotNull(mock.iMethodsReturningMethod());
+     }
+
+commit c69a4d39130e291b56131fdf03c807b48be77eab
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sun May 10 17:33:27 2009
+
+    changed the interface so that it is possible to fluently configure mocks
+    (name, returnValues, etc...)
+    
+    --HG--
+    rename : test/org/mockitousage/AnnotationsTest.java => test/org/mockitousage/basicapi/AnnotationsTest.java
+    rename : test/org/mockitousage/MocksCreationTest.java => test/org/mockitousage/basicapi/MocksCreationTest.java
+    rename : test/org/mockitousage/ReplacingObjectMethodsTest.java => test/org/mockitousage/basicapi/ReplacingObjectMethodsTest.java
+    rename : test/org/mockitousage/reset/ResetTest.java => test/org/mockitousage/basicapi/ResetTest.java
+    rename : test/org/mockitousage/UsingVarargsTest.java => test/org/mockitousage/basicapi/UsingVarargsTest.java
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401416
+
+diff --git a/test/org/mockitousage/reset/ResetTest.java b/test/org/mockitousage/basicapi/ResetTest.java
+--- a/test/org/mockitousage/reset/ResetTest.java
++++ b/test/org/mockitousage/basicapi/ResetTest.java
+@@ -5,98 +5,98 @@
+-package org.mockitousage.reset;
++package org.mockitousage.basicapi;
+ 
+ import static org.mockito.Matchers.*;
+ import static org.mockito.Mockito.*;
+ 
+ import org.junit.Test;
+ import org.mockito.Mock;
+ import org.mockito.exceptions.misusing.MissingMethodInvocationException;
+ import org.mockito.exceptions.misusing.UnfinishedVerificationException;
+ import org.mockitousage.IMethods;
+ import org.mockitoutil.TestBase;
+ 
+ public class ResetTest extends TestBase {
+ 
+     @Mock private IMethods mock;
+     @Mock private IMethods mockTwo;
+     
+     @Test
+     public void shouldResetOngoingStubbingSoThatMoreMeaningfulExceptionsAreRaised() {
+         mock(IMethods.class);
+         mock.booleanReturningMethod();
+         reset(mock);
+         try {
+             when(null).thenReturn("anything");
+             fail();
+         } catch (MissingMethodInvocationException e) {
+         }
+     }
+ 
+     @Test
+     public void shouldRemoveAllStubbing() throws Exception {
+         when(mock.objectReturningMethod(isA(Integer.class))).thenReturn(100);
+         when(mock.objectReturningMethod(200)).thenReturn(200);
+         reset(mock);
+         assertNull(mock.objectReturningMethod(200));
+         assertEquals("default behavior should return null", null, mock.objectReturningMethod("blah"));
+     }
+ 
+     @Test
+     public void shouldRemoveAllInteractions() throws Exception {
+         mock.simpleMethod(1);
+         reset(mock);
+         verifyZeroInteractions(mock);
+     }
+ 
+     @Test
+     public void shouldRemoveStubbingToString() throws Exception {
+         IMethods mockTwo = mock(IMethods.class);
+         when(mockTwo.toString()).thenReturn("test");
+         reset(mockTwo);
+         assertContains("Mock for IMethods", mockTwo.toString());
+     }
+ 
+     @Test
+     public void shouldStubbingNotBeTreatedAsInteraction() {
+         when(mock.simpleMethod("one")).thenThrow(new RuntimeException());
+         doThrow(new RuntimeException()).when(mock).simpleMethod("two");
+         reset(mock);
+         verifyZeroInteractions(mock);
+     }
+ 
+     @Test
+     public void shouldNotAffectMockName() {
+         IMethods mock = mock(IMethods.class, "mockie");
+         IMethods mockTwo = mock(IMethods.class);
+         reset(mock);
+         assertContains("Mock for IMethods", "" + mockTwo);
+         assertEquals("mockie", "" + mock);
+     }
+     
+     @Test
+     public void shouldResetMultipleMocks() {
+         mock.simpleMethod();
+         mockTwo.simpleMethod();
+         reset(mock, mockTwo);
+         verifyNoMoreInteractions(mock, mockTwo);
+     }
+     
+     @Test
+     public void shouldValidateStateWhenResetting() {
+         //invalid verify:
+         verify(mock);
+         
+         try {
+             reset(mockTwo);
+             fail();
+         } catch (UnfinishedVerificationException e) {}
+     }
+     
+     @Test
+     public void shouldMaintainPreviousReturnValuesStrategy() {
+         //given
+         mock = mock(IMethods.class, RETURNS_MOCKS);
+         //when
+         reset(mock);
+         //then
+         assertNotNull(mock.iMethodsReturningMethod());
+     }
+
+commit c6cd754bbfd38b9249278e725843f4f685dcb743
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sun Apr 19 15:16:21 2009
+
+    Made assertions consistent
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401348
+
+diff --git a/test/org/mockitousage/reset/ResetTest.java b/test/org/mockitousage/reset/ResetTest.java
+--- a/test/org/mockitousage/reset/ResetTest.java
++++ b/test/org/mockitousage/reset/ResetTest.java
+@@ -5,98 +5,98 @@
+ package org.mockitousage.reset;
+ 
+ import static org.mockito.Matchers.*;
+ import static org.mockito.Mockito.*;
+ 
+ import org.junit.Test;
+ import org.mockito.Mock;
+ import org.mockito.exceptions.misusing.MissingMethodInvocationException;
+ import org.mockito.exceptions.misusing.UnfinishedVerificationException;
+ import org.mockitousage.IMethods;
+ import org.mockitoutil.TestBase;
+ 
+ public class ResetTest extends TestBase {
+ 
+     @Mock private IMethods mock;
+     @Mock private IMethods mockTwo;
+     
+     @Test
+     public void shouldResetOngoingStubbingSoThatMoreMeaningfulExceptionsAreRaised() {
+         mock(IMethods.class);
+         mock.booleanReturningMethod();
+         reset(mock);
+         try {
+             when(null).thenReturn("anything");
+             fail();
+         } catch (MissingMethodInvocationException e) {
+         }
+     }
+ 
+     @Test
+     public void shouldRemoveAllStubbing() throws Exception {
+         when(mock.objectReturningMethod(isA(Integer.class))).thenReturn(100);
+         when(mock.objectReturningMethod(200)).thenReturn(200);
+         reset(mock);
+         assertNull(mock.objectReturningMethod(200));
+         assertEquals("default behavior should return null", null, mock.objectReturningMethod("blah"));
+     }
+ 
+     @Test
+     public void shouldRemoveAllInteractions() throws Exception {
+         mock.simpleMethod(1);
+         reset(mock);
+         verifyZeroInteractions(mock);
+     }
+ 
+     @Test
+     public void shouldRemoveStubbingToString() throws Exception {
+         IMethods mockTwo = mock(IMethods.class);
+         when(mockTwo.toString()).thenReturn("test");
+         reset(mockTwo);
+-        assertThat(mockTwo.toString(), contains("Mock for IMethods"));
++        assertContains("Mock for IMethods", mockTwo.toString());
+     }
+ 
+     @Test
+     public void shouldStubbingNotBeTreatedAsInteraction() {
+         when(mock.simpleMethod("one")).thenThrow(new RuntimeException());
+         doThrow(new RuntimeException()).when(mock).simpleMethod("two");
+         reset(mock);
+         verifyZeroInteractions(mock);
+     }
+ 
+     @Test
+     public void shouldNotAffectMockName() {
+         IMethods mock = mock(IMethods.class, "mockie");
+         IMethods mockTwo = mock(IMethods.class);
+         reset(mock);
+         assertContains("Mock for IMethods", "" + mockTwo);
+         assertEquals("mockie", "" + mock);
+     }
+     
+     @Test
+     public void shouldResetMultipleMocks() {
+         mock.simpleMethod();
+         mockTwo.simpleMethod();
+         reset(mock, mockTwo);
+         verifyNoMoreInteractions(mock, mockTwo);
+     }
+     
+     @Test
+     public void shouldValidateStateWhenResetting() {
+         //invalid verify:
+         verify(mock);
+         
+         try {
+             reset(mockTwo);
+             fail();
+         } catch (UnfinishedVerificationException e) {}
+     }
+     
+     @Test
+     public void shouldMaintainPreviousReturnValuesStrategy() {
+         //given
+         mock = mock(IMethods.class, RETURNS_MOCKS);
+         //when
+         reset(mock);
+         //then
+         assertNotNull(mock.iMethodsReturningMethod());
+     }
+
+commit 78b954220c87827e5f0e926a9eff529112e37351
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sun Apr 19 13:16:56 2009
+
+    Got rid of one TODO,
+    remved some unecessary code
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401341
+
+diff --git a/test/org/mockitousage/reset/ResetTest.java b/test/org/mockitousage/reset/ResetTest.java
+--- a/test/org/mockitousage/reset/ResetTest.java
++++ b/test/org/mockitousage/reset/ResetTest.java
+@@ -5,104 +5,98 @@
+ package org.mockitousage.reset;
+ 
+ import static org.mockito.Matchers.*;
+ import static org.mockito.Mockito.*;
+ 
+-import org.junit.Before;
+ import org.junit.Test;
+ import org.mockito.Mock;
+ import org.mockito.exceptions.misusing.MissingMethodInvocationException;
+ import org.mockito.exceptions.misusing.UnfinishedVerificationException;
+ import org.mockitousage.IMethods;
+ import org.mockitoutil.TestBase;
+ 
+ public class ResetTest extends TestBase {
+ 
+     @Mock private IMethods mock;
+     @Mock private IMethods mockTwo;
+     
+-    @Before
+-    public void makeStackTracesClean() {
+-        super.makeStackTracesClean();
+-    }
+-
+     @Test
+     public void shouldResetOngoingStubbingSoThatMoreMeaningfulExceptionsAreRaised() {
+         mock(IMethods.class);
+         mock.booleanReturningMethod();
+         reset(mock);
+         try {
+             when(null).thenReturn("anything");
+             fail();
+         } catch (MissingMethodInvocationException e) {
+         }
+     }
+ 
+     @Test
+     public void shouldRemoveAllStubbing() throws Exception {
+         when(mock.objectReturningMethod(isA(Integer.class))).thenReturn(100);
+         when(mock.objectReturningMethod(200)).thenReturn(200);
+         reset(mock);
+         assertNull(mock.objectReturningMethod(200));
+         assertEquals("default behavior should return null", null, mock.objectReturningMethod("blah"));
+     }
+ 
+     @Test
+     public void shouldRemoveAllInteractions() throws Exception {
+         mock.simpleMethod(1);
+         reset(mock);
+         verifyZeroInteractions(mock);
+     }
+ 
+     @Test
+     public void shouldRemoveStubbingToString() throws Exception {
+         IMethods mockTwo = mock(IMethods.class);
+         when(mockTwo.toString()).thenReturn("test");
+         reset(mockTwo);
+         assertThat(mockTwo.toString(), contains("Mock for IMethods"));
+     }
+ 
+     @Test
+     public void shouldStubbingNotBeTreatedAsInteraction() {
+         when(mock.simpleMethod("one")).thenThrow(new RuntimeException());
+         doThrow(new RuntimeException()).when(mock).simpleMethod("two");
+         reset(mock);
+         verifyZeroInteractions(mock);
+     }
+ 
+     @Test
+     public void shouldNotAffectMockName() {
+         IMethods mock = mock(IMethods.class, "mockie");
+         IMethods mockTwo = mock(IMethods.class);
+         reset(mock);
+         assertContains("Mock for IMethods", "" + mockTwo);
+         assertEquals("mockie", "" + mock);
+     }
+     
+     @Test
+     public void shouldResetMultipleMocks() {
+         mock.simpleMethod();
+         mockTwo.simpleMethod();
+         reset(mock, mockTwo);
+         verifyNoMoreInteractions(mock, mockTwo);
+     }
+     
+     @Test
+     public void shouldValidateStateWhenResetting() {
+         //invalid verify:
+         verify(mock);
+         
+         try {
+             reset(mockTwo);
+             fail();
+         } catch (UnfinishedVerificationException e) {}
+     }
+     
+     @Test
+     public void shouldMaintainPreviousReturnValuesStrategy() {
+         //given
+         mock = mock(IMethods.class, RETURNS_MOCKS);
+         //when
+         reset(mock);
+         //then
+         assertNotNull(mock.iMethodsReturningMethod());
+     }
+
+commit d4af3491da11293809062edf0dc63cc428d9b734
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Wed Apr 15 11:09:45 2009
+
+    Finished implementing reset()
+    removed some dead code
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401329
+
+diff --git a/test/org/mockitousage/reset/ResetTest.java b/test/org/mockitousage/reset/ResetTest.java
+--- a/test/org/mockitousage/reset/ResetTest.java
++++ b/test/org/mockitousage/reset/ResetTest.java
+@@ -5,94 +5,104 @@
+ package org.mockitousage.reset;
+ 
+ import static org.mockito.Matchers.*;
+ import static org.mockito.Mockito.*;
+ 
+ import org.junit.Before;
+ import org.junit.Test;
+ import org.mockito.Mock;
+ import org.mockito.exceptions.misusing.MissingMethodInvocationException;
+ import org.mockito.exceptions.misusing.UnfinishedVerificationException;
+ import org.mockitousage.IMethods;
+ import org.mockitoutil.TestBase;
+ 
+ public class ResetTest extends TestBase {
+ 
+     @Mock private IMethods mock;
+     @Mock private IMethods mockTwo;
+     
+     @Before
+     public void makeStackTracesClean() {
+         super.makeStackTracesClean();
+     }
+ 
+     @Test
+     public void shouldResetOngoingStubbingSoThatMoreMeaningfulExceptionsAreRaised() {
+         mock(IMethods.class);
+         mock.booleanReturningMethod();
+         reset(mock);
+         try {
+             when(null).thenReturn("anything");
+             fail();
+         } catch (MissingMethodInvocationException e) {
+         }
+     }
+ 
+     @Test
+     public void shouldRemoveAllStubbing() throws Exception {
+         when(mock.objectReturningMethod(isA(Integer.class))).thenReturn(100);
+         when(mock.objectReturningMethod(200)).thenReturn(200);
+         reset(mock);
+         assertNull(mock.objectReturningMethod(200));
+         assertEquals("default behavior should return null", null, mock.objectReturningMethod("blah"));
+     }
+ 
+     @Test
+     public void shouldRemoveAllInteractions() throws Exception {
+         mock.simpleMethod(1);
+         reset(mock);
+         verifyZeroInteractions(mock);
+     }
+ 
+     @Test
+     public void shouldRemoveStubbingToString() throws Exception {
+         IMethods mockTwo = mock(IMethods.class);
+         when(mockTwo.toString()).thenReturn("test");
+         reset(mockTwo);
+         assertThat(mockTwo.toString(), contains("Mock for IMethods"));
+     }
+ 
+     @Test
+     public void shouldStubbingNotBeTreatedAsInteraction() {
+         when(mock.simpleMethod("one")).thenThrow(new RuntimeException());
+         doThrow(new RuntimeException()).when(mock).simpleMethod("two");
+         reset(mock);
+         verifyZeroInteractions(mock);
+     }
+ 
+     @Test
+     public void shouldNotAffectMockName() {
+         IMethods mock = mock(IMethods.class, "mockie");
+         IMethods mockTwo = mock(IMethods.class);
+         reset(mock);
+         assertContains("Mock for IMethods", "" + mockTwo);
+         assertEquals("mockie", "" + mock);
+     }
+     
+     @Test
+     public void shouldResetMultipleMocks() {
+         mock.simpleMethod();
+         mockTwo.simpleMethod();
+         reset(mock, mockTwo);
+         verifyNoMoreInteractions(mock, mockTwo);
+     }
+     
+     @Test
+     public void shouldValidateStateWhenResetting() {
+         //invalid verify:
+         verify(mock);
+         
+         try {
+             reset(mockTwo);
+             fail();
+         } catch (UnfinishedVerificationException e) {}
+     }
++    
++    @Test
++    public void shouldMaintainPreviousReturnValuesStrategy() {
++        //given
++        mock = mock(IMethods.class, RETURNS_MOCKS);
++        //when
++        reset(mock);
++        //then
++        assertNotNull(mock.iMethodsReturningMethod());
++    }
+
+commit 5672ed90dd8b29319a7ac2efd9acfe49a5027651
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Wed Apr 15 11:03:13 2009
+
+    Made reset validate the state as well
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401328
+
+diff --git a/test/org/mockitousage/reset/ResetTest.java b/test/org/mockitousage/reset/ResetTest.java
+--- a/test/org/mockitousage/reset/ResetTest.java
++++ b/test/org/mockitousage/reset/ResetTest.java
+@@ -5,90 +5,94 @@
+ package org.mockitousage.reset;
+ 
+ import static org.mockito.Matchers.*;
+ import static org.mockito.Mockito.*;
+ 
++import org.junit.Before;
+ import org.junit.Test;
+ import org.mockito.Mock;
+ import org.mockito.exceptions.misusing.MissingMethodInvocationException;
++import org.mockito.exceptions.misusing.UnfinishedVerificationException;
+ import org.mockitousage.IMethods;
+ import org.mockitoutil.TestBase;
+ 
+ public class ResetTest extends TestBase {
+ 
+     @Mock private IMethods mock;
+     @Mock private IMethods mockTwo;
+-
+-    @Test
+-    public void shouldClearArgumentMatcherStackSoAbuseOfArgumentMatchersIsNotDetectedAfterReset() {
+-        anyInt(); // abuse of matcher
+-        reset(mock);
+-        mock(IMethods.class);
+-    }
+-
+-    @Test
+-    public void shouldNotThrowUnfinishedVerificationAfterReset() throws Exception {
+-        verify(mock); // unfinished verification
+-        reset(mock);
+-        mock(IMethods.class);
++    
++    @Before
++    public void makeStackTracesClean() {
++        super.makeStackTracesClean();
+     }
+ 
+     @Test
+     public void shouldResetOngoingStubbingSoThatMoreMeaningfulExceptionsAreRaised() {
+         mock(IMethods.class);
+         mock.booleanReturningMethod();
+         reset(mock);
+         try {
+             when(null).thenReturn("anything");
+             fail();
+         } catch (MissingMethodInvocationException e) {
+         }
+     }
+ 
+     @Test
+     public void shouldRemoveAllStubbing() throws Exception {
+         when(mock.objectReturningMethod(isA(Integer.class))).thenReturn(100);
+         when(mock.objectReturningMethod(200)).thenReturn(200);
+         reset(mock);
+         assertNull(mock.objectReturningMethod(200));
+         assertEquals("default behavior should return null", null, mock.objectReturningMethod("blah"));
+     }
+ 
+     @Test
+     public void shouldRemoveAllInteractions() throws Exception {
+         mock.simpleMethod(1);
+         reset(mock);
+         verifyZeroInteractions(mock);
+     }
+ 
+     @Test
+     public void shouldRemoveStubbingToString() throws Exception {
+         IMethods mockTwo = mock(IMethods.class);
+         when(mockTwo.toString()).thenReturn("test");
+         reset(mockTwo);
+         assertThat(mockTwo.toString(), contains("Mock for IMethods"));
+     }
+ 
+     @Test
+     public void shouldStubbingNotBeTreatedAsInteraction() {
+         when(mock.simpleMethod("one")).thenThrow(new RuntimeException());
+         doThrow(new RuntimeException()).when(mock).simpleMethod("two");
+         reset(mock);
+         verifyZeroInteractions(mock);
+     }
+ 
+     @Test
+     public void shouldNotAffectMockName() {
+         IMethods mock = mock(IMethods.class, "mockie");
+         IMethods mockTwo = mock(IMethods.class);
+         reset(mock);
+         assertContains("Mock for IMethods", "" + mockTwo);
+         assertEquals("mockie", "" + mock);
+     }
+     
+     @Test
+     public void shouldResetMultipleMocks() {
+         mock.simpleMethod();
+         mockTwo.simpleMethod();
+         reset(mock, mockTwo);
+         verifyNoMoreInteractions(mock, mockTwo);
+     }
++    
++    @Test
++    public void shouldValidateStateWhenResetting() {
++        //invalid verify:
++        verify(mock);
++        
++        try {
++            reset(mockTwo);
++            fail();
++        } catch (UnfinishedVerificationException e) {}
++    }
+
+commit 52a27f7bfeae32bd3ed4f58b999e76011e6af8df
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Wed Apr 15 10:27:36 2009
+
+    Added javadoc for reset()
+    Made reset() accepting multiple mocks
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401327
+
+diff --git a/test/org/mockitousage/reset/ResetTest.java b/test/org/mockitousage/reset/ResetTest.java
+--- a/test/org/mockitousage/reset/ResetTest.java
++++ b/test/org/mockitousage/reset/ResetTest.java
+@@ -5,86 +5,90 @@
+ package org.mockitousage.reset;
+ 
+ import static org.mockito.Matchers.*;
+ import static org.mockito.Mockito.*;
+ 
+-import org.junit.Before;
+ import org.junit.Test;
++import org.mockito.Mock;
+ import org.mockito.exceptions.misusing.MissingMethodInvocationException;
+ import org.mockitousage.IMethods;
+ import org.mockitoutil.TestBase;
+ 
+ public class ResetTest extends TestBase {
+ 
+-    private IMethods mock;
+-
+-    @Before
+-    public void setup() {
+-        mock = mock(IMethods.class);
+-    }
++    @Mock private IMethods mock;
++    @Mock private IMethods mockTwo;
+ 
+     @Test
+     public void shouldClearArgumentMatcherStackSoAbuseOfArgumentMatchersIsNotDetectedAfterReset() {
+         anyInt(); // abuse of matcher
+         reset(mock);
+         mock(IMethods.class);
+     }
+ 
+     @Test
+     public void shouldNotThrowUnfinishedVerificationAfterReset() throws Exception {
+         verify(mock); // unfinished verification
+         reset(mock);
+         mock(IMethods.class);
+     }
+ 
+     @Test
+     public void shouldResetOngoingStubbingSoThatMoreMeaningfulExceptionsAreRaised() {
+         mock(IMethods.class);
+         mock.booleanReturningMethod();
+         reset(mock);
+         try {
+             when(null).thenReturn("anything");
+             fail();
+         } catch (MissingMethodInvocationException e) {
+         }
+     }
+ 
+     @Test
+     public void shouldRemoveAllStubbing() throws Exception {
+         when(mock.objectReturningMethod(isA(Integer.class))).thenReturn(100);
+         when(mock.objectReturningMethod(200)).thenReturn(200);
+         reset(mock);
+         assertNull(mock.objectReturningMethod(200));
+         assertEquals("default behavior should return null", null, mock.objectReturningMethod("blah"));
+     }
+ 
+     @Test
+     public void shouldRemoveAllInteractions() throws Exception {
+         mock.simpleMethod(1);
+         reset(mock);
+         verifyZeroInteractions(mock);
+     }
+ 
+     @Test
+     public void shouldRemoveStubbingToString() throws Exception {
+         IMethods mockTwo = mock(IMethods.class);
+         when(mockTwo.toString()).thenReturn("test");
+         reset(mockTwo);
+         assertThat(mockTwo.toString(), contains("Mock for IMethods"));
+     }
+ 
+     @Test
+     public void shouldStubbingNotBeTreatedAsInteraction() {
+         when(mock.simpleMethod("one")).thenThrow(new RuntimeException());
+         doThrow(new RuntimeException()).when(mock).simpleMethod("two");
+         reset(mock);
+         verifyZeroInteractions(mock);
+     }
+ 
+     @Test
+     public void shouldNotAffectMockName() {
+         IMethods mock = mock(IMethods.class, "mockie");
+         IMethods mockTwo = mock(IMethods.class);
+         reset(mock);
+         assertContains("Mock for IMethods", "" + mockTwo);
+         assertEquals("mockie", "" + mock);
+     }
++    
++    @Test
++    public void shouldResetMultipleMocks() {
++        mock.simpleMethod();
++        mockTwo.simpleMethod();
++        reset(mock, mockTwo);
++        verifyNoMoreInteractions(mock, mockTwo);
++    }
+
+commit db8333da5f132fb3bbe3c9c06a5e2a522a9667f9
+Author: Igor Czechowski <iczechowski@gmail.com>
+Date:   Wed Apr 15 10:04:14 2009
+
+    warnings clean up
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401326
+
+diff --git a/test/org/mockitousage/reset/ResetTest.java b/test/org/mockitousage/reset/ResetTest.java
+--- a/test/org/mockitousage/reset/ResetTest.java
++++ b/test/org/mockitousage/reset/ResetTest.java
+@@ -5,87 +5,86 @@
+ package org.mockitousage.reset;
+ 
+ import static org.mockito.Matchers.*;
+ import static org.mockito.Mockito.*;
+ 
+ import org.junit.Before;
+ import org.junit.Test;
+ import org.mockito.exceptions.misusing.MissingMethodInvocationException;
+ import org.mockitousage.IMethods;
+ import org.mockitoutil.TestBase;
+ 
+-@SuppressWarnings("unchecked")
+ public class ResetTest extends TestBase {
+ 
+     private IMethods mock;
+ 
+     @Before
+     public void setup() {
+         mock = mock(IMethods.class);
+     }
+ 
+     @Test
+     public void shouldClearArgumentMatcherStackSoAbuseOfArgumentMatchersIsNotDetectedAfterReset() {
+         anyInt(); // abuse of matcher
+         reset(mock);
+         mock(IMethods.class);
+     }
+ 
+     @Test
+     public void shouldNotThrowUnfinishedVerificationAfterReset() throws Exception {
+         verify(mock); // unfinished verification
+         reset(mock);
+         mock(IMethods.class);
+     }
+ 
+     @Test
+     public void shouldResetOngoingStubbingSoThatMoreMeaningfulExceptionsAreRaised() {
+         mock(IMethods.class);
+         mock.booleanReturningMethod();
+         reset(mock);
+         try {
+             when(null).thenReturn("anything");
+             fail();
+         } catch (MissingMethodInvocationException e) {
+         }
+     }
+ 
+     @Test
+     public void shouldRemoveAllStubbing() throws Exception {
+         when(mock.objectReturningMethod(isA(Integer.class))).thenReturn(100);
+         when(mock.objectReturningMethod(200)).thenReturn(200);
+         reset(mock);
+         assertNull(mock.objectReturningMethod(200));
+         assertEquals("default behavior should return null", null, mock.objectReturningMethod("blah"));
+     }
+ 
+     @Test
+     public void shouldRemoveAllInteractions() throws Exception {
+         mock.simpleMethod(1);
+         reset(mock);
+         verifyZeroInteractions(mock);
+     }
+ 
+     @Test
+     public void shouldRemoveStubbingToString() throws Exception {
+         IMethods mockTwo = mock(IMethods.class);
+         when(mockTwo.toString()).thenReturn("test");
+         reset(mockTwo);
+         assertThat(mockTwo.toString(), contains("Mock for IMethods"));
+     }
+ 
+     @Test
+     public void shouldStubbingNotBeTreatedAsInteraction() {
+         when(mock.simpleMethod("one")).thenThrow(new RuntimeException());
+         doThrow(new RuntimeException()).when(mock).simpleMethod("two");
+         reset(mock);
+         verifyZeroInteractions(mock);
+     }
+ 
+     @Test
+     public void shouldNotAffectMockName() {
+         IMethods mock = mock(IMethods.class, "mockie");
+         IMethods mockTwo = mock(IMethods.class);
+         reset(mock);
+         assertContains("Mock for IMethods", "" + mockTwo);
+         assertEquals("mockie", "" + mock);
+     }
+
+commit 51aca5035ea543ecdd109a77b30d34006cb98f29
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Thu Feb 19 15:35:11 2009
+
+    implemented reset() mocks feature (issue 55)
+    We found a valid case for reset: legacy code combined with DI-container created mocks.
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401266
+
+diff --git a/test/org/mockitousage/reset/ResetTest.java b/test/org/mockitousage/reset/ResetTest.java
+--- /dev/null
++++ b/test/org/mockitousage/reset/ResetTest.java
+@@ -0,0 +5,87 @@
++package org.mockitousage.reset;
++
++import static org.mockito.Matchers.*;
++import static org.mockito.Mockito.*;
++
++import org.junit.Before;
++import org.junit.Test;
++import org.mockito.exceptions.misusing.MissingMethodInvocationException;
++import org.mockitousage.IMethods;
++import org.mockitoutil.TestBase;
++
++@SuppressWarnings("unchecked")
++public class ResetTest extends TestBase {
++
++    private IMethods mock;
++
++    @Before
++    public void setup() {
++        mock = mock(IMethods.class);
++    }
++
++    @Test
++    public void shouldClearArgumentMatcherStackSoAbuseOfArgumentMatchersIsNotDetectedAfterReset() {
++        anyInt(); // abuse of matcher
++        reset(mock);
++        mock(IMethods.class);
++    }
++
++    @Test
++    public void shouldNotThrowUnfinishedVerificationAfterReset() throws Exception {
++        verify(mock); // unfinished verification
++        reset(mock);
++        mock(IMethods.class);
++    }
++
++    @Test
++    public void shouldResetOngoingStubbingSoThatMoreMeaningfulExceptionsAreRaised() {
++        mock(IMethods.class);
++        mock.booleanReturningMethod();
++        reset(mock);
++        try {
++            when(null).thenReturn("anything");
++            fail();
++        } catch (MissingMethodInvocationException e) {
++        }
++    }
++
++    @Test
++    public void shouldRemoveAllStubbing() throws Exception {
++        when(mock.objectReturningMethod(isA(Integer.class))).thenReturn(100);
++        when(mock.objectReturningMethod(200)).thenReturn(200);
++        reset(mock);
++        assertNull(mock.objectReturningMethod(200));
++        assertEquals("default behavior should return null", null, mock.objectReturningMethod("blah"));
++    }
++
++    @Test
++    public void shouldRemoveAllInteractions() throws Exception {
++        mock.simpleMethod(1);
++        reset(mock);
++        verifyZeroInteractions(mock);
++    }
++
++    @Test
++    public void shouldRemoveStubbingToString() throws Exception {
++        IMethods mockTwo = mock(IMethods.class);
++        when(mockTwo.toString()).thenReturn("test");
++        reset(mockTwo);
++        assertThat(mockTwo.toString(), contains("Mock for IMethods"));
++    }
++
++    @Test
++    public void shouldStubbingNotBeTreatedAsInteraction() {
++        when(mock.simpleMethod("one")).thenThrow(new RuntimeException());
++        doThrow(new RuntimeException()).when(mock).simpleMethod("two");
++        reset(mock);
++        verifyZeroInteractions(mock);
++    }
++
++    @Test
++    public void shouldNotAffectMockName() {
++        IMethods mock = mock(IMethods.class, "mockie");
++        IMethods mockTwo = mock(IMethods.class);
++        reset(mock);
++        assertContains("Mock for IMethods", "" + mockTwo);
++        assertEquals("mockie", "" + mock);
++    }

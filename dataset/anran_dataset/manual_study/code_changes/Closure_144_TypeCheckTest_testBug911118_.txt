@@ -1,0 +1,183 @@
+commit 465282f1ca28a208b06c47b55fd292d4631c55da
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Jun 22 20:19:37 2010
+
+    Change on 2010/06/22 by nicksantos
+    
+            Inferred return types.
+            Fixes issue 143.
+            I eventually decided that it was wrong for the subtype's method
+            to affect the supertype's method, since this will make incremental
+            compilation a lot harder in the long run.
+    
+            R=moedinger
+            DELTA=481  (313 added, 38 deleted, 130 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=34007
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@249 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- a/test/com/google/javascript/jscomp/TypeCheckTest.java
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -4260,13 +4336,13 @@
+   public void testBug911118() throws Exception {
+     // verifying the type assigned to function expressions assigned variables
+     Scope s = parseAndTypeCheckWithScope("var a = function(){};").scope;
+     JSType type = s.getVar("a").getType();
+-    assertEquals("function (): ?", type.toString());
++    assertEquals("function (): undefined", type.toString());
+ 
+     // verifying the bug example
+     testTypes("function nullFunction() {};" +
+         "var foo = nullFunction;" +
+         "foo = function() {};" +
+         "foo();");
+   }
+ 
+
+commit ebb59a97610015bc41bda7f458dd1428a3a3e335
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Apr 23 14:31:48 2010
+
+    Change on 2010/04/22 by nick
+    
+            fix the extern definition of Window.prototype.stop
+    
+            R=siggy
+            DELTA=1  (0 added, 0 deleted, 1 changed)
+    
+    Change on 2010/04/22 by john
+    
+            "Anonymous function" is a confusing term for functions with names.
+            Properly we are usually distinguishing between functions statements
+            (function declarations) and function expressions.
+    
+            R=alan
+            DELTA=172  (7 added, 14 deleted, 151 changed)
+    
+    Change on 2010/04/22 by john
+    
+            Standardize the definition of setTimeout/setInterval.
+            Fix for Issue 137
+    
+            R=nick
+            DELTA=6  (2 added, 2 deleted, 2 changed)
+    
+    Change on 2010/04/22 by mark
+    
+            Various delegate fixes.
+    
+            Give the delegate proxy a name unique from the delegate base so that
+            InstanceObjectType#equals distinguishes them. This is necessary for
+            AmbiguateProperties to work.
+    
+            Fix the prototype of the delegate proxy. This makes
+            DisambiguateProperties continue to work.
+    
+            Add superclass methods of the delegate base to the delegate proxy.
+    
+    
+            R=andrew,nada
+            DELTA=526  (383 added, 104 deleted, 39 changed)
+    
+    Change on 2010/04/23 by john
+    
+            Allow variable inlining of function statements. For simplicity  limited to functions defined before first use.
+    
+            R=nick
+            DELTA=79  (49 added, 3 deleted, 27 changed)
+    
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=hakjvx
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@197 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- a/test/com/google/javascript/jscomp/TypeCheckTest.java
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -4216,13 +4216,13 @@
+   public void testBug911118() throws Exception {
+-    // verifying the type assigned to anonymous functions assigned variables
++    // verifying the type assigned to function expressions assigned variables
+     Scope s = parseAndTypeCheckWithScope("var a = function(){};").scope;
+     JSType type = s.getVar("a").getType();
+     assertEquals("function (): ?", type.toString());
+ 
+     // verifying the bug example
+     testTypes("function nullFunction() {};" +
+         "var foo = nullFunction;" +
+         "foo = function() {};" +
+         "foo();");
+   }
+ 
+
+commit 66485d3df654fa92b7500d5e15b58300677edca3
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Jan 15 16:56:00 2010
+
+    Use non-generic data structures in a bunch of places.
+    (More for readability reasons than anything else)
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@70 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- a/test/com/google/javascript/jscomp/TypeCheckTest.java
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -3965,13 +3964,13 @@
+   public void testBug911118() throws Exception {
+     // verifying the type assigned to anonymous functions assigned variables
+-    Scope s = parseAndTypeCheckWithScope("var a = function(){};").second;
++    Scope s = parseAndTypeCheckWithScope("var a = function(){};").scope;
+     JSType type = s.getVar("a").getType();
+     assertEquals("function (): ?", type.toString());
+ 
+     // verifying the bug example
+     testTypes("function nullFunction() {};" +
+         "var foo = nullFunction;" +
+         "foo = function() {};" +
+         "foo();");
+   }
+ 
+
+commit 77b7c78d4aeeb6471f2f668a06c0f61a68f95ccd
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Jan 4 15:18:21 2010
+
+    Add more unit tests for type checking.
+    
+    Add phase optimization.
+    
+    Fix a type inference bug.
+    
+    String.prototype.split may not return null.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@55 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -0,0 +3955,13 @@
++  public void testBug911118() throws Exception {
++    // verifying the type assigned to anonymous functions assigned variables
++    Scope s = parseAndTypeCheckWithScope("var a = function(){};").second;
++    JSType type = s.getVar("a").getType();
++    assertEquals("function (): ?", type.toString());
++
++    // verifying the bug example
++    testTypes("function nullFunction() {};" +
++        "var foo = nullFunction;" +
++        "foo = function() {};" +
++        "foo();");
++  }
++

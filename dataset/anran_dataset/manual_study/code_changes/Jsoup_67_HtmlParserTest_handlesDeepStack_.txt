@@ -1,0 +1,85 @@
+commit d9dfc4a6f2769a7211113b54427b5fd8966f418a
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Thu Feb 20 00:41:37 2020
+
+    Moved some longer running tests to IT tests
+    
+    And allow longer runtime for slower CPUs
+
+diff --git a/src/test/java/org/jsoup/parser/HtmlParserTest.java b/src/test/java/org/jsoup/parser/HtmlParserTest.java
+index d41144ca..c93bcd8f 100644
+--- a/src/test/java/org/jsoup/parser/HtmlParserTest.java
++++ b/src/test/java/org/jsoup/parser/HtmlParserTest.java
+@@ -992,29 +992,6 @@
+         assertTrue(System.currentTimeMillis() - start < 1000);
+     }
+ 
+-    @Test public void handlesDeepStack() {
+-        // inspired by http://sv.stargate.wikia.com/wiki/M2J and https://github.com/jhy/jsoup/issues/955
+-        // I didn't put it in the integration tests, because explorer and intellij kept dieing trying to preview/index it
+-
+-        // Arrange
+-        StringBuilder longBody = new StringBuilder(500000);
+-        for (int i = 0; i < 25000; i++) {
+-            longBody.append(i).append("<dl><dd>");
+-        }
+-        for (int i = 0; i < 25000; i++) {
+-            longBody.append(i).append("</dd></dl>");
+-        }
+-
+-        // Act
+-        long start = System.currentTimeMillis();
+-        Document doc = Parser.parseBodyFragment(longBody.toString(), "");
+-
+-        // Assert
+-        assertEquals(2, doc.body().childNodeSize());
+-        assertEquals(25000, doc.select("dd").size());
+-        assertTrue(System.currentTimeMillis() - start < 2000);
+-    }
+-
+     @Test
+     public void testInvalidTableContents() throws IOException {
+         File in = ParseTest.getFile("/htmltests/table-invalid-elements.html");
+
+commit fb8b60b4d3d202c6fa708f60b8b4a5a53836af24
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sat Oct 21 22:37:42 2017
+
+    Limit stack search depth to 100
+    
+    Fixes #955
+
+diff --git a/src/test/java/org/jsoup/parser/HtmlParserTest.java b/src/test/java/org/jsoup/parser/HtmlParserTest.java
+index a2cb069e..afd2ee27 100644
+--- a/src/test/java/org/jsoup/parser/HtmlParserTest.java
++++ b/src/test/java/org/jsoup/parser/HtmlParserTest.java
+@@ -901,6 +901,29 @@
+         assertTrue(System.currentTimeMillis() - start < 1000);
+     }
+ 
++    @Test public void handlesDeepStack() {
++        // inspired by http://sv.stargate.wikia.com/wiki/M2J and https://github.com/jhy/jsoup/issues/955
++        // I didn't put it in the integration tests, because explorer and intellij kept dieing trying to preview/index it
++
++        // Arrange
++        StringBuilder longBody = new StringBuilder(500000);
++        for (int i = 0; i < 25000; i++) {
++            longBody.append(i).append("<dl><dd>");
++        }
++        for (int i = 0; i < 25000; i++) {
++            longBody.append(i).append("</dd></dl>");
++        }
++
++        // Act
++        long start = System.currentTimeMillis();
++        Document doc = Parser.parseBodyFragment(longBody.toString(), "");
++
++        // Assert
++        assertEquals(2, doc.body().childNodeSize());
++        assertEquals(25000, doc.select("dd").size());
++        assertTrue(System.currentTimeMillis() - start < 1000);
++    }
++
+     @Test
+     public void testInvalidTableContents() throws IOException {
+         File in = ParseTest.getFile("/htmltests/table-invalid-elements.html");

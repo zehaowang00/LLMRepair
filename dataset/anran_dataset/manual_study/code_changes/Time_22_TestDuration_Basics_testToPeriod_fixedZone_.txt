@@ -1,0 +1,542 @@
+commit 57c8aaf94b95323c295dcfec5f40f181846164e7
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Thu Mar 31 20:22:59 2011
+
+    Duraton.toPeriod(), new Period(long), new MutablePeriod(long) [3264409]
+    Fixed to obey Javadoc. Previously, they didn't obey the Javadoc if the default time-zone had no daylight savings.
+    
+    git-svn-id: https://joda-time.svn.sourceforge.net/svnroot/joda-time/trunk@1610 1e1cfbb7-5c0e-0410-a2f0-f98d92ec03a1
+
+diff --git a/JodaTime/src/test/java/org/joda/time/TestDuration_Basics.java b/JodaTime/src/test/java/org/joda/time/TestDuration_Basics.java
+--- a/JodaTime/src/test/java/org/joda/time/TestDuration_Basics.java
++++ b/JodaTime/src/test/java/org/joda/time/TestDuration_Basics.java
+@@ -447,12 +470,25 @@
+-        long length =
+-            (4L + (3L * 7L) + (2L * 30L) + 365L) * DateTimeConstants.MILLIS_PER_DAY +
+-            5L * DateTimeConstants.MILLIS_PER_HOUR +
+-            6L * DateTimeConstants.MILLIS_PER_MINUTE +
+-            7L * DateTimeConstants.MILLIS_PER_SECOND + 8L;
+-        Duration test = new Duration(length);
+-        Period result = test.toPeriod();
+-        assertEquals(new Period(test), result);
+-        assertEquals(new Period(test.getMillis()), result);
++    public void testToPeriod_fixedZone() throws Throwable {
++        DateTimeZone zone = DateTimeZone.getDefault();
++        try {
++            DateTimeZone.setDefault(DateTimeZone.forOffsetHours(2));
++            long length =
++                (4L + (3L * 7L) + (2L * 30L) + 365L) * DateTimeConstants.MILLIS_PER_DAY +
++                5L * DateTimeConstants.MILLIS_PER_HOUR +
++                6L * DateTimeConstants.MILLIS_PER_MINUTE +
++                7L * DateTimeConstants.MILLIS_PER_SECOND + 8L;
++            Duration dur = new Duration(length);
++            Period test = dur.toPeriod();
++            assertEquals(0, test.getYears());  // (4 + (3 * 7) + (2 * 30) + 365) == 450
++            assertEquals(0, test.getMonths());
++            assertEquals(0, test.getWeeks());
++            assertEquals(0, test.getDays());
++            assertEquals((450 * 24) + 5, test.getHours());
++            assertEquals(6, test.getMinutes());
++            assertEquals(7, test.getSeconds());
++            assertEquals(8, test.getMillis());
++        } finally {
++            DateTimeZone.setDefault(zone);
++        }
+     }
+ 
+     //-----------------------------------------------------------------------
+
+commit 119f68ba20f38f7b4b9d676d4a7b787e5e005b89
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Sun Sep 5 12:48:29 2004
+
+    Update duration following period changes
+    
+    
+    git-svn-id: https://joda-time.svn.sourceforge.net/svnroot/joda-time/trunk@485 1e1cfbb7-5c0e-0410-a2f0-f98d92ec03a1
+
+diff --git a/JodaTime/src/test/org/joda/time/TestDuration_Basics.java b/JodaTime/src/test/org/joda/time/TestDuration_Basics.java
+--- a/JodaTime/src/test/org/joda/time/TestDuration_Basics.java
++++ b/JodaTime/src/test/org/joda/time/TestDuration_Basics.java
+@@ -324,20 +324,12 @@
+         long length =
+             (4L + (3L * 7L) + (2L * 30L) + 365L) * DateTimeConstants.MILLIS_PER_DAY +
+             5L * DateTimeConstants.MILLIS_PER_HOUR +
+             6L * DateTimeConstants.MILLIS_PER_MINUTE +
+             7L * DateTimeConstants.MILLIS_PER_SECOND + 8L;
+         Duration test = new Duration(length);
+         Period result = test.toPeriod();
+-        assertEquals(PeriodType.standard(), result.getPeriodType());
+-        // only time fields are precise in AllType
+-        assertEquals(0, result.getYears());  // (4 + (3 * 7) + (2 * 30) + 365) == 450
+-        assertEquals(0, result.getMonths());
+-        assertEquals(0, result.getWeeks());
+-        assertEquals(0, result.getDays());
+-        assertEquals((450 * 24) + 5, result.getHours());
+-        assertEquals(6, result.getMinutes());
+-        assertEquals(7, result.getSeconds());
+-        assertEquals(8, result.getMillis());
+-    }
+-
+-    public void testToPeriod_PeriodType1() {
++        assertEquals(new Period(test), result);
++        assertEquals(new Period(test.getMillis()), result);
++    }
++
++    //-----------------------------------------------------------------------
+
+commit 73c467922eaf2579fa5c24e5aa2c8e5ffdc50aeb
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Sat Sep 4 19:48:26 2004
+
+    Refactor Periods
+    - no longer have a chronology
+    - period type is based around DurationFieldType
+    - array structure internally
+    - not convertable to durations
+    
+    
+    git-svn-id: https://joda-time.svn.sourceforge.net/svnroot/joda-time/trunk@478 1e1cfbb7-5c0e-0410-a2f0-f98d92ec03a1
+
+diff --git a/JodaTime/src/test/org/joda/time/TestDuration_Basics.java b/JodaTime/src/test/org/joda/time/TestDuration_Basics.java
+--- a/JodaTime/src/test/org/joda/time/TestDuration_Basics.java
++++ b/JodaTime/src/test/org/joda/time/TestDuration_Basics.java
+@@ -322,22 +324,20 @@
+         long length =
+             (4L + (3L * 7L) + (2L * 30L) + 365L) * DateTimeConstants.MILLIS_PER_DAY +
+             5L * DateTimeConstants.MILLIS_PER_HOUR +
+             6L * DateTimeConstants.MILLIS_PER_MINUTE +
+             7L * DateTimeConstants.MILLIS_PER_SECOND + 8L;
+         Duration test = new Duration(length);
+         Period result = test.toPeriod();
+-        assertEquals(PeriodType.getAllType(), result.getPeriodType());
++        assertEquals(PeriodType.standard(), result.getPeriodType());
+         // only time fields are precise in AllType
+         assertEquals(0, result.getYears());  // (4 + (3 * 7) + (2 * 30) + 365) == 450
+         assertEquals(0, result.getMonths());
+         assertEquals(0, result.getWeeks());
+         assertEquals(0, result.getDays());
+         assertEquals((450 * 24) + 5, result.getHours());
+         assertEquals(6, result.getMinutes());
+         assertEquals(7, result.getSeconds());
+         assertEquals(8, result.getMillis());
+-        assertEquals(true, result.isPrecise());
+-        assertEquals(length, result.toDurationMillis());
+     }
+ 
+     public void testToPeriod_PeriodType1() {
+
+commit 3f62b3a3ef59f954a14f09aeee97053618da1c74
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Sat Aug 7 07:55:14 2004
+
+    Tests and fixes
+    
+    
+    git-svn-id: https://joda-time.svn.sourceforge.net/svnroot/joda-time/trunk@366 1e1cfbb7-5c0e-0410-a2f0-f98d92ec03a1
+
+diff --git a/JodaTime/src/test/org/joda/time/TestDuration_Basics.java b/JodaTime/src/test/org/joda/time/TestDuration_Basics.java
+--- a/JodaTime/src/test/org/joda/time/TestDuration_Basics.java
++++ b/JodaTime/src/test/org/joda/time/TestDuration_Basics.java
+@@ -579,62 +306,22 @@
+-    public void testWithPeriodTypeUsingTotalMillis1() {
+-        TimePeriod test = new TimePeriod(123L);
+-        TimePeriod result = test.withPeriodTypeUsingTotalMillis(PeriodType.getAllType());
+-        assertSame(test, result);
+-    }
+-
+-    public void testWithPeriodTypeUsingTotalMillis2() {
+-        TimePeriod test = new TimePeriod(3123L);
+-        TimePeriod result = test.withPeriodTypeUsingTotalMillis(PeriodType.getDayHourType());
+-        assertEquals(3, result.getSeconds());
+-        assertEquals(123, result.getMillis());
+-        assertEquals(3123L, result.getTotalMillis());
+-        assertEquals(PeriodType.getDayHourType(), result.getPeriodType());
+-    }
+-
+-    public void testWithPeriodTypeUsingTotalMillis3() {
+-        TimePeriod test = new TimePeriod(1, 2, 3, 4, 5, 6, 7, 8, PeriodType.getAllType());
+-        try {
+-            test.withPeriodTypeUsingTotalMillis(PeriodType.getDayHourType());
+-            fail();
+-        } catch (IllegalStateException ex) {}
+-    }
+-
+-    public void testWithPeriodTypeUsingTotalMillis4() {
+-        TimePeriod test = new TimePeriod(3123L);
+-        TimePeriod result = test.withPeriodTypeUsingTotalMillis(null);
+-        assertEquals(3, result.getSeconds());
+-        assertEquals(123, result.getMillis());
+-        assertEquals(3123L, result.getTotalMillis());
++        long length =
++            (4L + (3L * 7L) + (2L * 30L) + 365L) * DateTimeConstants.MILLIS_PER_DAY +
++            5L * DateTimeConstants.MILLIS_PER_HOUR +
++            6L * DateTimeConstants.MILLIS_PER_MINUTE +
++            7L * DateTimeConstants.MILLIS_PER_SECOND + 8L;
++        Duration test = new Duration(length);
++        Period result = test.toPeriod();
+         assertEquals(PeriodType.getAllType(), result.getPeriodType());
+-    }
+-
+-    //-----------------------------------------------------------------------
+-    public void testWithPeriodTypeUsingFields1() {
+-        TimePeriod test = new TimePeriod(123L);
+-        TimePeriod result = test.withPeriodTypeUsingFields(PeriodType.getAllType());
+-        assertSame(test, result);
+-    }
+-
+-    public void testWithPeriodTypeUsingFields2() {
+-        TimePeriod test = new TimePeriod(3123L);
+-        TimePeriod result = test.withPeriodTypeUsingFields(PeriodType.getDayHourType());
+-        assertEquals(3, result.getSeconds());
+-        assertEquals(123, result.getMillis());
+-        assertEquals(3123L, result.getTotalMillis());
+-        assertEquals(PeriodType.getDayHourType(), result.getPeriodType());
+-    }
+-
+-    public void testWithPeriodTypeUsingFields3() {
+-        TimePeriod test = new TimePeriod(1, 2, 3, 4, 5, 6, 7, 8, PeriodType.getAllType());
+-        try {
+-            test.withPeriodTypeUsingFields(PeriodType.getDayHourType());
+-            fail();
+-        } catch (IllegalArgumentException ex) {}
+-    }
+-
+-    public void testWithPeriodTypeUsingFields4() {
+-        TimePeriod test = new TimePeriod(3123L);
+-        TimePeriod result = test.withPeriodTypeUsingFields(null);
+-        assertEquals(3, result.getSeconds());
+-        assertEquals(123, result.getMillis());
+-        assertEquals(3123L, result.getTotalMillis());
++        // only time fields are precise in AllType
++        assertEquals(0, result.getYears());  // (4 + (3 * 7) + (2 * 30) + 365) == 450
++        assertEquals(0, result.getMonths());
++        assertEquals(0, result.getWeeks());
++        assertEquals(0, result.getDays());
++        assertEquals((450 * 24) + 5, result.getHours());
++        assertEquals(6, result.getMinutes());
++        assertEquals(7, result.getSeconds());
++        assertEquals(8, result.getMillis());
++        assertEquals(true, result.isPrecise());
++        assertEquals(length, result.toDurationMillis());
++    }
++
++    public void testToPeriod_PeriodType1() {
+
+commit b10e0031a3572dfd2783ec0b179a59b5532a4c1f
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Fri Aug 6 14:49:15 2004
+
+    Change DurationType to PeriodType
+    
+    
+    git-svn-id: https://joda-time.svn.sourceforge.net/svnroot/joda-time/trunk@363 1e1cfbb7-5c0e-0410-a2f0-f98d92ec03a1
+
+diff --git a/JodaTime/src/test/org/joda/time/TestDuration_Basics.java b/JodaTime/src/test/org/joda/time/TestDuration_Basics.java
+--- a/JodaTime/src/test/org/joda/time/TestDuration_Basics.java
++++ b/JodaTime/src/test/org/joda/time/TestDuration_Basics.java
+@@ -579,62 +579,62 @@
+-    public void testWithDurationTypeUsingTotalMillis1() {
++    public void testWithPeriodTypeUsingTotalMillis1() {
+         TimePeriod test = new TimePeriod(123L);
+-        TimePeriod result = test.withDurationTypeUsingTotalMillis(DurationType.getAllType());
++        TimePeriod result = test.withPeriodTypeUsingTotalMillis(PeriodType.getAllType());
+         assertSame(test, result);
+     }
+ 
+-    public void testWithDurationTypeUsingTotalMillis2() {
++    public void testWithPeriodTypeUsingTotalMillis2() {
+         TimePeriod test = new TimePeriod(3123L);
+-        TimePeriod result = test.withDurationTypeUsingTotalMillis(DurationType.getDayHourType());
++        TimePeriod result = test.withPeriodTypeUsingTotalMillis(PeriodType.getDayHourType());
+         assertEquals(3, result.getSeconds());
+         assertEquals(123, result.getMillis());
+         assertEquals(3123L, result.getTotalMillis());
+-        assertEquals(DurationType.getDayHourType(), result.getDurationType());
++        assertEquals(PeriodType.getDayHourType(), result.getPeriodType());
+     }
+ 
+-    public void testWithDurationTypeUsingTotalMillis3() {
+-        TimePeriod test = new TimePeriod(1, 2, 3, 4, 5, 6, 7, 8, DurationType.getAllType());
++    public void testWithPeriodTypeUsingTotalMillis3() {
++        TimePeriod test = new TimePeriod(1, 2, 3, 4, 5, 6, 7, 8, PeriodType.getAllType());
+         try {
+-            test.withDurationTypeUsingTotalMillis(DurationType.getDayHourType());
++            test.withPeriodTypeUsingTotalMillis(PeriodType.getDayHourType());
+             fail();
+         } catch (IllegalStateException ex) {}
+     }
+ 
+-    public void testWithDurationTypeUsingTotalMillis4() {
++    public void testWithPeriodTypeUsingTotalMillis4() {
+         TimePeriod test = new TimePeriod(3123L);
+-        TimePeriod result = test.withDurationTypeUsingTotalMillis(null);
++        TimePeriod result = test.withPeriodTypeUsingTotalMillis(null);
+         assertEquals(3, result.getSeconds());
+         assertEquals(123, result.getMillis());
+         assertEquals(3123L, result.getTotalMillis());
+-        assertEquals(DurationType.getAllType(), result.getDurationType());
++        assertEquals(PeriodType.getAllType(), result.getPeriodType());
+     }
+ 
+     //-----------------------------------------------------------------------
+-    public void testWithDurationTypeUsingFields1() {
++    public void testWithPeriodTypeUsingFields1() {
+         TimePeriod test = new TimePeriod(123L);
+-        TimePeriod result = test.withDurationTypeUsingFields(DurationType.getAllType());
++        TimePeriod result = test.withPeriodTypeUsingFields(PeriodType.getAllType());
+         assertSame(test, result);
+     }
+ 
+-    public void testWithDurationTypeUsingFields2() {
++    public void testWithPeriodTypeUsingFields2() {
+         TimePeriod test = new TimePeriod(3123L);
+-        TimePeriod result = test.withDurationTypeUsingFields(DurationType.getDayHourType());
++        TimePeriod result = test.withPeriodTypeUsingFields(PeriodType.getDayHourType());
+         assertEquals(3, result.getSeconds());
+         assertEquals(123, result.getMillis());
+         assertEquals(3123L, result.getTotalMillis());
+-        assertEquals(DurationType.getDayHourType(), result.getDurationType());
++        assertEquals(PeriodType.getDayHourType(), result.getPeriodType());
+     }
+ 
+-    public void testWithDurationTypeUsingFields3() {
+-        TimePeriod test = new TimePeriod(1, 2, 3, 4, 5, 6, 7, 8, DurationType.getAllType());
++    public void testWithPeriodTypeUsingFields3() {
++        TimePeriod test = new TimePeriod(1, 2, 3, 4, 5, 6, 7, 8, PeriodType.getAllType());
+         try {
+-            test.withDurationTypeUsingFields(DurationType.getDayHourType());
++            test.withPeriodTypeUsingFields(PeriodType.getDayHourType());
+             fail();
+         } catch (IllegalArgumentException ex) {}
+     }
+ 
+-    public void testWithDurationTypeUsingFields4() {
++    public void testWithPeriodTypeUsingFields4() {
+         TimePeriod test = new TimePeriod(3123L);
+-        TimePeriod result = test.withDurationTypeUsingFields(null);
++        TimePeriod result = test.withPeriodTypeUsingFields(null);
+         assertEquals(3, result.getSeconds());
+         assertEquals(123, result.getMillis());
+         assertEquals(3123L, result.getTotalMillis());
+
+commit 8daa099d389ca45b01f1343fb403ec560d7428bd
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Mon Aug 2 20:02:25 2004
+
+    Refactor to create TimePeriod and make Duration millisecond only
+    
+    
+    git-svn-id: https://joda-time.svn.sourceforge.net/svnroot/joda-time/trunk@357 1e1cfbb7-5c0e-0410-a2f0-f98d92ec03a1
+
+diff --git a/JodaTime/src/test/org/joda/time/TestDuration_Basics.java b/JodaTime/src/test/org/joda/time/TestDuration_Basics.java
+--- a/JodaTime/src/test/org/joda/time/TestDuration_Basics.java
++++ b/JodaTime/src/test/org/joda/time/TestDuration_Basics.java
+@@ -593,62 +593,62 @@
+     public void testWithDurationTypeUsingTotalMillis1() {
+-        Duration test = new Duration(123L);
+-        Duration result = test.withDurationTypeUsingTotalMillis(DurationType.getAllType());
++        TimePeriod test = new TimePeriod(123L);
++        TimePeriod result = test.withDurationTypeUsingTotalMillis(DurationType.getAllType());
+         assertSame(test, result);
+     }
+ 
+     public void testWithDurationTypeUsingTotalMillis2() {
+-        Duration test = new Duration(3123L);
+-        Duration result = test.withDurationTypeUsingTotalMillis(DurationType.getDayHourType());
++        TimePeriod test = new TimePeriod(3123L);
++        TimePeriod result = test.withDurationTypeUsingTotalMillis(DurationType.getDayHourType());
+         assertEquals(3, result.getSeconds());
+         assertEquals(123, result.getMillis());
+         assertEquals(3123L, result.getTotalMillis());
+         assertEquals(DurationType.getDayHourType(), result.getDurationType());
+     }
+ 
+     public void testWithDurationTypeUsingTotalMillis3() {
+-        Duration test = new Duration(1, 2, 3, 4, 5, 6, 7, 8, DurationType.getAllType());
++        TimePeriod test = new TimePeriod(1, 2, 3, 4, 5, 6, 7, 8, DurationType.getAllType());
+         try {
+             test.withDurationTypeUsingTotalMillis(DurationType.getDayHourType());
+             fail();
+         } catch (IllegalStateException ex) {}
+     }
+ 
+     public void testWithDurationTypeUsingTotalMillis4() {
+-        Duration test = new Duration(3123L);
+-        Duration result = test.withDurationTypeUsingTotalMillis(null);
++        TimePeriod test = new TimePeriod(3123L);
++        TimePeriod result = test.withDurationTypeUsingTotalMillis(null);
+         assertEquals(3, result.getSeconds());
+         assertEquals(123, result.getMillis());
+         assertEquals(3123L, result.getTotalMillis());
+         assertEquals(DurationType.getAllType(), result.getDurationType());
+     }
+ 
+     //-----------------------------------------------------------------------
+     public void testWithDurationTypeUsingFields1() {
+-        Duration test = new Duration(123L);
+-        Duration result = test.withDurationTypeUsingFields(DurationType.getAllType());
++        TimePeriod test = new TimePeriod(123L);
++        TimePeriod result = test.withDurationTypeUsingFields(DurationType.getAllType());
+         assertSame(test, result);
+     }
+ 
+     public void testWithDurationTypeUsingFields2() {
+-        Duration test = new Duration(3123L);
+-        Duration result = test.withDurationTypeUsingFields(DurationType.getDayHourType());
++        TimePeriod test = new TimePeriod(3123L);
++        TimePeriod result = test.withDurationTypeUsingFields(DurationType.getDayHourType());
+         assertEquals(3, result.getSeconds());
+         assertEquals(123, result.getMillis());
+         assertEquals(3123L, result.getTotalMillis());
+         assertEquals(DurationType.getDayHourType(), result.getDurationType());
+     }
+ 
+     public void testWithDurationTypeUsingFields3() {
+-        Duration test = new Duration(1, 2, 3, 4, 5, 6, 7, 8, DurationType.getAllType());
++        TimePeriod test = new TimePeriod(1, 2, 3, 4, 5, 6, 7, 8, DurationType.getAllType());
+         try {
+             test.withDurationTypeUsingFields(DurationType.getDayHourType());
+             fail();
+         } catch (IllegalArgumentException ex) {}
+     }
+ 
+     public void testWithDurationTypeUsingFields4() {
+-        Duration test = new Duration(3123L);
+-        Duration result = test.withDurationTypeUsingFields(null);
++        TimePeriod test = new TimePeriod(3123L);
++        TimePeriod result = test.withDurationTypeUsingFields(null);
+         assertEquals(3, result.getSeconds());
+         assertEquals(123, result.getMillis());
+         assertEquals(3123L, result.getTotalMillis());
+
+commit ad8e643d2533b2d562adb7c66c6d2917c5f0305c
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Sun Aug 1 15:37:42 2004
+
+    Refactor Duration to create MillisDuration for millisecond based durations
+    
+    
+    git-svn-id: https://joda-time.svn.sourceforge.net/svnroot/joda-time/trunk@352 1e1cfbb7-5c0e-0410-a2f0-f98d92ec03a1
+
+diff --git a/JodaTime/src/test/org/joda/time/TestDuration_Basics.java b/JodaTime/src/test/org/joda/time/TestDuration_Basics.java
+--- a/JodaTime/src/test/org/joda/time/TestDuration_Basics.java
++++ b/JodaTime/src/test/org/joda/time/TestDuration_Basics.java
+@@ -568,33 +577,62 @@
+-    public void testWithDurationType1() {
++    public void testWithDurationTypeUsingTotalMillis1() {
+         Duration test = new Duration(123L);
+-        Duration result = test.withDurationType(DurationType.getMillisType());
++        Duration result = test.withDurationTypeUsingTotalMillis(DurationType.getAllType());
+         assertSame(test, result);
+     }
+ 
+-    public void testWithDurationType2() {
++    public void testWithDurationTypeUsingTotalMillis2() {
+         Duration test = new Duration(3123L);
+-        Duration result = test.withDurationType(DurationType.getDayHourType());
++        Duration result = test.withDurationTypeUsingTotalMillis(DurationType.getDayHourType());
+         assertEquals(3, result.getSeconds());
+         assertEquals(123, result.getMillis());
+         assertEquals(3123L, result.getTotalMillis());
+         assertEquals(DurationType.getDayHourType(), result.getDurationType());
+     }
+ 
+-    public void testWithDurationType3() {
++    public void testWithDurationTypeUsingTotalMillis3() {
+         Duration test = new Duration(1, 2, 3, 4, 5, 6, 7, 8, DurationType.getAllType());
+         try {
+-            test.withDurationType(DurationType.getDayHourType());
++            test.withDurationTypeUsingTotalMillis(DurationType.getDayHourType());
+             fail();
+         } catch (IllegalStateException ex) {}
+     }
+ 
+-    public void testWithDurationType4() {
++    public void testWithDurationTypeUsingTotalMillis4() {
+         Duration test = new Duration(3123L);
+-        Duration result = test.withDurationType(null);
++        Duration result = test.withDurationTypeUsingTotalMillis(null);
+         assertEquals(3, result.getSeconds());
+         assertEquals(123, result.getMillis());
+         assertEquals(3123L, result.getTotalMillis());
+         assertEquals(DurationType.getAllType(), result.getDurationType());
+     }
+ 
+     //-----------------------------------------------------------------------
++    public void testWithDurationTypeUsingFields1() {
++        Duration test = new Duration(123L);
++        Duration result = test.withDurationTypeUsingFields(DurationType.getAllType());
++        assertSame(test, result);
++    }
++
++    public void testWithDurationTypeUsingFields2() {
++        Duration test = new Duration(3123L);
++        Duration result = test.withDurationTypeUsingFields(DurationType.getDayHourType());
++        assertEquals(3, result.getSeconds());
++        assertEquals(123, result.getMillis());
++        assertEquals(3123L, result.getTotalMillis());
++        assertEquals(DurationType.getDayHourType(), result.getDurationType());
++    }
++
++    public void testWithDurationTypeUsingFields3() {
++        Duration test = new Duration(1, 2, 3, 4, 5, 6, 7, 8, DurationType.getAllType());
++        try {
++            test.withDurationTypeUsingFields(DurationType.getDayHourType());
++            fail();
++        } catch (IllegalArgumentException ex) {}
++    }
++
++    public void testWithDurationTypeUsingFields4() {
++        Duration test = new Duration(3123L);
++        Duration result = test.withDurationTypeUsingFields(null);
++        assertEquals(3, result.getSeconds());
++        assertEquals(123, result.getMillis());
++        assertEquals(3123L, result.getTotalMillis());
+
+commit d21736df31ca4888e76ccbdc7d31f406cf68b645
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Tue Jul 27 18:19:31 2004
+
+    Fix tests to handle chronology issues and withDurationType
+    
+    
+    git-svn-id: https://joda-time.svn.sourceforge.net/svnroot/joda-time/trunk@349 1e1cfbb7-5c0e-0410-a2f0-f98d92ec03a1
+
+diff --git a/JodaTime/src/test/org/joda/time/TestDuration_Basics.java b/JodaTime/src/test/org/joda/time/TestDuration_Basics.java
+--- a/JodaTime/src/test/org/joda/time/TestDuration_Basics.java
++++ b/JodaTime/src/test/org/joda/time/TestDuration_Basics.java
+@@ -562,0 +568,33 @@
++    public void testWithDurationType1() {
++        Duration test = new Duration(123L);
++        Duration result = test.withDurationType(DurationType.getMillisType());
++        assertSame(test, result);
++    }
++
++    public void testWithDurationType2() {
++        Duration test = new Duration(3123L);
++        Duration result = test.withDurationType(DurationType.getDayHourType());
++        assertEquals(3, result.getSeconds());
++        assertEquals(123, result.getMillis());
++        assertEquals(3123L, result.getTotalMillis());
++        assertEquals(DurationType.getDayHourType(), result.getDurationType());
++    }
++
++    public void testWithDurationType3() {
++        Duration test = new Duration(1, 2, 3, 4, 5, 6, 7, 8, DurationType.getAllType());
++        try {
++            test.withDurationType(DurationType.getDayHourType());
++            fail();
++        } catch (IllegalStateException ex) {}
++    }
++
++    public void testWithDurationType4() {
++        Duration test = new Duration(3123L);
++        Duration result = test.withDurationType(null);
++        assertEquals(3, result.getSeconds());
++        assertEquals(123, result.getMillis());
++        assertEquals(3123L, result.getTotalMillis());
++        assertEquals(DurationType.getAllType(), result.getDurationType());
++    }
++
++    //-----------------------------------------------------------------------

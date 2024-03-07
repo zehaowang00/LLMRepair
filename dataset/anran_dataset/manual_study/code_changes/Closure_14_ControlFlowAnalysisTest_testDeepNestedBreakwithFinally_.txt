@@ -1,0 +1,71 @@
+commit 4b15b25f400335b6e2820cb690430324748372f9
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Jul 24 17:04:32 2012
+
+    when handling a finally block like so,
+    try { alert(1) } finally { }
+    There needs to be 2 edges: an unconditional edge to the statement
+    after the 'finally', and an edge for the code path that continues
+    handling the exception. Label the second edge with ON_EX instead of UNCOND.
+    Fixes issue 779
+    
+    R=acleung
+    DELTA=18  (14 added, 0 deleted, 4 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=5214
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2101 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/ControlFlowAnalysisTest.java b/test/com/google/javascript/jscomp/ControlFlowAnalysisTest.java
+--- a/test/com/google/javascript/jscomp/ControlFlowAnalysisTest.java
++++ b/test/com/google/javascript/jscomp/ControlFlowAnalysisTest.java
+@@ -1097,15 +1097,15 @@
+   public void testDeepNestedBreakwithFinally() {
+     String src = "X:while(1){try{while(2){try{var a;break X;}" +
+         "finally{}}}finally{}}";
+     ControlFlowGraph<Node> cfg = createCfg(src);
+     assertDownEdge(cfg, Token.WHILE, Token.BLOCK, Branch.ON_TRUE);
+     assertDownEdge(cfg, Token.BLOCK, Token.TRY, Branch.UNCOND);
+     assertDownEdge(cfg, Token.BLOCK, Token.VAR, Branch.UNCOND);
+     // BREAK to FINALLY.
+     assertCrossEdge(cfg, Token.BREAK, Token.BLOCK, Branch.UNCOND);
+     // FINALLY to FINALLY.
+-    assertCrossEdge(cfg, Token.BLOCK, Token.BLOCK, Branch.UNCOND);
++    assertCrossEdge(cfg, Token.BLOCK, Token.BLOCK, Branch.ON_EX);
+     assertCrossEdge(cfg, Token.WHILE, Token.BLOCK, Branch.ON_FALSE);
+     assertReturnEdge(cfg, Token.BLOCK);
+   }
+ 
+
+commit 6b49cfd9022fe111bdad745c78ea877fbc2f7ba3
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 3 18:51:57 2009
+
+    Initial commit.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/ControlFlowAnalysisTest.java b/test/com/google/javascript/jscomp/ControlFlowAnalysisTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/ControlFlowAnalysisTest.java
+@@ -0,0 +1114,15 @@
++  public void testDeepNestedBreakwithFinally() {
++    String src = "X:while(1){try{while(2){try{var a;break X;}" +
++        "finally{}}}finally{}}";
++    ControlFlowGraph<Node> cfg = createCfg(src);
++    assertDownEdge(cfg, Token.WHILE, Token.BLOCK, Branch.ON_TRUE);
++    assertDownEdge(cfg, Token.BLOCK, Token.TRY, Branch.UNCOND);
++    assertDownEdge(cfg, Token.BLOCK, Token.VAR, Branch.UNCOND);
++    // BREAK to FINALLY.
++    assertCrossEdge(cfg, Token.BREAK, Token.BLOCK, Branch.UNCOND);
++    // FINALLY to FINALLY.
++    assertCrossEdge(cfg, Token.BLOCK, Token.BLOCK, Branch.UNCOND);
++    assertCrossEdge(cfg, Token.WHILE, Token.BLOCK, Branch.ON_FALSE);
++    assertReturnEdge(cfg, Token.BLOCK);
++  }
++

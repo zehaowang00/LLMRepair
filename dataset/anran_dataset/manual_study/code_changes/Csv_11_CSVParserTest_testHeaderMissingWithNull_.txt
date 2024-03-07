@@ -1,0 +1,18 @@
+commit b67524da7fd146634c7112b23e95d1d45c398b82
+Author: Benedikt Ritter <britter@apache.org>
+Date:   Fri Jul 11 14:42:48 2014
+
+    CSV-122: NullPointerException when empty header string and and null string of "". Thanks to Mike Lewis.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/csv/trunk@1609768 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVParserTest.java b/src/test/java/org/apache/commons/csv/CSVParserTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVParserTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVParserTest.java
+@@ -665,0 +665,6 @@
++    public void testHeaderMissingWithNull() throws Exception {
++        final Reader in = new StringReader("a,,c,,d\n1,2,3,4\nx,y,z,zz");
++        CSVFormat.DEFAULT.withHeader().withNullString("").withIgnoreEmptyHeaders(true).parse(in).iterator();
++    }
++
++    @Test

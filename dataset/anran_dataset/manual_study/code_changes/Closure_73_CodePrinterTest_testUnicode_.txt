@@ -1,0 +1,44 @@
+commit ee8344091722c28c9351e78dcb4155fbfddfd1af
+Author: zhuyi@google.com <zhuyi@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Apr 15 12:10:54 2011
+
+    Codepoint U+007f should not appear raw in output
+    Fixes issue 416
+    http://code.google.com/p/closure-compiler/issues/detail?id=416
+    
+    R=johnlenz
+    DELTA=7  (6 added, 0 deleted, 1 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=1489
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1014 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -1211,1 +1212,6 @@
++  public void testUnicode() {
++    assertPrint("var x ='\\x0f';", "var x=\"\\u000f\"");
++    assertPrint("var x ='\\x68';", "var x=\"h\"");
++    assertPrint("var x ='\\x7f';", "var x=\"\\u007f\"");
++  }
+ }
+
+commit 6b49cfd9022fe111bdad745c78ea877fbc2f7ba3
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 3 18:51:57 2009
+
+    Initial commit.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -0,0 +619,1 @@
++}

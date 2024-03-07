@@ -1,0 +1,295 @@
+commit 6924915efab89f921fd0779fe200fecc1bf80847
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri May 11 16:35:50 2012
+
+    don't try to inline properties that we don't recognize, because
+    they may be prototype properties.
+    This isn't a perfect fix, but should get most cases.
+    Fixes issue 724
+    
+    R=acleung
+    DELTA=82  (47 added, 21 deleted, 14 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=4758
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1967 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/InlineObjectLiteralsTest.java b/test/com/google/javascript/jscomp/InlineObjectLiteralsTest.java
+--- a/test/com/google/javascript/jscomp/InlineObjectLiteralsTest.java
++++ b/test/com/google/javascript/jscomp/InlineObjectLiteralsTest.java
+@@ -167,49 +167,42 @@
+   public void testObject10() {
+     testLocal("var x; var b = f(); x = {a:a, b:b}; if(x.a) g(x.b);",
+          "var JSCompiler_object_inline_a_0;" +
+          "var JSCompiler_object_inline_b_1;" +
+          "var b = f();" +
+          "JSCompiler_object_inline_a_0=a,JSCompiler_object_inline_b_1=b,true;" +
+          "if(JSCompiler_object_inline_a_0) g(JSCompiler_object_inline_b_1)");
+     testLocal("var x = {}; var b = f(); x = {a:a, b:b}; if(x.a) g(x.b) + x.c",
+-         "var JSCompiler_object_inline_a_0;" +
+-         "var JSCompiler_object_inline_b_1;" +
+-         "var JSCompiler_object_inline_c_2;" +
+-         "var b=f();" +
+-         "JSCompiler_object_inline_a_0=a,JSCompiler_object_inline_b_1=b," +
+-         "  JSCompiler_object_inline_c_2=void 0,true;" +
+-         "if(JSCompiler_object_inline_a_0) " +
+-         "  g(JSCompiler_object_inline_b_1) + JSCompiler_object_inline_c_2");
++         "var x = {}; var b = f(); x = {a:a, b:b}; if(x.a) g(x.b) + x.c");
+     testLocal("var x; var b = f(); x = {a:a, b:b}; x.c = c; if(x.a) g(x.b) + x.c",
+          "var JSCompiler_object_inline_a_0;" +
+          "var JSCompiler_object_inline_b_1;" +
+          "var JSCompiler_object_inline_c_2;" +
+          "var b = f();" +
+          "JSCompiler_object_inline_a_0 = a,JSCompiler_object_inline_b_1 = b, " +
+          "  JSCompiler_object_inline_c_2=void 0,true;" +
+          "JSCompiler_object_inline_c_2 = c;" +
+          "if (JSCompiler_object_inline_a_0)" +
+          "  g(JSCompiler_object_inline_b_1) + JSCompiler_object_inline_c_2;");
+     testLocal("var x = {a:a}; if (b) x={b:b}; f(x.a||x.b);",
+          "var JSCompiler_object_inline_a_0 = a;" +
+          "var JSCompiler_object_inline_b_1;" +
+          "if(b) JSCompiler_object_inline_b_1 = b," +
+          "      JSCompiler_object_inline_a_0 = void 0," +
+          "      true;" +
+          "f(JSCompiler_object_inline_a_0 || JSCompiler_object_inline_b_1)");
+     testLocal("var x; var y = 5; x = {a:a, b:b, c:c}; if (b) x={b:b}; f(x.a||x.b);",
+          "var JSCompiler_object_inline_a_0;" +
+          "var JSCompiler_object_inline_b_1;" +
+          "var JSCompiler_object_inline_c_2;" +
+          "var y=5;" +
+          "JSCompiler_object_inline_a_0=a," +
+          "JSCompiler_object_inline_b_1=b," +
+          "JSCompiler_object_inline_c_2=c," +
+          "true;" +
+          "if (b) JSCompiler_object_inline_b_1=b," +
+          "       JSCompiler_object_inline_a_0=void 0," +
+          "       JSCompiler_object_inline_c_2=void 0," +
+          "       true;" +
+          "f(JSCompiler_object_inline_a_0||JSCompiler_object_inline_b_1)");
+   }
+ 
+
+commit 34de1a205f3c1e4eaed32ccc1aeea4197ddf57c0
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Jun 23 16:06:49 2011
+
+    Limit InlineObjectLiterals to local scopes for now.
+    
+    R=acleung,nicksantos
+    DELTA=92  (31 added, 4 deleted, 57 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=2400
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1203 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/InlineObjectLiteralsTest.java b/test/com/google/javascript/jscomp/InlineObjectLiteralsTest.java
+--- a/test/com/google/javascript/jscomp/InlineObjectLiteralsTest.java
++++ b/test/com/google/javascript/jscomp/InlineObjectLiteralsTest.java
+@@ -161,49 +167,49 @@
+   public void testObject10() {
+-    test("var x; var b = f(); x = {a:a, b:b}; if(x.a) g(x.b);",
++    testLocal("var x; var b = f(); x = {a:a, b:b}; if(x.a) g(x.b);",
+          "var JSCompiler_object_inline_a_0;" +
+          "var JSCompiler_object_inline_b_1;" +
+          "var b = f();" +
+          "JSCompiler_object_inline_a_0=a,JSCompiler_object_inline_b_1=b,true;" +
+          "if(JSCompiler_object_inline_a_0) g(JSCompiler_object_inline_b_1)");
+-    test("var x = {}; var b = f(); x = {a:a, b:b}; if(x.a) g(x.b) + x.c",
++    testLocal("var x = {}; var b = f(); x = {a:a, b:b}; if(x.a) g(x.b) + x.c",
+          "var JSCompiler_object_inline_a_0;" +
+          "var JSCompiler_object_inline_b_1;" +
+          "var JSCompiler_object_inline_c_2;" +
+          "var b=f();" +
+          "JSCompiler_object_inline_a_0=a,JSCompiler_object_inline_b_1=b," +
+          "  JSCompiler_object_inline_c_2=void 0,true;" +
+          "if(JSCompiler_object_inline_a_0) " +
+          "  g(JSCompiler_object_inline_b_1) + JSCompiler_object_inline_c_2");
+-    test("var x; var b = f(); x = {a:a, b:b}; x.c = c; if(x.a) g(x.b) + x.c",
++    testLocal("var x; var b = f(); x = {a:a, b:b}; x.c = c; if(x.a) g(x.b) + x.c",
+          "var JSCompiler_object_inline_a_0;" +
+          "var JSCompiler_object_inline_b_1;" +
+          "var JSCompiler_object_inline_c_2;" +
+          "var b = f();" +
+          "JSCompiler_object_inline_a_0 = a,JSCompiler_object_inline_b_1 = b, " +
+          "  JSCompiler_object_inline_c_2=void 0,true;" +
+          "JSCompiler_object_inline_c_2 = c;" +
+          "if (JSCompiler_object_inline_a_0)" +
+          "  g(JSCompiler_object_inline_b_1) + JSCompiler_object_inline_c_2;");
+-    test("var x = {a:a}; if (b) x={b:b}; f(x.a||x.b);",
++    testLocal("var x = {a:a}; if (b) x={b:b}; f(x.a||x.b);",
+          "var JSCompiler_object_inline_a_0 = a;" +
+          "var JSCompiler_object_inline_b_1;" +
+          "if(b) JSCompiler_object_inline_b_1 = b," +
+          "      JSCompiler_object_inline_a_0 = void 0," +
+          "      true;" +
+          "f(JSCompiler_object_inline_a_0 || JSCompiler_object_inline_b_1)");
+-    test("var x; var y = 5; x = {a:a, b:b, c:c}; if (b) x={b:b}; f(x.a||x.b);",
++    testLocal("var x; var y = 5; x = {a:a, b:b, c:c}; if (b) x={b:b}; f(x.a||x.b);",
+          "var JSCompiler_object_inline_a_0;" +
+          "var JSCompiler_object_inline_b_1;" +
+          "var JSCompiler_object_inline_c_2;" +
+          "var y=5;" +
+          "JSCompiler_object_inline_a_0=a," +
+          "JSCompiler_object_inline_b_1=b," +
+          "JSCompiler_object_inline_c_2=c," +
+          "true;" +
+          "if (b) JSCompiler_object_inline_b_1=b," +
+          "       JSCompiler_object_inline_a_0=void 0," +
+          "       JSCompiler_object_inline_c_2=void 0," +
+          "       true;" +
+          "f(JSCompiler_object_inline_a_0||JSCompiler_object_inline_b_1)");
+   }
+ 
+
+commit 5fd1037e79cbdbf8fb5734f40c604a145ada03b2
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Jun 16 21:12:08 2011
+
+    Fix inline object literals pass: referenced name blacklisting and
+    side-effect ordering.
+    
+    R=acleung
+    DELTA=119  (73 added, 28 deleted, 18 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=2322
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1190 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/InlineObjectLiteralsTest.java b/test/com/google/javascript/jscomp/InlineObjectLiteralsTest.java
+--- a/test/com/google/javascript/jscomp/InlineObjectLiteralsTest.java
++++ b/test/com/google/javascript/jscomp/InlineObjectLiteralsTest.java
+@@ -150,49 +161,49 @@
+   public void testObject10() {
+     test("var x; var b = f(); x = {a:a, b:b}; if(x.a) g(x.b);",
+-         "var JSCompiler_object_inline_b_1;" +
+          "var JSCompiler_object_inline_a_0;" +
++         "var JSCompiler_object_inline_b_1;" +
+          "var b = f();" +
+          "JSCompiler_object_inline_a_0=a,JSCompiler_object_inline_b_1=b,true;" +
+          "if(JSCompiler_object_inline_a_0) g(JSCompiler_object_inline_b_1)");
+     test("var x = {}; var b = f(); x = {a:a, b:b}; if(x.a) g(x.b) + x.c",
++         "var JSCompiler_object_inline_a_0;" +
+          "var JSCompiler_object_inline_b_1;" +
+          "var JSCompiler_object_inline_c_2;" +
+-         "var JSCompiler_object_inline_a_0;" +
+          "var b=f();" +
+          "JSCompiler_object_inline_a_0=a,JSCompiler_object_inline_b_1=b," +
+          "  JSCompiler_object_inline_c_2=void 0,true;" +
+          "if(JSCompiler_object_inline_a_0) " +
+          "  g(JSCompiler_object_inline_b_1) + JSCompiler_object_inline_c_2");
+     test("var x; var b = f(); x = {a:a, b:b}; x.c = c; if(x.a) g(x.b) + x.c",
++         "var JSCompiler_object_inline_a_0;" +
+          "var JSCompiler_object_inline_b_1;" +
+          "var JSCompiler_object_inline_c_2;" +
+-         "var JSCompiler_object_inline_a_0;" +
+          "var b = f();" +
+          "JSCompiler_object_inline_a_0 = a,JSCompiler_object_inline_b_1 = b, " +
+          "  JSCompiler_object_inline_c_2=void 0,true;" +
+          "JSCompiler_object_inline_c_2 = c;" +
+          "if (JSCompiler_object_inline_a_0)" +
+          "  g(JSCompiler_object_inline_b_1) + JSCompiler_object_inline_c_2;");
+     test("var x = {a:a}; if (b) x={b:b}; f(x.a||x.b);",
+-         "var JSCompiler_object_inline_b_1;" +
+          "var JSCompiler_object_inline_a_0 = a;" +
++         "var JSCompiler_object_inline_b_1;" +
+          "if(b) JSCompiler_object_inline_b_1 = b," +
+          "      JSCompiler_object_inline_a_0 = void 0," +
+          "      true;" +
+          "f(JSCompiler_object_inline_a_0 || JSCompiler_object_inline_b_1)");
+     test("var x; var y = 5; x = {a:a, b:b, c:c}; if (b) x={b:b}; f(x.a||x.b);",
++         "var JSCompiler_object_inline_a_0;" +
+          "var JSCompiler_object_inline_b_1;" +
+          "var JSCompiler_object_inline_c_2;" +
+-         "var JSCompiler_object_inline_a_0;" +
+          "var y=5;" +
+          "JSCompiler_object_inline_a_0=a," +
+          "JSCompiler_object_inline_b_1=b," +
+          "JSCompiler_object_inline_c_2=c," +
+          "true;" +
+          "if (b) JSCompiler_object_inline_b_1=b," +
+-         "       JSCompiler_object_inline_c_2=void 0," +
+          "       JSCompiler_object_inline_a_0=void 0," +
++         "       JSCompiler_object_inline_c_2=void 0," +
+          "       true;" +
+          "f(JSCompiler_object_inline_a_0||JSCompiler_object_inline_b_1)");
+   }
+ 
+
+commit 23cf56d241b46465bd0f112ad0cc9c6ba5583fae
+Author: acleung@google.com <acleung@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu May 5 15:15:38 2011
+
+    Introduce InlineObjectLiterals Pass.
+    
+    R=johnlenz
+    DELTA=700  (700 added, 0 deleted, 0 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=1774
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1062 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/InlineObjectLiteralsTest.java b/test/com/google/javascript/jscomp/InlineObjectLiteralsTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/InlineObjectLiteralsTest.java
+@@ -0,0 +150,49 @@
++  public void testObject10() {
++    test("var x; var b = f(); x = {a:a, b:b}; if(x.a) g(x.b);",
++         "var JSCompiler_object_inline_b_1;" +
++         "var JSCompiler_object_inline_a_0;" +
++         "var b = f();" +
++         "JSCompiler_object_inline_a_0=a,JSCompiler_object_inline_b_1=b,true;" +
++         "if(JSCompiler_object_inline_a_0) g(JSCompiler_object_inline_b_1)");
++    test("var x = {}; var b = f(); x = {a:a, b:b}; if(x.a) g(x.b) + x.c",
++         "var JSCompiler_object_inline_b_1;" +
++         "var JSCompiler_object_inline_c_2;" +
++         "var JSCompiler_object_inline_a_0;" +
++         "var b=f();" +
++         "JSCompiler_object_inline_a_0=a,JSCompiler_object_inline_b_1=b," +
++         "  JSCompiler_object_inline_c_2=void 0,true;" +
++         "if(JSCompiler_object_inline_a_0) " +
++         "  g(JSCompiler_object_inline_b_1) + JSCompiler_object_inline_c_2");
++    test("var x; var b = f(); x = {a:a, b:b}; x.c = c; if(x.a) g(x.b) + x.c",
++         "var JSCompiler_object_inline_b_1;" +
++         "var JSCompiler_object_inline_c_2;" +
++         "var JSCompiler_object_inline_a_0;" +
++         "var b = f();" +
++         "JSCompiler_object_inline_a_0 = a,JSCompiler_object_inline_b_1 = b, " +
++         "  JSCompiler_object_inline_c_2=void 0,true;" +
++         "JSCompiler_object_inline_c_2 = c;" +
++         "if (JSCompiler_object_inline_a_0)" +
++         "  g(JSCompiler_object_inline_b_1) + JSCompiler_object_inline_c_2;");
++    test("var x = {a:a}; if (b) x={b:b}; f(x.a||x.b);",
++         "var JSCompiler_object_inline_b_1;" +
++         "var JSCompiler_object_inline_a_0 = a;" +
++         "if(b) JSCompiler_object_inline_b_1 = b," +
++         "      JSCompiler_object_inline_a_0 = void 0," +
++         "      true;" +
++         "f(JSCompiler_object_inline_a_0 || JSCompiler_object_inline_b_1)");
++    test("var x; var y = 5; x = {a:a, b:b, c:c}; if (b) x={b:b}; f(x.a||x.b);",
++         "var JSCompiler_object_inline_b_1;" +
++         "var JSCompiler_object_inline_c_2;" +
++         "var JSCompiler_object_inline_a_0;" +
++         "var y=5;" +
++         "JSCompiler_object_inline_a_0=a," +
++         "JSCompiler_object_inline_b_1=b," +
++         "JSCompiler_object_inline_c_2=c," +
++         "true;" +
++         "if (b) JSCompiler_object_inline_b_1=b," +
++         "       JSCompiler_object_inline_c_2=void 0," +
++         "       JSCompiler_object_inline_a_0=void 0," +
++         "       true;" +
++         "f(JSCompiler_object_inline_a_0||JSCompiler_object_inline_b_1)");
++  }
++

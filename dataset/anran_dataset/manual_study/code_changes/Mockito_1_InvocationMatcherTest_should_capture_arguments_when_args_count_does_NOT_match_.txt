@@ -1,0 +1,155 @@
+commit e43a958833df5aa46f54d7cd83b1c17fa19cc5dc
+Author: Brice Dutheil <brice.dutheil@gmail.com>
+Date:   Fri Sep 28 12:59:20 2012
+
+    issue 372 : Working implementation of the Argument Captor for Varargs
+
+diff --git a/test/org/mockito/internal/invocation/InvocationMatcherTest.java b/test/org/mockito/internal/invocation/InvocationMatcherTest.java
+--- a/test/org/mockito/internal/invocation/InvocationMatcherTest.java
++++ b/test/org/mockito/internal/invocation/InvocationMatcherTest.java
+@@ -146,13 +158,13 @@
+-    public void should_match_captured_arguments_when_args_count_does_NOT_match() throws Exception {
++    public void should_capture_arguments_when_args_count_does_NOT_match() throws Exception {
+         //given
+         mock.varargs();
+         Invocation invocation = getLastInvocation();
+ 
+         //when
+         InvocationMatcher invocationMatcher = new InvocationMatcher(invocation, (List) asList(new LocalizedMatcher(AnyVararg.ANY_VARARG)));
+ 
+         //then
+         invocationMatcher.captureArgumentsFrom(invocation);
+     }
+ 
+     @Test
+
+commit adf127bc2ff5e932245eac473fddc8e0d06e249d
+Author: Brice Dutheil <brice.dutheil@gmail.com>
+Date:   Fri Sep 28 12:11:04 2012
+
+    issue 372 : underscored test methods before adding test
+
+diff --git a/test/org/mockito/internal/invocation/InvocationMatcherTest.java b/test/org/mockito/internal/invocation/InvocationMatcherTest.java
+--- a/test/org/mockito/internal/invocation/InvocationMatcherTest.java
++++ b/test/org/mockito/internal/invocation/InvocationMatcherTest.java
+@@ -146,13 +146,13 @@
+-    public void shouldMatchCaptureArgumentsWhenArgsCountDoesNOTMatch() throws Exception {
++    public void should_match_captured_arguments_when_args_count_does_NOT_match() throws Exception {
+         //given
+         mock.varargs();
+         Invocation invocation = getLastInvocation();
+ 
+         //when
+         InvocationMatcher invocationMatcher = new InvocationMatcher(invocation, (List) asList(new LocalizedMatcher(AnyVararg.ANY_VARARG)));
+ 
+         //then
+         invocationMatcher.captureArgumentsFrom(invocation);
+     }
+ 
+     @Test
+
+commit 60f0c0c767879989d40d7846054cfc1df64e76af
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sat Mar 31 18:12:10 2012
+
+    Started using the new Invocation interface where possible.
+
+diff --git a/test/org/mockito/internal/invocation/InvocationMatcherTest.java b/test/org/mockito/internal/invocation/InvocationMatcherTest.java
+--- a/test/org/mockito/internal/invocation/InvocationMatcherTest.java
++++ b/test/org/mockito/internal/invocation/InvocationMatcherTest.java
+@@ -145,13 +146,13 @@
+     public void shouldMatchCaptureArgumentsWhenArgsCountDoesNOTMatch() throws Exception {
+         //given
+         mock.varargs();
+-        InvocationImpl invocation = getLastInvocation();
++        Invocation invocation = getLastInvocation();
+ 
+         //when
+         InvocationMatcher invocationMatcher = new InvocationMatcher(invocation, (List) asList(new LocalizedMatcher(AnyVararg.ANY_VARARG)));
+ 
+         //then
+         invocationMatcher.captureArgumentsFrom(invocation);
+     }
+ 
+     @Test
+
+commit a99d63b477bac80720fa25214ef7c3eb73576627
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sat Mar 31 18:10:06 2012
+
+    Renamed Invocation -> InvocationImpl before using the interface type where possible...
+    
+    --HG--
+    rename : src/org/mockito/internal/invocation/Invocation.java => src/org/mockito/internal/invocation/InvocationImpl.java
+
+diff --git a/test/org/mockito/internal/invocation/InvocationMatcherTest.java b/test/org/mockito/internal/invocation/InvocationMatcherTest.java
+--- a/test/org/mockito/internal/invocation/InvocationMatcherTest.java
++++ b/test/org/mockito/internal/invocation/InvocationMatcherTest.java
+@@ -145,13 +145,13 @@
+     public void shouldMatchCaptureArgumentsWhenArgsCountDoesNOTMatch() throws Exception {
+         //given
+         mock.varargs();
+-        Invocation invocation = getLastInvocation();
++        InvocationImpl invocation = getLastInvocation();
+ 
+         //when
+         InvocationMatcher invocationMatcher = new InvocationMatcher(invocation, (List) asList(new LocalizedMatcher(AnyVararg.ANY_VARARG)));
+ 
+         //then
+         invocationMatcher.captureArgumentsFrom(invocation);
+     }
+ 
+     @Test
+
+commit eda947817be94e7a76627c53c3fbc7d4dfc7dfbb
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sun Feb 14 15:20:48 2010
+
+    Got rid of some duplication
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401835
+
+diff --git a/test/org/mockito/internal/invocation/InvocationMatcherTest.java b/test/org/mockito/internal/invocation/InvocationMatcherTest.java
+--- a/test/org/mockito/internal/invocation/InvocationMatcherTest.java
++++ b/test/org/mockito/internal/invocation/InvocationMatcherTest.java
+@@ -143,11 +144,13 @@
+     public void shouldMatchCaptureArgumentsWhenArgsCountDoesNOTMatch() throws Exception {
+         //given
+         mock.varargs();
+         Invocation invocation = getLastInvocation();
+ 
+         //when
+         InvocationMatcher invocationMatcher = new InvocationMatcher(invocation, (List) asList(new LocalizedMatcher(AnyVararg.ANY_VARARG)));
+ 
+         //then
+         invocationMatcher.captureArgumentsFrom(invocation);
+     }
++
++    @Test
+
+commit e8cebe01abae49a09aadd6a26c6f7e2f90e5e772
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Fri Dec 11 15:30:44 2009
+
+    Fixed issue 157
+    In order to avoid ArrayIndexOutOfBoundsException when anyvarag() matcher in use
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401790
+
+diff --git a/test/org/mockito/internal/invocation/InvocationMatcherTest.java b/test/org/mockito/internal/invocation/InvocationMatcherTest.java
+--- a/test/org/mockito/internal/invocation/InvocationMatcherTest.java
++++ b/test/org/mockito/internal/invocation/InvocationMatcherTest.java
+@@ -147,0 +143,11 @@
++    public void shouldMatchCaptureArgumentsWhenArgsCountDoesNOTMatch() throws Exception {
++        //given
++        mock.varargs();
++        Invocation invocation = getLastInvocation();
++
++        //when
++        InvocationMatcher invocationMatcher = new InvocationMatcher(invocation, (List) asList(new LocalizedMatcher(AnyVararg.ANY_VARARG)));
++
++        //then
++        invocationMatcher.captureArgumentsFrom(invocation);
++    }

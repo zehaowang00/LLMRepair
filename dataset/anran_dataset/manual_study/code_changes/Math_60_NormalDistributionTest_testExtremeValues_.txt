@@ -1,0 +1,208 @@
+commit 9054aac4b948117b838d6a5b15be1f50965d805a
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Tue Nov 30 06:55:22 2010
+
+    Modified NormalDistributionImpl.cumulativeProbability to return 0 or 1,
+    respectively for values more than 40 standard deviations from the mean.
+    For these values, the actual probability is indistinguishable from 0 or 1
+    as a double.  Top coding improves performance for extreme values and prevents
+    convergence exceptions.
+    
+    JIRA: MATH-414
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1040471 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/distribution/NormalDistributionTest.java b/src/test/java/org/apache/commons/math/distribution/NormalDistributionTest.java
+--- a/src/test/java/org/apache/commons/math/distribution/NormalDistributionTest.java
++++ b/src/test/java/org/apache/commons/math/distribution/NormalDistributionTest.java
+@@ -157,16 +157,24 @@
+     public void testExtremeValues() throws Exception {
+         NormalDistribution distribution = new NormalDistributionImpl(0, 1);
+-        for (int i = 0; i < 100; i+=5) { // make sure no convergence exception
++        for (int i = 0; i < 100; i++) { // make sure no convergence exception
+             double lowerTail = distribution.cumulativeProbability(-i);
+             double upperTail = distribution.cumulativeProbability(i);
+-            if (i < 10) { // make sure not top-coded
++            if (i < 9) { // make sure not top-coded 
++                // For i = 10, due to bad tail precision in erf (MATH-364), 1 is returned
++                // TODO: once MATH-364 is resolved, replace 9 with 30
+                 assertTrue(lowerTail > 0.0d);
+                 assertTrue(upperTail < 1.0d);
+             }
+             else { // make sure top coding not reversed
+                 assertTrue(lowerTail < 0.00001);
+                 assertTrue(upperTail > 0.99999);
+             }
+         }
++        
++        assertEquals(distribution.cumulativeProbability(Double.MAX_VALUE), 1, 0);
++        assertEquals(distribution.cumulativeProbability(-Double.MAX_VALUE), 0, 0);
++        assertEquals(distribution.cumulativeProbability(Double.POSITIVE_INFINITY), 1, 0);
++        assertEquals(distribution.cumulativeProbability(Double.NEGATIVE_INFINITY), 0, 0);
++        
+    }
+ 
+
+commit 38844d12e3c59b3c39acc8c00d7e1dbc52d84e25
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Tue Sep 28 08:38:09 2010
+
+    Removed deprecated code.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1002145 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/distribution/NormalDistributionTest.java b/src/test/java/org/apache/commons/math/distribution/NormalDistributionTest.java
+--- a/src/test/java/org/apache/commons/math/distribution/NormalDistributionTest.java
++++ b/src/test/java/org/apache/commons/math/distribution/NormalDistributionTest.java
+@@ -169,18 +157,16 @@
+     public void testExtremeValues() throws Exception {
+-        NormalDistribution distribution = (NormalDistribution) getDistribution();
+-        distribution.setMean(0);
+-        distribution.setStandardDeviation(1);
++        NormalDistribution distribution = new NormalDistributionImpl(0, 1);
+         for (int i = 0; i < 100; i+=5) { // make sure no convergence exception
+             double lowerTail = distribution.cumulativeProbability(-i);
+             double upperTail = distribution.cumulativeProbability(i);
+             if (i < 10) { // make sure not top-coded
+                 assertTrue(lowerTail > 0.0d);
+                 assertTrue(upperTail < 1.0d);
+             }
+             else { // make sure top coding not reversed
+                 assertTrue(lowerTail < 0.00001);
+                 assertTrue(upperTail > 0.99999);
+             }
+         }
+    }
+ 
+
+commit 26dac5a0e7fc9c6be9571b3e71a15d8502480d96
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sat Sep 5 13:36:48 2009
+
+    Removed trailing spaces.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@811685 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/distribution/NormalDistributionTest.java b/src/test/java/org/apache/commons/math/distribution/NormalDistributionTest.java
+--- a/src/test/java/org/apache/commons/math/distribution/NormalDistributionTest.java
++++ b/src/test/java/org/apache/commons/math/distribution/NormalDistributionTest.java
+@@ -149,18 +149,18 @@
+     public void testExtremeValues() throws Exception {
+         NormalDistribution distribution = (NormalDistribution) getDistribution();
+         distribution.setMean(0);
+         distribution.setStandardDeviation(1);
+         for (int i = 0; i < 100; i+=5) { // make sure no convergence exception
+             double lowerTail = distribution.cumulativeProbability(-i);
+             double upperTail = distribution.cumulativeProbability(i);
+             if (i < 10) { // make sure not top-coded
+                 assertTrue(lowerTail > 0.0d);
+                 assertTrue(upperTail < 1.0d);
+             }
+             else { // make sure top coding not reversed
+                 assertTrue(lowerTail < 0.00001);
+                 assertTrue(upperTail > 0.99999);
+             }
+-        } 
++        }
+    }
+ 
+
+commit 9be86f674f91fa3fe0a8694e7b98472dabe6886d
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Tue Jul 7 05:19:46 2009
+
+    fixed a bracketing issue due to inconsistent checks
+    JIRA: MATH-280
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@791766 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/distribution/NormalDistributionTest.java b/src/test/org/apache/commons/math/distribution/NormalDistributionTest.java
+--- a/src/test/org/apache/commons/math/distribution/NormalDistributionTest.java
++++ b/src/test/org/apache/commons/math/distribution/NormalDistributionTest.java
+@@ -147,17 +149,18 @@
+     public void testExtremeValues() throws Exception {
+         NormalDistribution distribution = (NormalDistribution) getDistribution();
+         distribution.setMean(0);
+         distribution.setStandardDeviation(1);
+         for (int i = 0; i < 100; i+=5) { // make sure no convergence exception
+             double lowerTail = distribution.cumulativeProbability(-i);
+             double upperTail = distribution.cumulativeProbability(i);
+             if (i < 10) { // make sure not top-coded
+                 assertTrue(lowerTail > 0.0d);
+                 assertTrue(upperTail < 1.0d);
+             }
+             else { // make sure top coding not reversed
+                 assertTrue(lowerTail < 0.00001);
+                 assertTrue(upperTail > 0.99999);
+             }
+         } 
+    }
++
+
+commit f62547e21e44294d295b6855bba9f388a3887176
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Sun Apr 5 12:55:59 2009
+
+    Remove unnecessary casts, unnecessary throws and unnecessary semi-colons
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@762118 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/distribution/NormalDistributionTest.java b/src/test/org/apache/commons/math/distribution/NormalDistributionTest.java
+--- a/src/test/org/apache/commons/math/distribution/NormalDistributionTest.java
++++ b/src/test/org/apache/commons/math/distribution/NormalDistributionTest.java
+@@ -147,17 +147,17 @@
+     public void testExtremeValues() throws Exception {
+         NormalDistribution distribution = (NormalDistribution) getDistribution();
+         distribution.setMean(0);
+         distribution.setStandardDeviation(1);
+         for (int i = 0; i < 100; i+=5) { // make sure no convergence exception
+-            double lowerTail = distribution.cumulativeProbability((double)-i);
+-            double upperTail = distribution.cumulativeProbability((double) i);
++            double lowerTail = distribution.cumulativeProbability(-i);
++            double upperTail = distribution.cumulativeProbability(i);
+             if (i < 10) { // make sure not top-coded
+                 assertTrue(lowerTail > 0.0d);
+                 assertTrue(upperTail < 1.0d);
+             }
+             else { // make sure top coding not reversed
+                 assertTrue(lowerTail < 0.00001);
+                 assertTrue(upperTail > 0.99999);
+             }
+         } 
+    }
+
+commit 4ce05bcd51ec956d789d20b59c743603d24a8ab7
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sat Jul 21 22:33:08 2007
+
+    Modified NormalDistributionImpl.cumulativeProbablity to catch
+    MaxIterationsExceededException and return 0 or 1, resp. if the argument
+    is more than 20 standard deviations from the mean.
+    
+    JIRA: MATH-167
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@558450 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/distribution/NormalDistributionTest.java b/src/test/org/apache/commons/math/distribution/NormalDistributionTest.java
+--- a/src/test/org/apache/commons/math/distribution/NormalDistributionTest.java
++++ b/src/test/org/apache/commons/math/distribution/NormalDistributionTest.java
+@@ -123,0 +128,17 @@
++    public void testExtremeValues() throws Exception {
++        NormalDistribution distribution = (NormalDistribution) getDistribution();
++        distribution.setMean(0);
++        distribution.setStandardDeviation(1);
++        for (int i = 0; i < 100; i+=5) { // make sure no convergence exception
++            double lowerTail = distribution.cumulativeProbability((double)-i);
++            double upperTail = distribution.cumulativeProbability((double) i);
++            if (i < 10) { // make sure not top-coded
++                assertTrue(lowerTail > 0.0d);
++                assertTrue(upperTail < 1.0d);
++            }
++            else { // make sure top coding not reversed
++                assertTrue(lowerTail < 0.00001);
++                assertTrue(upperTail > 0.99999);
++            }
++        } 
++   }

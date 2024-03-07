@@ -1,0 +1,24 @@
+commit 324b7f901b91614927926a5bab1d9e0e2325f018
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Thu Jun 17 03:57:38 2010
+
+    Fixed the bugs with the default options and the option groups (CLI-203 and CLI-204)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/trunk@955501 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/cli/OptionGroupTest.java b/src/test/java/org/apache/commons/cli/OptionGroupTest.java
+--- a/src/test/java/org/apache/commons/cli/OptionGroupTest.java
++++ b/src/test/java/org/apache/commons/cli/OptionGroupTest.java
+@@ -189,0 +191,12 @@
++    public void testTwoOptionsFromGroupWithProperties() throws Exception
++    {
++        String[] args = new String[] { "-f" };
++        
++        Properties properties = new Properties();
++        properties.put("d", "true");
++        
++        CommandLine cl = parser.parse( _options, args, properties);
++        assertTrue(cl.hasOption("f"));
++        assertTrue(!cl.hasOption("d"));
++    }
++

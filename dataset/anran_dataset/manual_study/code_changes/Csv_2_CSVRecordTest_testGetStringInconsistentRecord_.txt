@@ -1,0 +1,18 @@
+commit a0d975933d6fe9eb5f359088de43508c1d3109bf
+Author: Benedikt Ritter <britter@apache.org>
+Date:   Mon Apr 8 15:34:38 2013
+
+    [CSV-96] CSVRecord does not verify that the length of the header mapping matches the number of values - convert ArrayIndexOutOfBoundsException to IllegalArgumentException to give users a better feedback about what went wrong
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/csv/trunk@1465738 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVRecordTest.java b/src/test/java/org/apache/commons/csv/CSVRecordTest.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/csv/CSVRecordTest.java
+@@ -0,0 +67,6 @@
++    public void testGetStringInconsistentRecord() {
++        header.put("fourth", Integer.valueOf(4));
++        recordWithHeader.get("fourth");
++    }
++
++    @Test

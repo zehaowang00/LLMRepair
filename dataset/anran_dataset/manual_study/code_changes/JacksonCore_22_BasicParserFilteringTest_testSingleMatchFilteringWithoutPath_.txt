@@ -1,0 +1,45 @@
+commit 6feec20c842586056aa5b19c402b26be08c88ca3
+Author: Rafal Foltynski <r.foltynski@gmail.com>
+Date:   Sat Jun 3 23:32:03 2017
+
+    Fix #208: FilteringParserDelegate match count support
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java b/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
+--- a/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
++++ b/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
+@@ -81,10 +81,13 @@
+     public void testSingleMatchFilteringWithoutPath() throws Exception
+     {
+         JsonParser p0 = JSON_F.createParser(SIMPLE);
+-        JsonParser p = new FilteringParserDelegate(p0,
++        FilteringParserDelegate p = new FilteringParserDelegate(p0,
+                new NameMatchFilter("value"),
+                    false, // includePath
+                    false // multipleMatches
+                 );
+         String result = readAndWrite(JSON_F, p);
+         assertEquals(aposToQuotes("3"), result);
++        assertEquals(1, p.getMatchCount());
++    }
++
+
+commit e183d16b2f03c06217f221f57ac35b6001d74d3f
+Author: Cowtowncoder <tatu.saloranta@iki.fi>
+Date:   Wed Apr 29 19:05:00 2015
+
+    More testing for parser/filter comb
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java b/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
+@@ -0,0 +81,10 @@
++    public void testSingleMatchFilteringWithoutPath() throws Exception
++    {
++        JsonParser p0 = JSON_F.createParser(SIMPLE);
++        JsonParser p = new FilteringParserDelegate(p0,
++               new NameMatchFilter("value"),
++                   false, // includePath
++                   false // multipleMatches
++                );
++        String result = readAndWrite(JSON_F, p);
++        assertEquals(aposToQuotes("3"), result);

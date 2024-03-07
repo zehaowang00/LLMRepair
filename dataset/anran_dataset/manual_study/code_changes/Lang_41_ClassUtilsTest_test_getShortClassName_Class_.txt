@@ -1,0 +1,96 @@
+commit 4d3629f310e84cc24c0e5f09d97f5126692d0128
+Author: Henri Yandell <bayard@apache.org>
+Date:   Thu Oct 15 03:31:32 2009
+
+    Applying my patch from LANG-535 - adding support to getShortClassName and getPackageName for arrays, including primitive arrays and multi-dimensional arrays. Also stopped getPackageName relying on the underlying class.getPackage as it's sometimes null
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@825420 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/ClassUtilsTest.java b/src/test/org/apache/commons/lang/ClassUtilsTest.java
+--- a/src/test/org/apache/commons/lang/ClassUtilsTest.java
++++ b/src/test/org/apache/commons/lang/ClassUtilsTest.java
+@@ -91,6 +91,35 @@
+     public void test_getShortClassName_Class() {
+         assertEquals("ClassUtils", ClassUtils.getShortClassName(ClassUtils.class));
+         assertEquals("Map.Entry", ClassUtils.getShortClassName(Map.Entry.class));
+         assertEquals("", ClassUtils.getShortClassName((Class) null));
++
++        // LANG-535
++        assertEquals("String[]", ClassUtils.getShortClassName(String[].class));
++        assertEquals("Map.Entry[]", ClassUtils.getShortClassName(Map.Entry[].class));
++
++        // Primitives
++        assertEquals("boolean", ClassUtils.getShortClassName(boolean.class));
++        assertEquals("byte", ClassUtils.getShortClassName(byte.class));
++        assertEquals("char", ClassUtils.getShortClassName(char.class));
++        assertEquals("short", ClassUtils.getShortClassName(short.class));
++        assertEquals("int", ClassUtils.getShortClassName(int.class));
++        assertEquals("long", ClassUtils.getShortClassName(long.class));
++        assertEquals("float", ClassUtils.getShortClassName(float.class));
++        assertEquals("double", ClassUtils.getShortClassName(double.class));
++
++        // Primitive Arrays
++        assertEquals("boolean[]", ClassUtils.getShortClassName(boolean[].class));
++        assertEquals("byte[]", ClassUtils.getShortClassName(byte[].class));
++        assertEquals("char[]", ClassUtils.getShortClassName(char[].class));
++        assertEquals("short[]", ClassUtils.getShortClassName(short[].class));
++        assertEquals("int[]", ClassUtils.getShortClassName(int[].class));
++        assertEquals("long[]", ClassUtils.getShortClassName(long[].class));
++        assertEquals("float[]", ClassUtils.getShortClassName(float[].class));
++        assertEquals("double[]", ClassUtils.getShortClassName(double[].class));
++
++        // Arrays of arrays of ...
++        assertEquals("String[][]", ClassUtils.getShortClassName(String[][].class));
++        assertEquals("String[][][]", ClassUtils.getShortClassName(String[][][].class));
++        assertEquals("String[][][][]", ClassUtils.getShortClassName(String[][][][].class));
+     }
+     
+
+commit 296cf9fb940c094ce29ff6061ea5ff5cac4d23c0
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Wed Jun 30 14:33:58 2004
+
+    Bugzilla Bug 27877
+    [lang][patch] Make ClassUtils methods null-safe and not throw an IAE.
+    http://issues.apache.org/bugzilla/show_bug.cgi?id=27877
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137858 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/ClassUtilsTest.java b/src/test/org/apache/commons/lang/ClassUtilsTest.java
+--- a/src/test/org/apache/commons/lang/ClassUtilsTest.java
++++ b/src/test/org/apache/commons/lang/ClassUtilsTest.java
+@@ -83,9 +83,6 @@
+     public void test_getShortClassName_Class() {
+         assertEquals("ClassUtils", ClassUtils.getShortClassName(ClassUtils.class));
+         assertEquals("Map.Entry", ClassUtils.getShortClassName(Map.Entry.class));
+-        try {
+-            ClassUtils.getShortClassName((Class) null);
+-            fail();
+-        } catch (IllegalArgumentException ex) {}
++        assertEquals("", ClassUtils.getShortClassName((Class) null));
+     }
+     
+
+commit d3bf7856993f7b1f7b7aa9647b0c8f5f2efbdf03
+Author: Stephen Colebourne <scolebourne@apache.org>
+Date:   Sun Dec 15 14:36:08 2002
+
+    Test the ClassUtils class
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137187 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/ClassUtilsTest.java b/src/test/org/apache/commons/lang/ClassUtilsTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/lang/ClassUtilsTest.java
+@@ -0,0 +105,9 @@
++    public void test_getShortClassName_Class() {
++        assertEquals("ClassUtils", ClassUtils.getShortClassName(ClassUtils.class));
++        assertEquals("Map.Entry", ClassUtils.getShortClassName(Map.Entry.class));
++        try {
++            ClassUtils.getShortClassName((Class) null);
++            fail();
++        } catch (IllegalArgumentException ex) {}
++    }
++    

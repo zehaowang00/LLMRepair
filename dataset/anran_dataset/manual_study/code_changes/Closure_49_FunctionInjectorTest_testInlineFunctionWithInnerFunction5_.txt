@@ -1,0 +1,225 @@
+commit 1a7ba5cb0111dd3ed9afd9691cab39b3c341e408
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Nov 3 17:10:49 2011
+
+    Modify normalization to distinguish function expression names from
+    parameters and local variables.
+    Fixes issue 539.
+    
+    R=nicksantos
+    DELTA=246  (61 added, 11 deleted, 174 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3615
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1552 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/FunctionInjectorTest.java b/test/com/google/javascript/jscomp/FunctionInjectorTest.java
+--- a/test/com/google/javascript/jscomp/FunctionInjectorTest.java
++++ b/test/com/google/javascript/jscomp/FunctionInjectorTest.java
+@@ -1023,10 +1023,10 @@
+   public void testInlineFunctionWithInnerFunction5() {
+     // Call with inner function statement.
+     helperInlineReferenceToFunction(
+         "function foo(){function x() {var a; return true;} return x}; foo();",
+         "function foo(){function x(){var a;return true}return x};" +
+-            "{var x$$inline_1 = function(){" +
+-            "var a$$inline_2;return true};x$$inline_1}",
++            "{var x$$inline_0 = function(){" +
++            "var a$$inline_1;return true};x$$inline_0}",
+         "foo", INLINE_BLOCK);
+   }
+ 
+
+commit 869c65d5c43d96526d90c7ea9a186df9edd67eb0
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Aug 19 14:37:39 2011
+
+    Automated g4 rollback.
+    
+    *** Reason for rollback ***
+    
+    Be less aggressive about inlining functions contains inner function
+    (go back to limiting this to global scope).
+    From the the original change:
+    
+    Tweaks to function inlining:
+    - an unnamed function expression containing a inner unnamed function
+    expression should not be disallow because the names are the same.
+    - a caller that contains the function definition to be inlined
+    should not consider the candidate to be a capturing function.
+    - allow inlining a function containing an inner function that
+    references arguments.
+    - disallow inlining a function into a function containing
+    eval if intoducing names.
+    - when inlining a function containing a function declaration, rewrite
+    it a var declarations and function expressions to avoid introducing
+    function declaraions into contexts disallowed by ES5 strict.
+    
+    *** Original change description ***
+    
+    Automated g4 rollback of changelist 23059472.
+    
+    *** Reason for rollback ***
+    
+    Breaks things
+    
+    R=acleung
+    DELTA=149  (127 added, 0 deleted, 22 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3079
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1368 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/FunctionInjectorTest.java b/test/com/google/javascript/jscomp/FunctionInjectorTest.java
+--- a/test/com/google/javascript/jscomp/FunctionInjectorTest.java
++++ b/test/com/google/javascript/jscomp/FunctionInjectorTest.java
+@@ -1001,9 +1001,10 @@
+   public void testInlineFunctionWithInnerFunction5() {
+     // Call with inner function statement.
+     helperInlineReferenceToFunction(
+         "function foo(){function x() {var a; return true;} return x}; foo();",
+         "function foo(){function x(){var a;return true}return x};" +
+-            "{function x$$inline_1(){var a$$inline_2;return true}x$$inline_1}",
++            "{var x$$inline_1 = function(){" +
++            "var a$$inline_2;return true};x$$inline_1}",
+         "foo", INLINE_BLOCK);
+   }
+ 
+
+commit 43cece8ccf72521faa04fc79fddfc5f7d661a787
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Aug 8 17:51:25 2011
+
+    Automated g4 rollback.
+    
+    *** Reason for rollback ***
+    
+    Breaks tests
+    
+    *** Original change description ***
+    
+    Tweaks to function inlining:
+    - an unnamed function expression containing a inner unnamed function
+    expression should not be disallow because the names are the same.
+    - a caller that only contains the function definition to be inlined should
+    not consider the candidate to be a capturing function.
+    - allow inlining a function containing an inner function that
+    references arguments.
+    - disallow inlining a function into a function containing eval.
+    - when inlining a function containing a function dec
+    
+    ... description truncated by g4 rollback ...
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=2930
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1339 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/FunctionInjectorTest.java b/test/com/google/javascript/jscomp/FunctionInjectorTest.java
+--- a/test/com/google/javascript/jscomp/FunctionInjectorTest.java
++++ b/test/com/google/javascript/jscomp/FunctionInjectorTest.java
+@@ -1001,10 +1001,9 @@
+   public void testInlineFunctionWithInnerFunction5() {
+     // Call with inner function statement.
+     helperInlineReferenceToFunction(
+         "function foo(){function x() {var a; return true;} return x}; foo();",
+         "function foo(){function x(){var a;return true}return x};" +
+-            "{var x$$inline_1 = function(){" +
+-            "var a$$inline_2;return true};x$$inline_1}",
++            "{function x$$inline_1(){var a$$inline_2;return true}x$$inline_1}",
+         "foo", INLINE_BLOCK);
+   }
+ 
+
+commit 0b05c26eefae171f9b4d0e1f8eba4249088207fa
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Aug 8 17:03:18 2011
+
+    Tweaks to function inlining:
+    - an unnamed function expression containing a inner unnamed function
+    expression should not be disallow because the names are the same.
+    - a caller that only contains the function definition to be inlined should
+    not consider the candidate to be a capturing function.
+    - allow inlining a function containing an inner function that
+    references arguments.
+    - disallow inlining a function into a function containing eval.
+    - when inlining a function containing a function declaration, rewrite
+    it a var declarations and function expressions to avoid introducing
+    function declaraions into contexts disallowed by ES5 strict.
+    
+    R=acleung
+    DELTA=228  (182 added, 14 deleted, 32 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=2929
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1338 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/FunctionInjectorTest.java b/test/com/google/javascript/jscomp/FunctionInjectorTest.java
+--- a/test/com/google/javascript/jscomp/FunctionInjectorTest.java
++++ b/test/com/google/javascript/jscomp/FunctionInjectorTest.java
+@@ -1001,9 +1001,10 @@
+   public void testInlineFunctionWithInnerFunction5() {
+     // Call with inner function statement.
+     helperInlineReferenceToFunction(
+         "function foo(){function x() {var a; return true;} return x}; foo();",
+         "function foo(){function x(){var a;return true}return x};" +
+-            "{function x$$inline_1(){var a$$inline_2;return true}x$$inline_1}",
++            "{var x$$inline_1 = function(){" +
++            "var a$$inline_2;return true};x$$inline_1}",
+         "foo", INLINE_BLOCK);
+   }
+ 
+
+commit b4801b28ceea8db0f63da7440d6769cb9b7cce8a
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Sat May 29 16:07:02 2010
+
+    Change on 2010/05/28 by johnlenz
+    
+            Inline functions with inner functions into global scope if they don't
+            declare any names.
+    
+            R=acleung
+            DELTA=329  (244 added, 27 deleted, 58 changed)
+    
+    Change on 2010/05/28 by dcc
+    
+            First pass on refactoring FoldConstants into separate peephole optimizations. This changelist adds the notion of an AbstractPeepholeOptimization and adds a PeepholeOptimizationsPass that runs them. In this go around the minimization aspects of FoldConstants have been factored out into PeepholeMinimize. A future change will factor out the other components of FoldConstants into their own PeepholeOptimizations. DefaultPassConfig has also been updated to run the new PeepholeOptimizationPass.
+    
+            This change does not move the minimization-related unit tests from FoldConstantsTest to PeepholeMinimizeTest -- a future, separate, change will do so. Hopefully this will make it easier to review.
+    
+            R=acleung
+            DELTA=1966  (1271 added, 675 deleted, 20 changed)
+    
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=13010
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@235 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/FunctionInjectorTest.java b/test/com/google/javascript/jscomp/FunctionInjectorTest.java
+--- a/test/com/google/javascript/jscomp/FunctionInjectorTest.java
++++ b/test/com/google/javascript/jscomp/FunctionInjectorTest.java
+@@ -877,0 +963,9 @@
++  public void testInlineFunctionWithInnerFunction5() {
++    // Call with inner function statement.
++    helperInlineReferenceToFunction(
++        "function foo(){function x() {var a; return true;} return x}; foo();",
++        "function foo(){function x(){var a;return true}return x};" +
++            "{function x$$inline_1(){var a$$inline_2;return true}x$$inline_1}",
++        "foo", INLINE_BLOCK);
++  }
++

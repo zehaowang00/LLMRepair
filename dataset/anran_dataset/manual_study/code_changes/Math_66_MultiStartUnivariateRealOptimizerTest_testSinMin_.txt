@@ -1,0 +1,144 @@
+commit 76fcbc838c0f27d9b029c1f283390cb4f47f8895
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Wed Jul 28 08:03:41 2010
+
+    MATH-395: Another bug uncovered; all things being equal, the code now behaves
+    like the Puthon implementation.
+    MATH-397: Modified "BrentOptimizer" following the changes in
+    "AbstractUnivariateRealOptimizer".
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@980032 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java b/src/test/java/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
+@@ -35,21 +35,21 @@
+     public void testSinMin() throws MathException {
+         UnivariateRealFunction f = new SinFunction();
+         UnivariateRealOptimizer underlying = new BrentOptimizer();
+         JDKRandomGenerator g = new JDKRandomGenerator();
+         g.setSeed(44428400075l);
+         MultiStartUnivariateRealOptimizer minimizer =
+             new MultiStartUnivariateRealOptimizer(underlying, 10, g);
+         minimizer.optimize(f, GoalType.MINIMIZE, -100.0, 100.0);
+         double[] optima = minimizer.getOptima();
+         double[] optimaValues = minimizer.getOptimaValues();
+         for (int i = 1; i < optima.length; ++i) {
+             double d = (optima[i] - optima[i-1]) / (2 * Math.PI);
+             assertTrue (Math.abs(d - Math.rint(d)) < 1.0e-8);
+             assertEquals(-1.0, f.value(optima[i]), 1.0e-10);
+             assertEquals(f.value(optima[i]), optimaValues[i], 1.0e-10);
+         }
+-        assertTrue(minimizer.getEvaluations() > 1500);
+-        assertTrue(minimizer.getEvaluations() < 1700);
++        assertTrue(minimizer.getEvaluations() > 150);
++        assertTrue(minimizer.getEvaluations() < 250);
+     }
+ 
+     @Test
+
+commit 65c7c9697457b326f149555166f0e2aae192a609
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Mon Jul 26 08:17:45 2010
+
+    Fixed bugs in "BrentOptimizer".
+    Renamed "BrentMinimizerTest" to "BrentOptimizerTest".
+    Modified "MultiStartUnivariateRealOptimizerTest" because it uses
+    "BrentOptimizer" as the underlying optimizer, and so was affected
+    by the changes.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@979257 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java b/src/test/java/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
+@@ -35,21 +35,21 @@
+     public void testSinMin() throws MathException {
+         UnivariateRealFunction f = new SinFunction();
+         UnivariateRealOptimizer underlying = new BrentOptimizer();
+         JDKRandomGenerator g = new JDKRandomGenerator();
+         g.setSeed(44428400075l);
+         MultiStartUnivariateRealOptimizer minimizer =
+             new MultiStartUnivariateRealOptimizer(underlying, 10, g);
+         minimizer.optimize(f, GoalType.MINIMIZE, -100.0, 100.0);
+         double[] optima = minimizer.getOptima();
+         double[] optimaValues = minimizer.getOptimaValues();
+         for (int i = 1; i < optima.length; ++i) {
+             double d = (optima[i] - optima[i-1]) / (2 * Math.PI);
+             assertTrue (Math.abs(d - Math.rint(d)) < 1.0e-8);
+             assertEquals(-1.0, f.value(optima[i]), 1.0e-10);
+             assertEquals(f.value(optima[i]), optimaValues[i], 1.0e-10);
+         }
+-        assertTrue(minimizer.getEvaluations() > 2900);
+-        assertTrue(minimizer.getEvaluations() < 3100);
++        assertTrue(minimizer.getEvaluations() > 1500);
++        assertTrue(minimizer.getEvaluations() < 1700);
+     }
+ 
+     @Test
+
+commit c01ea628aa6e1c91a7c92aa3280f0f163389c407
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sat Jul 25 12:14:42 2009
+
+    added tests for recent changes
+    improved coverage
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@797787 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java b/src/test/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
+--- a/src/test/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
++++ b/src/test/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
+@@ -33,16 +35,21 @@
+     public void testSinMin() throws MathException {
+         UnivariateRealFunction f = new SinFunction();
+         UnivariateRealOptimizer underlying = new BrentOptimizer();
+         JDKRandomGenerator g = new JDKRandomGenerator();
+         g.setSeed(44428400075l);
+         MultiStartUnivariateRealOptimizer minimizer =
+             new MultiStartUnivariateRealOptimizer(underlying, 10, g);
+         minimizer.optimize(f, GoalType.MINIMIZE, -100.0, 100.0);
+         double[] optima = minimizer.getOptima();
++        double[] optimaValues = minimizer.getOptimaValues();
+         for (int i = 1; i < optima.length; ++i) {
+             double d = (optima[i] - optima[i-1]) / (2 * Math.PI);
+             assertTrue (Math.abs(d - Math.rint(d)) < 1.0e-8);
+             assertEquals(-1.0, f.value(optima[i]), 1.0e-10);
++            assertEquals(f.value(optima[i]), optimaValues[i], 1.0e-10);
+         }
+         assertTrue(minimizer.getEvaluations() > 2900);
+         assertTrue(minimizer.getEvaluations() < 3100);
++    }
++
++    @Test
+
+commit 9e94c3d8836a01ea93653eb92b1f7a8d2089ab79
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sun Jul 19 16:05:34 2009
+
+    added new tests for multistart optimizers
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@795608 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java b/src/test/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
+@@ -0,0 +33,16 @@
++    public void testSinMin() throws MathException {
++        UnivariateRealFunction f = new SinFunction();
++        UnivariateRealOptimizer underlying = new BrentOptimizer();
++        JDKRandomGenerator g = new JDKRandomGenerator();
++        g.setSeed(44428400075l);
++        MultiStartUnivariateRealOptimizer minimizer =
++            new MultiStartUnivariateRealOptimizer(underlying, 10, g);
++        minimizer.optimize(f, GoalType.MINIMIZE, -100.0, 100.0);
++        double[] optima = minimizer.getOptima();
++        for (int i = 1; i < optima.length; ++i) {
++            double d = (optima[i] - optima[i-1]) / (2 * Math.PI);
++            assertTrue (Math.abs(d - Math.rint(d)) < 1.0e-8);
++            assertEquals(-1.0, f.value(optima[i]), 1.0e-10);
++        }
++        assertTrue(minimizer.getEvaluations() > 2900);
++        assertTrue(minimizer.getEvaluations() < 3100);

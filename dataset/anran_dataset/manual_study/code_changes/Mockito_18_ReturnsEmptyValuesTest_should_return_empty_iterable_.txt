@@ -1,0 +1,463 @@
+commit 8ceb04ad7317d8db24476b3b5f56ec9f658bc43a
+Author: Brice Dutheil <brice.dutheil@gmail.com>
+Date:   Wed Jun 3 10:01:52 2015
+
+    Adds empty iterable as a new empty value #210
+
+diff --git a/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java b/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java
+--- a/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java
++++ b/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java
+@@ -43,38 +56,42 @@
++    public void should_return_empty_iterable() throws Exception {
++        assertFalse(((Iterable) values.returnValueFor(Iterable.class)).iterator().hasNext());
++    }
++
+     @Test public void should_return_primitive() {
+         assertEquals(false, values.returnValueFor(Boolean.TYPE));
+         assertEquals((char) 0, values.returnValueFor(Character.TYPE));
+         assertEquals((byte) 0, values.returnValueFor(Byte.TYPE));
+         assertEquals((short) 0, values.returnValueFor(Short.TYPE));
+         assertEquals(0, values.returnValueFor(Integer.TYPE));
+         assertEquals(0L, values.returnValueFor(Long.TYPE));
+         assertEquals(0F, values.returnValueFor(Float.TYPE));
+         assertEquals(0D, values.returnValueFor(Double.TYPE));
+     }
+ 
+     @Test public void should_return_non_zero_for_compareTo_method() {
+         //given
+         Date d = mock(Date.class);
+         d.compareTo(new Date());
+         Invocation compareTo = this.getLastInvocation();
+ 
+         //when
+         Object result = values.answer(compareTo);
+         
+         //then
+         assertTrue(result != (Object) 0);
+     }
+ 
+     @Test public void should_return_zero_if_mock_is_compared_to_itself() {
+         //given
+         Date d = mock(Date.class);
+         d.compareTo(d);
+         Invocation compareTo = this.getLastInvocation();
+ 
+         //when
+         Object result = values.answer(compareTo);
+ 
+         //then
+         assertEquals(0, result);
+     }
+ 
+ }
+
+commit bdaf58a4422e2b26c4c0a7e5e223570489e7c5d0
+Author: alberski <alberskib@gmail.com>
+Date:   Wed Jan 8 07:49:10 2014
+
+    [#467] Rename test
+    Name of test that checks whether compareTo return 0 for comparison mock with itself is now more intuitive
+
+diff --git a/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java b/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java
+--- a/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java
++++ b/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java
+@@ -43,38 +43,38 @@
+     @Test public void should_return_primitive() {
+         assertEquals(false, values.returnValueFor(Boolean.TYPE));
+         assertEquals((char) 0, values.returnValueFor(Character.TYPE));
+         assertEquals((byte) 0, values.returnValueFor(Byte.TYPE));
+         assertEquals((short) 0, values.returnValueFor(Short.TYPE));
+         assertEquals(0, values.returnValueFor(Integer.TYPE));
+         assertEquals(0L, values.returnValueFor(Long.TYPE));
+         assertEquals(0F, values.returnValueFor(Float.TYPE));
+         assertEquals(0D, values.returnValueFor(Double.TYPE));
+     }
+ 
+     @Test public void should_return_non_zero_for_compareTo_method() {
+         //given
+         Date d = mock(Date.class);
+         d.compareTo(new Date());
+         Invocation compareTo = this.getLastInvocation();
+ 
+         //when
+         Object result = values.answer(compareTo);
+         
+         //then
+         assertTrue(result != (Object) 0);
+     }
+ 
+-    @Test public void should_return_zero_for_compareTo_method() {
++    @Test public void should_return_zero_if_mock_is_compared_to_itself() {
+         //given
+         Date d = mock(Date.class);
+         d.compareTo(d);
+         Invocation compareTo = this.getLastInvocation();
+ 
+         //when
+         Object result = values.answer(compareTo);
+ 
+         //then
+         assertEquals(0, result);
+     }
+ 
+ }
+
+commit a0519165bd79442d6d520615c70ad761cca9cb45
+Author: alberski <alberskib@gmail.com>
+Date:   Tue Jan 7 18:55:29 2014
+
+    [#467] change return value of compareTo for the same object
+
+diff --git a/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java b/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java
+--- a/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java
++++ b/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java
+@@ -43,25 +43,38 @@
+     @Test public void should_return_primitive() {
+         assertEquals(false, values.returnValueFor(Boolean.TYPE));
+         assertEquals((char) 0, values.returnValueFor(Character.TYPE));
+         assertEquals((byte) 0, values.returnValueFor(Byte.TYPE));
+         assertEquals((short) 0, values.returnValueFor(Short.TYPE));
+         assertEquals(0, values.returnValueFor(Integer.TYPE));
+         assertEquals(0L, values.returnValueFor(Long.TYPE));
+         assertEquals(0F, values.returnValueFor(Float.TYPE));
+         assertEquals(0D, values.returnValueFor(Double.TYPE));
+     }
+ 
+     @Test public void should_return_non_zero_for_compareTo_method() {
+         //given
+         Date d = mock(Date.class);
+         d.compareTo(new Date());
+         Invocation compareTo = this.getLastInvocation();
+ 
+         //when
+         Object result = values.answer(compareTo);
+         
+         //then
+         assertTrue(result != (Object) 0);
+     }
+ 
++    @Test public void should_return_zero_for_compareTo_method() {
++        //given
++        Date d = mock(Date.class);
++        d.compareTo(d);
++        Invocation compareTo = this.getLastInvocation();
++
++        //when
++        Object result = values.answer(compareTo);
++
++        //then
++        assertEquals(0, result);
++    }
++
+ }
+
+commit af44738c7de74f24e37ea0c1242e73b07c3f4362
+Author: Brice Dutheil <brice.dutheil@gmail.com>
+Date:   Sat Jun 30 09:06:31 2012
+
+    issue 352 : With answer ReturnsEmptyValues, Mockito-mocked methods returning primitive types other than "int" throw ClassCastException: java.lang.Integer.
+    Thanks to Jesse Wilson for spotting that one and providing a patch.
+    I changed a few things however  especially:
+     - used Primitives utility class instead
+     - applied underscored names for test cases, as decided internally
+
+diff --git a/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java b/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java
+--- a/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java
++++ b/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java
+@@ -43,25 +43,25 @@
+-    @Test public void shouldReturnPrimitive() {
++    @Test public void should_return_primitive() {
+         assertEquals(false, values.returnValueFor(Boolean.TYPE));
+         assertEquals((char) 0, values.returnValueFor(Character.TYPE));
+-        assertEquals(0, values.returnValueFor(Byte.TYPE));
+-        assertEquals(0, values.returnValueFor(Short.TYPE));
++        assertEquals((byte) 0, values.returnValueFor(Byte.TYPE));
++        assertEquals((short) 0, values.returnValueFor(Short.TYPE));
+         assertEquals(0, values.returnValueFor(Integer.TYPE));
+-        assertEquals(0, values.returnValueFor(Long.TYPE));
+-        assertEquals(0, values.returnValueFor(Float.TYPE));
+-        assertEquals(0, values.returnValueFor(Double.TYPE));
++        assertEquals(0L, values.returnValueFor(Long.TYPE));
++        assertEquals(0F, values.returnValueFor(Float.TYPE));
++        assertEquals(0D, values.returnValueFor(Double.TYPE));
+     }
+ 
+-    @Test public void shouldReturnNonZeroForCompareToMethod() {
++    @Test public void should_return_non_zero_for_compareTo_method() {
+         //given
+         Date d = mock(Date.class);
+         d.compareTo(new Date());
+         Invocation compareTo = this.getLastInvocation();
+ 
+         //when
+         Object result = values.answer(compareTo);
+         
+         //then
+         assertTrue(result != (Object) 0);
+     }
+ 
+ }
+
+commit 60f0c0c767879989d40d7846054cfc1df64e76af
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sat Mar 31 18:12:10 2012
+
+    Started using the new Invocation interface where possible.
+
+diff --git a/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java b/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java
+--- a/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java
++++ b/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java
+@@ -43,25 +43,25 @@
+     @Test public void shouldReturnPrimitive() {
+         assertEquals(false, values.returnValueFor(Boolean.TYPE));
+         assertEquals((char) 0, values.returnValueFor(Character.TYPE));
+         assertEquals(0, values.returnValueFor(Byte.TYPE));
+         assertEquals(0, values.returnValueFor(Short.TYPE));
+         assertEquals(0, values.returnValueFor(Integer.TYPE));
+         assertEquals(0, values.returnValueFor(Long.TYPE));
+         assertEquals(0, values.returnValueFor(Float.TYPE));
+         assertEquals(0, values.returnValueFor(Double.TYPE));
+     }
+ 
+     @Test public void shouldReturnNonZeroForCompareToMethod() {
+         //given
+         Date d = mock(Date.class);
+         d.compareTo(new Date());
+-        InvocationImpl compareTo = this.getLastInvocation();
++        Invocation compareTo = this.getLastInvocation();
+ 
+         //when
+         Object result = values.answer(compareTo);
+         
+         //then
+         assertTrue(result != (Object) 0);
+     }
+ 
+ }
+
+commit a99d63b477bac80720fa25214ef7c3eb73576627
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sat Mar 31 18:10:06 2012
+
+    Renamed Invocation -> InvocationImpl before using the interface type where possible...
+    
+    --HG--
+    rename : src/org/mockito/internal/invocation/Invocation.java => src/org/mockito/internal/invocation/InvocationImpl.java
+
+diff --git a/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java b/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java
+--- a/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java
++++ b/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java
+@@ -43,25 +43,25 @@
+     @Test public void shouldReturnPrimitive() {
+         assertEquals(false, values.returnValueFor(Boolean.TYPE));
+         assertEquals((char) 0, values.returnValueFor(Character.TYPE));
+         assertEquals(0, values.returnValueFor(Byte.TYPE));
+         assertEquals(0, values.returnValueFor(Short.TYPE));
+         assertEquals(0, values.returnValueFor(Integer.TYPE));
+         assertEquals(0, values.returnValueFor(Long.TYPE));
+         assertEquals(0, values.returnValueFor(Float.TYPE));
+         assertEquals(0, values.returnValueFor(Double.TYPE));
+     }
+ 
+     @Test public void shouldReturnNonZeroForCompareToMethod() {
+         //given
+         Date d = mock(Date.class);
+         d.compareTo(new Date());
+-        Invocation compareTo = this.getLastInvocation();
++        InvocationImpl compareTo = this.getLastInvocation();
+ 
+         //when
+         Object result = values.answer(compareTo);
+         
+         //then
+         assertTrue(result != (Object) 0);
+     }
+ 
+ }
+
+commit db1c0c1f6eae25857faa9b503e004d3d06c00867
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sun Oct 31 18:53:34 2010
+
+    Issue 184.
+    If mock implements Comparable the compareTo() method should not return 0
+    Requires also documentation update
+    
+    --HG--
+    rename : test/org/mockitousage/bugs/ShouldAllowInlineMockCreationTest.java => test/org/mockitousage/bugs/ShouldMocksCompareToBeConsistentWithEqualsTest.java
+
+diff --git a/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java b/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java
+--- a/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java
++++ b/test/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValuesTest.java
+@@ -52,13 +42,25 @@
+     @Test public void shouldReturnPrimitive() {
+-        ReturnsEmptyValues values = new ReturnsEmptyValues();
+-        
+         assertEquals(false, values.returnValueFor(Boolean.TYPE));
+         assertEquals((char) 0, values.returnValueFor(Character.TYPE));
+         assertEquals(0, values.returnValueFor(Byte.TYPE));
+         assertEquals(0, values.returnValueFor(Short.TYPE));
+         assertEquals(0, values.returnValueFor(Integer.TYPE));
+         assertEquals(0, values.returnValueFor(Long.TYPE));
+         assertEquals(0, values.returnValueFor(Float.TYPE));
+         assertEquals(0, values.returnValueFor(Double.TYPE));
+     }
++
++    @Test public void shouldReturnNonZeroForCompareToMethod() {
++        //given
++        Date d = mock(Date.class);
++        d.compareTo(new Date());
++        Invocation compareTo = this.getLastInvocation();
++
++        //when
++        Object result = values.answer(compareTo);
++        
++        //then
++        assertTrue(result != (Object) 0);
++    }
++
+ }
+
+commit f375e673e52ebb2d3319182e2c65a2debe1805fd
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Fri May 22 17:31:48 2009
+
+    Renamed ReturnValues into Answers
+    
+    --HG--
+    rename : src/org/mockito/internal/returnvalues/GloballyConfiguredReturnValues.java => src/org/mockito/internal/returnvalues/GloballyConfiguredAnswer.java
+    rename : src/org/mockito/internal/returnvalues/EmptyReturnValues.java => src/org/mockito/internal/returnvalues/ReturnsEmptyValues.java
+    rename : src/org/mockito/internal/returnvalues/MockReturnValues.java => src/org/mockito/internal/returnvalues/ReturnsMocks.java
+    rename : src/org/mockito/internal/returnvalues/MoreEmptyReturnValues.java => src/org/mockito/internal/returnvalues/ReturnsMoreEmptyValues.java
+    rename : src/org/mockito/internal/returnvalues/SmartNullReturnValues.java => src/org/mockito/internal/returnvalues/ReturnsSmartNulls.java
+    rename : test/org/mockito/internal/returnvalues/EmptyReturnValuesTest.java => test/org/mockito/internal/returnvalues/ReturnsEmptyValuesTest.java
+    rename : test/org/mockito/internal/returnvalues/MockReturnValuesTest.java => test/org/mockito/internal/returnvalues/ReturnsMocksTest.java
+    rename : test/org/mockito/internal/returnvalues/MoreEmptyReturnValuesTest.java => test/org/mockito/internal/returnvalues/ReturnsMoreEmptyValuesTest.java
+    rename : test/org/mockito/internal/returnvalues/SmartNullReturnValuesTest.java => test/org/mockito/internal/returnvalues/ReturnsSmartNullsTest.java
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401447
+
+diff --git a/test/org/mockito/internal/returnvalues/EmptyReturnValuesTest.java b/test/org/mockito/internal/returnvalues/ReturnsEmptyValuesTest.java
+--- a/test/org/mockito/internal/returnvalues/EmptyReturnValuesTest.java
++++ b/test/org/mockito/internal/returnvalues/ReturnsEmptyValuesTest.java
+@@ -52,13 +52,13 @@
+     @Test public void shouldReturnPrimitive() {
+-        EmptyReturnValues values = new EmptyReturnValues();
++        ReturnsEmptyValues values = new ReturnsEmptyValues();
+         
+         assertEquals(false, values.returnValueFor(Boolean.TYPE));
+         assertEquals((char) 0, values.returnValueFor(Character.TYPE));
+         assertEquals(0, values.returnValueFor(Byte.TYPE));
+         assertEquals(0, values.returnValueFor(Short.TYPE));
+         assertEquals(0, values.returnValueFor(Integer.TYPE));
+         assertEquals(0, values.returnValueFor(Long.TYPE));
+         assertEquals(0, values.returnValueFor(Float.TYPE));
+         assertEquals(0, values.returnValueFor(Double.TYPE));
+     }
+ }
+
+commit 863efe6ab9d3afc6c7590b00bc56ef9fcaef4f1b
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Fri Jan 9 18:29:02 2009
+
+    mean check-in coz I was off-line
+    some refactorings/rename jobs around
+    added javadocs about SmartNulls
+    
+    --HG--
+    rename : src/org/mockito/runners/ExperimentalMockitoJUnitRunner.java => src/org/junit/mockito/ExperimentalMockitoJUnitRunner.java
+    rename : src/org/mockito/internal/progress/EmptyReturnValues.java => src/org/mockito/internal/progress/HandyReturnValues.java
+    rename : test/org/mockito/runners/ExperimentalMockitoJUnitRunnerTest.java => test/org/junit/mockito/ExperimentalMockitoJUnitRunnerTest.java
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401136
+
+diff --git a/test/org/mockito/internal/configuration/DefaultReturnValuesTest.java b/test/org/mockito/internal/returnvalues/EmptyReturnValuesTest.java
+--- a/test/org/mockito/internal/configuration/DefaultReturnValuesTest.java
++++ b/test/org/mockito/internal/returnvalues/EmptyReturnValuesTest.java
+@@ -52,13 +52,13 @@
+     @Test public void shouldReturnPrimitive() {
+-        DefaultReturnValues values = new DefaultReturnValues();
++        EmptyReturnValues values = new EmptyReturnValues();
+         
+         assertEquals(false, values.returnValueFor(Boolean.TYPE));
+         assertEquals((char) 0, values.returnValueFor(Character.TYPE));
+         assertEquals(0, values.returnValueFor(Byte.TYPE));
+         assertEquals(0, values.returnValueFor(Short.TYPE));
+         assertEquals(0, values.returnValueFor(Integer.TYPE));
+         assertEquals(0, values.returnValueFor(Long.TYPE));
+         assertEquals(0, values.returnValueFor(Float.TYPE));
+         assertEquals(0, values.returnValueFor(Double.TYPE));
+     }
+ }
+
+commit 2aed41e05ce13fcea277944b7b7b772a62eed848
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Mon Apr 7 09:05:29 2008
+
+    massive checkin (worked in the plane :DDDD)
+    -added javdoc for examples how to configure mockito
+    -annotation style of creating mocks has additional benefit now: it uses the name of the field to print verification errors.
+    -refactored the rest of matchers to assertors
+    
+    --HG--
+    rename : src/org/mockito/internal/creation/MockNamer.java => src/org/mockito/internal/creation/ClassNameFinder.java
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%40531
+
+diff --git a/test/org/mockito/configuration/DefaultReturnValuesTest.java b/test/org/mockito/configuration/DefaultReturnValuesTest.java
+--- a/test/org/mockito/configuration/DefaultReturnValuesTest.java
++++ b/test/org/mockito/configuration/DefaultReturnValuesTest.java
+@@ -52,12 +52,13 @@
+     @Test public void shouldReturnPrimitive() {
+         DefaultReturnValues values = new DefaultReturnValues();
+         
+         assertEquals(false, values.returnValueFor(Boolean.TYPE));
+         assertEquals((char) 0, values.returnValueFor(Character.TYPE));
++        assertEquals(0, values.returnValueFor(Byte.TYPE));
+         assertEquals(0, values.returnValueFor(Short.TYPE));
+         assertEquals(0, values.returnValueFor(Integer.TYPE));
+         assertEquals(0, values.returnValueFor(Long.TYPE));
+         assertEquals(0, values.returnValueFor(Float.TYPE));
+         assertEquals(0, values.returnValueFor(Double.TYPE));
+     }
+ }
+
+commit 0bbd22652616182d55949c1dacabb6bcff04d901
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Wed Apr 2 19:02:44 2008
+
+    fixed problem related to returning primitives
+    fixed one configuration example
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%40528
+
+diff --git a/test/org/mockito/configuration/DefaultReturnValuesTest.java b/test/org/mockito/configuration/DefaultReturnValuesTest.java
+--- a/test/org/mockito/configuration/DefaultReturnValuesTest.java
++++ b/test/org/mockito/configuration/DefaultReturnValuesTest.java
+@@ -51,1 +52,12 @@
++    @Test public void shouldReturnPrimitive() {
++        DefaultReturnValues values = new DefaultReturnValues();
++        
++        assertEquals(false, values.returnValueFor(Boolean.TYPE));
++        assertEquals((char) 0, values.returnValueFor(Character.TYPE));
++        assertEquals(0, values.returnValueFor(Short.TYPE));
++        assertEquals(0, values.returnValueFor(Integer.TYPE));
++        assertEquals(0, values.returnValueFor(Long.TYPE));
++        assertEquals(0, values.returnValueFor(Float.TYPE));
++        assertEquals(0, values.returnValueFor(Double.TYPE));
++    }
+ }
+
+commit cca6a04de17459f5affc9c1cd27314aff5eee623
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sun Mar 23 19:32:25 2008
+
+    refactored the code so that it's easier to expose default return values configuration
+    
+    --HG--
+    rename : test/org/mockito/internal/stubbing/EmptyReturnValuesTest.java => test/org/mockito/internal/stubbing/DefaultReturnValuesTest.java
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%40492
+
+diff --git a/test/org/mockito/internal/stubbing/DefaultReturnValuesTest.java b/test/org/mockito/internal/stubbing/DefaultReturnValuesTest.java
+--- /dev/null
++++ b/test/org/mockito/internal/stubbing/DefaultReturnValuesTest.java
+@@ -0,0 +53,1 @@
++}

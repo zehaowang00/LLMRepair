@@ -1,0 +1,98 @@
+commit 2abf5a321405a82ed4e0d3a7c876c82bb05188f9
+Author: Cowtowncoder <tatu.saloranta@iki.fi>
+Date:   Thu May 21 18:28:03 2015
+
+    Fix #734 (error recovery for `ObjectReader.readValues()`)
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/seq/ReadRecoveryTest.java b/src/test/java/com/fasterxml/jackson/databind/seq/ReadRecoveryTest.java
+--- a/src/test/java/com/fasterxml/jackson/databind/seq/ReadRecoveryTest.java
++++ b/src/test/java/com/fasterxml/jackson/databind/seq/ReadRecoveryTest.java
+@@ -25,18 +25,24 @@
+     public void testRootBeans() throws Exception
+     {
+-        final String JSON = aposToQuotes("{'a':3} {'b':5}");
++        final String JSON = aposToQuotes("{'a':3} {'x':5}");
+         MappingIterator<Bean> it = MAPPER.readerFor(Bean.class).readValues(JSON);
+         // First one should be fine
+         assertTrue(it.hasNextValue());
+         Bean bean = it.nextValue();
+         assertEquals(3, bean.a);
+         // but second one not
+         try {
+             bean = it.nextValue();
+             fail("Should not have succeeded");
+         } catch (JsonMappingException e) {
+-            verifyException(e, "Unrecognized field");
++            verifyException(e, "Unrecognized field \"x\"");
+         }
+-        // 24-Mar-2015, tatu: With 2.5, best we can do is to avoid infinite loop;
+-        //    also, since the next token is END_OBJECT, will produce empty Object
+-        assertTrue(it.hasNextValue());
++        // 21-May-2015, tatu: With [databind#734], recovery, we now know there's no more data!
++        assertFalse(it.hasNextValue());
++
++        it.close();
++    }
++
++    // for [databind#734]
++    // Simple test for verifying that basic recover works for a case of
++    // unknown structured value
+
+commit a936f43366a942cad8f16a0dedebf71d7868c969
+Author: Cowtowncoder <tatu.saloranta@iki.fi>
+Date:   Tue May 12 15:33:46 2015
+
+    Implement #787
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/seq/ReadRecoveryTest.java b/src/test/java/com/fasterxml/jackson/databind/seq/ReadRecoveryTest.java
+--- a/src/test/java/com/fasterxml/jackson/databind/seq/ReadRecoveryTest.java
++++ b/src/test/java/com/fasterxml/jackson/databind/seq/ReadRecoveryTest.java
+@@ -25,18 +25,18 @@
+     public void testRootBeans() throws Exception
+     {
+         final String JSON = aposToQuotes("{'a':3} {'b':5}");
+-        MappingIterator<Bean> it = MAPPER.reader(Bean.class).readValues(JSON);
++        MappingIterator<Bean> it = MAPPER.readerFor(Bean.class).readValues(JSON);
+         // First one should be fine
+         assertTrue(it.hasNextValue());
+         Bean bean = it.nextValue();
+         assertEquals(3, bean.a);
+         // but second one not
+         try {
+             bean = it.nextValue();
+             fail("Should not have succeeded");
+         } catch (JsonMappingException e) {
+             verifyException(e, "Unrecognized field");
+         }
+         // 24-Mar-2015, tatu: With 2.5, best we can do is to avoid infinite loop;
+         //    also, since the next token is END_OBJECT, will produce empty Object
+         assertTrue(it.hasNextValue());
+
+commit 436c309b2951b5c65509990f2990c1795305a840
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Wed Mar 25 00:36:43 2015
+
+    Fixed #733
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/seq/ReadRecoveryTest.java b/src/test/java/com/fasterxml/jackson/databind/seq/ReadRecoveryTest.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/seq/ReadRecoveryTest.java
+@@ -0,0 +26,18 @@
++    public void testRootBeans() throws Exception
++    {
++        final String JSON = aposToQuotes("{'a':3} {'b':5}");
++        MappingIterator<Bean> it = MAPPER.reader(Bean.class).readValues(JSON);
++        // First one should be fine
++        assertTrue(it.hasNextValue());
++        Bean bean = it.nextValue();
++        assertEquals(3, bean.a);
++        // but second one not
++        try {
++            bean = it.nextValue();
++            fail("Should not have succeeded");
++        } catch (JsonMappingException e) {
++            verifyException(e, "Unrecognized field");
++        }
++        // 24-Mar-2015, tatu: With 2.5, best we can do is to avoid infinite loop;
++        //    also, since the next token is END_OBJECT, will produce empty Object
++        assertTrue(it.hasNextValue());

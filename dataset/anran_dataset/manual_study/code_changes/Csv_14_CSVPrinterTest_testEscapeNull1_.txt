@@ -1,0 +1,38 @@
+commit 190390bf5dd83d6137ca3045902fcecbeafa3227
+Author: Gary Gregory <ggregory@apache.org>
+Date:   Sun Jul 31 03:21:35 2016
+
+    [CSV-171] Negative numeric values in the first column are always quoted
+    in minimal mode.
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVPrinterTest.java b/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
+@@ -336,1 +341,9 @@
+-        assertEquals("'\\\\'", sw.toString());
++    public void testEscapeNull1() throws IOException {
++        StringWriter sw = new StringWriter();
++        try (final CSVPrinter printer = new CSVPrinter(sw, CSVFormat.DEFAULT.withEscape(null))) {
++            printer.print("\\");
++        }
++        assertEquals("\\", sw.toString());
++    }
++
++    @Test
+
+commit 16b9e2c79122f5a76863854cc4b33939da63710d
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Mon Apr 18 02:16:51 2016
+
+    [CSV-175] Support for ignoring trailing delimiter.
+    [CSV-177] Support trimming leading and trailing blanks.
+    [CSV-178] Create default formats for Informix UNLOAD and UNLOAD CSV.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/csv/trunk@1739694 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVPrinterTest.java b/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
+@@ -175,0 +323,1 @@
++        assertEquals("'\\\\'", sw.toString());

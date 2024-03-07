@@ -1,0 +1,35 @@
+commit d50efdf75a8daeced88d79b168f68d189fb87e13
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Tue Feb 15 09:53:51 2011
+
+    Conversion from parsed values to a date-time handles weird sets of fields better [3161586]
+    This change is mostly for combinations like weekyear-month-week
+    The new code doesn't handle all combinations perfectly, but its better than it was
+    
+    git-svn-id: https://joda-time.svn.sourceforge.net/svnroot/joda-time/trunk@1606 1e1cfbb7-5c0e-0410-a2f0-f98d92ec03a1
+
+diff --git a/JodaTime/src/test/java/org/joda/time/format/TestDateTimeFormatter.java b/JodaTime/src/test/java/org/joda/time/format/TestDateTimeFormatter.java
+--- a/JodaTime/src/test/java/org/joda/time/format/TestDateTimeFormatter.java
++++ b/JodaTime/src/test/java/org/joda/time/format/TestDateTimeFormatter.java
+@@ -425,1 +487,7 @@
++    public void testParseLocalDate_year_month_week_2016() {
++        Chronology chrono = GJChronology.getInstanceUTC();
++        DateTimeFormatter f = DateTimeFormat.forPattern("yyyy-MM-ww").withChronology(chrono);
++        assertEquals(new LocalDate(2016, 1, 4, chrono), f.parseLocalDate("2016-01-01"));
++    }
++
+     //-----------------------------------------------------------------------
+
+commit 7921e43100636354324712b59fbe1b9e294a04d7
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Sat Nov 7 14:34:36 2009
+
+    Add DateTimeFormatter.parseLocalDate(), .parseLocalTime(), .parseLocalDateTime()
+    
+    git-svn-id: https://joda-time.svn.sourceforge.net/svnroot/joda-time/trunk@1426 1e1cfbb7-5c0e-0410-a2f0-f98d92ec03a1
+
+diff --git a/JodaTime/src/test/org/joda/time/format/TestDateTimeFormatter.java b/JodaTime/src/test/org/joda/time/format/TestDateTimeFormatter.java
+--- a/JodaTime/src/test/org/joda/time/format/TestDateTimeFormatter.java
++++ b/JodaTime/src/test/org/joda/time/format/TestDateTimeFormatter.java
+@@ -338,0 +353,1 @@
++    //-----------------------------------------------------------------------

@@ -1,0 +1,19 @@
+commit 7886e43ead51c44e35166a87c061e6b2c60ebfa6
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sun Nov 16 07:30:36 2014
+
+    Basic support for creating mocks using constructor
+    
+    Issue #92
+
+diff --git a/test/org/mockitousage/constructor/CreatingMocksWithConstructor.java b/test/org/mockitousage/constructor/CreatingMocksWithConstructor.java
+--- /dev/null
++++ b/test/org/mockitousage/constructor/CreatingMocksWithConstructor.java
+@@ -0,0 +25,7 @@
++    public void can_create_mock_with_constructor() {
++        Message mock = mock(Message.class, withSettings().useConstructor().defaultAnswer(CALLS_REAL_METHODS));
++        //the message is a part of state of the mocked type that gets initialized in constructor
++        assertEquals("hey!", mock.getMessage());
++    }
++
++    @Test

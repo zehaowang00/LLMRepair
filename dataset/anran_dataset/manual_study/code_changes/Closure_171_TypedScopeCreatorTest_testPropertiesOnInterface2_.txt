@@ -1,0 +1,191 @@
+commit 6d38965a1e0a3a61435b9bebc91ff1ba0a64013a
+Author: Nick Santos <nicholas.j.santos@gmail.com>
+Date:   Tue Jun 18 05:52:07 2013
+
+    Handle prototype assignments much better. Fixes issue #1023.
+    
+    R=blickly
+
+diff --git a/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java b/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
+--- a/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
++++ b/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
+@@ -532,26 +532,24 @@
+   public void testPropertiesOnInterface2() throws Exception {
+     testSame("/** @interface */ var I = function() {};" +
+         "I.prototype = {baz: function(){}};" +
+         "/** @type {number} */ I.prototype.bar;");
+ 
+     Var i = globalScope.getVar("I");
+     assertEquals("function (this:I): ?", i.getType().toString());
+     assertTrue(i.getType().isInterface());
+ 
+     ObjectType iPrototype = (ObjectType)
+         ((ObjectType) i.getType()).getPropertyType("prototype");
+     assertEquals("I.prototype", iPrototype.toString());
+     assertTrue(iPrototype.isFunctionPrototypeType());
+ 
+     assertEquals("number", iPrototype.getPropertyType("bar").toString());
+ 
+     assertEquals("function (this:I): undefined",
+         iPrototype.getPropertyType("baz").toString());
+ 
+-    // should not be null
+-    assertNull(globalScope.getVar("I.prototype"));
+-    // assertEquals(iPrototype, globalScope.getVar("I.prototype").getType());
++    assertEquals(iPrototype, globalScope.getVar("I.prototype").getType());
+   }
+ 
+   // TODO(johnlenz): A syntax for stubs using object literals?
+ 
+
+commit a2dd1662d90524a12a99a9fa7d4308568938d963
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Wed Aug 31 11:11:21 2011
+
+    Do much better at "this" inference.
+    
+    
+    Tested:
+    yes
+    
+    R=acleung
+    DELTA=119  (64 added, 37 deleted, 18 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3171
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1399 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java b/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
+--- a/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
++++ b/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
+@@ -494,27 +494,26 @@
+   public void testPropertiesOnInterface2() throws Exception {
+     testSame("/** @interface */ var I = function() {};" +
+         "I.prototype = {baz: function(){}};" +
+         "/** @type {number} */ I.prototype.bar;");
+ 
+     Var i = globalScope.getVar("I");
+     assertEquals("function (this:I): ?", i.getType().toString());
+     assertTrue(i.getType().isInterface());
+ 
+     ObjectType iPrototype = (ObjectType)
+         ((ObjectType) i.getType()).getPropertyType("prototype");
+     assertEquals("I.prototype", iPrototype.toString());
+     assertTrue(iPrototype.isFunctionPrototypeType());
+ 
+     assertEquals("number", iPrototype.getPropertyType("bar").toString());
+ 
+-    // should be: "function (this:I): undefined"
+-    assertEquals("function (): undefined",
++    assertEquals("function (this:I): undefined",
+         iPrototype.getPropertyType("baz").toString());
+ 
+     // should not be null
+     assertNull(globalScope.getVar("I.prototype"));
+     // assertEquals(iPrototype, globalScope.getVar("I.prototype").getType());
+   }
+ 
+   // TODO(johnlenz): A syntax for stubs using object literals?
+ 
+
+commit 072fa2d047573d2d1f0187ba4bf76b1afa75031c
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Wed Feb 16 23:38:32 2011
+
+    When a property of a named object literal is declared,
+    declare the qualified name of that property.
+    
+    R=johnlenz
+    DELTA=82  (58 added, 3 deleted, 21 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=546
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@793 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java b/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
+--- a/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
++++ b/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
+@@ -498,27 +498,27 @@
+   public void testPropertiesOnInterface2() throws Exception {
+     testSame("/** @interface */ var I = function() {};" +
+         "I.prototype = {baz: function(){}};" +
+         "/** @type {number} */ I.prototype.bar;");
+ 
+     Var i = globalScope.getVar("I");
+     assertEquals("function (this:I): ?", i.getType().toString());
+     assertTrue(i.getType().isInterface());
+ 
+     ObjectType iPrototype = (ObjectType)
+         ((ObjectType) i.getType()).getPropertyType("prototype");
+     assertEquals("I.prototype", iPrototype.toString());
+     assertTrue(iPrototype.isFunctionPrototypeType());
+ 
+     assertEquals("number", iPrototype.getPropertyType("bar").toString());
+-    
++
+     // should be: "function (this:I): undefined"
+     assertEquals("function (): undefined",
+         iPrototype.getPropertyType("baz").toString());
+ 
+-    // should not be null 
++    // should not be null
+     assertNull(globalScope.getVar("I.prototype"));
+     // assertEquals(iPrototype, globalScope.getVar("I.prototype").getType());
+   }
+ 
+   // TODO(johnlenz): A syntax for stubs using object literals?
+ 
+
+commit 70f817ae4f80ac11dd2dfe97babf5896c690fb48
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Jan 27 13:33:55 2011
+
+    Add basic getters and setters support to TypeInference.
+    
+    R=nicksantos
+    DELTA=573  (533 added, 15 deleted, 25 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=366
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@735 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java b/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
+--- a/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
++++ b/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
+@@ -386,0 +498,27 @@
++  public void testPropertiesOnInterface2() throws Exception {
++    testSame("/** @interface */ var I = function() {};" +
++        "I.prototype = {baz: function(){}};" +
++        "/** @type {number} */ I.prototype.bar;");
++
++    Var i = globalScope.getVar("I");
++    assertEquals("function (this:I): ?", i.getType().toString());
++    assertTrue(i.getType().isInterface());
++
++    ObjectType iPrototype = (ObjectType)
++        ((ObjectType) i.getType()).getPropertyType("prototype");
++    assertEquals("I.prototype", iPrototype.toString());
++    assertTrue(iPrototype.isFunctionPrototypeType());
++
++    assertEquals("number", iPrototype.getPropertyType("bar").toString());
++    
++    // should be: "function (this:I): undefined"
++    assertEquals("function (): undefined",
++        iPrototype.getPropertyType("baz").toString());
++
++    // should not be null 
++    assertNull(globalScope.getVar("I.prototype"));
++    // assertEquals(iPrototype, globalScope.getVar("I.prototype").getType());
++  }
++
++  // TODO(johnlenz): A syntax for stubs using object literals?
++

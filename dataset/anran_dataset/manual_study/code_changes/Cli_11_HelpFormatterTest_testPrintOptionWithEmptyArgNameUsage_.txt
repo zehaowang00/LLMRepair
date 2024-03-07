@@ -1,0 +1,44 @@
+commit d36adebd3547279b709960c902c3fb7b89a9a4ef
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Fri May 30 06:22:49 2008
+
+    Added a formatter test for options with a null or empty named argument
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/branches/cli-1.x@661634 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/HelpFormatterTest.java b/src/test/org/apache/commons/cli/HelpFormatterTest.java
+--- a/src/test/org/apache/commons/cli/HelpFormatterTest.java
++++ b/src/test/org/apache/commons/cli/HelpFormatterTest.java
+@@ -260,1 +260,17 @@
++    public void testPrintOptionWithEmptyArgNameUsage() {
++        Option option = new Option("f", true, null);
++        option.setArgName("");
++        option.setRequired(true);
++
++        Options options = new Options();
++        options.addOption(option);
++
++        StringWriter out = new StringWriter();
++
++        HelpFormatter formatter = new HelpFormatter();
++        formatter.printUsage(new PrintWriter(out), 80, "app", options);
++
++        assertEquals("usage: app -f" + EOL, out.toString());
++    }
++
+ }
+
+commit aae50c585ec3ac33c6a9af792e80378904a73195
+Author: James Strachan <jstrachan@apache.org>
+Date:   Mon Jun 10 14:01:16 2002
+
+    moved cli over from the sandbox to commons proper
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129767 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/TestHelpFormatter.java b/src/test/org/apache/commons/cli/TestHelpFormatter.java
+--- /dev/null
++++ b/src/test/org/apache/commons/cli/TestHelpFormatter.java
+@@ -0,0 +163,1 @@
++}

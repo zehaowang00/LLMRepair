@@ -1,0 +1,23 @@
+commit 28aeba952e838fb12c9b934ce6ef65658e45d7b2
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Fri Aug 16 09:41:18 2013
+
+    Fix GJChronology.plus/minus across cutover and year zero
+    
+    Fixes #28
+    When subtracting a number of years from a date in the GJChronology there are two considerations
+    The cutover date might be crossed, and year zero might be crossed (there is no year zero in GJ)
+    Previously, each were handled separately, but not together. Now it is fixed
+    As part of this change, the minimum cutover instant was set to 0001-01-01 (Gregorian)
+
+diff --git a/src/test/java/org/joda/time/chrono/TestGJDate.java b/src/test/java/org/joda/time/chrono/TestGJDate.java
+--- /dev/null
++++ b/src/test/java/org/joda/time/chrono/TestGJDate.java
+@@ -0,0 +121,7 @@
++    public void test_plusWeekyears_positiveToNegative_crossCutover() {
++        LocalDate date = new LocalDate(2003, 6, 30, GJ_CHRONOLOGY);
++        LocalDate expected = new LocalDate(-2, 6, 30, GJ_CHRONOLOGY).withWeekOfWeekyear(date.getWeekOfWeekyear()).withDayOfWeek(date.getDayOfWeek());
++        assertEquals(expected, date.weekyear().addToCopy(-2004));
++    }
++
++    //-----------------------------------------------------------------------

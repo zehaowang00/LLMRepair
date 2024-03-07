@@ -1,0 +1,773 @@
+commit 973234bc842b0de2febea195f7819236b57fd992
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sat Dec 22 20:59:13 2018
+
+    Added ParserTest
+    
+    Trying to validate #1152, no repro
+
+diff --git a/src/test/java/org/jsoup/nodes/EntitiesTest.java b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+index c7ba4247..47f5e776 100644
+--- a/src/test/java/org/jsoup/nodes/EntitiesTest.java
++++ b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+@@ -31,7 +31,7 @@
+         assertEquals(text, Entities.unescape(escapedUtfMin));
+     }
+ 
+-    @Test public void escapedSupplemtary() {
++    @Test public void escapedSupplementary() {
+         String text = "\uD835\uDD59";
+         String escapedAscii = Entities.escape(text, new OutputSettings().charset("ascii").escapeMode(base));
+         assertEquals("&#x1d559;", escapedAscii);
+
+commit aa81e10c34f48a3c4ac7160aa90ee18af4f5c0c2
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Fri Aug 19 15:04:21 2016
+
+    Improved HTML entity support
+    
+    Fixes #602, #603
+
+diff --git a/src/test/java/org/jsoup/nodes/EntitiesTest.java b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+index 9a648d53..c7ba4247 100644
+--- a/src/test/java/org/jsoup/nodes/EntitiesTest.java
++++ b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+@@ -31,6 +31,45 @@
+         assertEquals(text, Entities.unescape(escapedUtfMin));
+     }
+ 
++    @Test public void escapedSupplemtary() {
++        String text = "\uD835\uDD59";
++        String escapedAscii = Entities.escape(text, new OutputSettings().charset("ascii").escapeMode(base));
++        assertEquals("&#x1d559;", escapedAscii);
++        String escapedAsciiFull = Entities.escape(text, new OutputSettings().charset("ascii").escapeMode(extended));
++        assertEquals("&hopf;", escapedAsciiFull);
++        String escapedUtf= Entities.escape(text, new OutputSettings().charset("UTF-8").escapeMode(extended));
++        assertEquals(text, escapedUtf);
++    }
++
++    @Test public void unescapeMultiChars() {
++        String text = "&NestedGreaterGreater; &nGg; &nGt; &nGtv; &Gt; &gg;"; // gg is not combo, but 8811 could conflict with NestedGreaterGreater or others
++        String un = "â« âÌ¸ â«â â«Ì¸ â« â«";
++        assertEquals(un, Entities.unescape(text));
++        String escaped = Entities.escape(un, new OutputSettings().charset("ascii").escapeMode(extended));
++        assertEquals("&Gt; &Gg;&#x338; &Gt;&#x20d2; &Gt;&#x338; &Gt; &Gt;", escaped);
++        assertEquals(un, Entities.unescape(escaped));
++    }
++
++    @Test public void xhtml() {
++        String text = "&amp; &gt; &lt; &quot;";
++        assertEquals(38, xhtml.codepointForName("amp"));
++        assertEquals(62, xhtml.codepointForName("gt"));
++        assertEquals(60, xhtml.codepointForName("lt"));
++        assertEquals(34, xhtml.codepointForName("quot"));
++
++        assertEquals("amp", xhtml.nameForCodepoint(38));
++        assertEquals("gt", xhtml.nameForCodepoint(62));
++        assertEquals("lt", xhtml.nameForCodepoint(60));
++        assertEquals("quot", xhtml.nameForCodepoint(34));
++    }
++
++    @Test public void getByName() {
++        assertEquals("â«â", Entities.getByName("nGt"));
++        assertEquals("fj", Entities.getByName("fjlig"));
++        assertEquals("â«", Entities.getByName("gg"));
++        assertEquals("Â©", Entities.getByName("copy"));
++    }
++
+     @Test public void escapeSupplementaryCharacter() {
+         String text = new String(Character.toChars(135361));
+         String escapedAscii = Entities.escape(text, new OutputSettings().charset("ascii").escapeMode(base));
+@@ -39,9 +78,21 @@
+         assertEquals(text, escapedUtf);
+     }
+ 
++    @Test public void notMissingMultis() {
++        String text = "&nparsl;";
++        String un = "\u2AFD\u20E5";
++        assertEquals(un, Entities.unescape(text));
++    }
++
++    @Test public void notMissingSupplementals() {
++        String text = "&npolint; &qfr;";
++        String un = "â¨ \uD835\uDD2E"; // ð®
++        assertEquals(un, Entities.unescape(text));
++    }
++
+     @Test public void unescape() {
+-        String text = "Hello &amp;&LT&gt; &reg &angst; &angst &#960; &#960 &#x65B0; there &! &frac34; &copy; &COPY;";
+-        assertEquals("Hello &<> Â® Ã &angst Ï Ï æ° there &! Â¾ Â© Â©", Entities.unescape(text));
++        String text = "Hello &AElig; &amp;&LT&gt; &reg &angst; &angst &#960; &#960 &#x65B0; there &! &frac34; &copy; &COPY;";
++        assertEquals("Hello Ã &<> Â® Ã &angst Ï Ï æ° there &! Â¾ Â© Â©", Entities.unescape(text));
+ 
+         assertEquals("&0987654321; &unknown", Entities.unescape("&0987654321; &unknown"));
+     }
+
+commit a025d87deb9cc4cda49ae1b77feb0f29805dd7c5
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Tue Jul 14 02:11:21 2015
+
+    Escape < in XML attributes
+    
+    Fixes #528
+
+diff --git a/src/test/java/org/jsoup/nodes/EntitiesTest.java b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+index 72ef09ad..a8d89ebe 100644
+--- a/src/test/java/org/jsoup/nodes/EntitiesTest.java
++++ b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+@@ -14,7 +14,7 @@
+         String escapedAscii = Entities.escape(text, new OutputSettings().charset("ascii").escapeMode(base));
+         String escapedAsciiFull = Entities.escape(text, new OutputSettings().charset("ascii").escapeMode(extended));
+         String escapedAsciiXhtml = Entities.escape(text, new OutputSettings().charset("ascii").escapeMode(xhtml));
+-        String escapedUtfFull = Entities.escape(text, new OutputSettings().charset("UTF-8").escapeMode(base));
++        String escapedUtfFull = Entities.escape(text, new OutputSettings().charset("UTF-8").escapeMode(extended));
+         String escapedUtfMin = Entities.escape(text, new OutputSettings().charset("UTF-8").escapeMode(xhtml));
+ 
+         assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; &#x3c0; &#x65b0; there &frac34; &copy; &raquo;", escapedAscii);
+@@ -86,4 +86,19 @@
+         String string = "http://www.foo.com?a=1&num_rooms=1&children=0&int=VA&b=2";
+         assertEquals(string, Entities.unescape(string));
+     }
++
++    @Test public void escapesGtInXmlAttributesButNotInHtml() {
++        // https://github.com/jhy/jsoup/issues/528 - < is OK in HTML attribute values, but not in XML
++
++
++        String docHtml = "<a title='<p>One</p>'>One</a>";
++        Document doc = Jsoup.parse(docHtml);
++        Element element = doc.select("a").first();
++
++        doc.outputSettings().escapeMode(base);
++        assertEquals("<a title=\"<p>One</p>\">One</a>", element.outerHtml());
++
++        doc.outputSettings().escapeMode(xhtml);
++        assertEquals("<a title=\"&lt;p>One&lt;/p>\">One</a>", element.outerHtml());
++    }
+ }
+
+commit 43e17dc7f7c32e937448cff716e9af7aa40e5ec3
+Author: Michael Schmid <schmid-michael@users.noreply.github.com>
+Date:   Wed Oct 8 07:52:34 2014
+
+    Changes for issue #467
+
+diff --git a/src/test/java/org/jsoup/nodes/EntitiesTest.java b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+index c728d97e..4103afdf 100644
+--- a/src/test/java/org/jsoup/nodes/EntitiesTest.java
++++ b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+@@ -7,10 +7,11 @@
+ import static org.jsoup.nodes.Entities.EscapeMode.*;
+ import static org.junit.Assert.*;
+ 
++import java.io.IOException;
+ import java.nio.charset.Charset;
+ 
+ public class EntitiesTest {
+-    @Test public void escape() {
++    @Test public void escape() throws IOException {
+         String text = "Hello &<> Ã Ã¥ Ï æ° there Â¾ Â© Â»";
+         String escapedAscii = Entities.escape(text, new OutputSettings().charset("ascii").escapeMode(base));
+         String escapedAsciiFull = Entities.escape(text, new OutputSettings().charset("ascii").escapeMode(extended));
+@@ -33,7 +34,7 @@
+         assertEquals(text, Entities.unescape(escapedUtfMin));
+     }
+ 
+-    @Test public void escapeSupplementaryCharacter(){
++    @Test public void escapeSupplementaryCharacter() throws IOException{
+         String text = new String(Character.toChars(135361));
+         String escapedAscii = Entities.escape(text, new OutputSettings().charset("ascii").escapeMode(base));
+         assertEquals("&#x210c1;", escapedAscii);
+@@ -56,7 +57,7 @@
+     }
+ 
+     
+-    @Test public void caseSensitive() {
++    @Test public void caseSensitive() throws IOException {
+         String unescaped = "Ã Ã¼ & &";
+         assertEquals("&Uuml; &uuml; &amp; &amp;",
+                 Entities.escape(unescaped, new OutputSettings().charset("ascii").escapeMode(extended)));
+
+commit 9e1ca808ee75ec5269bfab9c3e583792cee494c1
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sun Sep 28 00:36:42 2014
+
+    Verify &raquo;
+
+diff --git a/src/test/java/org/jsoup/nodes/EntitiesTest.java b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+index aebaf103..c728d97e 100644
+--- a/src/test/java/org/jsoup/nodes/EntitiesTest.java
++++ b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+@@ -11,18 +11,18 @@
+ 
+ public class EntitiesTest {
+     @Test public void escape() {
+-        String text = "Hello &<> Ã Ã¥ Ï æ° there Â¾ Â©";
++        String text = "Hello &<> Ã Ã¥ Ï æ° there Â¾ Â© Â»";
+         String escapedAscii = Entities.escape(text, new OutputSettings().charset("ascii").escapeMode(base));
+         String escapedAsciiFull = Entities.escape(text, new OutputSettings().charset("ascii").escapeMode(extended));
+         String escapedAsciiXhtml = Entities.escape(text, new OutputSettings().charset("ascii").escapeMode(xhtml));
+         String escapedUtfFull = Entities.escape(text, new OutputSettings().charset("UTF-8").escapeMode(base));
+         String escapedUtfMin = Entities.escape(text, new OutputSettings().charset("UTF-8").escapeMode(xhtml));
+ 
+-        assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; &#x3c0; &#x65b0; there &frac34; &copy;", escapedAscii);
+-        assertEquals("Hello &amp;&lt;&gt; &angst; &aring; &pi; &#x65b0; there &frac34; &copy;", escapedAsciiFull);
+-        assertEquals("Hello &amp;&lt;&gt; &#xc5; &#xe5; &#x3c0; &#x65b0; there &#xbe; &#xa9;", escapedAsciiXhtml);
+-        assertEquals("Hello &amp;&lt;&gt; Ã Ã¥ Ï æ° there Â¾ Â©", escapedUtfFull);
+-        assertEquals("Hello &amp;&lt;&gt; Ã Ã¥ Ï æ° there Â¾ Â©", escapedUtfMin);
++        assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; &#x3c0; &#x65b0; there &frac34; &copy; &raquo;", escapedAscii);
++        assertEquals("Hello &amp;&lt;&gt; &angst; &aring; &pi; &#x65b0; there &frac34; &copy; &raquo;", escapedAsciiFull);
++        assertEquals("Hello &amp;&lt;&gt; &#xc5; &#xe5; &#x3c0; &#x65b0; there &#xbe; &#xa9; &#xbb;", escapedAsciiXhtml);
++        assertEquals("Hello &amp;&lt;&gt; Ã Ã¥ Ï æ° there Â¾ Â© Â»", escapedUtfFull);
++        assertEquals("Hello &amp;&lt;&gt; Ã Ã¥ Ï æ° there Â¾ Â© Â»", escapedUtfMin);
+         // odd that it's defined as aring in base but angst in full
+ 
+         // round trip
+
+commit 6c4f16f233cdfd7aedef33374609e9aa4ede255c
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sun Nov 17 22:11:08 2013
+
+    Support for HTML output syntax, enabled by default
+    
+    Introduced the ability to chose between HTML and XML output, and made
+    HTML the default. This means img tags are
+    output as <img>, not <img />. XML is the default when using the
+    XmlTreeBuilder. Control this with the
+    Document.OutputSettings.syntax() method.
+    
+    Tightened the scope of what characters are escaped in attributes and
+    textnodes, to align with the spec. Also, when
+    using the extended escape entities map, only escape a character if the
+    current output charset does not support it.
+    This produces smaller, more legible HTML, with greated control over the
+    output (by setting charset and escape mode).
+    
+    Fixes #322
+    Fixes #373
+    Fixes #346
+    Fixes #150
+
+diff --git a/src/test/java/org/jsoup/nodes/EntitiesTest.java b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+index c671badc..aebaf103 100644
+--- a/src/test/java/org/jsoup/nodes/EntitiesTest.java
++++ b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+@@ -3,6 +3,8 @@
+ import org.jsoup.Jsoup;
+ import org.junit.Test;
+ 
++import static org.jsoup.nodes.Document.OutputSettings;
++import static org.jsoup.nodes.Entities.EscapeMode.*;
+ import static org.junit.Assert.*;
+ 
+ import java.nio.charset.Charset;
+@@ -10,16 +12,16 @@
+ public class EntitiesTest {
+     @Test public void escape() {
+         String text = "Hello &<> Ã Ã¥ Ï æ° there Â¾ Â©";
+-        String escapedAscii = Entities.escape(text, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.base);
+-        String escapedAsciiFull = Entities.escape(text, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.extended);
+-        String escapedAsciiXhtml = Entities.escape(text, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.xhtml);
+-        String escapedUtfFull = Entities.escape(text, Charset.forName("UTF-8").newEncoder(), Entities.EscapeMode.base);
+-        String escapedUtfMin = Entities.escape(text, Charset.forName("UTF-8").newEncoder(), Entities.EscapeMode.xhtml);
++        String escapedAscii = Entities.escape(text, new OutputSettings().charset("ascii").escapeMode(base));
++        String escapedAsciiFull = Entities.escape(text, new OutputSettings().charset("ascii").escapeMode(extended));
++        String escapedAsciiXhtml = Entities.escape(text, new OutputSettings().charset("ascii").escapeMode(xhtml));
++        String escapedUtfFull = Entities.escape(text, new OutputSettings().charset("UTF-8").escapeMode(base));
++        String escapedUtfMin = Entities.escape(text, new OutputSettings().charset("UTF-8").escapeMode(xhtml));
+ 
+         assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; &#x3c0; &#x65b0; there &frac34; &copy;", escapedAscii);
+         assertEquals("Hello &amp;&lt;&gt; &angst; &aring; &pi; &#x65b0; there &frac34; &copy;", escapedAsciiFull);
+         assertEquals("Hello &amp;&lt;&gt; &#xc5; &#xe5; &#x3c0; &#x65b0; there &#xbe; &#xa9;", escapedAsciiXhtml);
+-        assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; Ï æ° there &frac34; &copy;", escapedUtfFull);
++        assertEquals("Hello &amp;&lt;&gt; Ã Ã¥ Ï æ° there Â¾ Â©", escapedUtfFull);
+         assertEquals("Hello &amp;&lt;&gt; Ã Ã¥ Ï æ° there Â¾ Â©", escapedUtfMin);
+         // odd that it's defined as aring in base but angst in full
+ 
+@@ -33,9 +35,9 @@
+ 
+     @Test public void escapeSupplementaryCharacter(){
+         String text = new String(Character.toChars(135361));
+-        String escapedAscii = Entities.escape(text, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.base);
++        String escapedAscii = Entities.escape(text, new OutputSettings().charset("ascii").escapeMode(base));
+         assertEquals("&#x210c1;", escapedAscii);
+-        String escapedUtf = Entities.escape(text, Charset.forName("UTF-8").newEncoder(), Entities.EscapeMode.base);
++        String escapedUtf = Entities.escape(text, new OutputSettings().charset("UTF-8").escapeMode(base));
+         assertEquals(text, escapedUtf);
+     }
+ 
+@@ -56,7 +58,8 @@
+     
+     @Test public void caseSensitive() {
+         String unescaped = "Ã Ã¼ & &";
+-        assertEquals("&Uuml; &uuml; &amp; &amp;", Entities.escape(unescaped, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.extended));
++        assertEquals("&Uuml; &uuml; &amp; &amp;",
++                Entities.escape(unescaped, new OutputSettings().charset("ascii").escapeMode(extended)));
+         
+         String escaped = "&Uuml; &uuml; &amp; &AMP";
+         assertEquals("Ã Ã¼ & &", Entities.unescape(escaped));
+@@ -72,9 +75,12 @@
+     @Test public void letterDigitEntities() {
+         String html = "<p>&sup1;&sup2;&sup3;&frac14;&frac12;&frac34;</p>";
+         Document doc = Jsoup.parse(html);
++        doc.outputSettings().charset("ascii");
+         Element p = doc.select("p").first();
+         assertEquals("&sup1;&sup2;&sup3;&frac14;&frac12;&frac34;", p.html());
+         assertEquals("Â¹Â²Â³Â¼Â½Â¾", p.text());
++        doc.outputSettings().charset("UTF-8");
++        assertEquals("Â¹Â²Â³Â¼Â½Â¾", p.html());
+     }
+ 
+     @Test public void noSpuriousDecodes() {
+
+commit a991deb4430343e8f22de5d5aa51f829bab52315
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sun Jan 27 17:03:47 2013
+
+    Output valid hex escapes this time.
+
+diff --git a/src/test/java/org/jsoup/nodes/EntitiesTest.java b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+index 782604a4..c671badc 100644
+--- a/src/test/java/org/jsoup/nodes/EntitiesTest.java
++++ b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+@@ -16,18 +16,25 @@
+         String escapedUtfFull = Entities.escape(text, Charset.forName("UTF-8").newEncoder(), Entities.EscapeMode.base);
+         String escapedUtfMin = Entities.escape(text, Charset.forName("UTF-8").newEncoder(), Entities.EscapeMode.xhtml);
+ 
+-        assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; &x3c0; &x65b0; there &frac34; &copy;", escapedAscii);
+-        assertEquals("Hello &amp;&lt;&gt; &angst; &aring; &pi; &x65b0; there &frac34; &copy;", escapedAsciiFull);
+-        assertEquals("Hello &amp;&lt;&gt; &xc5; &xe5; &x3c0; &x65b0; there &xbe; &xa9;", escapedAsciiXhtml);
++        assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; &#x3c0; &#x65b0; there &frac34; &copy;", escapedAscii);
++        assertEquals("Hello &amp;&lt;&gt; &angst; &aring; &pi; &#x65b0; there &frac34; &copy;", escapedAsciiFull);
++        assertEquals("Hello &amp;&lt;&gt; &#xc5; &#xe5; &#x3c0; &#x65b0; there &#xbe; &#xa9;", escapedAsciiXhtml);
+         assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; Ï æ° there &frac34; &copy;", escapedUtfFull);
+         assertEquals("Hello &amp;&lt;&gt; Ã Ã¥ Ï æ° there Â¾ Â©", escapedUtfMin);
+         // odd that it's defined as aring in base but angst in full
++
++        // round trip
++        assertEquals(text, Entities.unescape(escapedAscii));
++        assertEquals(text, Entities.unescape(escapedAsciiFull));
++        assertEquals(text, Entities.unescape(escapedAsciiXhtml));
++        assertEquals(text, Entities.unescape(escapedUtfFull));
++        assertEquals(text, Entities.unescape(escapedUtfMin));
+     }
+ 
+     @Test public void escapeSupplementaryCharacter(){
+         String text = new String(Character.toChars(135361));
+         String escapedAscii = Entities.escape(text, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.base);
+-        assertEquals("&x210c1;", escapedAscii);
++        assertEquals("&#x210c1;", escapedAscii);
+         String escapedUtf = Entities.escape(text, Charset.forName("UTF-8").newEncoder(), Entities.EscapeMode.base);
+         assertEquals(text, escapedUtf);
+     }
+@@ -39,7 +46,7 @@
+         assertEquals("&0987654321; &unknown", Entities.unescape("&0987654321; &unknown"));
+     }
+ 
+-    @Test public void strictUnescape() { // for attributes, enforce strict unescaping (must look like &xxx; , not just &xxx)
++    @Test public void strictUnescape() { // for attributes, enforce strict unescaping (must look like &#xxx; , not just &#xxx)
+         String text = "Hello &amp= &amp;";
+         assertEquals("Hello &amp= &", Entities.unescape(text, true));
+         assertEquals("Hello &= &", Entities.unescape(text));
+
+commit ae51709b8c07098fa688ec6be0b5a7dec7654178
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sun Jan 27 16:58:05 2013
+
+    Output escape codes in hex instead of decimal.
+    
+    For characters that need to be escaped, this produces a smaller more
+    legible escape code, and Unicode chars are generally described in hex,
+    not dec.
+
+diff --git a/src/test/java/org/jsoup/nodes/EntitiesTest.java b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+index aa533b69..782604a4 100644
+--- a/src/test/java/org/jsoup/nodes/EntitiesTest.java
++++ b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+@@ -13,19 +13,21 @@
+         String escapedAscii = Entities.escape(text, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.base);
+         String escapedAsciiFull = Entities.escape(text, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.extended);
+         String escapedAsciiXhtml = Entities.escape(text, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.xhtml);
+-        String escapedUtf = Entities.escape(text, Charset.forName("UTF-8").newEncoder(), Entities.EscapeMode.base);
++        String escapedUtfFull = Entities.escape(text, Charset.forName("UTF-8").newEncoder(), Entities.EscapeMode.base);
++        String escapedUtfMin = Entities.escape(text, Charset.forName("UTF-8").newEncoder(), Entities.EscapeMode.xhtml);
+ 
+-        assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; &#960; &#26032; there &frac34; &copy;", escapedAscii);
+-        assertEquals("Hello &amp;&lt;&gt; &angst; &aring; &pi; &#26032; there &frac34; &copy;", escapedAsciiFull);
+-        assertEquals("Hello &amp;&lt;&gt; &#197; &#229; &#960; &#26032; there &#190; &#169;", escapedAsciiXhtml);
+-        assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; Ï æ° there &frac34; &copy;", escapedUtf);
++        assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; &x3c0; &x65b0; there &frac34; &copy;", escapedAscii);
++        assertEquals("Hello &amp;&lt;&gt; &angst; &aring; &pi; &x65b0; there &frac34; &copy;", escapedAsciiFull);
++        assertEquals("Hello &amp;&lt;&gt; &xc5; &xe5; &x3c0; &x65b0; there &xbe; &xa9;", escapedAsciiXhtml);
++        assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; Ï æ° there &frac34; &copy;", escapedUtfFull);
++        assertEquals("Hello &amp;&lt;&gt; Ã Ã¥ Ï æ° there Â¾ Â©", escapedUtfMin);
+         // odd that it's defined as aring in base but angst in full
+     }
+ 
+     @Test public void escapeSupplementaryCharacter(){
+         String text = new String(Character.toChars(135361));
+         String escapedAscii = Entities.escape(text, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.base);
+-        assertEquals("&#135361;", escapedAscii);
++        assertEquals("&x210c1;", escapedAscii);
+         String escapedUtf = Entities.escape(text, Charset.forName("UTF-8").newEncoder(), Entities.EscapeMode.base);
+         assertEquals(text, escapedUtf);
+     }
+
+commit c2a9605b70fdae3c064b49bf2a0b633c935322cc
+Author: mingfai.ma <mingfai.ma@egltours.com>
+Date:   Sat Jan 26 02:15:19 2013
+
+    changed Entities.escape to escape String with supplementary characters correctly, and added two test cases to verify
+
+diff --git a/src/test/java/org/jsoup/nodes/EntitiesTest.java b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+index e88b41c0..aa533b69 100644
+--- a/src/test/java/org/jsoup/nodes/EntitiesTest.java
++++ b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+@@ -22,6 +22,14 @@
+         // odd that it's defined as aring in base but angst in full
+     }
+ 
++    @Test public void escapeSupplementaryCharacter(){
++        String text = new String(Character.toChars(135361));
++        String escapedAscii = Entities.escape(text, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.base);
++        assertEquals("&#135361;", escapedAscii);
++        String escapedUtf = Entities.escape(text, Charset.forName("UTF-8").newEncoder(), Entities.EscapeMode.base);
++        assertEquals(text, escapedUtf);
++    }
++
+     @Test public void unescape() {
+         String text = "Hello &amp;&LT&gt; &reg &angst; &angst &#960; &#960 &#x65B0; there &! &frac34; &copy; &COPY;";
+         assertEquals("Hello &<> Â® Ã &angst Ï Ï æ° there &! Â¾ Â© Â©", Entities.unescape(text));
+
+commit a31ec08e102fd3832f3ff4449e9163440f0afb2c
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sun Sep 23 15:15:53 2012
+
+    Refactored entity decoding.
+    
+    Modified the heuristic entity decoder to be less greedy; does not
+    repeatedly chomp down the string until a match is found, and requires a
+    semicolon terminator for extended entities.
+    
+    Updated Entities to use the entity decoder in Tokeniser, vs the legacy
+    decoder.
+    
+    Fixes #224.
+
+diff --git a/src/test/java/org/jsoup/nodes/EntitiesTest.java b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+index 392a9ef5..e88b41c0 100644
+--- a/src/test/java/org/jsoup/nodes/EntitiesTest.java
++++ b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+@@ -4,7 +4,6 @@
+ import org.junit.Test;
+ 
+ import static org.junit.Assert.*;
+-import org.jsoup.nodes.Entities;
+ 
+ import java.nio.charset.Charset;
+ 
+@@ -24,17 +23,17 @@
+     }
+ 
+     @Test public void unescape() {
+-        String text = "Hello &amp;&LT&gt; &angst &#960; &#960 &#x65B0; there &! &frac34; &copy; &COPY;";
+-        assertEquals("Hello &<> Ã Ï Ï æ° there &! Â¾ Â© Â©", Entities.unescape(text));
++        String text = "Hello &amp;&LT&gt; &reg &angst; &angst &#960; &#960 &#x65B0; there &! &frac34; &copy; &COPY;";
++        assertEquals("Hello &<> Â® Ã &angst Ï Ï æ° there &! Â¾ Â© Â©", Entities.unescape(text));
+ 
+         assertEquals("&0987654321; &unknown", Entities.unescape("&0987654321; &unknown"));
+     }
+ 
+     @Test public void strictUnescape() { // for attributes, enforce strict unescaping (must look like &xxx; , not just &xxx)
+-        String text = "Hello &mid &amp;";
+-        assertEquals("Hello &mid &", Entities.unescape(text, true));
+-        assertEquals("Hello â£ &", Entities.unescape(text));
+-        assertEquals("Hello â£ &", Entities.unescape(text, false));
++        String text = "Hello &amp= &amp;";
++        assertEquals("Hello &amp= &", Entities.unescape(text, true));
++        assertEquals("Hello &= &", Entities.unescape(text));
++        assertEquals("Hello &= &", Entities.unescape(text, false));
+     }
+ 
+     
+@@ -60,4 +59,9 @@
+         assertEquals("&sup1;&sup2;&sup3;&frac14;&frac12;&frac34;", p.html());
+         assertEquals("Â¹Â²Â³Â¼Â½Â¾", p.text());
+     }
++
++    @Test public void noSpuriousDecodes() {
++        String string = "http://www.foo.com?a=1&num_rooms=1&children=0&int=VA&b=2";
++        assertEquals(string, Entities.unescape(string));
++    }
+ }
+
+commit 472c7e55ee9d5cc7e7771696092c6eeca5a91b4d
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sat Apr 14 23:59:41 2012
+
+    Fixed GAE support: load HTML entities from a file on startup, instead of embedding in the class.
+
+diff --git a/src/test/java/org/jsoup/nodes/EntitiesTest.java b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+index aace278f..392a9ef5 100644
+--- a/src/test/java/org/jsoup/nodes/EntitiesTest.java
++++ b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+@@ -10,22 +10,22 @@
+ 
+ public class EntitiesTest {
+     @Test public void escape() {
+-        String text = "Hello &<> Ã Ã¥ Ï æ° there Â¾";
++        String text = "Hello &<> Ã Ã¥ Ï æ° there Â¾ Â©";
+         String escapedAscii = Entities.escape(text, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.base);
+         String escapedAsciiFull = Entities.escape(text, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.extended);
+         String escapedAsciiXhtml = Entities.escape(text, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.xhtml);
+         String escapedUtf = Entities.escape(text, Charset.forName("UTF-8").newEncoder(), Entities.EscapeMode.base);
+ 
+-        assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; &#960; &#26032; there &frac34;", escapedAscii);
+-        assertEquals("Hello &amp;&lt;&gt; &angst; &aring; &pi; &#26032; there &frac34;", escapedAsciiFull);
+-        assertEquals("Hello &amp;&lt;&gt; &#197; &#229; &#960; &#26032; there &#190;", escapedAsciiXhtml);
+-        assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; Ï æ° there &frac34;", escapedUtf);
++        assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; &#960; &#26032; there &frac34; &copy;", escapedAscii);
++        assertEquals("Hello &amp;&lt;&gt; &angst; &aring; &pi; &#26032; there &frac34; &copy;", escapedAsciiFull);
++        assertEquals("Hello &amp;&lt;&gt; &#197; &#229; &#960; &#26032; there &#190; &#169;", escapedAsciiXhtml);
++        assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; Ï æ° there &frac34; &copy;", escapedUtf);
+         // odd that it's defined as aring in base but angst in full
+     }
+ 
+     @Test public void unescape() {
+-        String text = "Hello &amp;&LT&gt; &angst &#960; &#960 &#x65B0; there &! &frac34;";
+-        assertEquals("Hello &<> Ã Ï Ï æ° there &! Â¾", Entities.unescape(text));
++        String text = "Hello &amp;&LT&gt; &angst &#960; &#960 &#x65B0; there &! &frac34; &copy; &COPY;";
++        assertEquals("Hello &<> Ã Ï Ï æ° there &! Â¾ Â© Â©", Entities.unescape(text));
+ 
+         assertEquals("&0987654321; &unknown", Entities.unescape("&0987654321; &unknown"));
+     }
+
+commit f317c04acf821d61601f5d986252db40505153bc
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Thu Jan 27 22:31:19 2011
+
+    Force strict entity matching (must be &xxx; and not &xxx) in element attributes.
+    
+    Fixes #71
+
+diff --git a/src/test/java/org/jsoup/nodes/EntitiesTest.java b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+index 8436e08b..04eab125 100644
+--- a/src/test/java/org/jsoup/nodes/EntitiesTest.java
++++ b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+@@ -28,6 +28,14 @@
+ 
+         assertEquals("&0987654321; &unknown", Entities.unescape("&0987654321; &unknown"));
+     }
++
++    @Test public void strictUnescape() { // for attributes, enforce strict unescaping (must look like &xxx; , not just &xxx)
++        String text = "Hello &mid &amp;";
++        assertEquals("Hello &mid &", Entities.unescape(text, true));
++        assertEquals("Hello â£ &", Entities.unescape(text));
++        assertEquals("Hello â£ &", Entities.unescape(text, false));
++    }
++
+     
+     @Test public void caseSensitive() {
+         String unescaped = "Ã Ã¼ & &";
+
+commit 2e4969497c5734d90d394103728bb517644f9157
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Tue Nov 16 05:50:20 2010
+
+    Fixed support for HTML entities with numbers in name (e.g. &frac34, &sup1)
+    
+    Fixes #46
+
+diff --git a/src/test/java/org/jsoup/nodes/EntitiesTest.java b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+index caf3d12e..8436e08b 100644
+--- a/src/test/java/org/jsoup/nodes/EntitiesTest.java
++++ b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+@@ -9,22 +9,22 @@
+ 
+ public class EntitiesTest {
+     @Test public void escape() {
+-        String text = "Hello &<> Ã Ã¥ Ï æ° there";
++        String text = "Hello &<> Ã Ã¥ Ï æ° there Â¾";
+         String escapedAscii = Entities.escape(text, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.base);
+         String escapedAsciiFull = Entities.escape(text, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.extended);
+         String escapedAsciiXhtml = Entities.escape(text, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.xhtml);
+         String escapedUtf = Entities.escape(text, Charset.forName("UTF-8").newEncoder(), Entities.EscapeMode.base);
+ 
+-        assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; &#960; &#26032; there", escapedAscii);
+-        assertEquals("Hello &amp;&lt;&gt; &angst; &aring; &pi; &#26032; there", escapedAsciiFull);
+-        assertEquals("Hello &amp;&lt;&gt; &#197; &#229; &#960; &#26032; there", escapedAsciiXhtml);
+-        assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; Ï æ° there", escapedUtf);
++        assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; &#960; &#26032; there &frac34;", escapedAscii);
++        assertEquals("Hello &amp;&lt;&gt; &angst; &aring; &pi; &#26032; there &frac34;", escapedAsciiFull);
++        assertEquals("Hello &amp;&lt;&gt; &#197; &#229; &#960; &#26032; there &#190;", escapedAsciiXhtml);
++        assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; Ï æ° there &frac34;", escapedUtf);
+         // odd that it's defined as aring in base but angst in full
+     }
+ 
+     @Test public void unescape() {
+-        String text = "Hello &amp;&LT&gt; &angst &#960; &#960 &#x65B0; there &!";
+-        assertEquals("Hello &<> Ã Ï Ï æ° there &!", Entities.unescape(text));
++        String text = "Hello &amp;&LT&gt; &angst &#960; &#960 &#x65B0; there &! &frac34;";
++        assertEquals("Hello &<> Ã Ï Ï æ° there &! Â¾", Entities.unescape(text));
+ 
+         assertEquals("&0987654321; &unknown", Entities.unescape("&0987654321; &unknown"));
+     }
+
+commit 20ed24cefb5df53c48021459af98bef83c55f241
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Tue Aug 31 20:07:10 2010
+
+    Fixed issue in Entities when unescaping &#36; ("$")
+    
+    Fixes #34
+
+diff --git a/src/test/java/org/jsoup/nodes/EntitiesTest.java b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+index 3eeba5b0..1965765d 100644
+--- a/src/test/java/org/jsoup/nodes/EntitiesTest.java
++++ b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+@@ -34,4 +34,11 @@
+         String escaped = "&Uuml; &uuml; &amp; &AMP";
+         assertEquals("Ã Ã¼ & &", Entities.unescape(escaped));
+     }
++    
++    @Test public void quoteReplacements() {
++        String escaped = "&#92; &#36;";
++        String unescaped = "\\ $";
++        
++        assertEquals(unescaped, Entities.unescape(escaped));
++    }
+ }
+
+commit 528b793d86be485f7b4fff51f97e67708eb632da
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Thu Sep 2 20:23:31 2010
+
+    Added restricted XHTML output entity option
+
+diff --git a/src/test/java/org/jsoup/nodes/EntitiesTest.java b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+index 1965765d..caf3d12e 100644
+--- a/src/test/java/org/jsoup/nodes/EntitiesTest.java
++++ b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+@@ -12,10 +12,12 @@
+         String text = "Hello &<> Ã Ã¥ Ï æ° there";
+         String escapedAscii = Entities.escape(text, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.base);
+         String escapedAsciiFull = Entities.escape(text, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.extended);
++        String escapedAsciiXhtml = Entities.escape(text, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.xhtml);
+         String escapedUtf = Entities.escape(text, Charset.forName("UTF-8").newEncoder(), Entities.EscapeMode.base);
+ 
+         assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; &#960; &#26032; there", escapedAscii);
+         assertEquals("Hello &amp;&lt;&gt; &angst; &aring; &pi; &#26032; there", escapedAsciiFull);
++        assertEquals("Hello &amp;&lt;&gt; &#197; &#229; &#960; &#26032; there", escapedAsciiXhtml);
+         assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; Ï æ° there", escapedUtf);
+         // odd that it's defined as aring in base but angst in full
+     }
+
+commit 5e52f1b266173593fab32fe9d8a4963066b2f2fe
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Thu Aug 12 20:10:24 2010
+
+    Fixed support for case-sensitive HTML escape entities.
+    
+    Fixes #31
+
+diff --git a/src/test/java/org/jsoup/nodes/EntitiesTest.java b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+index cdf84f65..3eeba5b0 100644
+--- a/src/test/java/org/jsoup/nodes/EntitiesTest.java
++++ b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+@@ -9,21 +9,29 @@
+ 
+ public class EntitiesTest {
+     @Test public void escape() {
+-        String text = "Hello &<> Ã Ï æ° there";
++        String text = "Hello &<> Ã Ã¥ Ï æ° there";
+         String escapedAscii = Entities.escape(text, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.base);
+         String escapedAsciiFull = Entities.escape(text, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.extended);
+         String escapedUtf = Entities.escape(text, Charset.forName("UTF-8").newEncoder(), Entities.EscapeMode.base);
+ 
+-        assertEquals("Hello &amp;&lt;&gt; &aring; &#960; &#26032; there", escapedAscii);
+-        assertEquals("Hello &amp;&lt;&gt; &angst; &pi; &#26032; there", escapedAsciiFull);
+-        assertEquals("Hello &amp;&lt;&gt; &aring; Ï æ° there", escapedUtf);
++        assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; &#960; &#26032; there", escapedAscii);
++        assertEquals("Hello &amp;&lt;&gt; &angst; &aring; &pi; &#26032; there", escapedAsciiFull);
++        assertEquals("Hello &amp;&lt;&gt; &Aring; &aring; Ï æ° there", escapedUtf);
+         // odd that it's defined as aring in base but angst in full
+     }
+ 
+     @Test public void unescape() {
+-        String text = "Hello &amp;&LT&gt; &ANGST &#960; &#960 &#x65B0; there &!";
++        String text = "Hello &amp;&LT&gt; &angst &#960; &#960 &#x65B0; there &!";
+         assertEquals("Hello &<> Ã Ï Ï æ° there &!", Entities.unescape(text));
+ 
+         assertEquals("&0987654321; &unknown", Entities.unescape("&0987654321; &unknown"));
+     }
++    
++    @Test public void caseSensitive() {
++        String unescaped = "Ã Ã¼ & &";
++        assertEquals("&Uuml; &uuml; &amp; &amp;", Entities.escape(unescaped, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.extended));
++        
++        String escaped = "&Uuml; &uuml; &amp; &AMP";
++        assertEquals("Ã Ã¼ & &", Entities.unescape(escaped));
++    }
+ }
+
+commit 935cab0e00f289ce5369f4c217b5eb3a3d9e33e7
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Tue Aug 3 06:18:40 2010
+
+    Simplified Entity unescaper
+
+diff --git a/src/test/java/org/jsoup/nodes/EntitiesTest.java b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+index f141c851..cdf84f65 100644
+--- a/src/test/java/org/jsoup/nodes/EntitiesTest.java
++++ b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+@@ -24,7 +24,6 @@
+         String text = "Hello &amp;&LT&gt; &ANGST &#960; &#960 &#x65B0; there &!";
+         assertEquals("Hello &<> Ã Ï Ï æ° there &!", Entities.unescape(text));
+ 
+-        assertEquals("&0987654321; &unknown;", Entities.unescape("&0987654321; &unknown"));
+-        // these missed encodes aren't 100%, not sure how correct the fallback need to be
++        assertEquals("&0987654321; &unknown", Entities.unescape("&0987654321; &unknown"));
+     }
+ }
+
+commit f8841edabba28d6125dd87ed72f557e85570066b
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Mon Aug 2 09:25:04 2010
+
+    Working on escape/unescape routine.
+
+diff --git a/src/test/java/org/jsoup/nodes/EntitiesTest.java b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+new file mode 100644
+index 00000000..f141c851
+--- /dev/null
++++ b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+@@ -0,0 +1,30 @@
++package org.jsoup.nodes;
++
++import org.junit.Test;
++
++import static org.junit.Assert.*;
++import org.jsoup.nodes.Entities;
++
++import java.nio.charset.Charset;
++
++public class EntitiesTest {
++    @Test public void escape() {
++        String text = "Hello &<> Ã Ï æ° there";
++        String escapedAscii = Entities.escape(text, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.base);
++        String escapedAsciiFull = Entities.escape(text, Charset.forName("ascii").newEncoder(), Entities.EscapeMode.extended);
++        String escapedUtf = Entities.escape(text, Charset.forName("UTF-8").newEncoder(), Entities.EscapeMode.base);
++
++        assertEquals("Hello &amp;&lt;&gt; &aring; &#960; &#26032; there", escapedAscii);
++        assertEquals("Hello &amp;&lt;&gt; &angst; &pi; &#26032; there", escapedAsciiFull);
++        assertEquals("Hello &amp;&lt;&gt; &aring; Ï æ° there", escapedUtf);
++        // odd that it's defined as aring in base but angst in full
++    }
++
++    @Test public void unescape() {
++        String text = "Hello &amp;&LT&gt; &ANGST &#960; &#960 &#x65B0; there &!";
++        assertEquals("Hello &<> Ã Ï Ï æ° there &!", Entities.unescape(text));
++
++        assertEquals("&0987654321; &unknown;", Entities.unescape("&0987654321; &unknown"));
++        // these missed encodes aren't 100%, not sure how correct the fallback need to be
++    }
++}

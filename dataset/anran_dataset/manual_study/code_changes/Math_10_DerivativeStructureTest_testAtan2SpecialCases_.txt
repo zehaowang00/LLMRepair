@@ -1,0 +1,42 @@
+commit 7e2ffcc9034de41d7787f0b33b5670474f7a10de
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Fri Feb 15 03:20:11 2013
+
+    Fixed DerivativeStructure.atan2 for special cases when both arguments
+    are +/-0.
+    
+    JIRA: MATH-935
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1446473 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math3/analysis/differentiation/DerivativeStructureTest.java b/src/test/java/org/apache/commons/math3/analysis/differentiation/DerivativeStructureTest.java
+--- a/src/test/java/org/apache/commons/math3/analysis/differentiation/DerivativeStructureTest.java
++++ b/src/test/java/org/apache/commons/math3/analysis/differentiation/DerivativeStructureTest.java
+@@ -811,0 +811,27 @@
++    public void testAtan2SpecialCases() {
++
++        DerivativeStructure pp =
++                DerivativeStructure.atan2(new DerivativeStructure(2, 2, 1, +0.0),
++                                          new DerivativeStructure(2, 2, 1, +0.0));
++        Assert.assertEquals(0, pp.getValue(), 1.0e-15);
++        Assert.assertEquals(+1, FastMath.copySign(1, pp.getValue()), 1.0e-15);
++
++        DerivativeStructure pn =
++                DerivativeStructure.atan2(new DerivativeStructure(2, 2, 1, +0.0),
++                                          new DerivativeStructure(2, 2, 1, -0.0));
++        Assert.assertEquals(FastMath.PI, pn.getValue(), 1.0e-15);
++
++        DerivativeStructure np =
++                DerivativeStructure.atan2(new DerivativeStructure(2, 2, 1, -0.0),
++                                          new DerivativeStructure(2, 2, 1, +0.0));
++        Assert.assertEquals(0, np.getValue(), 1.0e-15);
++        Assert.assertEquals(-1, FastMath.copySign(1, np.getValue()), 1.0e-15);
++
++        DerivativeStructure nn =
++                DerivativeStructure.atan2(new DerivativeStructure(2, 2, 1, -0.0),
++                                          new DerivativeStructure(2, 2, 1, -0.0));
++        Assert.assertEquals(-FastMath.PI, nn.getValue(), 1.0e-15);
++
++    }
++
++    @Test

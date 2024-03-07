@@ -1,0 +1,19 @@
+commit 706513d59425e7a9dc6bdb972f25b03b02e48558
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Mon Apr 30 07:14:37 2012
+
+    Fix DateTimeFormatter.parseInto() [3522138]
+    
+    Revert behaviour back to v1.x when parseInto month/day only
+
+diff --git a/src/test/java/org/joda/time/format/TestDateTimeFormatter.java b/src/test/java/org/joda/time/format/TestDateTimeFormatter.java
+--- a/src/test/java/org/joda/time/format/TestDateTimeFormatter.java
++++ b/src/test/java/org/joda/time/format/TestDateTimeFormatter.java
+@@ -866,0 +894,7 @@
++    public void testParseInto_monthOnly_parseEndYear() {
++        DateTimeFormatter f = DateTimeFormat.forPattern("M").withLocale(Locale.UK);
++        MutableDateTime result = new MutableDateTime(2004, 1, 31, 12, 20, 30, 0,TOKYO);
++        assertEquals(2, f.parseInto(result, "12", 0));
++        assertEquals(new MutableDateTime(2004, 12, 31, 12, 20, 30, 0, TOKYO), result);
++    }
++

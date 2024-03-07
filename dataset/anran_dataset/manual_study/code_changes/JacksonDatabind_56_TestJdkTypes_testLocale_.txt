@@ -1,0 +1,130 @@
+commit 07b6d6636670b2a9f14ac265186790db11cfd52d
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Thu Aug 25 00:34:28 2016
+
+    Fix #1344
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/deser/TestJdkTypes.java b/src/test/java/com/fasterxml/jackson/databind/deser/TestJdkTypes.java
+--- a/src/test/java/com/fasterxml/jackson/databind/deser/TestJdkTypes.java
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/TestJdkTypes.java
+@@ -142,11 +142,14 @@
+     public void testLocale() throws IOException
+     {
+         assertEquals(new Locale("en"), MAPPER.readValue(quote("en"), Locale.class));
+         assertEquals(new Locale("es", "ES"), MAPPER.readValue(quote("es_ES"), Locale.class));
+         assertEquals(new Locale("FI", "fi", "savo"),
+                 MAPPER.readValue(quote("fi_FI_savo"), Locale.class));
++        assertEquals(new Locale("en", "US"),
++                MAPPER.readValue(quote("en-US"), Locale.class));
++
+         // [databind#1123]
+         Locale loc = MAPPER.readValue(quote(""), Locale.class);
+         assertSame(Locale.ROOT, loc);
+     }
+ 
+
+commit 2d90441ef0440f3a2f910b210234cb8b709ca727
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Tue Feb 9 19:43:49 2016
+
+    Fix #1123
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/deser/TestJdkTypes.java b/src/test/java/com/fasterxml/jackson/databind/deser/TestJdkTypes.java
+--- a/src/test/java/com/fasterxml/jackson/databind/deser/TestJdkTypes.java
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/TestJdkTypes.java
+@@ -146,7 +142,11 @@
+     public void testLocale() throws IOException
+     {
+         assertEquals(new Locale("en"), MAPPER.readValue(quote("en"), Locale.class));
+         assertEquals(new Locale("es", "ES"), MAPPER.readValue(quote("es_ES"), Locale.class));
+-        assertEquals(new Locale("FI", "fi", "savo"), MAPPER.readValue(quote("fi_FI_savo"), Locale.class));
++        assertEquals(new Locale("FI", "fi", "savo"),
++                MAPPER.readValue(quote("fi_FI_savo"), Locale.class));
++        // [databind#1123]
++        Locale loc = MAPPER.readValue(quote(""), Locale.class);
++        assertSame(Locale.ROOT, loc);
+     }
+ 
+
+commit f0af8c1f950e19813272e7b32c664026937fdece
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Thu Jul 11 13:20:22 2013
+
+    Complete #239 implementation
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/deser/TestJdkTypes.java b/src/test/java/com/fasterxml/jackson/databind/deser/TestJdkTypes.java
+--- a/src/test/java/com/fasterxml/jackson/databind/deser/TestJdkTypes.java
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/TestJdkTypes.java
+@@ -118,7 +119,7 @@
+     public void testLocale() throws IOException
+     {
+-        assertEquals(new Locale("en"), mapper.readValue(quote("en"), Locale.class));
+-        assertEquals(new Locale("es", "ES"), mapper.readValue(quote("es_ES"), Locale.class));
+-        assertEquals(new Locale("FI", "fi", "savo"), mapper.readValue(quote("fi_FI_savo"), Locale.class));
++        assertEquals(new Locale("en"), MAPPER.readValue(quote("en"), Locale.class));
++        assertEquals(new Locale("es", "ES"), MAPPER.readValue(quote("es_ES"), Locale.class));
++        assertEquals(new Locale("FI", "fi", "savo"), MAPPER.readValue(quote("fi_FI_savo"), Locale.class));
+     }
+ 
+
+commit 0aef72dd7e0d05c6583e24bf079297441e700a9d
+Author: Tatu <tatu@ning.com>
+Date:   Wed Jan 11 18:42:58 2012
+
+    Minor improvements to handling of boolean values (allow long values)
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/deser/TestJdkTypes.java b/src/test/java/com/fasterxml/jackson/databind/deser/TestJdkTypes.java
+--- a/src/test/java/com/fasterxml/jackson/databind/deser/TestJdkTypes.java
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/TestJdkTypes.java
+@@ -93,7 +107,7 @@
+     public void testLocale() throws IOException
+     {
+-        assertEquals(new Locale("en"), MAPPER.readValue(quote("en"), Locale.class));
+-        assertEquals(new Locale("es", "ES"), MAPPER.readValue(quote("es_ES"), Locale.class));
+-        assertEquals(new Locale("FI", "fi", "savo"), MAPPER.readValue(quote("fi_FI_savo"), Locale.class));
++        assertEquals(new Locale("en"), mapper.readValue(quote("en"), Locale.class));
++        assertEquals(new Locale("es", "ES"), mapper.readValue(quote("es_ES"), Locale.class));
++        assertEquals(new Locale("FI", "fi", "savo"), mapper.readValue(quote("fi_FI_savo"), Locale.class));
+     }
+ 
+
+commit 9312ad890b557806d84bde705f351e255e9fe050
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Thu Dec 29 20:06:08 2011
+
+    Add little bif of caching for TypeFactory, to reduce cost of JavaType creation
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/deser/TestJdkTypes.java b/src/test/java/com/fasterxml/jackson/databind/deser/TestJdkTypes.java
+--- a/src/test/java/com/fasterxml/jackson/databind/deser/TestJdkTypes.java
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/TestJdkTypes.java
+@@ -95,8 +93,7 @@
+     public void testLocale() throws IOException
+     {
+-        ObjectMapper mapper = new ObjectMapper();
+-        assertEquals(new Locale("en"), mapper.readValue(quote("en"), Locale.class));
+-        assertEquals(new Locale("es", "ES"), mapper.readValue(quote("es_ES"), Locale.class));
+-        assertEquals(new Locale("FI", "fi", "savo"), mapper.readValue(quote("fi_FI_savo"), Locale.class));
++        assertEquals(new Locale("en"), MAPPER.readValue(quote("en"), Locale.class));
++        assertEquals(new Locale("es", "ES"), MAPPER.readValue(quote("es_ES"), Locale.class));
++        assertEquals(new Locale("FI", "fi", "savo"), MAPPER.readValue(quote("fi_FI_savo"), Locale.class));
+     }
+ 
+
+commit a63c2038a03c7090ce4773d6cf54809150e59350
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 03:26:53 2011
+
+    Add unit tests, almost compilable
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/deser/TestJdkTypes.java b/src/test/java/com/fasterxml/jackson/databind/deser/TestJdkTypes.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/TestJdkTypes.java
+@@ -0,0 +95,8 @@
++    public void testLocale() throws IOException
++    {
++        ObjectMapper mapper = new ObjectMapper();
++        assertEquals(new Locale("en"), mapper.readValue(quote("en"), Locale.class));
++        assertEquals(new Locale("es", "ES"), mapper.readValue(quote("es_ES"), Locale.class));
++        assertEquals(new Locale("FI", "fi", "savo"), mapper.readValue(quote("fi_FI_savo"), Locale.class));
++    }
++

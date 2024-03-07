@@ -1,0 +1,38 @@
+commit e39a7750ef362679599b623b05bfadb150832515
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Wed Jun 20 18:24:04 2007
+
+    Increased default epsilon for Gamma, Beta function evaluation.
+    JIRA: MATH-166
+    Reported and patched by Lukas Theussl
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@549278 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/special/GammaTest.java b/src/test/org/apache/commons/math/special/GammaTest.java
+--- a/src/test/org/apache/commons/math/special/GammaTest.java
++++ b/src/test/org/apache/commons/math/special/GammaTest.java
+@@ -76,4 +76,4 @@
+     public void testRegularizedGammaPositivePositive() {
+-        testRegularizedGamma(0.632121, 1.0, 1.0);
++        testRegularizedGamma(0.632120558828558, 1.0, 1.0);
+     }
+     
+
+commit 0a904461932f2c0455611e77ec6a8d8aced2980b
+Author: Mark R. Diggory <mdiggory@apache.org>
+Date:   Fri Nov 14 17:25:28 2003
+
+    Attempting to recover last revision.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@141013 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/special/GammaTest.java b/src/test/org/apache/commons/math/special/GammaTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/math/special/GammaTest.java
+@@ -0,0 +111,4 @@
++    public void testRegularizedGammaPositivePositive() {
++        testRegularizedGamma(0.632121, 1.0, 1.0);
++    }
++    

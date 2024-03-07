@@ -1,0 +1,72 @@
+commit 2d44864a5f7d30eaee42cf30b4808566febebf6e
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Wed Feb 25 11:09:12 2009
+
+    add an option to implicitly create Unicode Extra Fields in ZiparchiveOutputStream
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/sandbox/compress/trunk@747841 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/zip/UTF8ZipFilesTest.java b/src/test/java/org/apache/commons/compress/archivers/zip/UTF8ZipFilesTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/zip/UTF8ZipFilesTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/zip/UTF8ZipFilesTest.java
+@@ -42,4 +62,5 @@
+-    public void xtestUtf8FileRoundtrip() throws IOException {
+-        testFileRoundtrip(UTF_8, true);
++    public void testUtf8FileRoundtripImplicitUnicodeExtra()
++        throws IOException {
++        testFileRoundtrip(UTF_8, true, false);
+     }
+ 
+
+commit 51af42b07093e3cfb3d72fab153df8649f732055
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Mon Feb 23 03:21:40 2009
+
+    EFS-Flag interop test using 7-Zip created file submitted by wolfgang Glas.  SANDBOX-176
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/sandbox/compress/trunk@746917 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/zip/UTF8ZipFilesTest.java b/src/test/java/org/apache/commons/compress/archivers/zip/UTF8ZipFilesTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/zip/UTF8ZipFilesTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/zip/UTF8ZipFilesTest.java
+@@ -39,4 +42,4 @@
+-    public void testUtf8FileRoundtrip() throws IOException {
++    public void xtestUtf8FileRoundtrip() throws IOException {
+         testFileRoundtrip(UTF_8, true);
+     }
+ 
+
+commit 5c4bbc571c2e85fd8e766cbdae624bbf588e4888
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Fri Feb 20 11:46:37 2009
+
+    separate unicode tests with and without EFS flag
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/sandbox/compress/trunk@746291 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/zip/UTF8ZipFilesTest.java b/src/test/java/org/apache/commons/compress/archivers/zip/UTF8ZipFilesTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/zip/UTF8ZipFilesTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/zip/UTF8ZipFilesTest.java
+@@ -39,4 +39,4 @@
+     public void testUtf8FileRoundtrip() throws IOException {
+-        testFileRoundtrip(UTF_8);
++        testFileRoundtrip(UTF_8, true);
+     }
+ 
+
+commit e451ee48eea0be402f9a3502b22b0104d55d3cb9
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Thu Feb 19 08:36:59 2009
+
+    TestCase for new Unicode extra fields, based on submission by Wolfgang Glas, SANDBOX-176
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/sandbox/compress/trunk@745855 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/zip/UTF8ZipFilesTest.java b/src/test/java/org/apache/commons/compress/archivers/zip/UTF8ZipFilesTest.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/compress/archivers/zip/UTF8ZipFilesTest.java
+@@ -0,0 +39,4 @@
++    public void testUtf8FileRoundtrip() throws IOException {
++        testFileRoundtrip(UTF_8);
++    }
++

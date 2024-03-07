@@ -1,0 +1,133 @@
+commit 29c3b75e2d5120771ca85ffcbffc9b7cb5d45c58
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Tue Feb 23 16:01:38 2010
+
+    Fixed a missing bracketing check of initial interval in Brent solver
+    JIRA: MATH-343
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@915517 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/analysis/solvers/BrentSolverTest.java b/src/test/java/org/apache/commons/math/analysis/solvers/BrentSolverTest.java
+--- a/src/test/java/org/apache/commons/math/analysis/solvers/BrentSolverTest.java
++++ b/src/test/java/org/apache/commons/math/analysis/solvers/BrentSolverTest.java
+@@ -317,17 +317,23 @@
+     public void testBadEndpoints() throws Exception {
+         UnivariateRealFunction f = new SinFunction();
+         UnivariateRealSolver solver = new BrentSolver();
+         try {  // bad interval
+             solver.solve(f, 1, -1);
+             fail("Expecting IllegalArgumentException - bad interval");
+         } catch (IllegalArgumentException ex) {
+             // expected
+         }
+         try {  // no bracket
+             solver.solve(f, 1, 1.5);
+             fail("Expecting IllegalArgumentException - non-bracketing");
+         } catch (IllegalArgumentException ex) {
+             // expected
+         }
++        try {  // no bracket
++            solver.solve(f, 1, 1.5, 1.2);
++            fail("Expecting IllegalArgumentException - non-bracketing");
++        } catch (IllegalArgumentException ex) {
++            // expected
++        }
+     }
+ 
+
+commit 583dffc0ee383e9b5e1e08c574de10db8270fdb7
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sun Dec 7 15:24:10 2008
+
+    The root solvers now take the function to solve as a parameter to
+    the solve methods, thus allowing to reuse the same solver for different
+    functions.
+    
+    JIRA:MATH-218
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@724191 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/analysis/BrentSolverTest.java b/src/test/org/apache/commons/math/analysis/BrentSolverTest.java
+--- a/src/test/org/apache/commons/math/analysis/BrentSolverTest.java
++++ b/src/test/org/apache/commons/math/analysis/BrentSolverTest.java
+@@ -283,17 +321,17 @@
+     public void testBadEndpoints() throws Exception {
+         UnivariateRealFunction f = new SinFunction();
+-        UnivariateRealSolver solver = new BrentSolver(f);
++        UnivariateRealSolver solver = new BrentSolver();
+         try {  // bad interval
+-            solver.solve(1, -1);
++            solver.solve(f, 1, -1);
+             fail("Expecting IllegalArgumentException - bad interval");
+         } catch (IllegalArgumentException ex) {
+             // expected
+         }
+         try {  // no bracket
+-            solver.solve(1, 1.5);
++            solver.solve(f, 1, 1.5);
+             fail("Expecting IllegalArgumentException - non-bracketing");
+         } catch (IllegalArgumentException ex) {
+             // expected
+         }
+     }
+ 
+
+commit ff69ef1cc25034ce8fd11838ab4478a7a0b048f1
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Tue May 8 14:16:52 2007
+
+    [MATH-156] use initial guess provided by the caller to BrentSolver.solve(),
+    thus improving speed
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@536283 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/analysis/BrentSolverTest.java b/src/test/org/apache/commons/math/analysis/BrentSolverTest.java
+--- a/src/test/org/apache/commons/math/analysis/BrentSolverTest.java
++++ b/src/test/org/apache/commons/math/analysis/BrentSolverTest.java
+@@ -271,16 +271,17 @@
+     public void testBadEndpoints() throws Exception {
+         UnivariateRealFunction f = new SinFunction();
+         UnivariateRealSolver solver = new BrentSolver(f);
+         try {  // bad interval
+             solver.solve(1, -1);
+             fail("Expecting IllegalArgumentException - bad interval");
+         } catch (IllegalArgumentException ex) {
+             // expected
+         }
+         try {  // no bracket
+             solver.solve(1, 1.5);
+             fail("Expecting IllegalArgumentException - non-bracketing");
+         } catch (IllegalArgumentException ex) {
+             // expected
+         }
+     }
++
+
+commit 4f1e69b5313761cb95909359a408d13e6aa29635
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sat Jun 4 01:36:42 2005
+
+    Eliminated redundant endpoint function evaluations in BrentSolver, SecantSolver. BZ #35042.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@179958 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/analysis/BrentSolverTest.java b/src/test/org/apache/commons/math/analysis/BrentSolverTest.java
+--- a/src/test/org/apache/commons/math/analysis/BrentSolverTest.java
++++ b/src/test/org/apache/commons/math/analysis/BrentSolverTest.java
+@@ -269,0 +270,16 @@
++    public void testBadEndpoints() throws Exception {
++        UnivariateRealFunction f = new SinFunction();
++        UnivariateRealSolver solver = new BrentSolver(f);
++        try {  // bad interval
++            solver.solve(1, -1);
++            fail("Expecting IllegalArgumentException - bad interval");
++        } catch (IllegalArgumentException ex) {
++            // expected
++        }
++        try {  // no bracket
++            solver.solve(1, 1.5);
++            fail("Expecting IllegalArgumentException - non-bracketing");
++        } catch (IllegalArgumentException ex) {
++            // expected
++        }
++    }

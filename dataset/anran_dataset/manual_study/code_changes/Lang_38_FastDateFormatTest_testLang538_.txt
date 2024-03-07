@@ -1,0 +1,393 @@
+commit a95e76eefb91bdd9cf1c22734874a3d3c95ed327
+Author: Henri Yandell <bayard@apache.org>
+Date:   Thu Dec 17 01:04:28 2009
+
+    Fixing LANG-538 - you need to call getTime() on a calendar sometimes to get it in the right state, otherwise the timezone gets out of whack.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@891542 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang3/time/FastDateFormatTest.java b/src/test/org/apache/commons/lang3/time/FastDateFormatTest.java
+--- a/src/test/org/apache/commons/lang3/time/FastDateFormatTest.java
++++ b/src/test/org/apache/commons/lang3/time/FastDateFormatTest.java
+@@ -336,1 +337,13 @@
++    public void testLang538() {
++        final String dateTime = "2009-10-16T16:42:16.000Z";
++
++        // more commonly constructed with: cal = new GregorianCalendar(2009, 9, 16, 8, 42, 16)
++        // for the unit test to work in any time zone, constructing with GMT-8 rather than default locale time zone
++        GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT-8"));
++        cal.clear();
++        cal.set(2009, 9, 16, 8, 42, 16);
++
++        FastDateFormat format = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", TimeZone.getTimeZone("GMT"));
++        assertEquals("dateTime", dateTime, format.format(cal));
++    }
+ }
+
+commit d3015ae73bfbf0ee970199cd6a1e073fbfd9c7ef
+Author: Henri Yandell <bayard@apache.org>
+Date:   Tue Jan 7 16:21:43 2003
+
+    Reformatted [dos2unix]. A newline was introduced after the licence so that cvs
+    would allow the commit.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137223 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/time/FastDateFormatTest.java b/src/test/org/apache/commons/lang/time/FastDateFormatTest.java
+--- a/src/test/org/apache/commons/lang/time/FastDateFormatTest.java
++++ b/src/test/org/apache/commons/lang/time/FastDateFormatTest.java
+@@ -1,166 +167,1 @@
+-/* ====================================================================
+- * The Apache Software License, Version 1.1
+- *
+- * Copyright (c) 2002 The Apache Software Foundation.  All rights
+- * reserved.
+- *
+- * Redistribution and use in source and binary forms, with or without
+- * modification, are permitted provided that the following conditions
+- * are met:
+- *
+- * 1. Redistributions of source code must retain the above copyright
+- *    notice, this list of conditions and the following disclaimer.
+- *
+- * 2. Redistributions in binary form must reproduce the above copyright
+- *    notice, this list of conditions and the following disclaimer in
+- *    the documentation and/or other materials provided with the
+- *    distribution.
+- *
+- * 3. The end-user documentation included with the redistribution, if
+- *    any, must include the following acknowlegement:
+- *       "This product includes software developed by the
+- *        Apache Software Foundation (http://www.apache.org/)."
+- *    Alternately, this acknowlegement may appear in the software itself,
+- *    if and wherever such third-party acknowlegements normally appear.
+- *
+- * 4. The names "The Jakarta Project", "Commons", and "Apache Software
+- *    Foundation" must not be used to endorse or promote products derived
+- *    from this software without prior written permission. For written
+- *    permission, please contact apache@apache.org.
+- *
+- * 5. Products derived from this software may not be called "Apache"
+- *    nor may "Apache" appear in their names without prior written
+- *    permission of the Apache Software Foundation.
+- *
+- * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+- * DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
+- * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+- * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+- * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+- * SUCH DAMAGE.
+- * ====================================================================
+- *
+- * This software consists of voluntary contributions made by many
+- * individuals on behalf of the Apache Software Foundation.  For more
+- * information on the Apache Software Foundation, please see
+- * <http://www.apache.org/>.
+- */
+-package org.apache.commons.lang.time;
+-
+-import junit.framework.*;
+-import junit.textui.TestRunner;
+-import java.util.*;
+-import java.text.*;
+-
+-/**
+- * Unit tests {@link org.apache.commons.lang.time.FastDateFormat}.
+- *
+- * @author Sean Schofield
+- * @since 2.0
+- * @version $Id: FastDateFormatTest.java,v 1.1 2003/01/07 19:55:55 bayard Exp $
+- */
+-public class FastDateFormatTest extends TestCase {
+-
+-    private FastDateFormat fastDateFormat = null;
+-
+-    public FastDateFormatTest(String name) {
+-        super(name);
+-    }
+-
+-    public static void main(String[] args) {
+-        TestRunner.run(suite());
+-    }
+-
+-    public static Test suite() {
+-        TestSuite suite = new TestSuite(FastDateFormatTest.class);
+-        suite.setName("FastDateFormat Tests");
+-
+-        return suite;
+-    }
+-
+-    protected void setUp() throws Exception {
+-        super.setUp();
+-    }
+-
+-    protected void tearDown() throws Exception {
+-        super.tearDown();
+-    }
+-
+-    public void test_getInstance() {
+-        FastDateFormat format1 = FastDateFormat.getInstance();
+-        FastDateFormat format2 = FastDateFormat.getInstance();
+-        assertSame(format1, format2);
+-    }
+-
+-    public void test_getInstance_String() {
+-        FastDateFormat format1 = FastDateFormat.getInstance("MM/DD/yyyy");
+-        FastDateFormat format2 = FastDateFormat.getInstance("MM-DD-yyyy");
+-        assertTrue(format1 != format2); // -- junit 3.8 version -- assertFalse(format1 == format2);
+-        assertSame(format1, FastDateFormat.getInstance("MM/DD/yyyy"));
+-    }
+-
+-    public void test_getInstance_String_TimeZone() {
+-        Locale realDefaultLocale = Locale.getDefault();
+-        Locale.setDefault(Locale.US);
+-        TimeZone realDefaultZone = TimeZone.getDefault();
+-        TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"));
+-
+-        FastDateFormat format1 = FastDateFormat.getInstance("MM/DD/yyyy",
+-                TimeZone.getTimeZone("Atlantic/Reykjavik"));
+-        FastDateFormat format2 = FastDateFormat.getInstance("MM/DD/yyyy");
+-        FastDateFormat format3 = FastDateFormat.getInstance("MM/DD/yyyy", TimeZone.getDefault());
+-        FastDateFormat format4 = FastDateFormat.getInstance("MM/DD/yyyy", TimeZone.getDefault());
+-        FastDateFormat format5 = FastDateFormat.getInstance("MM-DD-yyyy", TimeZone.getDefault());
+-
+-        assertTrue(format1 != format2); // -- junit 3.8 version -- assertFalse(format1 == format2);
+-        assertTrue(format1.getTimeZone().equals(TimeZone.getTimeZone("Atlantic/Reykjavik")));
+-        assertNull(format2.getTimeZone());
+-        assertSame(format3, format4);
+-        assertTrue(format3 != format5); // -- junit 3.8 version -- assertFalse(format3 == format5);
+-
+-        Locale.setDefault(realDefaultLocale);
+-        TimeZone.setDefault(realDefaultZone);
+-    }
+-
+-    public void test_getInstance_String_Locale() {
+-        Locale realDefaultLocale = Locale.getDefault();
+-        Locale.setDefault(Locale.US);
+-        FastDateFormat format1 = FastDateFormat.getInstance("MM/DD/yyyy", Locale.GERMANY);
+-        FastDateFormat format2 = FastDateFormat.getInstance("MM/DD/yyyy");
+-        FastDateFormat format3 = FastDateFormat.getInstance("MM/DD/yyyy", Locale.GERMANY);
+-
+-        assertTrue(format1 != format2); // -- junit 3.8 version -- assertFalse(format1 == format2);
+-        assertSame(format1, format3);
+-        assertSame(Locale.GERMANY, format1.getLocale());
+-
+-        Locale.setDefault(realDefaultLocale);
+-    }
+-
+-    public void test_getInstance_String_TimeZone_Locale() {
+-        Locale realDefaultLocale = Locale.getDefault();
+-        Locale.setDefault(Locale.US);
+-        TimeZone realDefaultZone = TimeZone.getDefault();
+-        TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"));
+-
+-        FastDateFormat format1 = FastDateFormat.getInstance("MM/DD/yyyy",
+-                TimeZone.getTimeZone("Atlantic/Reykjavik"), Locale.GERMANY);
+-        FastDateFormat format2 = FastDateFormat.getInstance("MM/DD/yyyy", Locale.GERMANY);
+-        FastDateFormat format3 = FastDateFormat.getInstance("MM/DD/yyyy",
+-                TimeZone.getDefault(), Locale.GERMANY);
+-
+-        assertTrue(format1 != format2); // -- junit 3.8 version -- assertNotSame(format1, format2);
+-        assertEquals(format1.getTimeZone(), TimeZone.getTimeZone("Atlantic/Reykjavik"));
+-        assertNull(format2.getTimeZone());
+-        assertEquals(format3.getTimeZone(), TimeZone.getDefault());
+-        assertEquals(format3.getTimeZone(), TimeZone.getTimeZone("America/New_York"));
+-
+-        Locale.setDefault(realDefaultLocale);
+-        TimeZone.setDefault(realDefaultZone);
+-    }
+-}
++}
+
+commit e794af9688ae2dee664864be0d128df9a88509ba
+Author: Henri Yandell <bayard@apache.org>
+Date:   Tue Jan 7 14:55:55 2003
+
+    A thread-safe, faster version of java.text's DateFormat. While JODA contains
+    better, this version is religion-free.
+    
+    Permission given by Brian S O'Neill:
+    http://archives.apache.org/eyebrowse/ReadMsg?listName=commons-dev@jakarta.apache.org&msgNo=20612
+    
+    Submitted by:   Sean Schofield
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137221 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/time/FastDateFormatTest.java b/src/test/org/apache/commons/lang/time/FastDateFormatTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/lang/time/FastDateFormatTest.java
+@@ -0,0 +1,166 @@
++/* ====================================================================
++ * The Apache Software License, Version 1.1
++ *
++ * Copyright (c) 2002 The Apache Software Foundation.  All rights
++ * reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ *
++ * 1. Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ *
++ * 2. Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in
++ *    the documentation and/or other materials provided with the
++ *    distribution.
++ *
++ * 3. The end-user documentation included with the redistribution, if
++ *    any, must include the following acknowlegement:
++ *       "This product includes software developed by the
++ *        Apache Software Foundation (http://www.apache.org/)."
++ *    Alternately, this acknowlegement may appear in the software itself,
++ *    if and wherever such third-party acknowlegements normally appear.
++ *
++ * 4. The names "The Jakarta Project", "Commons", and "Apache Software
++ *    Foundation" must not be used to endorse or promote products derived
++ *    from this software without prior written permission. For written
++ *    permission, please contact apache@apache.org.
++ *
++ * 5. Products derived from this software may not be called "Apache"
++ *    nor may "Apache" appear in their names without prior written
++ *    permission of the Apache Software Foundation.
++ *
++ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
++ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
++ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
++ * DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
++ * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
++ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
++ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
++ * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
++ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
++ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
++ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++ * SUCH DAMAGE.
++ * ====================================================================
++ *
++ * This software consists of voluntary contributions made by many
++ * individuals on behalf of the Apache Software Foundation.  For more
++ * information on the Apache Software Foundation, please see
++ * <http://www.apache.org/>.
++ */
++package org.apache.commons.lang.time;
++
++import junit.framework.*;
++import junit.textui.TestRunner;
++import java.util.*;
++import java.text.*;
++
++/**
++ * Unit tests {@link org.apache.commons.lang.time.FastDateFormat}.
++ *
++ * @author Sean Schofield
++ * @since 2.0
++ * @version $Id: FastDateFormatTest.java,v 1.1 2003/01/07 19:55:55 bayard Exp $
++ */
++public class FastDateFormatTest extends TestCase {
++
++    private FastDateFormat fastDateFormat = null;
++
++    public FastDateFormatTest(String name) {
++        super(name);
++    }
++
++    public static void main(String[] args) {
++        TestRunner.run(suite());
++    }
++
++    public static Test suite() {
++        TestSuite suite = new TestSuite(FastDateFormatTest.class);
++        suite.setName("FastDateFormat Tests");
++
++        return suite;
++    }
++
++    protected void setUp() throws Exception {
++        super.setUp();
++    }
++
++    protected void tearDown() throws Exception {
++        super.tearDown();
++    }
++
++    public void test_getInstance() {
++        FastDateFormat format1 = FastDateFormat.getInstance();
++        FastDateFormat format2 = FastDateFormat.getInstance();
++        assertSame(format1, format2);
++    }
++
++    public void test_getInstance_String() {
++        FastDateFormat format1 = FastDateFormat.getInstance("MM/DD/yyyy");
++        FastDateFormat format2 = FastDateFormat.getInstance("MM-DD-yyyy");
++        assertTrue(format1 != format2); // -- junit 3.8 version -- assertFalse(format1 == format2);
++        assertSame(format1, FastDateFormat.getInstance("MM/DD/yyyy"));
++    }
++
++    public void test_getInstance_String_TimeZone() {
++        Locale realDefaultLocale = Locale.getDefault();
++        Locale.setDefault(Locale.US);
++        TimeZone realDefaultZone = TimeZone.getDefault();
++        TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"));
++
++        FastDateFormat format1 = FastDateFormat.getInstance("MM/DD/yyyy",
++                TimeZone.getTimeZone("Atlantic/Reykjavik"));
++        FastDateFormat format2 = FastDateFormat.getInstance("MM/DD/yyyy");
++        FastDateFormat format3 = FastDateFormat.getInstance("MM/DD/yyyy", TimeZone.getDefault());
++        FastDateFormat format4 = FastDateFormat.getInstance("MM/DD/yyyy", TimeZone.getDefault());
++        FastDateFormat format5 = FastDateFormat.getInstance("MM-DD-yyyy", TimeZone.getDefault());
++
++        assertTrue(format1 != format2); // -- junit 3.8 version -- assertFalse(format1 == format2);
++        assertTrue(format1.getTimeZone().equals(TimeZone.getTimeZone("Atlantic/Reykjavik")));
++        assertNull(format2.getTimeZone());
++        assertSame(format3, format4);
++        assertTrue(format3 != format5); // -- junit 3.8 version -- assertFalse(format3 == format5);
++
++        Locale.setDefault(realDefaultLocale);
++        TimeZone.setDefault(realDefaultZone);
++    }
++
++    public void test_getInstance_String_Locale() {
++        Locale realDefaultLocale = Locale.getDefault();
++        Locale.setDefault(Locale.US);
++        FastDateFormat format1 = FastDateFormat.getInstance("MM/DD/yyyy", Locale.GERMANY);
++        FastDateFormat format2 = FastDateFormat.getInstance("MM/DD/yyyy");
++        FastDateFormat format3 = FastDateFormat.getInstance("MM/DD/yyyy", Locale.GERMANY);
++
++        assertTrue(format1 != format2); // -- junit 3.8 version -- assertFalse(format1 == format2);
++        assertSame(format1, format3);
++        assertSame(Locale.GERMANY, format1.getLocale());
++
++        Locale.setDefault(realDefaultLocale);
++    }
++
++    public void test_getInstance_String_TimeZone_Locale() {
++        Locale realDefaultLocale = Locale.getDefault();
++        Locale.setDefault(Locale.US);
++        TimeZone realDefaultZone = TimeZone.getDefault();
++        TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"));
++
++        FastDateFormat format1 = FastDateFormat.getInstance("MM/DD/yyyy",
++                TimeZone.getTimeZone("Atlantic/Reykjavik"), Locale.GERMANY);
++        FastDateFormat format2 = FastDateFormat.getInstance("MM/DD/yyyy", Locale.GERMANY);
++        FastDateFormat format3 = FastDateFormat.getInstance("MM/DD/yyyy",
++                TimeZone.getDefault(), Locale.GERMANY);
++
++        assertTrue(format1 != format2); // -- junit 3.8 version -- assertNotSame(format1, format2);
++        assertEquals(format1.getTimeZone(), TimeZone.getTimeZone("Atlantic/Reykjavik"));
++        assertNull(format2.getTimeZone());
++        assertEquals(format3.getTimeZone(), TimeZone.getDefault());
++        assertEquals(format3.getTimeZone(), TimeZone.getTimeZone("America/New_York"));
++
++        Locale.setDefault(realDefaultLocale);
++        TimeZone.setDefault(realDefaultZone);
++    }
++}

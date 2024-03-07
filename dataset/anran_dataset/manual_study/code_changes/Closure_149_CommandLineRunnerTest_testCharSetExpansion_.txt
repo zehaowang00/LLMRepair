@@ -1,0 +1,32 @@
+commit 053636cbd1a8fb97e55b4f82bc4b5bee8beaf47e
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Aug 5 22:38:20 2010
+
+    Clean up the command-line runner api, which uncovered a bunch
+    of bugs in Options serialization.
+    Set the output charset to US-ASCII by default, but let the user
+    set it to UTF-8.
+    Fixes Issue 205
+    
+    R=bowdidge
+    DELTA=107  (69 added, 17 deleted, 21 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=87017
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@344 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+--- a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
++++ b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+@@ -383,0 +383,8 @@
++  public void testCharSetExpansion() {
++    testSame("");
++    assertEquals("US-ASCII", lastCompiler.getOptions().outputCharset);
++    args.add("--charset=UTF-8");
++    testSame("");
++    assertEquals("UTF-8", lastCompiler.getOptions().outputCharset);
++  }
++

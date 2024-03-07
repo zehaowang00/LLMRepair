@@ -1,0 +1,27 @@
+commit 5e799a2e2265cbb6a056b37b50f82cc1eebf1d45
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Fri Oct 3 02:16:26 2014
+
+    Fix #570
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/deser/TestDateDeserialization.java b/src/test/java/com/fasterxml/jackson/databind/deser/TestDateDeserialization.java
+--- a/src/test/java/com/fasterxml/jackson/databind/deser/TestDateDeserialization.java
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/TestDateDeserialization.java
+@@ -148,0 +186,17 @@
++    public void testISO8601MissingSeconds() throws Exception
++    {
++        String inputStr;
++        Date inputDate;
++        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
++    
++        inputStr = "1997-07-16T19:20+01:00";
++        inputDate = MAPPER.readValue(quote(inputStr), java.util.Date.class);
++        c.setTime(inputDate);
++        assertEquals(1997, c.get(Calendar.YEAR));
++        assertEquals(Calendar.JULY, c.get(Calendar.MONTH));
++        assertEquals(16, c.get(Calendar.DAY_OF_MONTH));
++        assertEquals(19 - 1, c.get(Calendar.HOUR_OF_DAY));
++        assertEquals(0, c.get(Calendar.SECOND));
++        assertEquals(0, c.get(Calendar.MILLISECOND));
++}
++

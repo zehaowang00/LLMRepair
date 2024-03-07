@@ -1,0 +1,23 @@
+commit 987a463a185d25086c29ee2efa0c0e24ecf77cb2
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Tue Oct 4 01:18:25 2016
+
+    Add a (failing) test for #1392
+
+diff --git a/src/test/java/com/fasterxml/jackson/failing/UnmodifiableSetTyping1392Test.java b/src/test/java/com/fasterxml/jackson/failing/UnmodifiableSetTyping1392Test.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/failing/UnmodifiableSetTyping1392Test.java
+@@ -0,0 +19,13 @@
++    public void testUnmodifiable() throws Exception
++    {
++        ObjectMapper mapper = new ObjectMapper();
++        Class<?> unmodSetType = Collections.unmodifiableSet(Collections.<String>emptySet()).getClass();
++        mapper.addMixIn(unmodSetType, UnmodifiableSetMixin.class);
++        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
++
++        final String EXPECTED_JSON = "[\""+unmodSetType.getName()+"\",[]]";
++
++        Set<?> foo = mapper.readValue(EXPECTED_JSON, Set.class);
++        assertTrue(foo.isEmpty());
++    }
++}

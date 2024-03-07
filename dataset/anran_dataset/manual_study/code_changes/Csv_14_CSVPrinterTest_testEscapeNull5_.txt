@@ -1,0 +1,669 @@
+commit 190390bf5dd83d6137ca3045902fcecbeafa3227
+Author: Gary Gregory <ggregory@apache.org>
+Date:   Sun Jul 31 03:21:35 2016
+
+    [CSV-171] Negative numeric values in the first column are always quoted
+    in minimal mode.
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVPrinterTest.java b/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
+@@ -336,4 +377,9 @@
+-        assertEquals("'\\\\'", sw.toString());
++    public void testEscapeNull5() throws IOException {
++        StringWriter sw = new StringWriter();
++        try (final CSVPrinter printer = new CSVPrinter(sw, CSVFormat.DEFAULT.withEscape(null))) {
++            printer.print("\\\\");
++        }
++        assertEquals("\\\\", sw.toString());
+     }
+ 
+     @Test
+
+commit d067c3ffe6cc975115d6bd86e64ddefd0628b99e
+Author: Gary Gregory <ggregory@apache.org>
+Date:   Sun Jul 31 02:37:32 2016
+
+    Remove extra blank line.
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVPrinterTest.java b/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
+@@ -324,5 +324,4 @@
+         assertEquals("'\\\\'", sw.toString());
+-
+     }
+ 
+     @Test
+
+commit 16b9e2c79122f5a76863854cc4b33939da63710d
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Mon Apr 18 02:16:51 2016
+
+    [CSV-175] Support for ignoring trailing delimiter.
+    [CSV-177] Support trimming leading and trailing blanks.
+    [CSV-178] Create default formats for Informix UNLOAD and UNLOAD CSV.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/csv/trunk@1739694 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVPrinterTest.java b/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
+@@ -175,2 +323,5 @@
++        assertEquals("'\\\\'", sw.toString());
++
++    }
+ 
+     @Test
+
+commit 186e9f98047b2c8b298709a59a40df3e049ae8fa
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Thu Mar 15 09:44:44 2012
+
+    Update to JUnit 4.10 from 3.8.1.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/csv/trunk@1300977 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVPrinterTest.java b/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
+@@ -38,1 +40,2 @@
+ 
++    @Test
+
+commit 1166ca605bcc035654771f1ddc1092d86f2ec1e8
+Author: Jacopo Cappellato <jacopoc@apache.org>
+Date:   Tue Feb 1 03:46:00 2011
+
+    No functional changes are contained in this commit: reformatted Java code to fix several formatting inconsistencies (between classes and within the same class); sorry for the big commit, but I have preferred to isolate into one commit all the formatting changes.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/sandbox/csv/trunk@1065950 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/csv/CSVPrinterTest.java b/src/test/org/apache/commons/csv/CSVPrinterTest.java
+--- a/src/test/org/apache/commons/csv/CSVPrinterTest.java
++++ b/src/test/org/apache/commons/csv/CSVPrinterTest.java
+@@ -33,95 +43,1 @@
+-  
+-  String lineSeparator = "\n";
+-
+-  public void testPrinter1() throws IOException {
+-    StringWriter sw = new StringWriter();
+-    CSVPrinter printer = new CSVPrinter(sw, CSVStrategy.DEFAULT_STRATEGY);
+-    String[] line1 = {"a", "b"};
+-    printer.println(line1);
+-    assertEquals("a,b" + lineSeparator, sw.toString());
+-  }
+-
+-  public void testPrinter2() throws IOException {
+-    StringWriter sw = new StringWriter();
+-    CSVPrinter printer = new CSVPrinter(sw, CSVStrategy.DEFAULT_STRATEGY);
+-    String[] line1 = {"a,b", "b"};
+-    printer.println(line1);
+-    assertEquals("\"a,b\",b" + lineSeparator, sw.toString());
+-  }
+-
+-  public void testPrinter3() throws IOException {
+-    StringWriter sw = new StringWriter();
+-    CSVPrinter printer = new CSVPrinter(sw, CSVStrategy.DEFAULT_STRATEGY);
+-    String[] line1 = {"a, b", "b "};
+-    printer.println(line1);
+-    assertEquals("\"a, b\",\"b \"" + lineSeparator, sw.toString());
+-  }
+-
+-  public void testPrinter4() throws IOException {
+-    StringWriter sw = new StringWriter();
+-    CSVPrinter printer = new CSVPrinter(sw, CSVStrategy.DEFAULT_STRATEGY);
+-    String[] line1 = {"a", "b\"c"};
+-    printer.println(line1);
+-    assertEquals("a,\"b\"\"c\"" + lineSeparator, sw.toString());
+-  }
+-
+-  public void testPrinter5() throws IOException {
+-    StringWriter sw = new StringWriter();
+-    CSVPrinter printer = new CSVPrinter(sw, CSVStrategy.DEFAULT_STRATEGY);
+-    String[] line1 = {"a", "b\nc"};
+-    printer.println(line1);
+-    assertEquals("a,\"b\nc\"" + lineSeparator, sw.toString());
+-  }
+-
+-  public void testPrinter6() throws IOException {
+-    StringWriter sw = new StringWriter();
+-    CSVPrinter printer = new CSVPrinter(sw, CSVStrategy.DEFAULT_STRATEGY);
+-    String[] line1 = {"a", "b\r\nc"};
+-    printer.println(line1);
+-    assertEquals("a,\"b\r\nc\"" + lineSeparator, sw.toString());
+-  }
+-
+-  public void testPrinter7() throws IOException {
+-    StringWriter sw = new StringWriter();
+-    CSVPrinter printer = new CSVPrinter(sw, CSVStrategy.DEFAULT_STRATEGY);
+-    String[] line1 = {"a", "b\\c"};
+-    printer.println(line1);
+-    assertEquals("a,b\\c" + lineSeparator, sw.toString());
+-  }
+-
+-  public void testExcelPrinter1() throws IOException {
+-    StringWriter sw = new StringWriter();
+-    CSVPrinter printer = new CSVPrinter(sw, CSVStrategy.EXCEL_STRATEGY);
+-    String[] line1 = {"a", "b"};
+-    printer.println(line1);
+-    assertEquals("a,b" + lineSeparator, sw.toString());
+-  }
+-
+-  public void testExcelPrinter2() throws IOException {
+-    StringWriter sw = new StringWriter();
+-    CSVPrinter printer = new CSVPrinter(sw, CSVStrategy.EXCEL_STRATEGY);
+-    String[] line1 = {"a,b", "b"};
+-    printer.println(line1);
+-    assertEquals("\"a,b\",b" + lineSeparator, sw.toString());
+-  }
+-
+-
+-  
+-  public void testRandom() throws Exception {
+-    int iter=10000;
+-    strategy = CSVStrategy.DEFAULT_STRATEGY;
+-    doRandom(iter);
+-    strategy = CSVStrategy.EXCEL_STRATEGY;
+-    doRandom(iter);
+-
+-    // Strategy for MySQL
+-    strategy = new CSVStrategy('\t', CSVStrategy.ENCAPSULATOR_DISABLED, CSVStrategy.COMMENTS_DISABLED,'\\',false, false, false, false);
+-    doRandom(iter);
+-  }
+-
+-  Random r = new Random();
+-  CSVStrategy strategy;
+-
+-  public void doRandom(int iter) throws Exception {
+-    for (int i=0; i<iter; i++) {
+-      doOneRandom();
++
+
+commit 822e653a0e8ff9f7d6a9e605193302123333ec59
+Author: Jacopo Cappellato <jacopoc@apache.org>
+Date:   Mon Jan 31 03:34:21 2011
+
+    Test cases for the scenarios described in SANDBOX-161:
+    * Double quotes (") should be escaped using two double quotes (""), rather than a backslash (\").
+    * Embedded line breaks are allowed and don't need to be escaped... just enclose the field in double quotes.
+    * Because backslashes are not used to escape double quotes or line breaks, the backslashes themselves do not need to be escaped.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/sandbox/csv/trunk@1065519 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/csv/CSVPrinterTest.java b/src/test/org/apache/commons/csv/CSVPrinterTest.java
+--- a/src/test/org/apache/commons/csv/CSVPrinterTest.java
++++ b/src/test/org/apache/commons/csv/CSVPrinterTest.java
+@@ -33,63 +33,95 @@
+   
+   String lineSeparator = "\n";
+ 
+   public void testPrinter1() throws IOException {
+     StringWriter sw = new StringWriter();
+     CSVPrinter printer = new CSVPrinter(sw, CSVStrategy.DEFAULT_STRATEGY);
+     String[] line1 = {"a", "b"};
+     printer.println(line1);
+     assertEquals("a,b" + lineSeparator, sw.toString());
+   }
+ 
+   public void testPrinter2() throws IOException {
+     StringWriter sw = new StringWriter();
+     CSVPrinter printer = new CSVPrinter(sw, CSVStrategy.DEFAULT_STRATEGY);
+     String[] line1 = {"a,b", "b"};
+     printer.println(line1);
+     assertEquals("\"a,b\",b" + lineSeparator, sw.toString());
+   }
+ 
+   public void testPrinter3() throws IOException {
+     StringWriter sw = new StringWriter();
+     CSVPrinter printer = new CSVPrinter(sw, CSVStrategy.DEFAULT_STRATEGY);
+     String[] line1 = {"a, b", "b "};
+     printer.println(line1);
+     assertEquals("\"a, b\",\"b \"" + lineSeparator, sw.toString());
+   }
+ 
++  public void testPrinter4() throws IOException {
++    StringWriter sw = new StringWriter();
++    CSVPrinter printer = new CSVPrinter(sw, CSVStrategy.DEFAULT_STRATEGY);
++    String[] line1 = {"a", "b\"c"};
++    printer.println(line1);
++    assertEquals("a,\"b\"\"c\"" + lineSeparator, sw.toString());
++  }
++
++  public void testPrinter5() throws IOException {
++    StringWriter sw = new StringWriter();
++    CSVPrinter printer = new CSVPrinter(sw, CSVStrategy.DEFAULT_STRATEGY);
++    String[] line1 = {"a", "b\nc"};
++    printer.println(line1);
++    assertEquals("a,\"b\nc\"" + lineSeparator, sw.toString());
++  }
++
++  public void testPrinter6() throws IOException {
++    StringWriter sw = new StringWriter();
++    CSVPrinter printer = new CSVPrinter(sw, CSVStrategy.DEFAULT_STRATEGY);
++    String[] line1 = {"a", "b\r\nc"};
++    printer.println(line1);
++    assertEquals("a,\"b\r\nc\"" + lineSeparator, sw.toString());
++  }
++
++  public void testPrinter7() throws IOException {
++    StringWriter sw = new StringWriter();
++    CSVPrinter printer = new CSVPrinter(sw, CSVStrategy.DEFAULT_STRATEGY);
++    String[] line1 = {"a", "b\\c"};
++    printer.println(line1);
++    assertEquals("a,b\\c" + lineSeparator, sw.toString());
++  }
++
+   public void testExcelPrinter1() throws IOException {
+     StringWriter sw = new StringWriter();
+     CSVPrinter printer = new CSVPrinter(sw, CSVStrategy.EXCEL_STRATEGY);
+     String[] line1 = {"a", "b"};
+     printer.println(line1);
+     assertEquals("a,b" + lineSeparator, sw.toString());
+   }
+ 
+   public void testExcelPrinter2() throws IOException {
+     StringWriter sw = new StringWriter();
+     CSVPrinter printer = new CSVPrinter(sw, CSVStrategy.EXCEL_STRATEGY);
+     String[] line1 = {"a,b", "b"};
+     printer.println(line1);
+     assertEquals("\"a,b\",b" + lineSeparator, sw.toString());
+   }
+ 
+ 
+   
+   public void testRandom() throws Exception {
+     int iter=10000;
+     strategy = CSVStrategy.DEFAULT_STRATEGY;
+     doRandom(iter);
+     strategy = CSVStrategy.EXCEL_STRATEGY;
+     doRandom(iter);
+ 
+     // Strategy for MySQL
+     strategy = new CSVStrategy('\t', CSVStrategy.ENCAPSULATOR_DISABLED, CSVStrategy.COMMENTS_DISABLED,'\\',false, false, false, false);
+     doRandom(iter);
+   }
+ 
+   Random r = new Random();
+   CSVStrategy strategy;
+ 
+   public void doRandom(int iter) throws Exception {
+     for (int i=0; i<iter; i++) {
+       doOneRandom();
+
+commit 02b21463e68e7b3d5f3d9980746d131a08a08eed
+Author: Yonik Seeley <yonik@apache.org>
+Date:   Wed Jun 16 12:12:34 2010
+
+    SANDBOX-322: CSVPrinter overhaul
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/sandbox/csv/trunk@955284 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/csv/CSVPrinterTest.java b/src/test/org/apache/commons/csv/CSVPrinterTest.java
+--- a/src/test/org/apache/commons/csv/CSVPrinterTest.java
++++ b/src/test/org/apache/commons/csv/CSVPrinterTest.java
+@@ -28,45 +33,63 @@
+   
+-  String lineSeparator = System.getProperty("line.separator");
++  String lineSeparator = "\n";
+ 
+-  public void testPrinter1() {
++  public void testPrinter1() throws IOException {
+     StringWriter sw = new StringWriter();
+-    CSVPrinter printer = new CSVPrinter(sw);
++    CSVPrinter printer = new CSVPrinter(sw, CSVStrategy.DEFAULT_STRATEGY);
+     String[] line1 = {"a", "b"};
+     printer.println(line1);
+     assertEquals("a,b" + lineSeparator, sw.toString());
+   }
+ 
+-  public void testPrinter2() {
++  public void testPrinter2() throws IOException {
+     StringWriter sw = new StringWriter();
+-    CSVPrinter printer = new CSVPrinter(sw);
++    CSVPrinter printer = new CSVPrinter(sw, CSVStrategy.DEFAULT_STRATEGY);
+     String[] line1 = {"a,b", "b"};
+     printer.println(line1);
+     assertEquals("\"a,b\",b" + lineSeparator, sw.toString());
+   }
+ 
+-  public void testPrinter3() {
++  public void testPrinter3() throws IOException {
+     StringWriter sw = new StringWriter();
+-    CSVPrinter printer = new CSVPrinter(sw);
++    CSVPrinter printer = new CSVPrinter(sw, CSVStrategy.DEFAULT_STRATEGY);
+     String[] line1 = {"a, b", "b "};
+     printer.println(line1);
+     assertEquals("\"a, b\",\"b \"" + lineSeparator, sw.toString());
+   }
+ 
+-  public void testExcelPrinter1() {
++  public void testExcelPrinter1() throws IOException {
+     StringWriter sw = new StringWriter();
+-    CSVPrinter printer = new CSVPrinter(sw);
+-    printer.setStrategy(CSVStrategy.EXCEL_STRATEGY);
++    CSVPrinter printer = new CSVPrinter(sw, CSVStrategy.EXCEL_STRATEGY);
+     String[] line1 = {"a", "b"};
+     printer.println(line1);
+     assertEquals("a,b" + lineSeparator, sw.toString());
+   }
+ 
+-  public void testExcelPrinter2() {
++  public void testExcelPrinter2() throws IOException {
+     StringWriter sw = new StringWriter();
+-    CSVPrinter printer = new CSVPrinter(sw);
+-    printer.setStrategy(CSVStrategy.EXCEL_STRATEGY);
++    CSVPrinter printer = new CSVPrinter(sw, CSVStrategy.EXCEL_STRATEGY);
+     String[] line1 = {"a,b", "b"};
+     printer.println(line1);
+     assertEquals("\"a,b\",b" + lineSeparator, sw.toString());
+   }
+ 
++
++  
++  public void testRandom() throws Exception {
++    int iter=10000;
++    strategy = CSVStrategy.DEFAULT_STRATEGY;
++    doRandom(iter);
++    strategy = CSVStrategy.EXCEL_STRATEGY;
++    doRandom(iter);
++
++    // Strategy for MySQL
++    strategy = new CSVStrategy('\t', CSVStrategy.ENCAPSULATOR_DISABLED, CSVStrategy.COMMENTS_DISABLED,'\\',false, false, false, false);
++    doRandom(iter);
++  }
++
++  Random r = new Random();
++  CSVStrategy strategy;
++
++  public void doRandom(int iter) throws Exception {
++    for (int i=0; i<iter; i++) {
++      doOneRandom();
+
+commit 2afbbfbdc03864cc5c8fe8bbfd91e96eee313383
+Author: Henri Yandell <bayard@apache.org>
+Date:   Wed Feb 27 23:59:16 2008
+
+    Removing unnecessary suite() methods, object attributes and constructors
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/sandbox/csv/trunk@631847 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/csv/CSVPrinterTest.java b/src/test/org/apache/commons/csv/CSVPrinterTest.java
+--- a/src/test/org/apache/commons/csv/CSVPrinterTest.java
++++ b/src/test/org/apache/commons/csv/CSVPrinterTest.java
+@@ -28,57 +28,45 @@
+   
+-  String lineSeparator = null;
+-  
+-  /**
+-   * Constructor for CSVPrinterTest.
+-   */
+-  public CSVPrinterTest(String name) {
+-    super(name);
+-    this.lineSeparator = System.getProperty("line.separator");
+-  }
+-
+-  public static Test suite() {
+-    return new TestSuite(CSVPrinterTest.class);
+-  }
++  String lineSeparator = System.getProperty("line.separator");
+ 
+   public void testPrinter1() {
+     StringWriter sw = new StringWriter();
+     CSVPrinter printer = new CSVPrinter(sw);
+     String[] line1 = {"a", "b"};
+     printer.println(line1);
+     assertEquals("a,b" + lineSeparator, sw.toString());
+   }
+ 
+   public void testPrinter2() {
+     StringWriter sw = new StringWriter();
+     CSVPrinter printer = new CSVPrinter(sw);
+     String[] line1 = {"a,b", "b"};
+     printer.println(line1);
+     assertEquals("\"a,b\",b" + lineSeparator, sw.toString());
+   }
+ 
+   public void testPrinter3() {
+     StringWriter sw = new StringWriter();
+     CSVPrinter printer = new CSVPrinter(sw);
+     String[] line1 = {"a, b", "b "};
+     printer.println(line1);
+     assertEquals("\"a, b\",\"b \"" + lineSeparator, sw.toString());
+   }
+ 
+   public void testExcelPrinter1() {
+     StringWriter sw = new StringWriter();
+     CSVPrinter printer = new CSVPrinter(sw);
+     printer.setStrategy(CSVStrategy.EXCEL_STRATEGY);
+     String[] line1 = {"a", "b"};
+     printer.println(line1);
+     assertEquals("a,b" + lineSeparator, sw.toString());
+   }
+ 
+   public void testExcelPrinter2() {
+     StringWriter sw = new StringWriter();
+     CSVPrinter printer = new CSVPrinter(sw);
+     printer.setStrategy(CSVStrategy.EXCEL_STRATEGY);
+     String[] line1 = {"a,b", "b"};
+     printer.println(line1);
+     assertEquals("\"a,b\",b" + lineSeparator, sw.toString());
+   }
+ 
+
+commit 05fdf22a6c0e142a985ebe0e2a295e9a46a43041
+Author: Yonik Seeley <yonik@apache.org>
+Date:   Thu Dec 21 22:42:06 2006
+
+    change excel strategy to use ',' as the separator: SANDBOX-182
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/sandbox/csv/trunk@489553 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/csv/CSVPrinterTest.java b/src/test/org/apache/commons/csv/CSVPrinterTest.java
+--- a/src/test/org/apache/commons/csv/CSVPrinterTest.java
++++ b/src/test/org/apache/commons/csv/CSVPrinterTest.java
+@@ -28,57 +28,57 @@
+   
+   String lineSeparator = null;
+   
+   /**
+    * Constructor for CSVPrinterTest.
+    */
+   public CSVPrinterTest(String name) {
+     super(name);
+     this.lineSeparator = System.getProperty("line.separator");
+   }
+ 
+   public static Test suite() {
+     return new TestSuite(CSVPrinterTest.class);
+   }
+ 
+   public void testPrinter1() {
+     StringWriter sw = new StringWriter();
+     CSVPrinter printer = new CSVPrinter(sw);
+     String[] line1 = {"a", "b"};
+     printer.println(line1);
+     assertEquals("a,b" + lineSeparator, sw.toString());
+   }
+ 
+   public void testPrinter2() {
+     StringWriter sw = new StringWriter();
+     CSVPrinter printer = new CSVPrinter(sw);
+     String[] line1 = {"a,b", "b"};
+     printer.println(line1);
+     assertEquals("\"a,b\",b" + lineSeparator, sw.toString());
+   }
+ 
+   public void testPrinter3() {
+     StringWriter sw = new StringWriter();
+     CSVPrinter printer = new CSVPrinter(sw);
+     String[] line1 = {"a, b", "b "};
+     printer.println(line1);
+     assertEquals("\"a, b\",\"b \"" + lineSeparator, sw.toString());
+   }
+ 
+   public void testExcelPrinter1() {
+     StringWriter sw = new StringWriter();
+     CSVPrinter printer = new CSVPrinter(sw);
+     printer.setStrategy(CSVStrategy.EXCEL_STRATEGY);
+     String[] line1 = {"a", "b"};
+     printer.println(line1);
+-    assertEquals("a;b" + lineSeparator, sw.toString());
++    assertEquals("a,b" + lineSeparator, sw.toString());
+   }
+ 
+   public void testExcelPrinter2() {
+     StringWriter sw = new StringWriter();
+     CSVPrinter printer = new CSVPrinter(sw);
+     printer.setStrategy(CSVStrategy.EXCEL_STRATEGY);
+-    String[] line1 = {"a;b", "b"};
++    String[] line1 = {"a,b", "b"};
+     printer.println(line1);
+-    assertEquals("\"a;b\";b" + lineSeparator, sw.toString());
++    assertEquals("\"a,b\",b" + lineSeparator, sw.toString());
+   }
+ 
+
+commit f6f9fc1d480e85839c80d0890fa5ebed74971dc7
+Author: Henri Yandell <bayard@apache.org>
+Date:   Mon Jun 19 09:01:39 2006
+
+    Pulled some static methods into a CSVUtils class, switched CSVPrinter to use a CSVStrategy though it doesn't use it fully yet, added a COMMENTS_DISABLED constant instead of relying on (char) 0.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/sandbox/csv/trunk@415323 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/csv/CSVPrinterTest.java b/src/test/org/apache/commons/csv/CSVPrinterTest.java
+--- a/src/test/org/apache/commons/csv/CSVPrinterTest.java
++++ b/src/test/org/apache/commons/csv/CSVPrinterTest.java
+@@ -27,57 +27,57 @@
+   
+   String lineSeparator = null;
+   
+   /**
+    * Constructor for CSVPrinterTest.
+    */
+   public CSVPrinterTest(String name) {
+     super(name);
+     this.lineSeparator = System.getProperty("line.separator");
+   }
+ 
+   public static Test suite() {
+     return new TestSuite(CSVPrinterTest.class);
+   }
+ 
+   public void testPrinter1() {
+     StringWriter sw = new StringWriter();
+     CSVPrinter printer = new CSVPrinter(sw);
+     String[] line1 = {"a", "b"};
+     printer.println(line1);
+     assertEquals("a,b" + lineSeparator, sw.toString());
+   }
+ 
+   public void testPrinter2() {
+     StringWriter sw = new StringWriter();
+     CSVPrinter printer = new CSVPrinter(sw);
+     String[] line1 = {"a,b", "b"};
+     printer.println(line1);
+     assertEquals("\"a,b\",b" + lineSeparator, sw.toString());
+   }
+ 
+   public void testPrinter3() {
+     StringWriter sw = new StringWriter();
+     CSVPrinter printer = new CSVPrinter(sw);
+     String[] line1 = {"a, b", "b "};
+     printer.println(line1);
+     assertEquals("\"a, b\",\"b \"" + lineSeparator, sw.toString());
+   }
+ 
+   public void testExcelPrinter1() {
+     StringWriter sw = new StringWriter();
+     CSVPrinter printer = new CSVPrinter(sw);
+-    printer.setSeparatorChar(';');
++    printer.setStrategy(CSVStrategy.EXCEL_STRATEGY);
+     String[] line1 = {"a", "b"};
+     printer.println(line1);
+     assertEquals("a;b" + lineSeparator, sw.toString());
+   }
+ 
+   public void testExcelPrinter2() {
+     StringWriter sw = new StringWriter();
+     CSVPrinter printer = new CSVPrinter(sw);
+-    printer.setSeparatorChar(';');
++    printer.setStrategy(CSVStrategy.EXCEL_STRATEGY);
+     String[] line1 = {"a;b", "b"};
+     printer.println(line1);
+     assertEquals("\"a;b\";b" + lineSeparator, sw.toString());
+   }
+ 
+
+commit e23e79e0ceacf38d3298e7f5207c4518ad2b5955
+Author: Henri Yandell <bayard@apache.org>
+Date:   Sat Dec 17 00:41:27 2005
+
+    import of csv parser code, as donated by netcetera [code grant recorded]
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/trunks-sandbox/csv@357300 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/ch/netcetera/wake/core/format/csv/CSVPrinterTest.java b/src/test/ch/netcetera/wake/core/format/csv/CSVPrinterTest.java
+--- /dev/null
++++ b/src/test/ch/netcetera/wake/core/format/csv/CSVPrinterTest.java
+@@ -0,0 +21,57 @@
++  
++  String lineSeparator = null;
++  
++  /**
++   * Constructor for CSVPrinterTest.
++   */
++  public CSVPrinterTest(String name) {
++    super(name);
++    this.lineSeparator = System.getProperty("line.separator");
++  }
++
++  public static Test suite() {
++    return new TestSuite(CSVPrinterTest.class);
++  }
++
++  public void testPrinter1() {
++    StringWriter sw = new StringWriter();
++    CSVPrinter printer = new CSVPrinter(sw);
++    String[] line1 = {"a", "b"};
++    printer.println(line1);
++    assertEquals("a,b" + lineSeparator, sw.toString());
++  }
++
++  public void testPrinter2() {
++    StringWriter sw = new StringWriter();
++    CSVPrinter printer = new CSVPrinter(sw);
++    String[] line1 = {"a,b", "b"};
++    printer.println(line1);
++    assertEquals("\"a,b\",b" + lineSeparator, sw.toString());
++  }
++
++  public void testPrinter3() {
++    StringWriter sw = new StringWriter();
++    CSVPrinter printer = new CSVPrinter(sw);
++    String[] line1 = {"a, b", "b "};
++    printer.println(line1);
++    assertEquals("\"a, b\",\"b \"" + lineSeparator, sw.toString());
++  }
++
++  public void testExcelPrinter1() {
++    StringWriter sw = new StringWriter();
++    CSVPrinter printer = new CSVPrinter(sw);
++    printer.setSeparatorChar(';');
++    String[] line1 = {"a", "b"};
++    printer.println(line1);
++    assertEquals("a;b" + lineSeparator, sw.toString());
++  }
++
++  public void testExcelPrinter2() {
++    StringWriter sw = new StringWriter();
++    CSVPrinter printer = new CSVPrinter(sw);
++    printer.setSeparatorChar(';');
++    String[] line1 = {"a;b", "b"};
++    printer.println(line1);
++    assertEquals("\"a;b\";b" + lineSeparator, sw.toString());
++  }
++

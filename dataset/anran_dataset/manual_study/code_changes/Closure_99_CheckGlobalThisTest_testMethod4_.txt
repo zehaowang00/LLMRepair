@@ -1,0 +1,36 @@
+commit 8aa879a4eeb18cfc8d13e6c843a32b7f41ccd516
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Jun 4 14:47:05 2010
+
+    Change on 2010/06/03 by nicksantos
+    
+            For dangerous 'this' checking, allow prototype methods declared
+            with GETELEM.
+            Fixes issue 125.
+    
+            R=acleung
+            DELTA=15  (11 added, 0 deleted, 4 changed)
+    
+    Change on 2010/06/04 by nicksantos
+    
+            allow global this in interfaces.
+    
+            R=johnlenz
+            DELTA=6  (6 added, 0 deleted, 0 changed)
+    
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=19001
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@239 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CheckGlobalThisTest.java b/test/com/google/javascript/jscomp/CheckGlobalThisTest.java
+--- a/test/com/google/javascript/jscomp/CheckGlobalThisTest.java
++++ b/test/com/google/javascript/jscomp/CheckGlobalThisTest.java
+@@ -148,0 +153,4 @@
++  public void testMethod4() {
++    testSame("a.prototype['x' + 'y'] =  function() { this.foo = 3; };");
++  }
++

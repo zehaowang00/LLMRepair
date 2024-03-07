@@ -1,0 +1,104 @@
+commit 41acde3e8e5e8d37ade765b41d9fd29861f03e5e
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Apr 4 17:26:33 2011
+
+    Define number keys in object literals to be quoted string nodes. Tagged with NUMBER_PROP
+    Fixes issue 347
+    
+    R=nicksantos
+    DELTA=229  (157 added, 19 deleted, 53 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=1252
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@966 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -1125,18 +1146,20 @@
+   public void testGetter() {
+     assertPrint("var x = {}", "var x={}");
+     assertPrint("var x = {get a() {return 1}}", "var x={get a(){return 1}}");
+     assertPrint(
+       "var x = {get a() {}, get b(){}}",
+       "var x={get a(){},get b(){}}");
+ 
+-    // Valid ES5 but Rhino doesn't accept this yet.
+-    // assertPrint(
+-    //  "var x = {get 1() {return 1}}",
+-    //  "var x={get \"1\"(){return 1}}");
++    assertPrint(
++      "var x = {get 'a'() {return 1}}",
++      "var x={get \"a\"(){return 1}}");
+ 
+-    // Valid ES5 but Rhino doesn't accept this yet.
+-    // assertPrint(
+-    //  "var x = {get \"()\"() {return 1}}",
+-    //   "var x={get \"()\"(){return 1}}");
++    assertPrint(
++      "var x = {get 1() {return 1}}",
++      "var x={get 1(){return 1}}");
++
++    assertPrint(
++      "var x = {get \"()\"() {return 1}}",
++      "var x={get \"()\"(){return 1}}");
+   }
+ 
+
+commit be0104009f06fafdb7428398d2c8299d13a1df12
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Dec 7 15:48:35 2010
+
+    Automated g4 rollback.
+    
+    *** Reason for rollback ***
+    
+    Fixed a stack size issue.
+    
+    *** Original change description ***
+    
+    Automated g4 rollback.
+    
+    *** Reason for rollback ***
+    
+    To investigate why this breaks builds.
+    
+    *** Original change description ***
+    
+    Add whitespace only mode support for ES5 getters and setters.
+    
+    R=acleung
+    DELTA=318  (263 added, 31 deleted, 24 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=87
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@605 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -1066,0 +1086,18 @@
++  public void testGetter() {
++    assertPrint("var x = {}", "var x={}");
++    assertPrint("var x = {get a() {return 1}}", "var x={get a(){return 1}}");
++    assertPrint(
++      "var x = {get a() {}, get b(){}}",
++      "var x={get a(){},get b(){}}");
++
++    // Valid ES5 but Rhino doesn't accept this yet.
++    // assertPrint(
++    //  "var x = {get 1() {return 1}}",
++    //  "var x={get \"1\"(){return 1}}");
++
++    // Valid ES5 but Rhino doesn't accept this yet.
++    // assertPrint(
++    //  "var x = {get \"()\"() {return 1}}",
++    //   "var x={get \"()\"(){return 1}}");
++  }
++

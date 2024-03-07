@@ -1,0 +1,22 @@
+commit a623db776696c0e03f68e849147f6a0c57063c02
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Thu Jan 5 18:07:29 2017
+
+    Check attribute name is not empty after trimming before creating attribute
+    
+    Fixes #793
+
+diff --git a/src/test/java/org/jsoup/parser/HtmlParserTest.java b/src/test/java/org/jsoup/parser/HtmlParserTest.java
+index b37daddf..4ab93591 100644
+--- a/src/test/java/org/jsoup/parser/HtmlParserTest.java
++++ b/src/test/java/org/jsoup/parser/HtmlParserTest.java
+@@ -941,4 +941,9 @@ public void testInvalidTableContents() throws IOException {
+         Document doc = parser.parseInput("<div id=1><SPAN ID=2>", "");
+         assertEquals("<html> <head></head> <body> <div id=\"1\"> <SPAN ID=\"2\"></SPAN> </div> </body> </html>", StringUtil.normaliseWhitespace(doc.outerHtml()));
+     }
++
++    @Test public void handlesControlCodeInAttributeName() {
++        Document doc = Jsoup.parse("<p><a \06=foo>One</a><a/\06=bar><a foo\06=bar>Two</a></p>");
++        assertEquals("<p><a>One</a><a></a><a foo=\"bar\">Two</a></p>", doc.body().html());
++    }
+ }

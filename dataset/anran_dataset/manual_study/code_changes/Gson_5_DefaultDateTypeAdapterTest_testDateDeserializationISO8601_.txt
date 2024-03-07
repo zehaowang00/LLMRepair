@@ -1,0 +1,38 @@
+commit ed6298c98a35ccef795caa6cb39bcef01b64e274
+Author: Danillo Souza <danillo.fs@gmail.com>
+Date:   Mon Jan 11 12:33:55 2016
+
+    timezones without minutes should are valid according RFC3339
+
+diff --git a/gson/src/test/java/com/google/gson/DefaultDateTypeAdapterTest.java b/gson/src/test/java/com/google/gson/DefaultDateTypeAdapterTest.java
+--- a/gson/src/test/java/com/google/gson/DefaultDateTypeAdapterTest.java
++++ b/gson/src/test/java/com/google/gson/DefaultDateTypeAdapterTest.java
+@@ -127,8 +127,9 @@
+   public void testDateDeserializationISO8601() throws Exception {
+   	DefaultDateTypeAdapter adapter = new DefaultDateTypeAdapter();
+     assertParsed("1970-01-01T00:00:00.000Z", adapter);
+     assertParsed("1970-01-01T00:00Z", adapter);
+     assertParsed("1970-01-01T00:00:00+00:00", adapter);
+     assertParsed("1970-01-01T01:00:00+01:00", adapter);
++    assertParsed("1970-01-01T01:00:00+01", adapter);
+   }
+   
+
+commit bcd52a1fdc4883731ee25b79e2c3f6a7d578bf92
+Author: Gorik <igor1991@live.ca>
+Date:   Mon Nov 23 01:11:41 2015
+
+    Added ISO8601 complete support for date deserialization
+
+diff --git a/gson/src/test/java/com/google/gson/DefaultDateTypeAdapterTest.java b/gson/src/test/java/com/google/gson/DefaultDateTypeAdapterTest.java
+--- a/gson/src/test/java/com/google/gson/DefaultDateTypeAdapterTest.java
++++ b/gson/src/test/java/com/google/gson/DefaultDateTypeAdapterTest.java
+@@ -127,0 +127,8 @@
++  public void testDateDeserializationISO8601() throws Exception {
++  	DefaultDateTypeAdapter adapter = new DefaultDateTypeAdapter();
++    assertParsed("1970-01-01T00:00:00.000Z", adapter);
++    assertParsed("1970-01-01T00:00Z", adapter);
++    assertParsed("1970-01-01T00:00:00+00:00", adapter);
++    assertParsed("1970-01-01T01:00:00+01:00", adapter);
++  }
++  

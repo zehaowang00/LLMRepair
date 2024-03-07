@@ -1,0 +1,50 @@
+commit 1fc451c79779bdbf788e8bfbec6dc031a47495d8
+Author: Thomas Neidhart <tn@apache.org>
+Date:   Mon Mar 19 14:33:42 2012
+
+    [CODEC-130] Provided implementation of skip and available for BaseNCodecInputStream, added unit tests.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/codec/trunk@1302585 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/codec/binary/Base32InputStreamTest.java b/src/test/java/org/apache/commons/codec/binary/Base32InputStreamTest.java
+--- a/src/test/java/org/apache/commons/codec/binary/Base32InputStreamTest.java
++++ b/src/test/java/org/apache/commons/codec/binary/Base32InputStreamTest.java
+@@ -490,8 +522,16 @@
+     public void testSkipToEnd() throws Throwable {
+         InputStream ins = new ByteArrayInputStream(StringUtils.getBytesIso8859_1(ENCODED_FOO));
+         Base32InputStream b32stream = new Base32InputStream(ins);
+-        assertEquals(8, b32stream.skip(8));
++        // due to CODEC-130, skip now skips correctly decoded characters rather than encoded
++        assertEquals(3, b32stream.skip(3));
+         // End of stream reached
+         assertEquals(-1, b32stream.read());
+         assertEquals(-1, b32stream.read());
+     }
++
++    /**
++     * Tests if negative arguments to skip are handled correctly.
++     *
++     * @throws Throwable
++     */
++    @Test(expected=IllegalArgumentException.class)
+
+commit 21015931d11bae2a37e390ff70ae55606a692ac1
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Mon Sep 26 13:54:06 2011
+
+    [CODEC-130] Base64InputStream.skip skips underlying stream, not output. Add tests for skip(long) edge cases for the Base32 version of the code.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/codec/trunk@1175974 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/codec/binary/Base32InputStreamTest.java b/src/test/java/org/apache/commons/codec/binary/Base32InputStreamTest.java
+--- a/src/test/java/org/apache/commons/codec/binary/Base32InputStreamTest.java
++++ b/src/test/java/org/apache/commons/codec/binary/Base32InputStreamTest.java
+@@ -425,0 +463,8 @@
++    public void testSkipToEnd() throws Throwable {
++        InputStream ins = new ByteArrayInputStream(StringUtils.getBytesIso8859_1(ENCODED_FOO));
++        Base32InputStream b32stream = new Base32InputStream(ins);
++        assertEquals(8, b32stream.skip(8));
++        // End of stream reached
++        assertEquals(-1, b32stream.read());
++        assertEquals(-1, b32stream.read());
++    }

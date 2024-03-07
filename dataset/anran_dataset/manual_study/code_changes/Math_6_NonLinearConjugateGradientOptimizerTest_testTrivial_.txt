@@ -1,0 +1,339 @@
+commit ad57102c451b9b19cd224736e498658a95f6cebc
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Sun Feb 12 18:38:24 2012
+
+    MATH-707
+    "SimpleScalarValueChecker" renamed to "SimpleValueChecker".
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1243366 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java b/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
+@@ -98,13 +98,13 @@
+     public void testTrivial() {
+         LinearProblem problem =
+             new LinearProblem(new double[][] { { 2 } }, new double[] { 3 });
+         NonLinearConjugateGradientOptimizer optimizer =
+             new NonLinearConjugateGradientOptimizer(ConjugateGradientFormula.POLAK_RIBIERE,
+-                                                    new SimpleScalarValueChecker(1e-6, 1e-6));
++                                                    new SimpleValueChecker(1e-6, 1e-6));
+         PointValuePair optimum =
+             optimizer.optimize(100, problem, GoalType.MINIMIZE, new double[] { 0 });
+         Assert.assertEquals(1.5, optimum.getPoint()[0], 1.0e-10);
+         Assert.assertEquals(0.0, optimum.getValue(), 1.0e-10);
+     }
+ 
+     @Test
+
+commit 5a8be77a303c9e2f8c19d029e8628d7697fb581d
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Sat Feb 11 19:37:23 2012
+
+    MATH-707
+    Renamed "RealPointValuePair" to "PointValuePair" and made it a subclass
+    of "Pair<double[], Double>".
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1243186 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java b/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
+@@ -98,13 +98,13 @@
+     public void testTrivial() {
+         LinearProblem problem =
+             new LinearProblem(new double[][] { { 2 } }, new double[] { 3 });
+         NonLinearConjugateGradientOptimizer optimizer =
+             new NonLinearConjugateGradientOptimizer(ConjugateGradientFormula.POLAK_RIBIERE,
+                                                     new SimpleScalarValueChecker(1e-6, 1e-6));
+-        RealPointValuePair optimum =
++        PointValuePair optimum =
+             optimizer.optimize(100, problem, GoalType.MINIMIZE, new double[] { 0 });
+         Assert.assertEquals(1.5, optimum.getPoint()[0], 1.0e-10);
+         Assert.assertEquals(0.0, optimum.getValue(), 1.0e-10);
+     }
+ 
+     @Test
+
+commit 6de8034647875ef7ecce49f5ca9cad1a980636c2
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Thu Sep 1 08:30:50 2011
+
+    MATH-413
+    Removed setters; convergence checker, line search solver and preconditioner
+    set in contructor.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1164044 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java b/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
+@@ -99,13 +99,13 @@
+     public void testTrivial() {
+         LinearProblem problem =
+             new LinearProblem(new double[][] { { 2 } }, new double[] { 3 });
+         NonLinearConjugateGradientOptimizer optimizer =
+-            new NonLinearConjugateGradientOptimizer(ConjugateGradientFormula.POLAK_RIBIERE);
+-        optimizer.setConvergenceChecker(new SimpleScalarValueChecker(1.0e-6, 1.0e-6));
++            new NonLinearConjugateGradientOptimizer(ConjugateGradientFormula.POLAK_RIBIERE,
++                                                    new SimpleScalarValueChecker(1e-6, 1e-6));
+         RealPointValuePair optimum =
+             optimizer.optimize(100, problem, GoalType.MINIMIZE, new double[] { 0 });
+         Assert.assertEquals(1.5, optimum.getPoint()[0], 1.0e-10);
+         Assert.assertEquals(0.0, optimum.getValue(), 1.0e-10);
+     }
+ 
+     @Test
+
+commit 9be0992c0d829f45d0473127efdceda3c54a317d
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Tue Dec 7 10:01:37 2010
+
+    MATH-454
+    Pass the number of allowed function evaluations as a parameter to the
+    "optimize" methods.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1043078 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java b/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
+@@ -99,14 +99,13 @@
+     public void testTrivial() {
+         LinearProblem problem =
+             new LinearProblem(new double[][] { { 2 } }, new double[] { 3 });
+         NonLinearConjugateGradientOptimizer optimizer =
+             new NonLinearConjugateGradientOptimizer(ConjugateGradientFormula.POLAK_RIBIERE);
+-        optimizer.setMaxEvaluations(100);
+         optimizer.setConvergenceChecker(new SimpleScalarValueChecker(1.0e-6, 1.0e-6));
+         RealPointValuePair optimum =
+-            optimizer.optimize(problem, GoalType.MINIMIZE, new double[] { 0 });
++            optimizer.optimize(100, problem, GoalType.MINIMIZE, new double[] { 0 });
+         Assert.assertEquals(1.5, optimum.getPoint()[0], 1.0e-10);
+         Assert.assertEquals(0.0, optimum.getValue(), 1.0e-10);
+     }
+ 
+     @Test
+
+commit 74ff198bd249a56d1349b963bd265f8899743b9b
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Thu Nov 25 11:22:00 2010
+
+    MATH-439
+    Refactored the "solvers" package. Implementations refer to number of
+    evaluation of the objective function (instead of the number of iterations).
+    New interfaces and base classes.
+    "NewtonSolver" fits in the design without resorting to a cast.
+    Created class "MullerSolver2" to contain the code of the method named "solve2"
+    in class "MullerSolver".
+    Removed "UnivariateRealSolverFactory" and "UnivariateRealSolverFactoryImpl".
+    Default solver in "UnivariateRealSolverUtils" is explicitely instantiated.
+    "AbstractContinuousDistribution": Type of exception thrown changed in
+    "UnivariateRealSolverUtils".
+    Factored out duplicate code (in "GaussNewtonOptimizerTest" and
+    "LevenbergMarquardtOptimizerTest"): class "Circle" is now called
+    "CircleVectorial". Also factored out the "Circle" class from
+    "NonLinearConjugateGradientOptimizerTest": class is named "CircleScalar".
+    Created "SecantSolverTest", moving there all the tests for the class
+    "SecantSolver" that were located in class "BrentSolverTest".
+    Created new interface and base class for polynomial functions solvers
+    ("LaguerreSolver") so that the function type is now checked at compile time.
+    Removed deprecated exceptions (MATH-441).
+    Javadoc clean-up.
+    Lowered tolerance values in some unit tests.
+    Tests upgraded to Junit 4 (MATH-423).
+    
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1039083 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java b/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
+@@ -99,22 +101,14 @@
+-public class NonLinearConjugateGradientOptimizerTest
+-extends TestCase {
+-
+-    public NonLinearConjugateGradientOptimizerTest(String name) {
+-        super(name);
+-    }
+-
+-    public void testTrivial() throws MathUserException {
++    public void testTrivial() {
+         LinearProblem problem =
+             new LinearProblem(new double[][] { { 2 } }, new double[] { 3 });
+         NonLinearConjugateGradientOptimizer optimizer =
+             new NonLinearConjugateGradientOptimizer(ConjugateGradientFormula.POLAK_RIBIERE);
+         optimizer.setMaxEvaluations(100);
+         optimizer.setConvergenceChecker(new SimpleScalarValueChecker(1.0e-6, 1.0e-6));
+         RealPointValuePair optimum =
+             optimizer.optimize(problem, GoalType.MINIMIZE, new double[] { 0 });
+-        assertEquals(1.5, optimum.getPoint()[0], 1.0e-10);
+-        assertEquals(0.0, optimum.getValue(), 1.0e-10);
++        Assert.assertEquals(1.5, optimum.getPoint()[0], 1.0e-10);
++        Assert.assertEquals(0.0, optimum.getValue(), 1.0e-10);
+     }
+ 
+-    public void testColumnsPermutation() throws MathUserException {
+-
++    @Test
+
+commit 8302dd02498495277ec0db9301edb2158bb0e314
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sat Nov 20 16:01:50 2010
+
+    removed FunctionEvaluationException, DerivativeException and MatrixVisitorException
+    these exception were  deprecated in 2.2 and a smooth transition path was set up to help users, now all user functions should use the new unchecked MathUserException
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1037328 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java b/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
+@@ -99,22 +99,22 @@
+ public class NonLinearConjugateGradientOptimizerTest
+ extends TestCase {
+ 
+     public NonLinearConjugateGradientOptimizerTest(String name) {
+         super(name);
+     }
+ 
+-    public void testTrivial() throws FunctionEvaluationException {
++    public void testTrivial() throws MathUserException {
+         LinearProblem problem =
+             new LinearProblem(new double[][] { { 2 } }, new double[] { 3 });
+         NonLinearConjugateGradientOptimizer optimizer =
+             new NonLinearConjugateGradientOptimizer(ConjugateGradientFormula.POLAK_RIBIERE);
+         optimizer.setMaxEvaluations(100);
+         optimizer.setConvergenceChecker(new SimpleScalarValueChecker(1.0e-6, 1.0e-6));
+         RealPointValuePair optimum =
+             optimizer.optimize(problem, GoalType.MINIMIZE, new double[] { 0 });
+         assertEquals(1.5, optimum.getPoint()[0], 1.0e-10);
+         assertEquals(0.0, optimum.getValue(), 1.0e-10);
+     }
+ 
+-    public void testColumnsPermutation() throws FunctionEvaluationException {
++    public void testColumnsPermutation() throws MathUserException {
+ 
+
+commit 31a4af2240b4f8e534a6aea5c6107b4425953204
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Thu Sep 30 22:03:04 2010
+
+    Unthrown Exceptions
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1003355 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java b/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
+@@ -100,22 +99,22 @@
+ public class NonLinearConjugateGradientOptimizerTest
+ extends TestCase {
+ 
+     public NonLinearConjugateGradientOptimizerTest(String name) {
+         super(name);
+     }
+ 
+-    public void testTrivial() throws FunctionEvaluationException, OptimizationException {
++    public void testTrivial() throws FunctionEvaluationException {
+         LinearProblem problem =
+             new LinearProblem(new double[][] { { 2 } }, new double[] { 3 });
+         NonLinearConjugateGradientOptimizer optimizer =
+             new NonLinearConjugateGradientOptimizer(ConjugateGradientFormula.POLAK_RIBIERE);
+         optimizer.setMaxEvaluations(100);
+         optimizer.setConvergenceChecker(new SimpleScalarValueChecker(1.0e-6, 1.0e-6));
+         RealPointValuePair optimum =
+             optimizer.optimize(problem, GoalType.MINIMIZE, new double[] { 0 });
+         assertEquals(1.5, optimum.getPoint()[0], 1.0e-10);
+         assertEquals(0.0, optimum.getValue(), 1.0e-10);
+     }
+ 
+-    public void testColumnsPermutation() throws FunctionEvaluationException, OptimizationException {
++    public void testColumnsPermutation() throws FunctionEvaluationException {
+ 
+
+commit 9102bea5d82c6f97bf3cfb1d8525c13e58a9d418
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Mon Aug 30 09:06:22 2010
+
+    MATH-394, MATH-397, MATH-404
+    Overhaul of the "optimization" package.
+    Removed lots of duplicate code.
+    Removed methods referring to the concept of "iteration".
+    Removed interface methods to access the number of evaluations of the
+    gradient and Jacobian.
+    Removed all references to "OptimizationException" (replaced by
+    "ConvergenceException").
+    Javadoc comments updated.
+    
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@990792 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java b/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
+@@ -100,22 +100,22 @@
+ public class NonLinearConjugateGradientOptimizerTest
+ extends TestCase {
+ 
+     public NonLinearConjugateGradientOptimizerTest(String name) {
+         super(name);
+     }
+ 
+     public void testTrivial() throws FunctionEvaluationException, OptimizationException {
+         LinearProblem problem =
+             new LinearProblem(new double[][] { { 2 } }, new double[] { 3 });
+         NonLinearConjugateGradientOptimizer optimizer =
+             new NonLinearConjugateGradientOptimizer(ConjugateGradientFormula.POLAK_RIBIERE);
+-        optimizer.setMaxIterations(100);
++        optimizer.setMaxEvaluations(100);
+         optimizer.setConvergenceChecker(new SimpleScalarValueChecker(1.0e-6, 1.0e-6));
+         RealPointValuePair optimum =
+             optimizer.optimize(problem, GoalType.MINIMIZE, new double[] { 0 });
+         assertEquals(1.5, optimum.getPoint()[0], 1.0e-10);
+         assertEquals(0.0, optimum.getValue(), 1.0e-10);
+     }
+ 
+     public void testColumnsPermutation() throws FunctionEvaluationException, OptimizationException {
+ 
+
+commit 1e8bd163a901635bdc09774406b46ad52009ba2e
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Tue Mar 24 18:16:21 2009
+
+    added an implementation of a non-linear conjugate gradient optimizer
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@758059 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java b/src/test/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/math/optimization/general/NonLinearConjugateGradientOptimizerTest.java
+@@ -0,0 +101,22 @@
++public class NonLinearConjugateGradientOptimizerTest
++extends TestCase {
++
++    public NonLinearConjugateGradientOptimizerTest(String name) {
++        super(name);
++    }
++
++    public void testTrivial() throws FunctionEvaluationException, OptimizationException {
++        LinearProblem problem =
++            new LinearProblem(new double[][] { { 2 } }, new double[] { 3 });
++        NonLinearConjugateGradientOptimizer optimizer =
++            new NonLinearConjugateGradientOptimizer(ConjugateGradientFormula.POLAK_RIBIERE);
++        optimizer.setMaxIterations(100);
++        optimizer.setConvergenceChecker(new SimpleScalarValueChecker(1.0e-6, 1.0e-6));
++        RealPointValuePair optimum =
++            optimizer.optimize(problem, GoalType.MINIMIZE, new double[] { 0 });
++        assertEquals(1.5, optimum.getPoint()[0], 1.0e-10);
++        assertEquals(0.0, optimum.getValue(), 1.0e-10);
++    }
++
++    public void testColumnsPermutation() throws FunctionEvaluationException, OptimizationException {
++

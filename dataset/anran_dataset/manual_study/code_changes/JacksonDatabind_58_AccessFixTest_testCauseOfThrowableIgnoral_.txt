@@ -1,0 +1,21 @@
+commit b2ccdee0fdc52cd46577a90cb50dc011d6d681bf
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Thu Sep 8 00:11:38 2016
+
+    Fix #877
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/misc/AccessFixTest.java b/src/test/java/com/fasterxml/jackson/databind/misc/AccessFixTest.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/misc/AccessFixTest.java
+@@ -0,0 +24,11 @@
++    public void testCauseOfThrowableIgnoral() throws Exception
++    {
++        final SecurityManager origSecMan = System.getSecurityManager();
++        try {
++            System.setSecurityManager(new CauseBlockingSecurityManager());
++            _testCauseOfThrowableIgnoral();
++        } finally {
++            System.setSecurityManager(origSecMan);
++        }
++    }
++

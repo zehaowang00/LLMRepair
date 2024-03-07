@@ -1,0 +1,19 @@
+commit eb8f74efb75e71fc91e515a38becc2aac203e339
+Author: Henri Yandell <bayard@apache.org>
+Date:   Sun Jan 13 02:00:22 2008
+
+    Applying my patch from LANG-393; EqualsBuilder uses compareTo for BigDecimal and not equals
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@611543 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/builder/EqualsBuilderTest.java b/src/test/org/apache/commons/lang/builder/EqualsBuilderTest.java
+--- a/src/test/org/apache/commons/lang/builder/EqualsBuilderTest.java
++++ b/src/test/org/apache/commons/lang/builder/EqualsBuilderTest.java
+@@ -379,0 +381,7 @@
++    public void testBigDecimal() {
++        BigDecimal o1 = new BigDecimal("2.0");
++        BigDecimal o2 = new BigDecimal("2.00");
++        assertTrue(new EqualsBuilder().append(o1, o1).isEquals());
++        assertTrue(new EqualsBuilder().append(o1, o2).isEquals());
++    }
++

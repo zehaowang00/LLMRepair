@@ -1,0 +1,73 @@
+commit 00b1517c53912ac6843c257c0a6ead1176e8c5ee
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Jan 23 18:36:43 2012
+
+    When inferring a function type, there may be formal parameters
+    that do not appear in the function literal
+    Fixes issue 368
+    
+    Tested:
+    yes
+    
+    R=johnlenz
+    DELTA=47  (37 added, 6 deleted, 4 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=4126
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1742 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- a/test/com/google/javascript/jscomp/TypeCheckTest.java
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -2026,13 +2026,10 @@
+   public void testMethodInference6() throws Exception {
+     testTypes(
+         "/** @constructor */ function F() {}" +
+         "/** @param {number} x */ F.prototype.foo = function(x) { };" +
+         "/** @constructor \n * @extends {F} */ " +
+         "function G() {}" +
+         "/** @override */ G.prototype.foo = function() { };" +
+-        "(new G()).foo(1);",
+-        "Function G.prototype.foo: called with 1 argument(s). " +
+-        "Function requires at least 0 argument(s) " +
+-        "and no more than 0 argument(s).");
++        "(new G()).foo(1);");
+   }
+ 
+
+commit 77b7c78d4aeeb6471f2f668a06c0f61a68f95ccd
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Jan 4 15:18:21 2010
+
+    Add more unit tests for type checking.
+    
+    Add phase optimization.
+    
+    Fix a type inference bug.
+    
+    String.prototype.split may not return null.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@55 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -0,0 +1619,13 @@
++  public void testMethodInference6() throws Exception {
++    testTypes(
++        "/** @constructor */ function F() {}" +
++        "/** @param {number} x */ F.prototype.foo = function(x) { };" +
++        "/** @constructor \n * @extends {F} */ " +
++        "function G() {}" +
++        "/** @override */ G.prototype.foo = function() { };" +
++        "(new G()).foo(1);",
++        "Function G.prototype.foo: called with 1 argument(s). " +
++        "Function requires at least 0 argument(s) " +
++        "and no more than 0 argument(s).");
++  }
++

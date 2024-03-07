@@ -1,0 +1,132 @@
+commit 0da657a65c92b086a301a6ffe9e34ec272f8889c
+Author: Thomas Neidhart <tn@apache.org>
+Date:   Sat Aug 31 15:43:02 2013
+
+    [MATH-996] Fix creation of Fraction/BigFraction objects in maxDenominator mode when the value is close to an actual fraction.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1519204 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math3/fraction/FractionTest.java b/src/test/java/org/apache/commons/math3/fraction/FractionTest.java
+--- a/src/test/java/org/apache/commons/math3/fraction/FractionTest.java
++++ b/src/test/java/org/apache/commons/math3/fraction/FractionTest.java
+@@ -123,12 +123,15 @@
+     public void testDigitLimitConstructor() throws ConvergenceException  {
+         assertFraction(2, 5, new Fraction(0.4,   9));
+         assertFraction(2, 5, new Fraction(0.4,  99));
+         assertFraction(2, 5, new Fraction(0.4, 999));
+ 
+         assertFraction(3, 5,      new Fraction(0.6152,    9));
+         assertFraction(8, 13,     new Fraction(0.6152,   99));
+         assertFraction(510, 829,  new Fraction(0.6152,  999));
+         assertFraction(769, 1250, new Fraction(0.6152, 9999));
++
++        // MATH-996
++        assertFraction(1, 2, new Fraction(0.5000000001, 10));
+     }
+ 
+     @Test
+
+commit a4bbdaf426a92d6351796b1d57407776f09f0a3d
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sun Mar 20 13:24:14 2011
+
+    Converted tests to Junit4.
+    
+    There is one thing remaining: the retry feature in RetryTestCase has been disabled temporarily. We need to find some way to implement it using Junit 4 API.
+    
+    JIRA: MATH-423
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1083514 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/fraction/FractionTest.java b/src/test/java/org/apache/commons/math/fraction/FractionTest.java
+--- a/src/test/java/org/apache/commons/math/fraction/FractionTest.java
++++ b/src/test/java/org/apache/commons/math/fraction/FractionTest.java
+@@ -122,11 +127,12 @@
+     public void testDigitLimitConstructor() throws ConvergenceException  {
+         assertFraction(2, 5, new Fraction(0.4,   9));
+         assertFraction(2, 5, new Fraction(0.4,  99));
+         assertFraction(2, 5, new Fraction(0.4, 999));
+ 
+         assertFraction(3, 5,      new Fraction(0.6152,    9));
+         assertFraction(8, 13,     new Fraction(0.6152,   99));
+         assertFraction(510, 829,  new Fraction(0.6152,  999));
+         assertFraction(769, 1250, new Fraction(0.6152, 9999));
+     }
+ 
++    @Test
+
+commit afcb345fba17a8ccf58541d3094e130c38fe80ae
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Fri Feb 1 04:39:14 2008
+
+    replaced maxDenominatorDigit by maxDenominator in constructor
+    it is more straightforward and avoid an exception
+    JIRA: MATH-181
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@617407 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/fraction/FractionTest.java b/src/test/org/apache/commons/math/fraction/FractionTest.java
+--- a/src/test/org/apache/commons/math/fraction/FractionTest.java
++++ b/src/test/org/apache/commons/math/fraction/FractionTest.java
+@@ -125,20 +125,11 @@
+     public void testDigitLimitConstructor() throws ConvergenceException  {
+-        assertFraction(2, 5, new Fraction(0.4, 1));
+-        assertFraction(2, 5, new Fraction(0.4, 2));
+-        assertFraction(2, 5, new Fraction(0.4, 3));
++        assertFraction(2, 5, new Fraction(0.4,   9));
++        assertFraction(2, 5, new Fraction(0.4,  99));
++        assertFraction(2, 5, new Fraction(0.4, 999));
+ 
+-        assertFraction(3, 5,      new Fraction(0.6152, 1));
+-        assertFraction(8, 13,     new Fraction(0.6152, 2));
+-        assertFraction(510, 829,  new Fraction(0.6152, 3));
+-        assertFraction(769, 1250, new Fraction(0.6152, 4));
+-
+-        try {
+-            new Fraction(0.6152, 15);
+-            fail("an exception should have been thrown");
+-        } catch (IllegalArgumentException iae) {
+-            // expected behavior
+-        } catch (Exception e) {
+-            fail("wrong exception caught");
+-        }
++        assertFraction(3, 5,      new Fraction(0.6152,    9));
++        assertFraction(8, 13,     new Fraction(0.6152,   99));
++        assertFraction(510, 829,  new Fraction(0.6152,  999));
++        assertFraction(769, 1250, new Fraction(0.6152, 9999));
+     }
+ 
+
+commit 0b59d70b7948a22e770b8dd81e6eca20be2c71f4
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Mon Jan 28 06:57:55 2008
+
+    added new constructors for Fractions
+    JIRA: MATH-181
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@615856 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/fraction/FractionTest.java b/src/test/org/apache/commons/math/fraction/FractionTest.java
+--- a/src/test/org/apache/commons/math/fraction/FractionTest.java
++++ b/src/test/org/apache/commons/math/fraction/FractionTest.java
+@@ -124,0 +125,20 @@
++    public void testDigitLimitConstructor() throws ConvergenceException  {
++        assertFraction(2, 5, new Fraction(0.4, 1));
++        assertFraction(2, 5, new Fraction(0.4, 2));
++        assertFraction(2, 5, new Fraction(0.4, 3));
++
++        assertFraction(3, 5,      new Fraction(0.6152, 1));
++        assertFraction(8, 13,     new Fraction(0.6152, 2));
++        assertFraction(510, 829,  new Fraction(0.6152, 3));
++        assertFraction(769, 1250, new Fraction(0.6152, 4));
++
++        try {
++            new Fraction(0.6152, 15);
++            fail("an exception should have been thrown");
++        } catch (IllegalArgumentException iae) {
++            // expected behavior
++        } catch (Exception e) {
++            fail("wrong exception caught");
++        }
++    }
++

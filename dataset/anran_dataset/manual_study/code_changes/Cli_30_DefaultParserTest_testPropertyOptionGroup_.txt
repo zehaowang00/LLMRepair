@@ -1,0 +1,55 @@
+commit 324b7f901b91614927926a5bab1d9e0e2325f018
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Thu Jun 17 03:57:38 2010
+
+    Fixed the bugs with the default options and the option groups (CLI-203 and CLI-204)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/trunk@955501 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/cli/ParserTestCase.java b/src/test/java/org/apache/commons/cli/ParserTestCase.java
+--- a/src/test/java/org/apache/commons/cli/ParserTestCase.java
++++ b/src/test/java/org/apache/commons/cli/ParserTestCase.java
+@@ -1001,1 +1017,28 @@
++    public void testPropertyOptionGroup() throws Exception
++    {
++        Options opts = new Options();
++        
++        OptionGroup group1 = new OptionGroup();
++        group1.addOption(new Option("a", null));
++        group1.addOption(new Option("b", null));
++        opts.addOptionGroup(group1);
++        
++        OptionGroup group2 = new OptionGroup();
++        group2.addOption(new Option("x", null));
++        group2.addOption(new Option("y", null));
++        opts.addOptionGroup(group2);
++        
++        String[] args = new String[] { "-a" };
++        
++        Properties properties = new Properties();
++        properties.put("b", "true");
++        properties.put("x", "true");
++        
++        CommandLine cmd = parse(parser, opts, args, properties);
++        
++        assertTrue(cmd.hasOption("a"));
++        assertFalse(cmd.hasOption("b"));
++        assertTrue(cmd.hasOption("x"));
++        assertFalse(cmd.hasOption("y"));
++    }
+ }
+
+commit 67289747fc56e79ee9092a47cd2ff5bd0c688a29
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Mon Sep 15 06:25:38 2008
+
+    Merged the common parser tests into ParserTestCase
+    Fixed the integration test for Groovy, highlighting a regression in CLI 1.2
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/branches/cli-1.x@695410 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/ParserTestCase.java b/src/test/org/apache/commons/cli/ParserTestCase.java
+--- /dev/null
++++ b/src/test/org/apache/commons/cli/ParserTestCase.java
+@@ -0,0 +298,1 @@
++}

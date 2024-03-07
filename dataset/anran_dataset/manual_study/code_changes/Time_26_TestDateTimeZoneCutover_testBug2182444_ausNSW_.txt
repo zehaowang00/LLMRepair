@@ -1,0 +1,52 @@
+commit c7a581e55fc988bd90fa4bb1b0acece5181b7c5f
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Sun Dec 5 16:27:36 2010
+
+    DateTimeZone.convertLocalToUTC [bugs 3102760,2182444,2553453]
+    New method now retains the offset wherever possible during calculations
+    This affects higher methods like withHourOfDay/withMinuteOfHour/withSecondOfMinute/withMillisOfSecond which now do not change offset when called within a DST overlap
+    
+    git-svn-id: https://joda-time.svn.sourceforge.net/svnroot/joda-time/trunk@1595 1e1cfbb7-5c0e-0410-a2f0-f98d92ec03a1
+
+diff --git a/JodaTime/src/test/java/org/joda/time/TestDateTimeZoneCutover.java b/JodaTime/src/test/java/org/joda/time/TestDateTimeZoneCutover.java
+--- a/JodaTime/src/test/java/org/joda/time/TestDateTimeZoneCutover.java
++++ b/JodaTime/src/test/java/org/joda/time/TestDateTimeZoneCutover.java
+@@ -1061,2 +1172,22 @@
++    public void testBug2182444_ausNSW() {
++        Chronology chronAusNSW = GregorianChronology.getInstance(DateTimeZone.forID("Australia/NSW"));
++        Chronology chronUTC = GregorianChronology.getInstance(DateTimeZone.UTC);
++        DateTime australiaNSWStandardInUTC = new DateTime(2008, 4, 5, 16, 0, 0, 0, chronUTC);
++        DateTime australiaNSWDaylightInUTC = new DateTime(2008, 4, 5, 15, 0, 0, 0, chronUTC);
++        assertTrue("Should be standard time", chronAusNSW.getZone().isStandardOffset(australiaNSWStandardInUTC.getMillis()));
++        assertFalse("Should be daylight time", chronAusNSW.getZone().isStandardOffset(australiaNSWDaylightInUTC.getMillis()));
++        
++        DateTime australiaNSWStandardInAustraliaNSW = australiaNSWStandardInUTC.toDateTime(chronAusNSW);
++        DateTime australiaNSWDaylightInAusraliaNSW = australiaNSWDaylightInUTC.toDateTime(chronAusNSW);
++        assertEquals(2, australiaNSWStandardInAustraliaNSW.getHourOfDay());
++        assertEquals(australiaNSWStandardInAustraliaNSW.getHourOfDay(), australiaNSWDaylightInAusraliaNSW.getHourOfDay());
++        assertTrue(australiaNSWStandardInAustraliaNSW.getMillis() != australiaNSWDaylightInAusraliaNSW.getMillis());
++        assertEquals(australiaNSWStandardInAustraliaNSW, australiaNSWStandardInAustraliaNSW.withHourOfDay(2));
++        assertEquals(australiaNSWStandardInAustraliaNSW.getMillis() + 3, australiaNSWStandardInAustraliaNSW.withMillisOfSecond(3).getMillis());
++        assertEquals(australiaNSWDaylightInAusraliaNSW, australiaNSWDaylightInAusraliaNSW.withHourOfDay(2));
++        assertEquals(australiaNSWDaylightInAusraliaNSW.getMillis() + 3, australiaNSWDaylightInAusraliaNSW.withMillisOfSecond(3).getMillis());
++    }
++
++    //-----------------------------------------------------------------------
+     //-----------------------------------------------------------------------
+     //-----------------------------------------------------------------------
+
+commit c41eff1e6026a6e0b88ea45edda3e41eecc6ac7b
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Sat Aug 4 13:23:22 2007
+
+    Fix DateTimeZone to better handle spring DST cutover
+    bugs 1710316, 1747219, 1755158
+    
+    git-svn-id: https://joda-time.svn.sourceforge.net/svnroot/joda-time/trunk@1232 1e1cfbb7-5c0e-0410-a2f0-f98d92ec03a1
+
+diff --git a/JodaTime/src/test/org/joda/time/TestDateTimeZoneCutover.java b/JodaTime/src/test/org/joda/time/TestDateTimeZoneCutover.java
+--- /dev/null
++++ b/JodaTime/src/test/org/joda/time/TestDateTimeZoneCutover.java
+@@ -0,0 +766,2 @@
++    //-----------------------------------------------------------------------
++    //-----------------------------------------------------------------------

@@ -1,0 +1,42 @@
+commit 1aeb52554a104f0a2433788be406d53b39654952
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Fri Nov 11 02:01:12 2016
+
+    ...
+
+diff --git a/src/test/java/com/fasterxml/jackson/failing/SingleValueAsArray1421Test.java b/src/test/java/com/fasterxml/jackson/failing/SingleValueAsArray1421Test.java
+--- a/src/test/java/com/fasterxml/jackson/failing/SingleValueAsArray1421Test.java
++++ b/src/test/java/com/fasterxml/jackson/failing/SingleValueAsArray1421Test.java
+@@ -77,10 +77,10 @@
+-    public void test2() throws Exception {
++    public void testWithSingleString() throws Exception {
+         ObjectMapper objectMapper = new ObjectMapper();
+         objectMapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+         Bean1421B<List<String>> a = objectMapper.readValue(quote("test2"),
+                 new TypeReference<Bean1421B<List<String>>>() {});
+         List<String> expected = new ArrayList<>();
+         expected.add("test2");
+         assertEquals(expected, a.value);
+     }
+ }
+
+commit 6c283a80986434dcc05113db646e09ab69ade1c9
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Fri Nov 11 01:27:45 2016
+
+    backport 1421 test to 2.8
+
+diff --git a/src/test/java/com/fasterxml/jackson/failing/SingleValueAsArray1421Test.java b/src/test/java/com/fasterxml/jackson/failing/SingleValueAsArray1421Test.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/failing/SingleValueAsArray1421Test.java
+@@ -0,0 +77,10 @@
++    public void test2() throws Exception {
++        ObjectMapper objectMapper = new ObjectMapper();
++        objectMapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
++        Bean1421B<List<String>> a = objectMapper.readValue(quote("test2"),
++                new TypeReference<Bean1421B<List<String>>>() {});
++        List<String> expected = new ArrayList<>();
++        expected.add("test2");
++        assertEquals(expected, a.value);
++    }
++}

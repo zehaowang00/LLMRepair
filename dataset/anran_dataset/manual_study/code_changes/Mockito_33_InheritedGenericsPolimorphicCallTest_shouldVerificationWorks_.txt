@@ -1,0 +1,23 @@
+commit 5cb37751c0aba81d025dc5fe4f2f9a3bf86cc958
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Tue Jun 22 01:32:13 2010
+
+    Fixed issue 200
+    For some weird reason when we had inherited generics sometimes the cglib proxy does not behave like java proxy would.
+    Fixed in Mockito code.
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%402022
+
+diff --git a/test/org/mockitousage/bugs/InheritedGenericsPolimorphicCallTest.java b/test/org/mockitousage/bugs/InheritedGenericsPolimorphicCallTest.java
+--- /dev/null
++++ b/test/org/mockitousage/bugs/InheritedGenericsPolimorphicCallTest.java
+@@ -0,0 +44,8 @@
++    public void shouldVerificationWorks() {
++        iterable.iterator();
++        
++        verify(iterable).iterator();
++        verify((Iterable) iterable).iterator();
++    }
++    
++    @Test

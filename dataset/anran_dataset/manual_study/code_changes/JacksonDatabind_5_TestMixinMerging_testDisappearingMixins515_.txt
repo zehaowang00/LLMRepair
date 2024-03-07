@@ -1,0 +1,25 @@
+commit fd0f1fefdc19593a040b3dce857715d613cb6458
+Author: Tatu <tsaloranta@gmail.com>
+Date:   Wed Aug 13 19:04:04 2014
+
+    Fix #515
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/introspect/TestMixinMerging.java b/src/test/java/com/fasterxml/jackson/databind/introspect/TestMixinMerging.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/introspect/TestMixinMerging.java
+@@ -0,0 +36,15 @@
++    public void testDisappearingMixins515() throws Exception
++    {
++        ObjectMapper mapper = new ObjectMapper();
++        mapper.disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
++            .disable(MapperFeature.AUTO_DETECT_FIELDS)
++            .disable(MapperFeature.AUTO_DETECT_GETTERS)
++            .disable(MapperFeature.AUTO_DETECT_IS_GETTERS)
++            .disable(MapperFeature.INFER_PROPERTY_MUTATORS);
++        SimpleModule module = new SimpleModule("Test");
++        module.setMixInAnnotation(Person.class, PersonMixin.class);        
++        mapper.registerModule(module);
++
++        assertEquals("{\"city\":\"Seattle\"}", mapper.writeValueAsString(new PersonImpl()));
++    }
++}

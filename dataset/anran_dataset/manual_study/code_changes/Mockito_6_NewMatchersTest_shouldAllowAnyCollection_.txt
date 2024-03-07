@@ -1,0 +1,51 @@
+commit dc205824dbc289acbcde919e430176ad72da847f
+Author: pimterry <pimterry@gmail.com>
+Date:   Mon Dec 15 18:30:26 2014
+
+    Stop anyX() methods matching null inputs
+    
+    Fixes #134
+
+diff --git a/test/org/mockitousage/matchers/NewMatchersTest.java b/test/org/mockitousage/matchers/NewMatchersTest.java
+--- a/test/org/mockitousage/matchers/NewMatchersTest.java
++++ b/test/org/mockitousage/matchers/NewMatchersTest.java
+@@ -41,10 +41,10 @@
+     public void shouldAllowAnyCollection() {
+-        when(mock.forCollection(anyCollection())).thenReturn("x");
++        when(mock.forCollection(anyCollection())).thenReturn("matched");
+         
+-        assertEquals("x", mock.forCollection(null));
+-        assertEquals("x", mock.forCollection(Arrays.asList("x", "y")));
+-        
+-        verify(mock, times(2)).forCollection(anyCollection());
++        assertEquals("matched", mock.forCollection(Arrays.asList("x", "y")));
++        assertEquals(null, mock.forCollection(null));
++
++        verify(mock, times(1)).forCollection(anyCollection());
+     }
+     
+     @Test
+
+commit 2e0f918ff2f693c5704ba3832a94ffccddf97840
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Fri Apr 3 06:30:04 2009
+
+    Added more tests around new matchers
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401285
+
+diff --git a/test/org/mockitousage/matchers/NewMatchersTest.java b/test/org/mockitousage/matchers/NewMatchersTest.java
+--- /dev/null
++++ b/test/org/mockitousage/matchers/NewMatchersTest.java
+@@ -0,0 +41,10 @@
++    public void shouldAllowAnyCollection() {
++        when(mock.forCollection(anyCollection())).thenReturn("x");
++        
++        assertEquals("x", mock.forCollection(null));
++        assertEquals("x", mock.forCollection(Arrays.asList("x", "y")));
++        
++        verify(mock, times(2)).forCollection(anyCollection());
++    }
++    
++    @Test

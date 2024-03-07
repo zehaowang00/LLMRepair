@@ -1,0 +1,33 @@
+commit 6aa71f116df0102a98c463f471ad8ddd4dba01f8
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Dec 12 12:54:10 2011
+
+    Don't remove assignments to variables whose values have escaped and
+    are later modified.
+    Fixes issue 618.
+    
+    R=nicksantos
+    DELTA=32  (27 added, 0 deleted, 5 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3952
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1674 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/RemoveUnusedVarsTest.java b/test/com/google/javascript/jscomp/RemoveUnusedVarsTest.java
+--- a/test/com/google/javascript/jscomp/RemoveUnusedVarsTest.java
++++ b/test/com/google/javascript/jscomp/RemoveUnusedVarsTest.java
+@@ -738,0 +739,11 @@
++  public void testIssue618_1() {
++    this.removeGlobal = false;
++    testSame(
++        "function f() {\n" +
++        "  var a = [], b;\n" +
++        "  a.push(b = []);\n" +
++        "  b[0] = 1;\n" +
++        "  return a;\n" +
++        "}");
++  }
++

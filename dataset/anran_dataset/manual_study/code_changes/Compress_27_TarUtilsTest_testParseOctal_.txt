@@ -1,0 +1,268 @@
+commit 1ea7e01eb6776071eddf60f7783d650ec7d60e74
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Sat Apr 19 02:00:19 2014
+
+    COMPRESS-278 all empty numeric fields should be ignored in tars
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1588618 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+@@ -46,23 +46,26 @@
+     public void testParseOctal() throws Exception{
+         long value; 
+         byte [] buffer;
+         final long MAX_OCTAL  = 077777777777L; // Allowed 11 digits
+         final long MAX_OCTAL_OVERFLOW  = 0777777777777L; // in fact 12 for some implementations
+         final String maxOctal = "777777777777"; // Maximum valid octal
+         buffer = maxOctal.getBytes(CharsetNames.UTF_8);
+         value = TarUtils.parseOctal(buffer,0, buffer.length);
+         assertEquals(MAX_OCTAL_OVERFLOW, value);
+         buffer[buffer.length - 1] = ' ';
+         value = TarUtils.parseOctal(buffer,0, buffer.length);
+         assertEquals(MAX_OCTAL, value);
+         buffer[buffer.length-1]=0;
+         value = TarUtils.parseOctal(buffer,0, buffer.length);
+         assertEquals(MAX_OCTAL, value);
+         buffer=new byte[]{0,0};
+         value = TarUtils.parseOctal(buffer,0, buffer.length);
+         assertEquals(0, value);
+         buffer=new byte[]{0,' '};
+         value = TarUtils.parseOctal(buffer,0, buffer.length);
+         assertEquals(0, value);
++        buffer=new byte[]{' ',0};
++        value = TarUtils.parseOctal(buffer,0, buffer.length);
++        assertEquals(0, value);
+     }
+ 
+
+commit 8da377299d085b4ce1f15dbc0732232ea32e601d
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Fri Feb 21 00:20:08 2014
+
+    COMPRESS-262 be more lenient when parsing tar headers as some dialect use up all space for big numbers
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1570452 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+@@ -46,19 +46,23 @@
+     public void testParseOctal() throws Exception{
+         long value; 
+         byte [] buffer;
+         final long MAX_OCTAL  = 077777777777L; // Allowed 11 digits
+-        final String maxOctal = "77777777777 "; // Maximum valid octal
++        final long MAX_OCTAL_OVERFLOW  = 0777777777777L; // in fact 12 for some implementations
++        final String maxOctal = "777777777777"; // Maximum valid octal
+         buffer = maxOctal.getBytes(CharsetNames.UTF_8);
+         value = TarUtils.parseOctal(buffer,0, buffer.length);
++        assertEquals(MAX_OCTAL_OVERFLOW, value);
++        buffer[buffer.length - 1] = ' ';
++        value = TarUtils.parseOctal(buffer,0, buffer.length);
+         assertEquals(MAX_OCTAL, value);
+         buffer[buffer.length-1]=0;
+         value = TarUtils.parseOctal(buffer,0, buffer.length);
+         assertEquals(MAX_OCTAL, value);
+         buffer=new byte[]{0,0};
+         value = TarUtils.parseOctal(buffer,0, buffer.length);
+         assertEquals(0, value);
+         buffer=new byte[]{0,' '};
+         value = TarUtils.parseOctal(buffer,0, buffer.length);
+         assertEquals(0, value);
+     }
+ 
+
+commit d7119be63642c0cc862e636071b96daaa0b99ec0
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Sat Mar 31 18:36:04 2012
+
+    Replace magic strings "UTF-8", "US-ASCII", and so on with references to a new .util class CharsetNames (like in other commons components.) The Charsets class will be more useful when [compress] moves to Java 6 and can use String#getBytes(Charset) instead of String#getBytes(String).
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1307926 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+@@ -44,19 +46,19 @@
+     public void testParseOctal() throws Exception{
+         long value; 
+         byte [] buffer;
+         final long MAX_OCTAL  = 077777777777L; // Allowed 11 digits
+         final String maxOctal = "77777777777 "; // Maximum valid octal
+-        buffer = maxOctal.getBytes("UTF-8");
++        buffer = maxOctal.getBytes(CharsetNames.UTF_8);
+         value = TarUtils.parseOctal(buffer,0, buffer.length);
+         assertEquals(MAX_OCTAL, value);
+         buffer[buffer.length-1]=0;
+         value = TarUtils.parseOctal(buffer,0, buffer.length);
+         assertEquals(MAX_OCTAL, value);
+         buffer=new byte[]{0,0};
+         value = TarUtils.parseOctal(buffer,0, buffer.length);
+         assertEquals(0, value);
+         buffer=new byte[]{0,' '};
+         value = TarUtils.parseOctal(buffer,0, buffer.length);
+         assertEquals(0, value);
+     }
+ 
+
+commit 39c93f49db5bc064eba73478c339c5aee61de3fd
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Sat Mar 31 08:30:09 2012
+
+    Trailing spaces
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1307789 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+@@ -44,19 +44,19 @@
+     public void testParseOctal() throws Exception{
+         long value; 
+         byte [] buffer;
+         final long MAX_OCTAL  = 077777777777L; // Allowed 11 digits
+         final String maxOctal = "77777777777 "; // Maximum valid octal
+         buffer = maxOctal.getBytes("UTF-8");
+         value = TarUtils.parseOctal(buffer,0, buffer.length);
+         assertEquals(MAX_OCTAL, value);
+         buffer[buffer.length-1]=0;
+         value = TarUtils.parseOctal(buffer,0, buffer.length);
+         assertEquals(MAX_OCTAL, value);
+         buffer=new byte[]{0,0};
+         value = TarUtils.parseOctal(buffer,0, buffer.length);
+-        assertEquals(0, value);        
++        assertEquals(0, value);
+         buffer=new byte[]{0,' '};
+         value = TarUtils.parseOctal(buffer,0, buffer.length);
+-        assertEquals(0, value);        
++        assertEquals(0, value);
+     }
+ 
+
+commit 35e4e4fb6848ddfa3878270523f3f9336ae7f9b8
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Wed Jun 2 07:00:25 2010
+
+    COMPRESS-113:  TarArchiveEntry.parseTarHeader() includes the trailing space/NUL when parsing the octal size
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@950489 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+@@ -42,11 +42,19 @@
+     public void testParseOctal() throws Exception{
+         long value; 
+         byte [] buffer;
+         final long MAX_OCTAL  = 077777777777L; // Allowed 11 digits
+         final String maxOctal = "77777777777 "; // Maximum valid octal
+         buffer = maxOctal.getBytes("UTF-8");
+         value = TarUtils.parseOctal(buffer,0, buffer.length);
+         assertEquals(MAX_OCTAL, value);
+         buffer[buffer.length-1]=0;
+         value = TarUtils.parseOctal(buffer,0, buffer.length);
+         assertEquals(MAX_OCTAL, value);
++        buffer=new byte[]{0,0};
++        value = TarUtils.parseOctal(buffer,0, buffer.length);
++        assertEquals(0, value);        
++        buffer=new byte[]{0,' '};
++        value = TarUtils.parseOctal(buffer,0, buffer.length);
++        assertEquals(0, value);        
++    }
++
+
+commit 4ca99827695a09065b8b73397d3abde7f7008f47
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Tue Jun 1 11:19:53 2010
+
+    Fixup tests - should only allow at most 11 octal digits in 12-byte buffer
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@950111 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+@@ -49,15 +42,11 @@
+     public void testParseOctal() throws Exception{
+-        byte [] buffer = new byte[20];
+-        fillBuff(buffer,"777777777777 ");
+         long value; 
+-        value = TarUtils.parseOctal(buffer,0, 11);
+-        assertEquals(077777777777L, value);
+-        value = TarUtils.parseOctal(buffer,0, 12);
+-        assertEquals(0777777777777L, value);
+-        buffer[11]=' ';
+-        value = TarUtils.parseOctal(buffer,0, 11);
+-        assertEquals(077777777777L, value);
+-        buffer[11]=0;
+-        value = TarUtils.parseOctal(buffer,0, 11);
+-        assertEquals(077777777777L, value);
+-        fillBuff(buffer, "abcdef"); // Invalid input
++        byte [] buffer;
++        final long MAX_OCTAL  = 077777777777L; // Allowed 11 digits
++        final String maxOctal = "77777777777 "; // Maximum valid octal
++        buffer = maxOctal.getBytes("UTF-8");
++        value = TarUtils.parseOctal(buffer,0, buffer.length);
++        assertEquals(MAX_OCTAL, value);
++        buffer[buffer.length-1]=0;
++        value = TarUtils.parseOctal(buffer,0, buffer.length);
++        assertEquals(MAX_OCTAL, value);
+
+commit 0fd9354ffea563807e7e548b9168abff1ad3483c
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Tue Apr 13 14:54:52 2010
+
+    Don't rely on default charset
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@933741 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+@@ -49,15 +49,15 @@
+-    public void testParseOctal(){
++    public void testParseOctal() throws Exception{
+         byte [] buffer = new byte[20];
+         fillBuff(buffer,"777777777777 ");
+         long value; 
+         value = TarUtils.parseOctal(buffer,0, 11);
+         assertEquals(077777777777L, value);
+         value = TarUtils.parseOctal(buffer,0, 12);
+         assertEquals(0777777777777L, value);
+         buffer[11]=' ';
+         value = TarUtils.parseOctal(buffer,0, 11);
+         assertEquals(077777777777L, value);
+         buffer[11]=0;
+         value = TarUtils.parseOctal(buffer,0, 11);
+         assertEquals(077777777777L, value);
+         fillBuff(buffer, "abcdef"); // Invalid input
+
+commit 161511fb50910920c612de82bfe06f86e6a5aa50
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Tue Mar 31 19:49:45 2009
+
+    Some test cases for TarUtils
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@760738 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+@@ -0,0 +49,15 @@
++    public void testParseOctal(){
++        byte [] buffer = new byte[20];
++        fillBuff(buffer,"777777777777 ");
++        long value; 
++        value = TarUtils.parseOctal(buffer,0, 11);
++        assertEquals(077777777777L, value);
++        value = TarUtils.parseOctal(buffer,0, 12);
++        assertEquals(0777777777777L, value);
++        buffer[11]=' ';
++        value = TarUtils.parseOctal(buffer,0, 11);
++        assertEquals(077777777777L, value);
++        buffer[11]=0;
++        value = TarUtils.parseOctal(buffer,0, 11);
++        assertEquals(077777777777L, value);
++        fillBuff(buffer, "abcdef"); // Invalid input

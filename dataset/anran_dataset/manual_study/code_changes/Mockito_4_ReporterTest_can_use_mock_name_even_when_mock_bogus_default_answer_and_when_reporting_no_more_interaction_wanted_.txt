@@ -1,0 +1,62 @@
+commit 42b391d4209024292b6101048389570e4ec36b2a
+Author: Brice Dutheil <brice.dutheil@gmail.com>
+Date:   Fri Apr 17 05:45:21 2015
+
+    Fixes #187 : print mock name even when default answer is bogus
+
+diff --git a/test/org/mockito/exceptions/ReporterTest.java b/test/org/mockito/exceptions/ReporterTest.java
+--- a/test/org/mockito/exceptions/ReporterTest.java
++++ b/test/org/mockito/exceptions/ReporterTest.java
+@@ -21,4 +39,6 @@
+-    
+-    @Test(expected=MockitoException.class)
+-    public void shouldThrowCorrectExceptionForNullInvocationListener() throws Exception {
+-    	new Reporter().invocationListenerDoesNotAcceptNullParameters();
++    public void can_use_mock_name_even_when_mock_bogus_default_answer_and_when_reporting_no_more_interaction_wanted() throws Exception {
++        Invocation invocation_with_bogus_default_answer = new InvocationBuilder().mock(mock(IMethods.class, new Returns(false))).toInvocation();
++        new Reporter().noMoreInteractionsWanted(invocation_with_bogus_default_answer, Collections.<VerificationAwareInvocation>emptyList());
++    }
++
++    @Test(expected = VerificationInOrderFailure.class)
+
+commit 1caa476f709ccf50a36509282fd4b3f8da10177b
+Author: Brice <brice.Dutheil@gmail.com>
+Date:   Sun May 8 12:33:58 2011
+
+    Reworked MockSettingImpl,
+    changed callback(InvocationListener) to invocationListeners(InvocationListeners),
+    removed the dupe type check there, users might want to order them as they wish
+    
+    --HG--
+    branch : issue148
+
+diff --git a/test/org/mockito/exceptions/ReporterTest.java b/test/org/mockito/exceptions/ReporterTest.java
+--- a/test/org/mockito/exceptions/ReporterTest.java
++++ b/test/org/mockito/exceptions/ReporterTest.java
+@@ -19,4 +19,4 @@
+     
+     @Test(expected=MockitoException.class)
+     public void shouldThrowCorrectExceptionForNullInvocationListener() throws Exception {
+-    	new Reporter().nullInvocationListenerAdded();
++    	new Reporter().invocationListenerDoesNotAcceptNullParameters();
+
+commit 732050aad4d0d1f7cfa373d6eadbbc536b845942
+Author: murat.knecht@gmail.com <murat.knecht@gmail.com>
+Date:   Thu Feb 17 14:25:08 2011
+
+    The settings now offer two additional options: "invocation listener" and "verbose logging".
+    An invocation listener can be added, which is notified of method calls to a mock.
+    Verbose logging dumps all interactions with a mock in real-time. Currently, only the method and its arguments are output.
+    
+    --HG--
+    branch : issue148
+    extra : transplant_source : 3C%13-%09%897%3A%C8%BEe%FEy%C0%2B%0D%EDH6%2C
+
+diff --git a/test/org/mockito/exceptions/ReporterTest.java b/test/org/mockito/exceptions/ReporterTest.java
+--- a/test/org/mockito/exceptions/ReporterTest.java
++++ b/test/org/mockito/exceptions/ReporterTest.java
+@@ -18,0 +19,4 @@
++    
++    @Test(expected=MockitoException.class)
++    public void shouldThrowCorrectExceptionForNullInvocationListener() throws Exception {
++    	new Reporter().nullInvocationListenerAdded();

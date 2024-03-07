@@ -1,0 +1,169 @@
+commit 496525b0d626dd5049528cdef61d71681154b660
+Author: Matthew Jason Benson <mbenson@apache.org>
+Date:   Thu Feb 4 16:57:58 2010
+
+    [LANG-586] part 2: refactor ToStringStyle and ToStringBuilderTest to verify that we are unsetting the registry when no longer needed
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@906676 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/builder/ToStringBuilderTest.java b/src/test/java/org/apache/commons/lang3/builder/ToStringBuilderTest.java
+--- a/src/test/java/org/apache/commons/lang3/builder/ToStringBuilderTest.java
++++ b/src/test/java/org/apache/commons/lang3/builder/ToStringBuilderTest.java
+@@ -400,29 +400,29 @@
+     public void testReflectionArrayArrayCycle() throws Exception {
+         Object[][] objects = new Object[2][2];
+         objects[0][0] = objects;
+         objects[0][1] = objects;
+         objects[1][0] = objects;
+         objects[1][1] = objects;
+         String basicToString = this.toBaseString(objects);
+         assertEquals(
+             basicToString
+                 + "[{{"
+                 + basicToString
+                 + ","
+                 + basicToString
+                 + "},{"
+                 + basicToString
+                 + ","
+                 + basicToString
+                 + "}}]",
+             ToStringBuilder.reflectionToString(objects));
+-        this.validateEmptyToStringStyleRegistry();
++        this.validateNullToStringStyleRegistry();
+     }
+ 
+     /**
+      * A reflection test fixture.
+      */
+     static class ReflectionTestCycleA {
+         ReflectionTestCycleB b;
+ 
+         @Override
+
+commit 78fd7bba1cd0296a5e1ea839b666b9fd28fa86de
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Sat Mar 14 09:40:37 2009
+
+    Fix various Eclipse warnings (casts, unused vars, @Override)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@753655 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java b/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java
+--- a/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java
++++ b/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java
+@@ -417,28 +419,29 @@
+     public void testReflectionArrayArrayCycle() throws Exception {
+         Object[][] objects = new Object[2][2];
+         objects[0][0] = objects;
+         objects[0][1] = objects;
+         objects[1][0] = objects;
+         objects[1][1] = objects;
+         String basicToString = this.toBaseString(objects);
+         assertEquals(
+             basicToString
+                 + "[{{"
+                 + basicToString
+                 + ","
+                 + basicToString
+                 + "},{"
+                 + basicToString
+                 + ","
+                 + basicToString
+                 + "}}]",
+             ToStringBuilder.reflectionToString(objects));
+         this.validateEmptyToStringStyleRegistry();
+     }
+ 
+     /**
+      * A reflection test fixture.
+      */
+     static class ReflectionTestCycleA {
+         ReflectionTestCycleB b;
+ 
++        @Override
+
+commit 43b2a5b6808d7b6aceb8895eb5cd221dd57483cc
+Author: Henri Yandell <bayard@apache.org>
+Date:   Sat Jan 27 02:11:08 2007
+
+    Applying a modified version of Maarten Coene's patch for #LANG-69. All unit tests pass; opinions would be very welcome though.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@500495 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java b/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java
+--- a/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java
++++ b/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java
+@@ -417,28 +417,28 @@
+     public void testReflectionArrayArrayCycle() throws Exception {
+         Object[][] objects = new Object[2][2];
+         objects[0][0] = objects;
+         objects[0][1] = objects;
+         objects[1][0] = objects;
+         objects[1][1] = objects;
+         String basicToString = this.toBaseString(objects);
+         assertEquals(
+             basicToString
+                 + "[{{"
+                 + basicToString
+                 + ","
+                 + basicToString
+                 + "},{"
+                 + basicToString
+                 + ","
+                 + basicToString
+                 + "}}]",
+             ToStringBuilder.reflectionToString(objects));
+-        this.validateEmptyReflectionRegistry();
++        this.validateEmptyToStringStyleRegistry();
+     }
+ 
+     /**
+      * A reflection test fixture.
+      */
+     static class ReflectionTestCycleA {
+         ReflectionTestCycleB b;
+ 
+
+commit b0be90e86c346b320f52ad7b7065f110a7e1d272
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Thu Mar 27 03:55:22 2003
+
+    Fix bug 16676: StackOverflow due to ToStringBuilder
+    (http://issues.apache.org/bugzilla/show_bug.cgi?id=16676)
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137276 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java b/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java
+--- a/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java
++++ b/src/test/org/apache/commons/lang/builder/ToStringBuilderTest.java
+@@ -399,0 +478,28 @@
++    public void testReflectionArrayArrayCycle() throws Exception {
++        Object[][] objects = new Object[2][2];
++        objects[0][0] = objects;
++        objects[0][1] = objects;
++        objects[1][0] = objects;
++        objects[1][1] = objects;
++        String basicToString = this.toBaseString(objects);
++        assertEquals(
++            basicToString
++                + "[{{"
++                + basicToString
++                + ","
++                + basicToString
++                + "},{"
++                + basicToString
++                + ","
++                + basicToString
++                + "}}]",
++            ToStringBuilder.reflectionToString(objects));
++        this.validateEmptyReflectionRegistry();
++    }
++
++    /**
++     * A reflection test fixture.
++     */
++    static class ReflectionTestCycleA {
++        ReflectionTestCycleB b;
++

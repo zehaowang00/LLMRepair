@@ -1,0 +1,132 @@
+commit 038da2119223818ee1c56eaf600a583f755f9b30
+Author: Ben Lickly <blickly@google.com>
+Date:   Mon Nov 4 13:58:43 2013
+
+    Automated g4 rollback of changelist 53524738.
+    
+    *** Reason for rollback ***
+    
+    reworked to use the parameter checking logic used for block inlining when doing
+    expression inlining.
+    
+    *** Original change description ***
+    
+    Automated g4 rollback of changelist 53511956.
+    
+    *** Reason for rollback ***
+    
+    Breakages
+    
+    *** Original change description ***
+    
+    Nerf direct function inlining when the function be inlined has side-effects and the call arguments can be effected.
+    Fixes issue 1101
+    
+    ***
+    -------------
+    Created by MOE: http://code.google.com/p/moe-java
+    MOE_MIGRATED_REVID=55952788
+
+diff --git a/test/com/google/javascript/jscomp/InlineFunctionsTest.java b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+--- a/test/com/google/javascript/jscomp/InlineFunctionsTest.java
++++ b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+@@ -984,10 +1020,8 @@
+   public void testCostBasedInlining10() {
+-    // But it is small enough here, and on the second iteration, the remaining
+-    // call to f() is inlined, as there is no longer a possible side-effect-ing
+-    // parameter.
+     allowBlockInlining = false;
++    // The remaining use of 'f' would be inlined after the constants are folded.
+     test("function f(a){return a + a;}" +
+         "var a = f(f(1));",
+-        "var a= 1+1+(1+1);");
++        "function f(a$$1){return a$$1+a$$1}var a=f(1+1)");
+   }
+ 
+
+commit 4597738e8898f738c1f969fe90479728be81cc80
+Author: Ben Lickly <blickly@google.com>
+Date:   Tue Oct 1 19:09:00 2013
+
+    Automated g4 rollback of changelist 53511956.
+    
+    *** Reason for rollback ***
+    
+    Broke people
+    
+    *** Original change description ***
+    
+    Nerf direct function inlining when the function be inlined has side-effects and the call arguments can be effected.
+    Fixes issue 1101
+    -------------
+    Created by MOE: http://code.google.com/p/moe-java
+    MOE_MIGRATED_REVID=53524738
+
+diff --git a/test/com/google/javascript/jscomp/InlineFunctionsTest.java b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+--- a/test/com/google/javascript/jscomp/InlineFunctionsTest.java
++++ b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+@@ -987,10 +984,10 @@
+   public void testCostBasedInlining10() {
+     // But it is small enough here, and on the second iteration, the remaining
+     // call to f() is inlined, as there is no longer a possible side-effect-ing
+     // parameter.
+     allowBlockInlining = false;
+-    test("function f(a){return nochg() + a + a;}" +
++    test("function f(a){return a + a;}" +
+         "var a = f(f(1));",
+-        "var a= nochg()+(nochg()+1+1)+(nochg()+1+1);");
++        "var a= 1+1+(1+1);");
+   }
+ 
+
+commit b80dfd3b0e5e4b490b7afb469320d18bac4520b4
+Author: Ben Lickly <blickly@google.com>
+Date:   Tue Oct 1 19:05:37 2013
+
+    Nerf direct function inlining when the function be inlined has side-effects and the call arguments can be effected.
+    Fixes issue 1101
+    -------------
+    Created by MOE: http://code.google.com/p/moe-java
+    MOE_MIGRATED_REVID=53511956
+
+diff --git a/test/com/google/javascript/jscomp/InlineFunctionsTest.java b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+--- a/test/com/google/javascript/jscomp/InlineFunctionsTest.java
++++ b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+@@ -984,10 +987,10 @@
+   public void testCostBasedInlining10() {
+     // But it is small enough here, and on the second iteration, the remaining
+     // call to f() is inlined, as there is no longer a possible side-effect-ing
+     // parameter.
+     allowBlockInlining = false;
+-    test("function f(a){return a + a;}" +
++    test("function f(a){return nochg() + a + a;}" +
+         "var a = f(f(1));",
+-        "var a= 1+1+(1+1);");
++        "var a= nochg()+(nochg()+1+1)+(nochg()+1+1);");
+   }
+ 
+
+commit 6b49cfd9022fe111bdad745c78ea877fbc2f7ba3
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 3 18:51:57 2009
+
+    Initial commit.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/InlineFunctionsTest.java b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+@@ -0,0 +802,10 @@
++  public void testCostBasedInlining10() {
++    // But it is small enough here, and on the second iteration, the remaining
++    // call to f() is inlined, as there is no longer a possible side-effect-ing
++    // parameter.
++    allowBlockInlining = false;
++    test("function f(a){return a + a;}" +
++        "var a = f(f(1));",
++        "var a= 1+1+(1+1);");
++  }
++

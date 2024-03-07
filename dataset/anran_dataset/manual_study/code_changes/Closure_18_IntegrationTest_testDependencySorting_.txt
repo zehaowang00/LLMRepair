@@ -1,0 +1,42 @@
+commit ea119a2d06328852763f9ee447c3bf74fa1f83dc
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Jul 3 00:44:08 2012
+
+    Allow dependency sorting even when closure pass is off.
+    Fixes issue 768
+    
+    R=johnlenz
+    DELTA=23  (21 added, 1 deleted, 1 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=5100
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2073 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/IntegrationTest.java b/test/com/google/javascript/jscomp/IntegrationTest.java
+--- a/test/com/google/javascript/jscomp/IntegrationTest.java
++++ b/test/com/google/javascript/jscomp/IntegrationTest.java
+@@ -2102,0 +2102,21 @@
++  public void testDependencySorting() throws Exception {
++    CompilerOptions options = createCompilerOptions();
++    options.setDependencyOptions(
++        new DependencyOptions()
++        .setDependencySorting(true));
++    test(
++        options,
++        new String[] {
++          "goog.require('x');",
++          "goog.provide('x');",
++        },
++        new String[] {
++          "goog.provide('x');",
++          "goog.require('x');",
++
++          // For complicated reasons involving modules,
++          // the compiler creates a synthetic source file.
++          "",
++        });
++  }
++

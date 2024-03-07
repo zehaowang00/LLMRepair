@@ -1,0 +1,20 @@
+commit d906a34178f27803a08e824e3c2474fc0863edc4
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Wed Nov 9 23:39:22 2016
+
+    Fix #1445
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/module/TestCustomEnumKeyDeserializer.java b/src/test/java/com/fasterxml/jackson/databind/module/TestCustomEnumKeyDeserializer.java
+--- a/src/test/java/com/fasterxml/jackson/databind/module/TestCustomEnumKeyDeserializer.java
++++ b/src/test/java/com/fasterxml/jackson/databind/module/TestCustomEnumKeyDeserializer.java
+@@ -226,0 +230,10 @@
++    public void testCustomEnumValueAndKeyViaModifier() throws IOException
++    {
++        SimpleModule module = new SimpleModule();
++        module.setDeserializerModifier(new BeanDeserializerModifier() {        
++            @Override
++            public JsonDeserializer<Enum> modifyEnumDeserializer(DeserializationConfig config,
++                    final JavaType type, BeanDescription beanDesc,
++                    final JsonDeserializer<?> deserializer) {
++                return new JsonDeserializer<Enum>() {
++                    @Override

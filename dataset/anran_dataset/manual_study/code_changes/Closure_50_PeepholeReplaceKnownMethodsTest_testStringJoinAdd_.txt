@@ -1,0 +1,143 @@
+commit c3b630fc9c2a1c4eb7cb718f8d324bfb306cb9df
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Oct 28 15:55:05 2011
+
+    [].join(',') --> [].join()
+    Fixes issue 558
+    
+    R=acleung
+    DELTA=26  (15 added, 0 deleted, 11 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3579
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1536 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeReplaceKnownMethodsTest.java b/test/com/google/javascript/jscomp/PeepholeReplaceKnownMethodsTest.java
+--- a/test/com/google/javascript/jscomp/PeepholeReplaceKnownMethodsTest.java
++++ b/test/com/google/javascript/jscomp/PeepholeReplaceKnownMethodsTest.java
+@@ -77,46 +82,47 @@
+   public void testStringJoinAdd() {
+     fold("x = ['a', 'b', 'c'].join('')", "x = \"abc\"");
+     fold("x = [].join(',')", "x = \"\"");
+     fold("x = ['a'].join(',')", "x = \"a\"");
+     fold("x = ['a', 'b', 'c'].join(',')", "x = \"a,b,c\"");
+     fold("x = ['a', foo, 'b', 'c'].join(',')",
+-        "x = [\"a\",foo,\"b,c\"].join(\",\")");
++        "x = [\"a\",foo,\"b,c\"].join()");
+     fold("x = [foo, 'a', 'b', 'c'].join(',')",
+-        "x = [foo,\"a,b,c\"].join(\",\")");
++        "x = [foo,\"a,b,c\"].join()");
+     fold("x = ['a', 'b', 'c', foo].join(',')",
+-        "x = [\"a,b,c\",foo].join(\",\")");
++        "x = [\"a,b,c\",foo].join()");
+ 
+     // Works with numbers
+     fold("x = ['a=', 5].join('')", "x = \"a=5\"");
+     fold("x = ['a', '5'].join(7)", "x = \"a75\"");
+ 
+     // Works on boolean
+     fold("x = ['a=', false].join('')", "x = \"a=false\"");
+     fold("x = ['a', '5'].join(true)", "x = \"atrue5\"");
+     fold("x = ['a', '5'].join(false)", "x = \"afalse5\"");
+ 
+     // Only optimize if it's a size win.
+     fold("x = ['a', '5', 'c'].join('a very very very long chain')",
+          "x = [\"a\",\"5\",\"c\"].join(\"a very very very long chain\")");
+ 
+     // TODO(user): Its possible to fold this better.
+-    foldSame("x = ['', foo].join(',')");
+-    foldSame("x = ['', foo, ''].join(',')");
++    foldSame("x = ['', foo].join('-')");
++    foldSame("x = ['', foo, ''].join()");
+ 
+-    fold("x = ['', '', foo, ''].join(',')", "x = [',', foo, ''].join(',')");
++    fold("x = ['', '', foo, ''].join(',')",
++         "x = [',', foo, ''].join()");
+     fold("x = ['', '', foo, '', ''].join(',')",
+-         "x = [',', foo, ','].join(',')");
++         "x = [',', foo, ','].join()");
+ 
+     fold("x = ['', '', foo, '', '', bar].join(',')",
+-         "x = [',', foo, ',', bar].join(',')");
++         "x = [',', foo, ',', bar].join()");
+ 
+     fold("x = [1,2,3].join('abcdef')",
+          "x = '1abcdef2abcdef3'");
+ 
+     fold("x = [1,2].join()", "x = '1,2'");
+     fold("x = [null,undefined,''].join(',')", "x = ',,'");
+     fold("x = [null,undefined,0].join(',')", "x = ',,0'");
+     // This can be folded but we don't currently.
+     foldSame("x = [[1,2],[3,4]].join()"); // would like: "x = '1,2,3,4'"
+   }
+ 
+
+commit 3fc66a99d98015dc798215a666f6b5ad268028c2
+Author: acleung@google.com <acleung@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Jun 14 20:29:49 2011
+
+    Refactor out of replace known methods.
+    
+    R=zhuyi
+    DELTA=1555  (825 added, 729 deleted, 1 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=2281
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1180 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeReplaceKnownMethodsTest.java b/test/com/google/javascript/jscomp/PeepholeReplaceKnownMethodsTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/PeepholeReplaceKnownMethodsTest.java
+@@ -0,0 +77,46 @@
++  public void testStringJoinAdd() {
++    fold("x = ['a', 'b', 'c'].join('')", "x = \"abc\"");
++    fold("x = [].join(',')", "x = \"\"");
++    fold("x = ['a'].join(',')", "x = \"a\"");
++    fold("x = ['a', 'b', 'c'].join(',')", "x = \"a,b,c\"");
++    fold("x = ['a', foo, 'b', 'c'].join(',')",
++        "x = [\"a\",foo,\"b,c\"].join(\",\")");
++    fold("x = [foo, 'a', 'b', 'c'].join(',')",
++        "x = [foo,\"a,b,c\"].join(\",\")");
++    fold("x = ['a', 'b', 'c', foo].join(',')",
++        "x = [\"a,b,c\",foo].join(\",\")");
++
++    // Works with numbers
++    fold("x = ['a=', 5].join('')", "x = \"a=5\"");
++    fold("x = ['a', '5'].join(7)", "x = \"a75\"");
++
++    // Works on boolean
++    fold("x = ['a=', false].join('')", "x = \"a=false\"");
++    fold("x = ['a', '5'].join(true)", "x = \"atrue5\"");
++    fold("x = ['a', '5'].join(false)", "x = \"afalse5\"");
++
++    // Only optimize if it's a size win.
++    fold("x = ['a', '5', 'c'].join('a very very very long chain')",
++         "x = [\"a\",\"5\",\"c\"].join(\"a very very very long chain\")");
++
++    // TODO(user): Its possible to fold this better.
++    foldSame("x = ['', foo].join(',')");
++    foldSame("x = ['', foo, ''].join(',')");
++
++    fold("x = ['', '', foo, ''].join(',')", "x = [',', foo, ''].join(',')");
++    fold("x = ['', '', foo, '', ''].join(',')",
++         "x = [',', foo, ','].join(',')");
++
++    fold("x = ['', '', foo, '', '', bar].join(',')",
++         "x = [',', foo, ',', bar].join(',')");
++
++    fold("x = [1,2,3].join('abcdef')",
++         "x = '1abcdef2abcdef3'");
++
++    fold("x = [1,2].join()", "x = '1,2'");
++    fold("x = [null,undefined,''].join(',')", "x = ',,'");
++    fold("x = [null,undefined,0].join(',')", "x = ',,0'");
++    // This can be folded but we don't currently.
++    foldSame("x = [[1,2],[3,4]].join()"); // would like: "x = '1,2,3,4'"
++  }
++

@@ -1,0 +1,132 @@
+commit 6cf7092809515b6add5f0e83fd837b8e013c5256
+Author: Matthew Jason Benson <mbenson@apache.org>
+Date:   Sat Feb 2 18:16:01 2008
+
+    [JXPATH-114] properly implement node()
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/jxpath/trunk@617923 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+--- a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
++++ b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+@@ -631,14 +633,14 @@
+     public void testAxisFollowing() {
+         assertXPathValueIterator(
+             context,
+             "vendor/contact/following::location//street",
+             list("Orchard Road", "Tangerine Drive"));
+ 
+         // following:: with a namespace
+         assertXPathValue(
+             context,
+             "//location/following::price:sale/saleEnds",
+             "never");
+-        assertXPathPointer(context, "//location[2]/following::node()[1]", "/vendor[1]/product[1]");
++        assertXPathPointer(context, "//location[2]/following::node()[2]", "/vendor[1]/product[1]");
+     }
+ 
+
+commit cd7b5363f4d505070c4438436caf0cdcdae3b5ec
+Author: Matthew Jason Benson <mbenson@apache.org>
+Date:   Mon Dec 24 14:56:25 2007
+
+    [JXPATH-111] ClassCastException in PrecedingOrFollowingContext
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/jxpath/trunk@606733 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+--- a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
++++ b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+@@ -622,13 +631,14 @@
+     public void testAxisFollowing() {
+         assertXPathValueIterator(
+             context,
+             "vendor/contact/following::location//street",
+             list("Orchard Road", "Tangerine Drive"));
+ 
+         // following:: with a namespace
+         assertXPathValue(
+             context,
+             "//location/following::price:sale/saleEnds",
+             "never");
++        assertXPathPointer(context, "//location[2]/following::node()[1]", "/vendor[1]/product[1]");
+     }
+ 
+
+commit 02d8160f14dd155a86bb1022cd6fdd5dbee7421c
+Author: Dmitri Plotnikov <dmitri@apache.org>
+Date:   Sun Jan 19 19:00:29 2003
+
+    Placated stylecheck
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/jxpath/trunk@136841 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+--- a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
++++ b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+@@ -554,11 +603,13 @@
+     public void testAxisFollowing() {
+-        assertXPathValueIterator(context,
+-                "vendor/contact/following::location//street",
+-                list("Orchard Road", "Tangerine Drive"));
++        assertXPathValueIterator(
++            context,
++            "vendor/contact/following::location//street",
++            list("Orchard Road", "Tangerine Drive"));
+ 
+         // following:: with a namespace
+-        assertXPathValue(context,
+-                "//location/following::price:sale/saleEnds",
+-                "never");
++        assertXPathValue(
++            context,
++            "//location/following::price:sale/saleEnds",
++            "never");
+     }
+ 
+
+commit a966d3b853aa757fd5556191c6ea18ffa6591ce1
+Author: Dmitri Plotnikov <dmitri@apache.org>
+Date:   Sat Oct 19 23:48:23 2002
+
+    Complete overhaul of the test suites
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/jxpath/trunk@136823 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+--- a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
++++ b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+@@ -383,4 +535,11 @@
+-    private static XP testEval(String xpath, Object expected){
+-        return new XP(xpath, expected, true, false, false);
++    public void testAxisFollowing() {
++        assertXPathValueIterator(context,
++                "vendor/contact/following::location//street",
++                list("Orchard Road", "Tangerine Drive"));
++
++        // following:: with a namespace
++        assertXPathValue(context,
++                "//location/following::price:sale/saleEnds",
++                "never");
+     }
+ 
+
+commit bdbe018e7dea67afe7f52643c88a76e7cc8c74d6
+Author: Dmitri Plotnikov <dmitri@apache.org>
+Date:   Mon Aug 26 18:33:20 2002
+
+    Added testing for JDOM support, broke out DOM testing too
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/jxpath/trunk@136804 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTest.java b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTest.java
+@@ -0,0 +374,4 @@
++    private static XP testEval(String xpath, Object expected){
++        return new XP(xpath, expected, true, false, false);
++    }
++

@@ -1,0 +1,68 @@
+commit aa2434d301c49d100f50af544333886a6767ce9d
+Author: Henri Yandell <bayard@apache.org>
+Date:   Mon Mar 16 03:26:44 2009
+
+    Applying Jorg Schaible's patch from CLI-177 to fix the OptionBuilder's not resetting when an Exception is thrown
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/branches/cli-1.x@754830 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/OptionBuilderTest.java b/src/test/org/apache/commons/cli/OptionBuilderTest.java
+--- a/src/test/org/apache/commons/cli/OptionBuilderTest.java
++++ b/src/test/org/apache/commons/cli/OptionBuilderTest.java
+@@ -150,1 +154,24 @@
++    public void testBuilderIsResettedAlways() {
++        try
++        {
++            OptionBuilder.withDescription("JUnit").create('"');
++            fail("IllegalArgumentException expected");
++        }
++        catch (IllegalArgumentException e)
++        {
++            // expected
++        }
++        assertNull("we inherited a description", OptionBuilder.create('x').getDescription());
++
++        try
++        {
++            OptionBuilder.withDescription("JUnit").create();
++            fail("IllegalArgumentException expected");
++        }
++        catch (IllegalArgumentException e)
++        {
++            // expected
++        }
++        assertNull("we inherited a description", OptionBuilder.create('x').getDescription());
++    }
+ }
+
+commit 2490250f9b3044e4cd946f11b46694f943f5814d
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Thu May 29 11:30:40 2008
+
+    Removed the unused constructors, suite() and teardown() methods from the test cases
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/branches/cli-1.x@661358 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/OptionBuilderTest.java b/src/test/org/apache/commons/cli/OptionBuilderTest.java
+--- a/src/test/org/apache/commons/cli/OptionBuilderTest.java
++++ b/src/test/org/apache/commons/cli/OptionBuilderTest.java
+@@ -165,1 +150,1 @@
+-}
+\ No newline at end of file
++}
+
+commit 7f90b98c1f77a0c1af9c774a12e8e257d7a0d1ac
+Author: John Keyes <jkeyes@apache.org>
+Date:   Mon Jul 29 18:12:37 2002
+
+    OptionBuilder first cut
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129791 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/OptionBuilderTest.java b/src/test/org/apache/commons/cli/OptionBuilderTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/cli/OptionBuilderTest.java
+@@ -0,0 +151,1 @@
++}
+\ No newline at end of file

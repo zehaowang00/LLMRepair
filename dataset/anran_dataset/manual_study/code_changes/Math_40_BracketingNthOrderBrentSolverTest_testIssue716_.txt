@@ -1,0 +1,18 @@
+commit c8becc7c47963bcdc1578298846ad6fbf08f64ef
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Thu Dec 1 18:24:36 2011
+
+    Fixed bracketing interval balancing in BracketingNthOrderBrentSolver.
+    
+    Jira: MATH-716
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1209307 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/analysis/solvers/BracketingNthOrderBrentSolverTest.java b/src/test/java/org/apache/commons/math/analysis/solvers/BracketingNthOrderBrentSolverTest.java
+--- a/src/test/java/org/apache/commons/math/analysis/solvers/BracketingNthOrderBrentSolverTest.java
++++ b/src/test/java/org/apache/commons/math/analysis/solvers/BracketingNthOrderBrentSolverTest.java
+@@ -85,0 +85,4 @@
++    public void testIssue716() {
++        BracketingNthOrderBrentSolver solver =
++                new BracketingNthOrderBrentSolver(1.0e-12, 1.0e-10, 1.0e-22, 5);
++        UnivariateFunction sharpTurn = new UnivariateFunction() {

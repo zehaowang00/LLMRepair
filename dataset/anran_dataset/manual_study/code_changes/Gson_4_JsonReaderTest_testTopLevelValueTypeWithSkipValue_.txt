@@ -1,0 +1,63 @@
+commit c8627c8ab831dec86eeb52fc02600b22c81ba858
+Author: Jake Wharton <jw@squareup.com>
+Date:   Mon Jan 18 15:07:33 2016
+
+    Update reader and writer for RFC 7159.
+
+diff --git a/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java b/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java
+--- a/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java
++++ b/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java
+@@ -1261,9 +1249,6 @@
+-  public void testStrictTopLevelValueTypeWithSkipValue() {
++  public void testTopLevelValueTypeWithSkipValue() throws IOException {
+     JsonReader reader = new JsonReader(reader("true"));
+-    try {
+-      reader.skipValue();
+-      fail();
+-    } catch (IOException expected) {
+-    }
++    reader.skipValue();
++    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+   }
+ 
+
+commit 46b73632b0f7591ef1328ee7ddd1e883916fec1e
+Author: Jesse Wilson <jesse@swank.ca>
+Date:   Mon Aug 27 21:48:25 2012
+
+    Fix a bug where we weren't reading enough characters when a BOM was encountered.
+
+diff --git a/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java b/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java
+--- a/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java
++++ b/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java
+@@ -1142,9 +1142,9 @@
+   public void testStrictTopLevelValueTypeWithSkipValue() {
+-    JsonReader reader = new JsonReader(new StringReader("true"));
++    JsonReader reader = new JsonReader(reader("true"));
+     try {
+       reader.skipValue();
+       fail();
+     } catch (IOException expected) {
+     }
+   }
+ 
+
+commit 13c19466215c1d95a65f09cb27a16d1daae9164f
+Author: Jesse Wilson <jesse@swank.ca>
+Date:   Wed Dec 21 16:43:55 2011
+
+    More tests that skipValue() is no less strict.
+
+diff --git a/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java b/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java
+--- a/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java
++++ b/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java
+@@ -747,0 +904,9 @@
++  public void testStrictTopLevelValueTypeWithSkipValue() {
++    JsonReader reader = new JsonReader(new StringReader("true"));
++    try {
++      reader.skipValue();
++      fail();
++    } catch (IOException expected) {
++    }
++  }
++

@@ -1,0 +1,199 @@
+commit 5f1b2dfe73a57ebc4e416e7a3fd41bb8bfa8cc98
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Sat Sep 29 18:18:18 2012
+
+    MATH-867
+    Previous commit was missing a crucial modification (in the "repair" method),
+    an inconsistency which entailed the failing of some tests.
+    With that modification (thanks to Nikolaus Hansen), it was established that
+    the "encode" and "decode" steps were indeed useless. This commit thus removes
+    them, and all the code that was necessary only because of those two methods.
+    Finite and infinite can now be freely mixed.
+    Unit tests that depended on those limitations were also removed (thus also
+    the one that was added following MATH-865).
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1391908 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math3/optimization/direct/CMAESOptimizerTest.java b/src/test/java/org/apache/commons/math3/optimization/direct/CMAESOptimizerTest.java
+--- a/src/test/java/org/apache/commons/math3/optimization/direct/CMAESOptimizerTest.java
++++ b/src/test/java/org/apache/commons/math3/optimization/direct/CMAESOptimizerTest.java
+@@ -352,15 +339,15 @@
+     public void testConstrainedRosen() {
+-        double[] startPoint = point(DIM, 0.7);
++        double[] startPoint = point(DIM, 0.1);
+         double[] insigma = point(DIM, 0.1);
+         double[][] boundaries = boundaries(DIM, -1, 2);
+         PointValuePair expected =
+             new PointValuePair(point(DIM,1.0),0.0);
+         doTest(new Rosen(), startPoint, insigma, boundaries,
+                 GoalType.MINIMIZE, 2*LAMBDA, true, 0, 1e-13,
+                 1e-13, 1e-6, 100000, expected);
+         doTest(new Rosen(), startPoint, insigma, boundaries,
+                 GoalType.MINIMIZE, 2*LAMBDA, false, 0, 1e-13,
+                 1e-13, 1e-6, 100000, expected);
+     }
+ 
+     @Test
+
+commit 7c7d7e8f103582e753c39a2baf14a483e991fefb
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Sat Sep 29 12:58:18 2012
+
+    MATH-867
+    Modified "encode" and "decode" methods. Unit test "testFitAccuracyDependsOnBoundary"
+    now passes and is thus enabled. Unit test "testConstrainedRosen" had to be modified
+    in order to not fail with the new code (starting point is set closer to the solution).
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1391840 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math3/optimization/direct/CMAESOptimizerTest.java b/src/test/java/org/apache/commons/math3/optimization/direct/CMAESOptimizerTest.java
+--- a/src/test/java/org/apache/commons/math3/optimization/direct/CMAESOptimizerTest.java
++++ b/src/test/java/org/apache/commons/math3/optimization/direct/CMAESOptimizerTest.java
+@@ -352,15 +352,15 @@
+     public void testConstrainedRosen() {
+-        double[] startPoint = point(DIM, 0.1);
+-        double[] insigma = point(DIM, 1);
++        double[] startPoint = point(DIM, 0.7);
++        double[] insigma = point(DIM, 0.1);
+         double[][] boundaries = boundaries(DIM, -1, 2);
+         PointValuePair expected =
+             new PointValuePair(point(DIM,1.0),0.0);
+         doTest(new Rosen(), startPoint, insigma, boundaries,
+                 GoalType.MINIMIZE, 2*LAMBDA, true, 0, 1e-13,
+                 1e-13, 1e-6, 100000, expected);
+         doTest(new Rosen(), startPoint, insigma, boundaries,
+                 GoalType.MINIMIZE, 2*LAMBDA, false, 0, 1e-13,
+                 1e-13, 1e-6, 100000, expected);
+     }
+ 
+     @Test
+
+commit 6e62aefca7aefe26a2ebc43fcdcd6cd58953f7de
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Fri Sep 28 10:06:19 2012
+
+    MATH-867
+    Unit test showing the problem. It is disabled (with the "@Ignore" annotation)
+    because it fails with the current code.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1391477 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math3/optimization/direct/CMAESOptimizerTest.java b/src/test/java/org/apache/commons/math3/optimization/direct/CMAESOptimizerTest.java
+--- a/src/test/java/org/apache/commons/math3/optimization/direct/CMAESOptimizerTest.java
++++ b/src/test/java/org/apache/commons/math3/optimization/direct/CMAESOptimizerTest.java
+@@ -351,15 +352,15 @@
+     public void testConstrainedRosen() {
+-        double[] startPoint = point(DIM,0.1);
+-        double[] insigma = point(DIM,0.1);
+-        double[][] boundaries = boundaries(DIM,-1,2);
++        double[] startPoint = point(DIM, 0.1);
++        double[] insigma = point(DIM, 1);
++        double[][] boundaries = boundaries(DIM, -1, 2);
+         PointValuePair expected =
+             new PointValuePair(point(DIM,1.0),0.0);
+         doTest(new Rosen(), startPoint, insigma, boundaries,
+                 GoalType.MINIMIZE, 2*LAMBDA, true, 0, 1e-13,
+                 1e-13, 1e-6, 100000, expected);
+         doTest(new Rosen(), startPoint, insigma, boundaries,
+                 GoalType.MINIMIZE, 2*LAMBDA, false, 0, 1e-13,
+                 1e-13, 1e-6, 100000, expected);
+     }
+ 
+     @Test
+
+commit 5a8be77a303c9e2f8c19d029e8628d7697fb581d
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Sat Feb 11 19:37:23 2012
+
+    MATH-707
+    Renamed "RealPointValuePair" to "PointValuePair" and made it a subclass
+    of "Pair<double[], Double>".
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1243186 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/direct/CMAESOptimizerTest.java b/src/test/java/org/apache/commons/math/optimization/direct/CMAESOptimizerTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/direct/CMAESOptimizerTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/direct/CMAESOptimizerTest.java
+@@ -322,15 +322,15 @@
+     public void testConstrainedRosen() {
+         double[] startPoint = point(DIM,0.1);
+         double[] insigma = point(DIM,0.1);
+         double[][] boundaries = boundaries(DIM,-1,2);
+-        RealPointValuePair expected =
+-            new RealPointValuePair(point(DIM,1.0),0.0);
++        PointValuePair expected =
++            new PointValuePair(point(DIM,1.0),0.0);
+         doTest(new Rosen(), startPoint, insigma, boundaries,
+                 GoalType.MINIMIZE, 2*LAMBDA, true, 0, 1e-13,
+                 1e-13, 1e-6, 100000, expected);
+         doTest(new Rosen(), startPoint, insigma, boundaries,
+                 GoalType.MINIMIZE, 2*LAMBDA, false, 0, 1e-13,
+                 1e-13, 1e-6, 100000, expected);
+     }
+ 
+     @Test
+
+commit 177c1f59a435d109886aa2f6e4110724cd2a7a14
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Mon May 16 08:13:51 2011
+
+    Removed unnecessary exceptions.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1103710 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/direct/CMAESOptimizerTest.java b/src/test/java/org/apache/commons/math/optimization/direct/CMAESOptimizerTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/direct/CMAESOptimizerTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/direct/CMAESOptimizerTest.java
+@@ -324,15 +322,15 @@
+-    public void testConstrainedRosen() throws MathException {
++    public void testConstrainedRosen() {
+         double[] startPoint = point(DIM,0.1);
+         double[] insigma = point(DIM,0.1);
+         double[][] boundaries = boundaries(DIM,-1,2);
+         RealPointValuePair expected =
+             new RealPointValuePair(point(DIM,1.0),0.0);
+         doTest(new Rosen(), startPoint, insigma, boundaries,
+                 GoalType.MINIMIZE, 2*LAMBDA, true, 0, 1e-13,
+                 1e-13, 1e-6, 100000, expected);
+         doTest(new Rosen(), startPoint, insigma, boundaries,
+                 GoalType.MINIMIZE, 2*LAMBDA, false, 0, 1e-13,
+                 1e-13, 1e-6, 100000, expected);
+     }
+ 
+     @Test
+
+commit ba96c9afd8f42adb6abc9d5e447bec823c95db88
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Thu Feb 17 08:10:00 2011
+
+    MATH-442
+    Implementation of the CMA-ES optimization algorithm provided by Dietmar Wolz
+    and Nikolaus Hansen.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1071600 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/direct/CMAESOptimizerTest.java b/src/test/java/org/apache/commons/math/optimization/direct/CMAESOptimizerTest.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/math/optimization/direct/CMAESOptimizerTest.java
+@@ -0,0 +318,15 @@
++    public void testConstrainedRosen() throws MathException {
++        double[] startPoint = point(DIM,0.1);
++        double[] insigma = point(DIM,0.1);
++        double[][] boundaries = boundaries(DIM,-1,2);
++        RealPointValuePair expected =
++            new RealPointValuePair(point(DIM,1.0),0.0);
++        doTest(new Rosen(), startPoint, insigma, boundaries,
++                GoalType.MINIMIZE, 2*LAMBDA, true, 0, 1e-13,
++                1e-13, 1e-6, 100000, expected);
++        doTest(new Rosen(), startPoint, insigma, boundaries,
++                GoalType.MINIMIZE, 2*LAMBDA, false, 0, 1e-13,
++                1e-13, 1e-6, 100000, expected);
++    }
++
++    @Test

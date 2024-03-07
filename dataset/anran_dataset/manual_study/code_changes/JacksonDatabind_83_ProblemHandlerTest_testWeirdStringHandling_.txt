@@ -1,0 +1,75 @@
+commit 9a083ad56b20711eab368a7818fb079a870feb93
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Fri May 19 16:07:44 2017
+
+    Fix #1629
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/filter/ProblemHandlerTest.java b/src/test/java/com/fasterxml/jackson/databind/filter/ProblemHandlerTest.java
+--- a/src/test/java/com/fasterxml/jackson/databind/filter/ProblemHandlerTest.java
++++ b/src/test/java/com/fasterxml/jackson/databind/filter/ProblemHandlerTest.java
+@@ -236,16 +236,15 @@
+     public void testWeirdStringHandling() throws Exception
+     {
+         ObjectMapper mapper = new ObjectMapper()
+             .addHandler(new WeirdStringHandler(SingleValuedEnum.A))
+             ;
+         SingleValuedEnum result = mapper.readValue("\"B\"", SingleValuedEnum.class);
+         assertEquals(SingleValuedEnum.A, result);
+ 
+         // also, write [databind#1629] try this
+-        UUID defaultUUID = UUID.nameUUIDFromBytes("abc".getBytes());
+         mapper = new ObjectMapper()
+-                .addHandler(new WeirdStringHandler(defaultUUID));
++                .addHandler(new WeirdStringHandler(null));
+         UUID result2 = mapper.readValue(quote("not a uuid!"), UUID.class);
+-        assertEquals(defaultUUID, result2);
++        assertNull(result2);
+     }
+ 
+
+commit edaa4ad8204dfda985d3c74ffe542c9eb67a201d
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Thu May 18 21:34:35 2017
+
+    Add a (passing) unit test for #1629
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/filter/ProblemHandlerTest.java b/src/test/java/com/fasterxml/jackson/databind/filter/ProblemHandlerTest.java
+--- a/src/test/java/com/fasterxml/jackson/databind/filter/ProblemHandlerTest.java
++++ b/src/test/java/com/fasterxml/jackson/databind/filter/ProblemHandlerTest.java
+@@ -235,9 +236,16 @@
+     public void testWeirdStringHandling() throws Exception
+     {
+         ObjectMapper mapper = new ObjectMapper()
+             .addHandler(new WeirdStringHandler(SingleValuedEnum.A))
+             ;
+         SingleValuedEnum result = mapper.readValue("\"B\"", SingleValuedEnum.class);
+         assertEquals(SingleValuedEnum.A, result);
++
++        // also, write [databind#1629] try this
++        UUID defaultUUID = UUID.nameUUIDFromBytes("abc".getBytes());
++        mapper = new ObjectMapper()
++                .addHandler(new WeirdStringHandler(defaultUUID));
++        UUID result2 = mapper.readValue(quote("not a uuid!"), UUID.class);
++        assertEquals(defaultUUID, result2);
+     }
+ 
+
+commit 0b6cb9b2582f6dbf6918615f64bff33ae601a602
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Mon May 16 01:59:17 2016
+
+    Add `DeserializationProblemHandler.handleWeirdStringValue(...)` to allow recovering from JSON String value problems
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/filter/ProblemHandlerTest.java b/src/test/java/com/fasterxml/jackson/databind/filter/ProblemHandlerTest.java
+--- a/src/test/java/com/fasterxml/jackson/databind/filter/ProblemHandlerTest.java
++++ b/src/test/java/com/fasterxml/jackson/databind/filter/ProblemHandlerTest.java
+@@ -116,0 +135,9 @@
++    public void testWeirdStringHandling() throws Exception
++    {
++        ObjectMapper mapper = new ObjectMapper()
++            .addHandler(new WeirdStringHandler(SingleValuedEnum.A))
++            ;
++        SingleValuedEnum result = mapper.readValue("\"B\"", SingleValuedEnum.class);
++        assertEquals(SingleValuedEnum.A, result);
++    }
++

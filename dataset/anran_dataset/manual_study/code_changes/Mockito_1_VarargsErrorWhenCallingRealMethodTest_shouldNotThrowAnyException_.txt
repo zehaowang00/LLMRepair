@@ -1,0 +1,23 @@
+commit c4e61e5418c4bde70f1e0eb5e99817e1ac4775b9
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Tue Oct 20 14:41:17 2009
+
+    Fixed issue 123
+    There was an error related to calling real behavior when method had varargs
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401622
+
+diff --git a/test/org/mockitousage/bugs/VarargsErrorWhenCallingRealMethodTest.java b/test/org/mockitousage/bugs/VarargsErrorWhenCallingRealMethodTest.java
+--- /dev/null
++++ b/test/org/mockitousage/bugs/VarargsErrorWhenCallingRealMethodTest.java
+@@ -0,0 +20,8 @@
++    public void shouldNotThrowAnyException() throws Exception {
++        Foo foo = mock(Foo.class);
++
++        when(foo.blah(anyString(), anyString())).thenCallRealMethod();
++
++        assertEquals(1, foo.blah("foo", "bar"));
++    }
++}
+\ No newline at end of file

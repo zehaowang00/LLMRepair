@@ -1,0 +1,41 @@
+commit 277e61721f34be16a20da663fd597edf6b51939b
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Mon Jun 3 03:15:00 2013
+
+    Fixed NullPointerException in 2D and 3D sub-line intersections.
+    
+    Patch contributed by Andeas Huber.
+    
+    JIRA: MATH-988
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1488866 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math3/geometry/euclidean/threed/SubLineTest.java b/src/test/java/org/apache/commons/math3/geometry/euclidean/threed/SubLineTest.java
+--- a/src/test/java/org/apache/commons/math3/geometry/euclidean/threed/SubLineTest.java
++++ b/src/test/java/org/apache/commons/math3/geometry/euclidean/threed/SubLineTest.java
+@@ -155,2 +157,8 @@
++    public void testIntersectionNotIntersecting() throws MathIllegalArgumentException {
++        SubLine sub1 = new SubLine(new Vector3D(1, 1, 1), new Vector3D(1.5, 1, 1));
++        SubLine sub2 = new SubLine(new Vector3D(2, 3, 0), new Vector3D(2, 3, 0.5));
++        Assert.assertNull(sub1.intersection(sub2, true));
++        Assert.assertNull(sub1.intersection(sub2, false));
++    }
+ 
+ }
+
+commit 02f92a3273d8a1352f2b2a549234566d23405f28
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Thu Aug 18 14:50:08 2011
+
+    Added a 3D SubLine class.
+    
+    JIRA: MATH-593
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1159353 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/geometry/euclidean/threed/SubLineTest.java b/src/test/java/org/apache/commons/math/geometry/euclidean/threed/SubLineTest.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/math/geometry/euclidean/threed/SubLineTest.java
+@@ -0,0 +154,2 @@
++
++}

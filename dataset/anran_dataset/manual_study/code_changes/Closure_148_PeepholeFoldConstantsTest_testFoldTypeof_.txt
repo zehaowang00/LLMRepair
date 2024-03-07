@@ -1,0 +1,102 @@
+commit f86b8929454da31fbc59cbf95293c7138e0b8200
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Jul 15 17:01:20 2010
+
+    Change on 2010/07/15 12:32:23 by johnlenz
+    
+            Add writing mode to CssProperties object definition.
+            Fixes issue 196.
+    
+            R=nicksantos
+            DELTA=16  (14 added, 0 deleted, 2 changed)
+    
+    Change on 2010/07/15 12:58:13 by johnlenz
+    
+            Last set of tweaks to reduce build time impact of creating source maps:
+             skip unused mapping entries to reduce the size of the file written.
+    
+            R=jschorr
+            DELTA=374  (193 added, 88 deleted, 93 changed)
+    
+    Change on 2010/07/15 12:58:15 by johnlenz
+    
+            Add support for "typeof void 0" to "undefined" folding.
+            Fixes issue 197
+    
+            R=dcc
+            DELTA=4  (4 added, 0 deleted, 0 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=48015
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@279 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+--- a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
++++ b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+@@ -545,16 +545,17 @@
+   public void testFoldTypeof() {
+     fold("x = typeof 1", "x = \"number\"");
+     fold("x = typeof 'foo'", "x = \"string\"");
+     fold("x = typeof true", "x = \"boolean\"");
+     fold("x = typeof false", "x = \"boolean\"");
+     fold("x = typeof null", "x = \"object\"");
+     fold("x = typeof undefined", "x = \"undefined\"");
++    fold("x = typeof void 0", "x = \"undefined\"");
+     fold("x = typeof []", "x = \"object\"");
+     fold("x = typeof [1]", "x = \"object\"");
+     fold("x = typeof [1,[]]", "x = \"object\"");
+     fold("x = typeof {}", "x = \"object\"");
+ 
+     foldSame("x = typeof[1,[foo()]]");
+     foldSame("x = typeof{bathwater:baby()}");
+   }
+ 
+
+commit 9925370292834ea846727f1f9db76af0d40261df
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Jun 28 20:30:00 2010
+
+    Change on 2010/06/28 12:25:08 by dcc
+    
+            Split up FoldConstants unit tests.
+    
+            R=acleung
+            DELTA=2778  (1508 added, 1270 deleted, 0 changed)
+    
+    Change on 2010/06/28 15:47:46 by johnlenz
+    
+            Prevent COMMAs with more than two children.
+    
+            R=acleung
+            DELTA=1  (1 added, 0 deleted, 0 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=44002
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@257 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+@@ -0,0 +545,16 @@
++  public void testFoldTypeof() {
++    fold("x = typeof 1", "x = \"number\"");
++    fold("x = typeof 'foo'", "x = \"string\"");
++    fold("x = typeof true", "x = \"boolean\"");
++    fold("x = typeof false", "x = \"boolean\"");
++    fold("x = typeof null", "x = \"object\"");
++    fold("x = typeof undefined", "x = \"undefined\"");
++    fold("x = typeof []", "x = \"object\"");
++    fold("x = typeof [1]", "x = \"object\"");
++    fold("x = typeof [1,[]]", "x = \"object\"");
++    fold("x = typeof {}", "x = \"object\"");
++
++    foldSame("x = typeof[1,[foo()]]");
++    foldSame("x = typeof{bathwater:baby()}");
++  }
++

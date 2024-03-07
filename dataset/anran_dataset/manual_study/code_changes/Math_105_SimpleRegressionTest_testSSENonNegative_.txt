@@ -1,0 +1,42 @@
+commit fc21b26f84312e4f75e8b144238618c73a8b091f
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Thu Jul 6 01:10:49 2006
+
+    Modified getSumSquaredErrors method in SimpleRegression to always
+    return a non-negative result.
+    JIRA: MATH-85
+    Reported by Mark Osborn
+    Patched by Luc Maisonobe
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@419439 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/stat/regression/SimpleRegressionTest.java b/src/test/org/apache/commons/math/stat/regression/SimpleRegressionTest.java
+--- a/src/test/org/apache/commons/math/stat/regression/SimpleRegressionTest.java
++++ b/src/test/org/apache/commons/math/stat/regression/SimpleRegressionTest.java
+@@ -264,1 +268,10 @@
++    public void testSSENonNegative() {
++        double[] y = { 8915.102, 8919.302, 8923.502 };
++        double[] x = { 1.107178495E2, 1.107264895E2, 1.107351295E2 };
++        SimpleRegression reg = new SimpleRegression();
++        for (int i = 0; i < x.length; i++) {
++            reg.addData(x[i], y[i]);
++        }
++        assertTrue(reg.getSumSquaredErrors() >= 0.0);
++    } 
+ }
+
+commit 0a904461932f2c0455611e77ec6a8d8aced2980b
+Author: Mark R. Diggory <mdiggory@apache.org>
+Date:   Fri Nov 14 17:25:28 2003
+
+    Attempting to recover last revision.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@141013 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/stat/BivariateRegressionTest.java b/src/test/org/apache/commons/math/stat/BivariateRegressionTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/math/stat/BivariateRegressionTest.java
+@@ -0,0 +262,1 @@
++}

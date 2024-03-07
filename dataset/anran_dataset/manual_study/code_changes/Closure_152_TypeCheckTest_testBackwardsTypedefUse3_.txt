@@ -1,0 +1,30 @@
+commit de491e70b971caca03f07531c2caf97b878cd1ff
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Wed Oct 27 22:03:31 2010
+
+    validation for @this annotation. looks about the same
+    as the @extends validation.
+    Fixes issue 268
+    
+    R=johnlenz
+    DELTA=63  (55 added, 6 deleted, 2 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=804007
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@519 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- a/test/com/google/javascript/jscomp/TypeCheckTest.java
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -2609,0 +2623,8 @@
++  public void testBackwardsTypedefUse3() throws Exception {
++    testTypes(
++        "/** @this {MyTypedef} */ function f() {}" +
++        "/** @typedef {(Date|Array)} */ var MyTypedef;",
++        "@this type of a function must be an object\n" +
++        "Actual type: (Array|Date|null)");
++  }
++

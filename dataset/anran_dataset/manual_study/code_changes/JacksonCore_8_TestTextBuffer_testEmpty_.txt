@@ -1,0 +1,33 @@
+commit 11f0b4090937b2aa998734aa2bf032ee8c428e84
+Author: Masaru Hasegawa <masaru@citra.local>
+Date:   Tue Feb 17 21:47:46 2015
+
+    Always return empty array instead of null for empty buffer
+    
+    Fixes #182
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/util/TestTextBuffer.java b/src/test/java/com/fasterxml/jackson/core/util/TestTextBuffer.java
+--- a/src/test/java/com/fasterxml/jackson/core/util/TestTextBuffer.java
++++ b/src/test/java/com/fasterxml/jackson/core/util/TestTextBuffer.java
+@@ -80,1 +79,9 @@
++    public void testEmpty() {
++        TextBuffer tb = new TextBuffer(new BufferRecycler());
++        tb.resetWithEmpty();
++
++        assertTrue(tb.getTextBuffer().length == 0);
++        tb.contentsAsString();
++        assertTrue(tb.getTextBuffer().length == 0);
++    }
+ }
+
+commit 5ff8a2d9a72f0741f9465bf7f04584a3c3e8c28f
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 00:52:24 2011
+
+    Add unit tests from 1.x, all but 2 passing
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/util/TestTextBuffer.java b/src/test/java/com/fasterxml/jackson/core/util/TestTextBuffer.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/core/util/TestTextBuffer.java
+@@ -0,0 +38,1 @@
++}

@@ -1,0 +1,19 @@
+commit 80452c7a42777513c35fd30c4e12bcd7ee438fb9
+Author: Lukasz Szewc <lukasz-szewc@users.noreply.github.com>
+Date:   Fri May 8 15:08:46 2015
+
+    Fixes #197 : Blocks ability to use negative value for timeout() and after() method.
+
+diff --git a/test/org/mockito/internal/util/TimerTest.java b/test/org/mockito/internal/util/TimerTest.java
+--- a/test/org/mockito/internal/util/TimerTest.java
++++ b/test/org/mockito/internal/util/TimerTest.java
+@@ -36,0 +39,9 @@
++    public void should_throw_friendly_reminder_exception_when_duration_is_negative() {
++        try {
++            new Timer(-1);
++            Assert.fail("It is forbidden to create timer with negative value of timer's duration.");
++        } catch (FriendlyReminderException e) {
++            Assert.assertTrue(true);
++        }
++    }
++

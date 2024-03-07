@@ -1,0 +1,72 @@
+commit c66db899cb061c79934986f0efa19a50ca33703f
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Sun Jan 14 06:12:50 2018
+
+    COMPRESS-436 sanity check compressed size is known for bzip etc
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/zip/ZipArchiveInputStreamTest.java b/src/test/java/org/apache/commons/compress/archivers/zip/ZipArchiveInputStreamTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/zip/ZipArchiveInputStreamTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/zip/ZipArchiveInputStreamTest.java
+@@ -327,8 +330,21 @@
++    public void properlyMarksEntriesAsUnreadableIfUncompressedSizeIsUnknown() throws Exception {
++        // we never read any data
++        try (ZipArchiveInputStream zis = new ZipArchiveInputStream(new ByteArrayInputStream(new byte[0]))) {
++            ZipArchiveEntry e = new ZipArchiveEntry("test");
++            e.setMethod(ZipMethod.DEFLATED.getCode());
++            assertTrue(zis.canReadEntryData(e));
++            e.setMethod(ZipMethod.ENHANCED_DEFLATED.getCode());
++            assertTrue(zis.canReadEntryData(e));
++            e.setMethod(ZipMethod.BZIP2.getCode());
++            assertFalse(zis.canReadEntryData(e));
++        }
++    }
++
+     private static byte[] readEntry(ZipArchiveInputStream zip, ZipArchiveEntry zae) throws IOException {
+         final int len = (int)zae.getSize();
+         final byte[] buff = new byte[len];
+         zip.read(buff, 0, len);
+ 
+         return buff;
+     }
+ 
+
+commit 0517c7f2e4ea6806098453b295f230dd42a8f510
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Fri Jan 5 11:54:15 2018
+
+    COMPRESS-429 tests
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/zip/ZipArchiveInputStreamTest.java b/src/test/java/org/apache/commons/compress/archivers/zip/ZipArchiveInputStreamTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/zip/ZipArchiveInputStreamTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/zip/ZipArchiveInputStreamTest.java
+@@ -275,7 +292,8 @@
+     private static byte[] readEntry(ZipArchiveInputStream zip, ZipArchiveEntry zae) throws IOException {
+         final int len = (int)zae.getSize();
+         final byte[] buff = new byte[len];
+         zip.read(buff, 0, len);
+ 
+         return buff;
+     }
++
+
+commit 658812c85fe762e361c998161cfb61bd477e1b24
+Author: Mike Mole <michael.mole@lookout.com>
+Date:   Fri Aug 19 09:08:42 2016
+
+    ZipArchiveInputStream.closeEntry fails to advance
+    
+    Properly advances to next entry upon calling closeEntry when there
+    are extra junk bytes after the compressed data section of a
+    zip entry. This applies to the ZipArchiveInputStream implementation.
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/zip/ZipArchiveInputStreamTest.java b/src/test/java/org/apache/commons/compress/archivers/zip/ZipArchiveInputStreamTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/zip/ZipArchiveInputStreamTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/zip/ZipArchiveInputStreamTest.java
+@@ -203,0 +230,7 @@
++    private static byte[] readEntry(ZipArchiveInputStream zip, ZipArchiveEntry zae) throws IOException {
++        final int len = (int)zae.getSize();
++        final byte[] buff = new byte[len];
++        zip.read(buff, 0, len);
++
++        return buff;
++    }

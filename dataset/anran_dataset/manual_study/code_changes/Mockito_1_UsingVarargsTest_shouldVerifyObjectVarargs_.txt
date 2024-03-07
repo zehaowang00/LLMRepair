@@ -1,0 +1,155 @@
+commit b93f85ea372a0e8b2de01a920b797455b8201b87
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Mon Dec 24 17:23:42 2007
+
+    another bunch of refactorings, getting rid of TODOs and adding more functional tests
+    
+    --HG--
+    rename : src/org/mockito/exceptions/verification/VerificationError.java => src/org/mockito/exceptions/verification/InvocationDiffersFromActual.java
+    rename : src/org/mockito/exceptions/verification/NoInteractionsWantedError.java => src/org/mockito/exceptions/verification/NoInteractionsWanted.java
+    rename : src/org/mockito/exceptions/verification/TooLittleActualInvocationsError.java => src/org/mockito/exceptions/verification/TooLittleActualInvocations.java
+    rename : src/org/mockito/exceptions/verification/TooManyActualInvocationsError.java => src/org/mockito/exceptions/verification/TooManyActualInvocations.java
+    rename : test/org/mockitousage/PointingStackTraceToActualInvocationTest.java => test/org/mockitousage/PointingStackTraceToActualChunkTest.java
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%40233
+
+diff --git a/test/org/mockitousage/UsingVarargsTest.java b/test/org/mockitousage/UsingVarargsTest.java
+--- a/test/org/mockitousage/UsingVarargsTest.java
++++ b/test/org/mockitousage/UsingVarargsTest.java
+@@ -96,14 +96,14 @@
+     public void shouldVerifyObjectVarargs() {
+         mock.withObjectVarargs(1);
+         mock.withObjectVarargs(2, "1", new ArrayList<Object>(), new Integer(1));
+         mock.withObjectVarargs(3, new Integer(1));
+ 
+         verify(mock).withObjectVarargs(1);
+         verify(mock).withObjectVarargs(2, "1", new ArrayList<Object>(), new Integer(1));
+         try {
+             verifyNoMoreInteractions(mock);
+             fail();
+-        } catch (NoInteractionsWantedError e) {}
++        } catch (NoInteractionsWanted e) {}
+     }
+ 
+     @Test
+
+commit c2aa65480567e1fd749dcbd940c8af269d2eb37f
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sat Dec 15 11:05:25 2007
+
+    added specific exception for no-invocations-wanted scenario
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%40212
+
+diff --git a/test/org/mockitousage/UsingVarargsTest.java b/test/org/mockitousage/UsingVarargsTest.java
+--- a/test/org/mockitousage/UsingVarargsTest.java
++++ b/test/org/mockitousage/UsingVarargsTest.java
+@@ -95,14 +96,14 @@
+     public void shouldVerifyObjectVarargs() {
+         mock.withObjectVarargs(1);
+         mock.withObjectVarargs(2, "1", new ArrayList<Object>(), new Integer(1));
+         mock.withObjectVarargs(3, new Integer(1));
+ 
+         verify(mock).withObjectVarargs(1);
+         verify(mock).withObjectVarargs(2, "1", new ArrayList<Object>(), new Integer(1));
+         try {
+             verifyNoMoreInteractions(mock);
+             fail();
+-        } catch (VerificationError e) {}
++        } catch (NoInteractionsWantedError e) {}
+     }
+ 
+     @Test
+
+commit 06b787a49b9faecaffb9cf17c20e4f784d08e258
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Thu Nov 29 17:15:43 2007
+
+    refactorings around exceptions reporting
+    
+    --HG--
+    rename : src/org/mockito/exceptions/VerificationAssertionError.java => src/org/mockito/exceptions/VerificationError.java
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%4095
+
+diff --git a/test/org/mockito/usage/UsingVarargsTest.java b/test/org/mockito/usage/UsingVarargsTest.java
+--- a/test/org/mockito/usage/UsingVarargsTest.java
++++ b/test/org/mockito/usage/UsingVarargsTest.java
+@@ -89,14 +89,14 @@
+     public void shouldVerifyObjectVarargs() {
+         mock.withObjectVarargs(1);
+         mock.withObjectVarargs(2, "1", new ArrayList<Object>(), new Integer(1));
+         mock.withObjectVarargs(3, new Integer(1));
+ 
+         verify(mock).withObjectVarargs(1);
+         verify(mock).withObjectVarargs(2, "1", new ArrayList<Object>(), new Integer(1));
+         try {
+             verifyNoMoreInteractions(mock);
+             fail();
+-        } catch (VerificationAssertionError e) {}
++        } catch (VerificationError e) {}
+     }
+ 
+     @Test
+
+commit f28e6c5ebecee8cb75f6ab79b7ad371582958d74
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Mon Nov 19 18:23:27 2007
+
+    added some experimental stuff that can filter stack trace: the developer clicks on first stack trace element and sees what's up
+    
+    --HG--
+    rename : src/org/mockito/exceptions/MockVerificationAssertionError.java => src/org/mockito/exceptions/VerificationAssertionError.java
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%4037
+
+diff --git a/test/org/mockito/usage/UsingVarargsTest.java b/test/org/mockito/usage/UsingVarargsTest.java
+--- a/test/org/mockito/usage/UsingVarargsTest.java
++++ b/test/org/mockito/usage/UsingVarargsTest.java
+@@ -89,14 +89,14 @@
+     public void shouldVerifyObjectVarargs() {
+         mock.withObjectVarargs(1);
+         mock.withObjectVarargs(2, "1", new ArrayList<Object>(), new Integer(1));
+         mock.withObjectVarargs(3, new Integer(1));
+ 
+         verify(mock).withObjectVarargs(1);
+         verify(mock).withObjectVarargs(2, "1", new ArrayList<Object>(), new Integer(1));
+         try {
+             verifyNoMoreInteractions(mock);
+             fail();
+-        } catch (MockVerificationAssertionError e) {}
++        } catch (VerificationAssertionError e) {}
+     }
+ 
+     @Test
+
+commit b08f1b982d0171f0a56ce18f5584da2b7bf4261d
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Fri Nov 16 07:01:24 2007
+
+    -killed/refactored some tests
+    
+    --HG--
+    rename : test/org/easymock/tests2/CallbackAndArgumentsTest.java => test/org/easymock/tests/CallbackAndArgumentsTest.java
+    rename : test/org/easymock/tests2/NameTest.java => test/org/easymock/tests/NameTest.java
+    rename : test/org/easymock/tests2/UsageMatchersTest.java => test/org/easymock/tests/UsageMatchersTest.java
+    rename : test/org/easymock/tests2/UsageStrictMockTest.java => test/org/easymock/tests/UsageStrictMockTest.java
+    rename : test/org/easymock/tests2/UsageTest.java => test/org/easymock/tests/UsageTest.java
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%4014
+
+diff --git a/test/org/easymock/tests/UsingVarargsTest.java b/test/org/easymock/tests/UsingVarargsTest.java
+--- /dev/null
++++ b/test/org/easymock/tests/UsingVarargsTest.java
+@@ -0,0 +46,14 @@
++    public void shouldVerifyObjectVarargs() {
++        mock.withObjectVarargs(1);
++        mock.withObjectVarargs(2, "1", new ArrayList<Object>(), new Integer(1));
++        mock.withObjectVarargs(3, new Integer(1));
++
++        verify(mock).withObjectVarargs(1);
++        verify(mock).withObjectVarargs(2, "1", new ArrayList<Object>(), new Integer(1));
++        try {
++            verifyNoMoreInteractions(mock);
++            fail();
++        } catch (MockVerificationAssertionError e) {}
++    }
++
++    @Test

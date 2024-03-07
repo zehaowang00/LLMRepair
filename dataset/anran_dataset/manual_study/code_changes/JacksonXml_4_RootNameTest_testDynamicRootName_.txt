@@ -1,0 +1,27 @@
+commit 2c5f6f4e0f7bbcfa566fbc91ee57baf8dd7a371a
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Tue Nov 15 01:34:17 2016
+
+    Fix #213
+
+diff --git a/src/test/java/com/fasterxml/jackson/dataformat/xml/misc/RootNameTest.java b/src/test/java/com/fasterxml/jackson/dataformat/xml/misc/RootNameTest.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/dataformat/xml/misc/RootNameTest.java
+@@ -0,0 +67,17 @@
++    public void testDynamicRootName() throws IOException
++    {
++        String xml;
++
++        ObjectWriter w = _xmlMapper.writer().withRootName("rudy");
++
++        xml = w.writeValueAsString(new StringBean("foo"));
++        assertEquals("<rudy><text>foo</text></rudy>", xml);
++
++        xml = w.writeValueAsString(new StringBean(null));
++        assertEquals("<rudy><text/></rudy>", xml);
++
++        // and even with null will respect configured root name
++        xml = w.writeValueAsString(null);
++        assertEquals("<rudy/>", xml);
++    }
++}

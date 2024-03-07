@@ -1,0 +1,62 @@
+commit 0464f5657dc8c76a4ff209a2cf7fd6312885cdc3
+Author: Brice <brice.dutheil@gmail.com>
+Date:   Mon Dec 20 14:11:06 2010
+
+    fix for issue 236 : mocks are injected a bit less aggressively
+
+diff --git a/test/org/mockitousage/bugs/InjectionByTypeShouldFirstLookForExactTypeThenAncestorTest.java b/test/org/mockitousage/bugs/InjectionByTypeShouldFirstLookForExactTypeThenAncestorTest.java
+--- a/test/org/mockitousage/bugs/InjectionByTypeShouldFirstLookForExactTypeThenAncestorTest.java
++++ b/test/org/mockitousage/bugs/InjectionByTypeShouldFirstLookForExactTypeThenAncestorTest.java
+@@ -32,18 +32,16 @@
+-    @Ignore
+-    public void test() {
+-        assertSame(reference, illegalInjectionExample.mockShouldNotGoInHere);
++    public void mock_should_be_injected_once_and_in_the_best_matching_type() {
++        assertSame(REFERENCE, illegalInjectionExample.mockShouldNotGoInHere);
+         assertSame(mockedBean, illegalInjectionExample.mockShouldGoInHere);
+     }
+ 
+-    public class Bean {}
+-
+-    public class Service {
++    public static class Bean {}
++    public static class Service {
+ 
+-        public final Object mockShouldNotGoInHere = reference;
++        public final Object mockShouldNotGoInHere = REFERENCE;
+ 
+         public Bean mockShouldGoInHere;
+ 
+     }
+ 
+ 
+ }
+
+commit 7639f331b8c002647dd02f914bbd3f3203832cb9
+Author: Brice Dutheil <brice.dutheil@gmail.com>
+Date:   Fri Dec 17 11:50:55 2010
+
+    issue 236 works
+
+diff --git a/test/org/mockitousage/bugs/InjectionByTypeShouldFirstLookForExactTypeThenAncestorTest.java b/test/org/mockitousage/bugs/InjectionByTypeShouldFirstLookForExactTypeThenAncestorTest.java
+--- /dev/null
++++ b/test/org/mockitousage/bugs/InjectionByTypeShouldFirstLookForExactTypeThenAncestorTest.java
+@@ -0,0 +32,18 @@
++    @Ignore
++    public void test() {
++        assertSame(reference, illegalInjectionExample.mockShouldNotGoInHere);
++        assertSame(mockedBean, illegalInjectionExample.mockShouldGoInHere);
++    }
++
++    public class Bean {}
++
++    public class Service {
++
++        public final Object mockShouldNotGoInHere = reference;
++
++        public Bean mockShouldGoInHere;
++
++    }
++
++
++}

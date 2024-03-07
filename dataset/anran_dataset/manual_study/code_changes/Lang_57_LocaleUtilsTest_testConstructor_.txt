@@ -1,0 +1,27 @@
+commit ddd4f84525178a0722ecbc01229d919d11c526f7
+Author: Stephen Colebourne <scolebourne@apache.org>
+Date:   Fri Sep 23 19:17:31 2005
+
+    Test LocaleUtils
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@291219 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/LocaleUtilsTest.java b/src/test/org/apache/commons/lang/LocaleUtilsTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/lang/LocaleUtilsTest.java
+@@ -0,0 +80,15 @@
++    public void testConstructor() {
++        assertNotNull(new LocaleUtils());
++        Constructor[] cons = LocaleUtils.class.getDeclaredConstructors();
++        assertEquals(1, cons.length);
++        assertEquals(true, Modifier.isPublic(cons[0].getModifiers()));
++        assertEquals(true, Modifier.isPublic(LocaleUtils.class.getModifiers()));
++        assertEquals(false, Modifier.isFinal(LocaleUtils.class.getModifiers()));
++    }
++
++    //-----------------------------------------------------------------------
++    /**
++     * Pass in a valid language, test toLocale.
++     *
++     * @param language  the language string
++     */

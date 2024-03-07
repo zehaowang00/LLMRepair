@@ -1,0 +1,31 @@
+commit aa89d05b48332d68b8e6ebcee427b2ac3b4e3184
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Jun 6 18:36:17 2011
+
+    Only remove prototype properties defined with simple assigment
+    statements.
+    Fixes issue 459.
+    
+    R=acleung
+    DELTA=90  (86 added, 0 deleted, 4 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=2195
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1160 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/RemoveUnusedPrototypePropertiesTest.java b/test/com/google/javascript/jscomp/RemoveUnusedPrototypePropertiesTest.java
+--- a/test/com/google/javascript/jscomp/RemoveUnusedPrototypePropertiesTest.java
++++ b/test/com/google/javascript/jscomp/RemoveUnusedPrototypePropertiesTest.java
+@@ -110,0 +186,9 @@
++  public void testAliasing7() {
++    // An exported alias must preserved any referenced values in the
++    // referenced function.
++    testSame("function e(){}" +
++           "e.prototype['alias1'] = e.prototype.method1 = " +
++               "function(){this.method2()};" +
++           "e.prototype.method2 = function(){};");
++  }
++

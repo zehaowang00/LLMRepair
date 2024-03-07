@@ -1,0 +1,57 @@
+commit 59eec92e364b2ec2cec9dd63449f5c0134983f18
+Author: blickly@google.com <blickly@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 20 17:15:38 2012
+
+    Do not inline an object literal if it has a property that gets deleted.
+    
+    Fixes issue 851
+    (http://code.google.com/p/closure-compiler/issues/detail?id=851).
+    
+    R=nicksantos
+    DELTA=16  (13 added, 0 deleted, 3 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=5863
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2343 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/InlineObjectLiteralsTest.java b/test/com/google/javascript/jscomp/InlineObjectLiteralsTest.java
+--- a/test/com/google/javascript/jscomp/InlineObjectLiteralsTest.java
++++ b/test/com/google/javascript/jscomp/InlineObjectLiteralsTest.java
+@@ -351,3 +351,10 @@
++  public void testNoInlineDeletedProperties() {
++    testSameLocal(
++        "var foo = {bar:1};" +
++        "delete foo.bar;" +
++        "return foo.bar;");
++  }
++
+   private final String LOCAL_PREFIX = "function local(){";
+   private final String LOCAL_POSTFIX = "}";
+ 
+
+commit 34de1a205f3c1e4eaed32ccc1aeea4197ddf57c0
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Jun 23 16:06:49 2011
+
+    Limit InlineObjectLiterals to local scopes for now.
+    
+    R=acleung,nicksantos
+    DELTA=92  (31 added, 4 deleted, 57 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=2400
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1203 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/InlineObjectLiteralsTest.java b/test/com/google/javascript/jscomp/InlineObjectLiteralsTest.java
+--- a/test/com/google/javascript/jscomp/InlineObjectLiteralsTest.java
++++ b/test/com/google/javascript/jscomp/InlineObjectLiteralsTest.java
+@@ -345,0 +359,3 @@
++  private final String LOCAL_PREFIX = "function local(){";
++  private final String LOCAL_POSTFIX = "}";
++

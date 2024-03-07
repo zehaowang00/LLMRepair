@@ -1,0 +1,59 @@
+commit 354e1390bc397ef048ffd5d905b0709a3a2585ef
+Author: Cowtowncoder <tatu.saloranta@iki.fi>
+Date:   Thu May 28 17:27:57 2015
+
+    Fix #810, Properties should now be treated as Map<String,String>, not Map<Object,Object> (quirk by JDK)
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/deser/TestMapDeserialization.java b/src/test/java/com/fasterxml/jackson/databind/deser/TestMapDeserialization.java
+--- a/src/test/java/com/fasterxml/jackson/databind/deser/TestMapDeserialization.java
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/TestMapDeserialization.java
+@@ -560,7 +568,16 @@
++    public void testReadProperties() throws Exception
++    {
++        Properties props = MAPPER.readValue(aposToQuotes("{'a':'foo', 'b':123, 'c':true}"),
++                Properties.class);
++        assertEquals(3, props.size());
++        assertEquals("foo", props.getProperty("a"));
++        assertEquals("123", props.getProperty("b"));
++        assertEquals("true", props.getProperty("c"));
++    }
+     
+     /*
+     /**********************************************************
+     /* Error tests
+     /**********************************************************
+      */
+ 
+
+commit 10f44221fa0e8ffbfbc39384581b190f5f0cc106
+Author: Cowtowncoder <tatu.saloranta@iki.fi>
+Date:   Mon Sep 29 21:20:17 2014
+
+    Fix #565: add support for `Map.Entry`
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/deser/TestMapDeserialization.java b/src/test/java/com/fasterxml/jackson/databind/deser/TestMapDeserialization.java
+--- a/src/test/java/com/fasterxml/jackson/databind/deser/TestMapDeserialization.java
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/TestMapDeserialization.java
+@@ -496,4 +523,7 @@
++    
++    /*
++    /**********************************************************
+     /* Error tests
+     /**********************************************************
+      */
+ 
+
+commit a63c2038a03c7090ce4773d6cf54809150e59350
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 03:26:53 2011
+
+    Add unit tests, almost compilable
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/deser/TestMapDeserialization.java b/src/test/java/com/fasterxml/jackson/databind/deser/TestMapDeserialization.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/TestMapDeserialization.java
+@@ -0,0 +397,4 @@
++    /* Error tests
++    /**********************************************************
++     */
++

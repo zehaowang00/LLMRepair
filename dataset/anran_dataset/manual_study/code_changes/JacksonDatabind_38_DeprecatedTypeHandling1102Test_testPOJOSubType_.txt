@@ -1,0 +1,48 @@
+commit 21a2e4b7d680bf796f07d5d3b6119a3cd3fc356c
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Thu Jan 28 20:39:14 2016
+
+    Fix #1102
+
+diff --git a/src/test/java/com/fasterxml/jackson/failing/DeprecatedTypeHandling1102Test.java b/src/test/java/com/fasterxml/jackson/databind/interop/DeprecatedTypeHandling1102Test.java
+--- a/src/test/java/com/fasterxml/jackson/failing/DeprecatedTypeHandling1102Test.java
++++ b/src/test/java/com/fasterxml/jackson/databind/interop/DeprecatedTypeHandling1102Test.java
+@@ -36,2 +43,12 @@
++    public void testPOJOSubType() throws Exception
++    {
++        JavaType elem = SimpleType.construct(Point3D.class);
++
++        Point3D p = MAPPER.readValue(aposToQuotes("{'x':1,'z':3,'y':2}"), elem);
++        assertNotNull(p);
++        assertEquals(1, p.x);
++        assertEquals(2, p.getY());
++        assertEquals(3, p.z);
++    }
+     
+     @SuppressWarnings("deprecation")
+
+commit ae85620b0834bd978f8ab080b07150ee8034f8ad
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Thu Jan 28 16:57:11 2016
+
+    Partial fix for #1102; use of SimpleType itself works to some degree
+
+diff --git a/src/test/java/com/fasterxml/jackson/failing/DeprecatedTypeHandlingTest.java b/src/test/java/com/fasterxml/jackson/failing/DeprecatedTypeHandling1102Test.java
+--- a/src/test/java/com/fasterxml/jackson/failing/DeprecatedTypeHandlingTest.java
++++ b/src/test/java/com/fasterxml/jackson/failing/DeprecatedTypeHandling1102Test.java
+@@ -35,1 +36,2 @@
+-
++    
++    @SuppressWarnings("deprecation")
+
+commit b5dc929fe88346304f8ba66c8f320dc4db63bffb
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Thu Jan 28 16:31:06 2016
+
+    Add a failing test for #1102
+
+diff --git a/src/test/java/com/fasterxml/jackson/failing/DeprecatedTypeHandlingTest.java b/src/test/java/com/fasterxml/jackson/failing/DeprecatedTypeHandlingTest.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/failing/DeprecatedTypeHandlingTest.java
+@@ -0,0 +35,1 @@
++

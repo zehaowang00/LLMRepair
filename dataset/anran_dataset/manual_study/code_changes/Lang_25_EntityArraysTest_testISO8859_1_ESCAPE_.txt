@@ -1,0 +1,48 @@
+commit eb94e61a64105bcdd6afd0f6377de7b4fa7fa105
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Sat Nov 13 11:31:08 2010
+
+    Add tests to check for duplicate entries in the conversion tables
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@1034797 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/text/translate/EntityArraysTest.java b/src/test/java/org/apache/commons/lang3/text/translate/EntityArraysTest.java
+--- a/src/test/java/org/apache/commons/lang3/text/translate/EntityArraysTest.java
++++ b/src/test/java/org/apache/commons/lang3/text/translate/EntityArraysTest.java
+@@ -31,1 +47,22 @@
++    public void testISO8859_1_ESCAPE(){
++        Set<String> col0 = new HashSet<String>();
++        Set<String> col1 = new HashSet<String>();
++        String [][] sa = EntityArrays.ISO8859_1_ESCAPE();
++        boolean success = true;
++        for(int i =0; i <sa.length; i++){
++            boolean add0 = col0.add(sa[i][0]);
++            boolean add1 = col1.add(sa[i][1]);
++            if (!add0) { 
++                success = false;
++                System.out.println("Already added entry 0: "+i+" "+sa[i][0]+" "+sa[i][1]);
++            }
++            if (!add1) {
++                success = false;
++                System.out.println("Already added entry 1: "+i+" "+sa[i][0]+" "+sa[i][1]);
++            }
++        }
++        assertTrue("One or more errors detected",success);
++    }
++    
++    
+ }
+
+commit c408354cd532b129199812fb489b08773e32a654
+Author: Henri Yandell <bayard@apache.org>
+Date:   Mon Jul 20 19:28:45 2009
+
+    Improving code coverage with more tests
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@796062 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/text/translate/EntityArraysTest.java b/src/test/org/apache/commons/lang/text/translate/EntityArraysTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/lang/text/translate/EntityArraysTest.java
+@@ -0,0 +33,1 @@
++}

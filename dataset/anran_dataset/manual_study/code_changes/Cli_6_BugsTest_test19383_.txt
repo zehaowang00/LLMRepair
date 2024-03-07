@@ -1,0 +1,135 @@
+commit 20dfc60e4c04d9fd69fdedbcbe50020c7e798f3a
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Fri Jun 13 11:08:56 2008
+
+    Restored the CLI 1.0 behavior regarding repeated options and the number of arguments per option (CLI-137)
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/branches/cli-1.x@667565 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/BugsTest.java b/src/test/org/apache/commons/cli/BugsTest.java
+--- a/src/test/org/apache/commons/cli/BugsTest.java
++++ b/src/test/org/apache/commons/cli/BugsTest.java
+@@ -473,19 +474,20 @@
+-    public void test19383() {
++    public void test19383()
++    {
+         Options options = new Options();
+         options.addOption(new Option("a","aaa",false,"aaaaaaa"));
+         options.addOption(new Option(null,"bbb",false,"bbbbbbb"));
+         options.addOption(new Option("c",null,false,"ccccccc"));
+         
+         HelpFormatter formatter = new HelpFormatter();
+         String SEP = System.getProperty("line.separator");
+         StringWriter out = new StringWriter();
+         formatter.printHelp(new PrintWriter(out),80, "foobar", "", options, 2, 2, "", true);
+         assertEquals(
+                 "usage: foobar [-a] [--bbb] [-c]"+SEP+
+                 "  -a,--aaa  aaaaaaa"+SEP+
+                 "     --bbb  bbbbbbb"+SEP+
+                 "  -c        ccccccc"+SEP
+                 ,out.toString());
+     }
+ 
+ }
+
+commit 6f972cf56d7a3054bac902fecb6d3dd5ee310dea
+Author: Henri Yandell <bayard@apache.org>
+Date:   Wed Jun 6 04:01:19 2007
+
+    Applying Brian Egge's enhancement from CLI-131
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/branches/cli-1.0.x@544762 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/BugsTest.java b/src/test/org/apache/commons/cli/BugsTest.java
+--- a/src/test/org/apache/commons/cli/BugsTest.java
++++ b/src/test/org/apache/commons/cli/BugsTest.java
+@@ -519,19 +519,19 @@
+     public void test19383() {
+         Options options = new Options();
+         options.addOption(new Option("a","aaa",false,"aaaaaaa"));
+         options.addOption(new Option(null,"bbb",false,"bbbbbbb"));
+         options.addOption(new Option("c",null,false,"ccccccc"));
+         
+         HelpFormatter formatter = new HelpFormatter();
+         String SEP = System.getProperty("line.separator");
+         StringWriter out = new StringWriter();
+         formatter.printHelp(new PrintWriter(out),80, "foobar", "", options, 2, 2, "", true);
+         assertEquals(
+-                "usage: foobar [-a] [-c] [--bbb]"+SEP+
++                "usage: foobar [-a] [--bbb] [-c]"+SEP+
+                 "  -a,--aaa  aaaaaaa"+SEP+
+                 "     --bbb  bbbbbbb"+SEP+
+                 "  -c        ccccccc"+SEP
+                 ,out.toString());
+     }
+ 
+ }
+
+commit fe5fd7e9cb8482c8ae5ae08e3679390781f425aa
+Author: Robert James Oxspring <roxspring@apache.org>
+Date:   Mon Dec 27 10:25:53 2004
+
+    Added test to demonstrate fix of 19383
+    
+    BR: 19383
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@130114 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/BugsTest.java b/src/test/org/apache/commons/cli/BugsTest.java
+--- a/src/test/org/apache/commons/cli/BugsTest.java
++++ b/src/test/org/apache/commons/cli/BugsTest.java
+@@ -517,2 +518,19 @@
++    public void test19383() {
++        Options options = new Options();
++        options.addOption(new Option("a","aaa",false,"aaaaaaa"));
++        options.addOption(new Option(null,"bbb",false,"bbbbbbb"));
++        options.addOption(new Option("c",null,false,"ccccccc"));
++        
++        HelpFormatter formatter = new HelpFormatter();
++        String SEP = System.getProperty("line.separator");
++        StringWriter out = new StringWriter();
++        formatter.printHelp(new PrintWriter(out),80, "foobar", "", options, 2, 2, "", true);
++        assertEquals(
++                "usage: foobar [-a] [-c] [--bbb]"+SEP+
++                "  -a,--aaa  aaaaaaa"+SEP+
++                "     --bbb  bbbbbbb"+SEP+
++                "  -c        ccccccc"+SEP
++                ,out.toString());
++    }
+ 
+ }
+
+commit 798f9e5c5c508d2edf86300b8fc00687d4a4f914
+Author: Robert James Oxspring <roxspring@apache.org>
+Date:   Mon Dec 27 08:33:48 2004
+
+    Added test to demonstrate the 27635 has been fixed
+    
+    PR: 27635
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@130111 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/BugsTest.java b/src/test/org/apache/commons/cli/BugsTest.java
+--- a/src/test/org/apache/commons/cli/BugsTest.java
++++ b/src/test/org/apache/commons/cli/BugsTest.java
+@@ -414,1 +482,2 @@
++
+ }
+
+commit 83b7cebfb619359348f9f56658aa94bd999d159f
+Author: John Keyes <jkeyes@apache.org>
+Date:   Thu Aug 15 16:31:23 2002
+
+    bug no. 11680 resolved
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129800 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/BugsTest.java b/src/test/org/apache/commons/cli/BugsTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/cli/BugsTest.java
+@@ -0,0 +66,1 @@
++}

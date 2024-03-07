@@ -1,0 +1,32 @@
+commit 1d37cef1d8367af963fee4dc99164708f5d3c6f8
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sat Apr 14 15:31:46 2012
+
+    Fixed HTML entity parser to correctly parse entities like frac14 (letter + number combo).
+    
+    Fixes #145
+
+diff --git a/src/test/java/org/jsoup/nodes/EntitiesTest.java b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+index 04eab125..aace278f 100644
+--- a/src/test/java/org/jsoup/nodes/EntitiesTest.java
++++ b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+@@ -1,5 +1,6 @@
+ package org.jsoup.nodes;
+ 
++import org.jsoup.Jsoup;
+ import org.junit.Test;
+ 
+ import static org.junit.Assert.*;
+@@ -51,4 +52,12 @@
+         
+         assertEquals(unescaped, Entities.unescape(escaped));
+     }
++
++    @Test public void letterDigitEntities() {
++        String html = "<p>&sup1;&sup2;&sup3;&frac14;&frac12;&frac34;</p>";
++        Document doc = Jsoup.parse(html);
++        Element p = doc.select("p").first();
++        assertEquals("&sup1;&sup2;&sup3;&frac14;&frac12;&frac34;", p.html());
++        assertEquals("Â¹Â²Â³Â¼Â½Â¾", p.text());
++    }
+ }

@@ -1,0 +1,23 @@
+commit c8606251c904dfaf5303f71b788e12f7fff15fab
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Mon Jul 28 04:27:46 2008
+
+    Fixed the handling of unrecognized options starting with '-' by PosixParser (CLI-164)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/branches/cli-1.x@680287 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/PosixParserTest.java b/src/test/org/apache/commons/cli/PosixParserTest.java
+--- a/src/test/org/apache/commons/cli/PosixParserTest.java
++++ b/src/test/org/apache/commons/cli/PosixParserTest.java
+@@ -133,0 +133,11 @@
++    public void testStop2() throws Exception
++    {
++        String[] args = new String[]{"-z",
++                                     "-a",
++                                     "-btoast"};
++
++        CommandLine cl = parser.parse(options, args, true);
++        assertFalse("Confirm -a is not set", cl.hasOption("a"));
++        assertTrue("Confirm  3 extra args: " + cl.getArgList().size(), cl.getArgList().size() == 3);
++    }
++

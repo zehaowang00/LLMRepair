@@ -1,0 +1,46 @@
+commit ce4e72701b1ad4caabc3bd668bd058fff082f2b6
+Author: Benedikt Ritter <britter@apache.org>
+Date:   Sun May 4 12:22:34 2014
+
+    CSV-112: HeaderMap is inconsistent when it is parsed from an input with duplicate columns names. Reported by Romain GossÃ©
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/csv/trunk@1592371 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVParserTest.java b/src/test/java/org/apache/commons/csv/CSVParserTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVParserTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVParserTest.java
+@@ -495,1 +496,5 @@
++    public void testDuplicateHeaderEntries() throws Exception {
++        CSVParser.parse("a,b,a\n1,2,3\nx,y,z", CSVFormat.DEFAULT.withHeader(new String[]{}));
++    }
++
+     @Test
+
+commit 186e9f98047b2c8b298709a59a40df3e049ae8fa
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Thu Mar 15 09:44:44 2012
+
+    Update to JUnit 4.10 from 3.8.1.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/csv/trunk@1300977 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVParserTest.java b/src/test/java/org/apache/commons/csv/CSVParserTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVParserTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVParserTest.java
+@@ -352,1 +365,1 @@
+-
++    @Test
+
+commit 086f434320e68a82ce1adcac69668ffcd7f48e52
+Author: Yonik Seeley <yonik@apache.org>
+Date:   Sun Jan 6 10:13:09 2008
+
+    SANDBOX-206: fix whitespace handling w/ escaping, add an option to not remove trailing whitespace
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/sandbox/csv/trunk@609327 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/csv/CSVParserTest.java b/src/test/org/apache/commons/csv/CSVParserTest.java
+--- a/src/test/org/apache/commons/csv/CSVParserTest.java
++++ b/src/test/org/apache/commons/csv/CSVParserTest.java
+@@ -516,0 +520,1 @@
++

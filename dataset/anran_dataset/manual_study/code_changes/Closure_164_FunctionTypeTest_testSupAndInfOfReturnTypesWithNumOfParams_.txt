@@ -1,0 +1,73 @@
+commit e414f154d5c4dae483f251ebeb2d9ef598aaa0f6
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Feb 7 13:37:27 2012
+
+    It doesn't make sense for a subclass method to require arguments that aren't required by the superclass method.
+    
+    fixes issue 634
+    
+    R=acleung
+    DELTA=149  (93 added, 16 deleted, 40 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=4184
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1769 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/rhino/jstype/FunctionTypeTest.java b/test/com/google/javascript/rhino/jstype/FunctionTypeTest.java
+--- a/test/com/google/javascript/rhino/jstype/FunctionTypeTest.java
++++ b/test/com/google/javascript/rhino/jstype/FunctionTypeTest.java
+@@ -141,14 +141,14 @@
+   public void testSupAndInfOfReturnTypesWithNumOfParams() {
+     FunctionType twoNumbers = new FunctionBuilder(registry)
+         .withParamsNode(registry.createParameters(NUMBER_TYPE, NUMBER_TYPE))
+         .withReturnType(BOOLEAN_TYPE).build();
+     FunctionType oneNumber = new FunctionBuilder(registry)
+         .withParamsNode(registry.createParameters(NUMBER_TYPE))
+         .withReturnType(BOOLEAN_TYPE).build();
+ 
+     assertLeastSupertype(
+-        "Function", twoNumbers, oneNumber);
++        "function (number, number): boolean", twoNumbers, oneNumber);
+     assertGreatestSubtype(
+-        "function (...[*]): None", twoNumbers, oneNumber);
++        "function (number): boolean", twoNumbers, oneNumber);
+   }
+ 
+
+commit baa06eb5d4fa96fc674484130f093e83dacf7bef
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Oct 25 15:45:34 2010
+
+    fix another weird bug in the function type lattice.
+    
+    R=johnlenz
+    DELTA=28  (25 added, 0 deleted, 3 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=715053
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@509 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/rhino/jstype/FunctionTypeTest.java b/test/com/google/javascript/rhino/jstype/FunctionTypeTest.java
+--- a/test/com/google/javascript/rhino/jstype/FunctionTypeTest.java
++++ b/test/com/google/javascript/rhino/jstype/FunctionTypeTest.java
+@@ -137,0 +137,14 @@
++  public void testSupAndInfOfReturnTypesWithNumOfParams() {
++    FunctionType twoNumbers = new FunctionBuilder(registry)
++        .withParamsNode(registry.createParameters(NUMBER_TYPE, NUMBER_TYPE))
++        .withReturnType(BOOLEAN_TYPE).build();
++    FunctionType oneNumber = new FunctionBuilder(registry)
++        .withParamsNode(registry.createParameters(NUMBER_TYPE))
++        .withReturnType(BOOLEAN_TYPE).build();
++
++    assertLeastSupertype(
++        "Function", twoNumbers, oneNumber);
++    assertGreatestSubtype(
++        "function (...[*]): None", twoNumbers, oneNumber);
++  }
++

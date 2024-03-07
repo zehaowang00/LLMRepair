@@ -1,0 +1,16 @@
+commit 9e6f2bab20257b6823a5b753739f047d79e9dcbd
+Author: AndrÃ© RouÃ©l <andre.rouel@gmail.com>
+Date:   Wed Feb 15 21:41:39 2017
+
+    Fix ArrayIndexOutOfBoundsException when skipping a value with JsonTreeReader #1013 (#1014)
+
+diff --git a/gson/src/test/java/com/google/gson/internal/bind/JsonTreeReaderTest.java b/gson/src/test/java/com/google/gson/internal/bind/JsonTreeReaderTest.java
+--- /dev/null
++++ b/gson/src/test/java/com/google/gson/internal/bind/JsonTreeReaderTest.java
+@@ -0,0 +27,6 @@
++  public void testSkipValue_emptyJsonObject() throws IOException {
++    JsonTreeReader in = new JsonTreeReader(new JsonObject());
++    in.skipValue();
++    assertEquals(JsonToken.END_DOCUMENT, in.peek());
++  }
++

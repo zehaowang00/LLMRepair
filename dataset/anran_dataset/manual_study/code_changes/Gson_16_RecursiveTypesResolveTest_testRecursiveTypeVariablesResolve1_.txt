@@ -1,0 +1,26 @@
+commit 03a72e752ef68269990f984c9fd613cfd59224bc
+Author: Andrey Mogilev <amogilev@gmail.com>
+Date:   Mon Jul 31 13:50:29 2017
+
+    Fix StackOverflowError on resolving types with TypeVariable recursion (#1128)
+    
+    * Fix StackOverflowError on resolving types with TypeVariable recursion
+    
+    Sample failing code:
+      private static class TestType<X> {
+        TestType<? super X> superType;
+      }
+      ...
+      new Gson().getAdapter(TestType.class);
+    
+    * fix build errors
+
+diff --git a/gson/src/test/java/com/google/gson/internal/bind/RecursiveTypesResolveTest.java b/gson/src/test/java/com/google/gson/internal/bind/RecursiveTypesResolveTest.java
+--- a/gson/src/test/java/com/google/gson/internal/bind/RecursiveTypesResolveTest.java
++++ b/gson/src/test/java/com/google/gson/internal/bind/RecursiveTypesResolveTest.java
+@@ -89,0 +102,5 @@
++  public void testRecursiveTypeVariablesResolve1() throws Exception {
++    TypeAdapter<TestType> adapter = new Gson().getAdapter(TestType.class);
++    assertNotNull(adapter);
++  }
++

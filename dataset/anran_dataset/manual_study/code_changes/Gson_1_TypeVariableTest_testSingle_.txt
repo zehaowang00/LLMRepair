@@ -1,0 +1,30 @@
+commit c6a4f55d1a9b191dbbd958c366091e567191ccab
+Author: Joel Leitch <joel.leitch@gmail.com>
+Date:   Mon Nov 1 23:32:39 2010
+
+    Fix for Issue #40.
+
+diff --git a/gson/src/test/java/com/google/gson/functional/TypeVariableTest.java b/gson/src/test/java/com/google/gson/functional/TypeVariableTest.java
+--- /dev/null
++++ b/gson/src/test/java/com/google/gson/functional/TypeVariableTest.java
+@@ -0,0 +33,20 @@
++  public void testSingle() throws Exception {
++    Gson gson = new Gson();
++    Bar bar1 = new Bar("someString", 1);
++    ArrayList<Integer> arrayList = new ArrayList<Integer>();
++    arrayList.add(1);
++    arrayList.add(2);
++    bar1.map.put("key1", arrayList);
++    bar1.map.put("key2", new ArrayList<Integer>());
++    String json = gson.toJson(bar1);
++    System.out.println(json);
++
++    Bar bar2 = gson.fromJson(json, Bar.class);
++    assertEquals(bar1, bar2);
++  }
++
++  public static class Foo<S, T> {
++    private final S someSField;
++    private final T someTField;
++    public final Map<S, List<T>> map = new HashMap<S, List<T>>();
++

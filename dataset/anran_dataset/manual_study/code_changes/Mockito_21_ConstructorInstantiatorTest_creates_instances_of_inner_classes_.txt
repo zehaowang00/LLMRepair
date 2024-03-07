@@ -1,0 +1,92 @@
+commit fe7bbabb82ce3d1000c13d39d6355c134e94ac27
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Thu Jul 9 00:42:48 2015
+
+    Moved sources to standard location
+    
+    Let's make the project be as close as possible to standard, conventional project for better clarity
+
+diff --git a/test/org/mockito/internal/creation/instance/ConstructorInstantiatorTest.java b/test/org/mockito/internal/creation/instance/ConstructorInstantiatorTest.java
+deleted file mode 100644
+index 907c07856..000000000
+--- a/test/org/mockito/internal/creation/instance/ConstructorInstantiatorTest.java
++++ /dev/null
+@@ -1,33 +0,0 @@
+-package org.mockito.internal.creation.instance;
+-
+-import org.junit.Test;
+-import org.mockitoutil.TestBase;
+-
+-public class ConstructorInstantiatorTest extends TestBase {
+-
+-    static class SomeClass {}
+-    class SomeInnerClass {}
+-    class ChildOfThis extends ConstructorInstantiatorTest {}
+-    static class SomeClass2 {
+-        SomeClass2(String x) {}
+-    }
+-
+-    @Test public void creates_instances() {
+-        assertEquals(new ConstructorInstantiator(null).newInstance(SomeClass.class).getClass(), SomeClass.class);
+-    }
+-
+-    @Test public void creates_instances_of_inner_classes() {
+-        assertEquals(new ConstructorInstantiator(this).newInstance(SomeInnerClass.class).getClass(), SomeInnerClass.class);
+-        assertEquals(new ConstructorInstantiator(new ChildOfThis()).newInstance(SomeInnerClass.class).getClass(), SomeInnerClass.class);
+-    }
+-
+-    @Test public void explains_when_constructor_cannot_be_found() {
+-        try {
+-            new ConstructorInstantiator(null).newInstance(SomeClass2.class);
+-            fail();
+-        } catch (InstantiationException e) {
+-            assertContains("Unable to create instance of 'SomeClass2'.\n" +
+-                    "Please ensure it has 0-arg constructor which invokes cleanly.", e.getMessage());
+-        }
+-    }
+-}
+
+commit 016386354024cc9f76a11553ebdbc34afd44df6b
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sun Nov 16 10:18:14 2014
+
+    Basic support for creating mocks of inner classes using constructor
+    
+    Fixed #92
+
+diff --git a/test/org/mockito/internal/creation/instance/ConstructorInstantiatorTest.java b/test/org/mockito/internal/creation/instance/ConstructorInstantiatorTest.java
+new file mode 100644
+index 000000000..64bbdafa5
+--- /dev/null
++++ b/test/org/mockito/internal/creation/instance/ConstructorInstantiatorTest.java
+@@ -0,0 +1,29 @@
++package org.mockito.internal.creation.instance;
++
++import org.junit.Ignore;
++import org.junit.Test;
++import org.mockitoutil.TestBase;
++
++public class ConstructorInstantiatorTest extends TestBase {
++
++    static class SomeClass {}
++    class SomeInnerClass {}
++
++    @Test public void creates_instances() {
++        assertEquals(new ConstructorInstantiator(null).newInstance(SomeClass.class).getClass(), SomeClass.class);
++    }
++
++    @Test public void creates_instances_of_inner_classes() {
++        assertEquals(new ConstructorInstantiator(this).newInstance(SomeInnerClass.class).getClass(), SomeInnerClass.class);
++    }
++
++    @Ignore //TODO SF
++    @Test public void explains_when_constructor_cannot_be_found() {
++        fail();
++    }
++
++    @Ignore //TODO SF
++    @Test public void fails_with_graceful_message() {
++        fail();
++    }
++}
+\ No newline at end of file

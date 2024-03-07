@@ -1,0 +1,23 @@
+commit 1bf9e6c551b6a2e7d37291673a1ff77c338ce131
+Author: Benedikt Ritter <britter@apache.org>
+Date:   Wed Sep 7 16:19:32 2016
+
+    CLI-265: Optional argument picking up next regular option as its argument. Thank you to Lynn Henderson, Martin Sandiford and Veit Guna for providing reproductions.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/trunk@1759695 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/cli/bug/BugCLI265Test.java b/src/test/java/org/apache/commons/cli/bug/BugCLI265Test.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/cli/bug/BugCLI265Test.java
+@@ -0,0 +46,11 @@
++    public void shouldParseShortOptionWithoutValue() throws Exception {
++        String[] twoShortOptions = new String[]{"-t1", "-last"};
++
++        final CommandLine commandLine = parser.parse(options, twoShortOptions);
++
++        assertTrue(commandLine.hasOption("t1"));
++        assertNotEquals("Second option has been used as value for first option", "-last", commandLine.getOptionValue("t1"));
++        assertTrue("Second option has not been detected", commandLine.hasOption("last"));
++    }
++
++}

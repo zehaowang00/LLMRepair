@@ -1,0 +1,519 @@
+commit 6ab9b46e5a0aa9aae4ea4cbc86fd78ee72a3e2dc
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Thu Oct 11 11:47:44 2012
+
+    Use final keyword where possible.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/csv/trunk@1397122 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVParserTest.java b/src/test/java/org/apache/commons/csv/CSVParserTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVParserTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVParserTest.java
+@@ -245,32 +245,32 @@
+     public void testBackslashEscapingOld() throws IOException {
+-        String code =
++        final String code =
+                 "one,two,three\n"
+                         + "on\\\"e,two\n"
+                         + "on\"e,two\n"
+                         + "one,\"tw\\\"o\"\n"
+                         + "one,\"t\\,wo\"\n"
+                         + "one,two,\"th,ree\"\n"
+                         + "\"a\\\\\"\n"
+                         + "a\\,b\n"
+                         + "\"a\\\\,b\"";
+-        String[][] res = {
++        final String[][] res = {
+                 {"one", "two", "three"},
+                 {"on\\\"e", "two"},
+                 {"on\"e", "two"},
+                 {"one", "tw\"o"},
+                 {"one", "t\\,wo"},  // backslash in quotes only escapes a delimiter (",")
+                 {"one", "two", "th,ree"},
+                 {"a\\\\"},     // backslash in quotes only escapes a delimiter (",")
+                 {"a\\", "b"},  // a backslash must be returnd
+                 {"a\\\\,b"}    // backslash in quotes only escapes a delimiter (",")
+         };
+-        CSVParser parser = new CSVParser(new StringReader(code));
+-        List<CSVRecord> records = parser.getRecords();
++        final CSVParser parser = new CSVParser(new StringReader(code));
++        final List<CSVRecord> records = parser.getRecords();
+         assertEquals(res.length, records.size());
+         assertTrue(records.size() > 0);
+         for (int i = 0; i < res.length; i++) {
+             assertArrayEquals(res[i], records.get(i).values());
+         }
+     }
+ 
+     @Test
+
+commit c6212540dfa2fdb42ccd19d9737c8e341b9cab40
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Mon Mar 26 19:37:47 2012
+
+    Use JUnit 4 assertions for arrays
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/csv/trunk@1305674 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVParserTest.java b/src/test/java/org/apache/commons/csv/CSVParserTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVParserTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVParserTest.java
+@@ -228,32 +227,32 @@
+     public void testBackslashEscapingOld() throws IOException {
+         String code =
+                 "one,two,three\n"
+                         + "on\\\"e,two\n"
+                         + "on\"e,two\n"
+                         + "one,\"tw\\\"o\"\n"
+                         + "one,\"t\\,wo\"\n"
+                         + "one,two,\"th,ree\"\n"
+                         + "\"a\\\\\"\n"
+                         + "a\\,b\n"
+                         + "\"a\\\\,b\"";
+         String[][] res = {
+                 {"one", "two", "three"},
+                 {"on\\\"e", "two"},
+                 {"on\"e", "two"},
+                 {"one", "tw\"o"},
+                 {"one", "t\\,wo"},  // backslash in quotes only escapes a delimiter (",")
+                 {"one", "two", "th,ree"},
+                 {"a\\\\"},     // backslash in quotes only escapes a delimiter (",")
+                 {"a\\", "b"},  // a backslash must be returnd
+                 {"a\\\\,b"}    // backslash in quotes only escapes a delimiter (",")
+         };
+         CSVParser parser = new CSVParser(new StringReader(code));
+         List<CSVRecord> records = parser.getRecords();
+         assertEquals(res.length, records.size());
+         assertTrue(records.size() > 0);
+         for (int i = 0; i < res.length; i++) {
+-            assertTrue(Arrays.equals(res[i], records.get(i).values()));
++            assertArrayEquals(res[i], records.get(i).values());
+         }
+     }
+ 
+     @Test
+
+commit aee6c50e2830c007a572cc96a57bc105308acc49
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Fri Mar 16 21:39:04 2012
+
+    Header support (CSV-65)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/csv/trunk@1301852 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVParserTest.java b/src/test/java/org/apache/commons/csv/CSVParserTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVParserTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVParserTest.java
+@@ -222,32 +222,32 @@
+     public void testBackslashEscapingOld() throws IOException {
+         String code =
+                 "one,two,three\n"
+                         + "on\\\"e,two\n"
+                         + "on\"e,two\n"
+                         + "one,\"tw\\\"o\"\n"
+                         + "one,\"t\\,wo\"\n"
+                         + "one,two,\"th,ree\"\n"
+                         + "\"a\\\\\"\n"
+                         + "a\\,b\n"
+                         + "\"a\\\\,b\"";
+         String[][] res = {
+                 {"one", "two", "three"},
+                 {"on\\\"e", "two"},
+                 {"on\"e", "two"},
+                 {"one", "tw\"o"},
+                 {"one", "t\\,wo"},  // backslash in quotes only escapes a delimiter (",")
+                 {"one", "two", "th,ree"},
+                 {"a\\\\"},     // backslash in quotes only escapes a delimiter (",")
+                 {"a\\", "b"},  // a backslash must be returnd
+                 {"a\\\\,b"}    // backslash in quotes only escapes a delimiter (",")
+         };
+         CSVParser parser = new CSVParser(new StringReader(code));
+-        String[][] tmp = parser.getRecords();
+-        assertEquals(res.length, tmp.length);
+-        assertTrue(tmp.length > 0);
++        List<CSVRecord> records = parser.getRecords();
++        assertEquals(res.length, records.size());
++        assertTrue(records.size() > 0);
+         for (int i = 0; i < res.length; i++) {
+-            assertTrue(Arrays.equals(res[i], tmp[i]));
++            assertTrue(Arrays.equals(res[i], records.get(i).values()));
+         }
+     }
+ 
+     @Test
+
+commit 3362f9c9d8b1b36e16ba9528ed566f6a27f7ba5b
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Thu Mar 15 12:54:30 2012
+
+    Static imports in the unit tests
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/csv/trunk@1301084 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVParserTest.java b/src/test/java/org/apache/commons/csv/CSVParserTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVParserTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVParserTest.java
+@@ -221,32 +222,32 @@
+     public void testBackslashEscapingOld() throws IOException {
+         String code =
+                 "one,two,three\n"
+                         + "on\\\"e,two\n"
+                         + "on\"e,two\n"
+                         + "one,\"tw\\\"o\"\n"
+                         + "one,\"t\\,wo\"\n"
+                         + "one,two,\"th,ree\"\n"
+                         + "\"a\\\\\"\n"
+                         + "a\\,b\n"
+                         + "\"a\\\\,b\"";
+         String[][] res = {
+                 {"one", "two", "three"},
+                 {"on\\\"e", "two"},
+                 {"on\"e", "two"},
+                 {"one", "tw\"o"},
+                 {"one", "t\\,wo"},  // backslash in quotes only escapes a delimiter (",")
+                 {"one", "two", "th,ree"},
+                 {"a\\\\"},     // backslash in quotes only escapes a delimiter (",")
+                 {"a\\", "b"},  // a backslash must be returnd
+                 {"a\\\\,b"}    // backslash in quotes only escapes a delimiter (",")
+         };
+         CSVParser parser = new CSVParser(new StringReader(code));
+         String[][] tmp = parser.getRecords();
+-        Assert.assertEquals(res.length, tmp.length);
+-        Assert.assertTrue(tmp.length > 0);
++        assertEquals(res.length, tmp.length);
++        assertTrue(tmp.length > 0);
+         for (int i = 0; i < res.length; i++) {
+-            Assert.assertTrue(Arrays.equals(res[i], tmp[i]));
++            assertTrue(Arrays.equals(res[i], tmp[i]));
+         }
+     }
+ 
+     @Test
+
+commit 186e9f98047b2c8b298709a59a40df3e049ae8fa
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Thu Mar 15 09:44:44 2012
+
+    Update to JUnit 4.10 from 3.8.1.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/csv/trunk@1300977 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVParserTest.java b/src/test/java/org/apache/commons/csv/CSVParserTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVParserTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVParserTest.java
+@@ -209,31 +221,32 @@
+-    public void OLDtestBackslashEscaping() throws IOException {
++    public void testBackslashEscapingOld() throws IOException {
+         String code =
+                 "one,two,three\n"
+                         + "on\\\"e,two\n"
+                         + "on\"e,two\n"
+                         + "one,\"tw\\\"o\"\n"
+                         + "one,\"t\\,wo\"\n"
+                         + "one,two,\"th,ree\"\n"
+                         + "\"a\\\\\"\n"
+                         + "a\\,b\n"
+                         + "\"a\\\\,b\"";
+         String[][] res = {
+                 {"one", "two", "three"},
+                 {"on\\\"e", "two"},
+                 {"on\"e", "two"},
+                 {"one", "tw\"o"},
+                 {"one", "t\\,wo"},  // backslash in quotes only escapes a delimiter (",")
+                 {"one", "two", "th,ree"},
+                 {"a\\\\"},     // backslash in quotes only escapes a delimiter (",")
+                 {"a\\", "b"},  // a backslash must be returnd
+                 {"a\\\\,b"}    // backslash in quotes only escapes a delimiter (",")
+         };
+         CSVParser parser = new CSVParser(new StringReader(code));
+         String[][] tmp = parser.getRecords();
+-        assertEquals(res.length, tmp.length);
+-        assertTrue(tmp.length > 0);
++        Assert.assertEquals(res.length, tmp.length);
++        Assert.assertTrue(tmp.length > 0);
+         for (int i = 0; i < res.length; i++) {
+-            assertTrue(Arrays.equals(res[i], tmp[i]));
++            Assert.assertTrue(Arrays.equals(res[i], tmp[i]));
+         }
+     }
+ 
++    @Test
+
+commit a7bd28c496457aa7c32db4ea529c4f3df7e78fe9
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Wed Nov 9 17:04:01 2011
+
+    Renamed CSVParser.getAllValues() to getRecords()
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/sandbox/csv/trunk@1199997 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVParserTest.java b/src/test/java/org/apache/commons/csv/CSVParserTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVParserTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVParserTest.java
+@@ -374,31 +374,31 @@
+     public void OLDtestBackslashEscaping() throws IOException {
+         String code =
+                 "one,two,three\n"
+                         + "on\\\"e,two\n"
+                         + "on\"e,two\n"
+                         + "one,\"tw\\\"o\"\n"
+                         + "one,\"t\\,wo\"\n"
+                         + "one,two,\"th,ree\"\n"
+                         + "\"a\\\\\"\n"
+                         + "a\\,b\n"
+                         + "\"a\\\\,b\"";
+         String[][] res = {
+                 {"one", "two", "three"},
+                 {"on\\\"e", "two"},
+                 {"on\"e", "two"},
+                 {"one", "tw\"o"},
+                 {"one", "t\\,wo"},  // backslash in quotes only escapes a delimiter (",")
+                 {"one", "two", "th,ree"},
+                 {"a\\\\"},     // backslash in quotes only escapes a delimiter (",")
+                 {"a\\", "b"},  // a backslash must be returnd
+                 {"a\\\\,b"}    // backslash in quotes only escapes a delimiter (",")
+         };
+         CSVParser parser = new CSVParser(new StringReader(code));
+-        String[][] tmp = parser.getAllValues();
++        String[][] tmp = parser.getRecords();
+         assertEquals(res.length, tmp.length);
+         assertTrue(tmp.length > 0);
+         for (int i = 0; i < res.length; i++) {
+             assertTrue(Arrays.equals(res[i], tmp[i]));
+         }
+     }
+ 
+
+commit 1166ca605bcc035654771f1ddc1092d86f2ec1e8
+Author: Jacopo Cappellato <jacopoc@apache.org>
+Date:   Tue Feb 1 03:46:00 2011
+
+    No functional changes are contained in this commit: reformatted Java code to fix several formatting inconsistencies (between classes and within the same class); sorry for the big commit, but I have preferred to isolate into one commit all the formatting changes.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/sandbox/csv/trunk@1065950 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/csv/CSVParserTest.java b/src/test/org/apache/commons/csv/CSVParserTest.java
+--- a/src/test/org/apache/commons/csv/CSVParserTest.java
++++ b/src/test/org/apache/commons/csv/CSVParserTest.java
+@@ -423,36 +390,31 @@
+-    String code =
+-      "one,two,three\n" // 0
+-      + "'',''\n"       // 1) empty encapsulators
+-      + "/',/'\n"       // 2) single encapsulators
+-      + "'/'','/''\n"   // 3) single encapsulators encapsulated via escape
+-      + "'''',''''\n"   // 4) single encapsulators encapsulated via doubling
+-      + "/,,/,\n"       // 5) separator escaped
+-      + "//,//\n"       // 6) escape escaped
+-      + "'//','//'\n"   // 7) escape escaped in encapsulation
+-      + "   8   ,   \"quoted \"\" /\" // string\"   \n"     // don't eat spaces
+-      + "9,   /\n   \n"  // escaped newline
+-      + "";
+-    String[][] res = {
+-        { "one", "two", "three" }, // 0
+-        { "", "" },                // 1
+-        { "'", "'" },              // 2
+-        { "'", "'" },              // 3
+-        { "'", "'" },              // 4
+-        { ",", "," },              // 5
+-        { "/", "/" },              // 6
+-        { "/", "/" },              // 7
+-        { "   8   ", "   \"quoted \"\" \" / string\"   " },
+-        { "9", "   \n   " },
+-      };
+-
+-
+-    CSVStrategy strategy = new CSVStrategy(',','\'',CSVStrategy.COMMENTS_DISABLED,'/',false,false,true,true);
+-
+-    CSVParser parser = new CSVParser(new StringReader(code), strategy);
+-    String[][] tmp = parser.getAllValues();
+-    assertTrue(tmp.length > 0);
+-    for (int i = 0; i < res.length; i++) {
+-      assertTrue(Arrays.equals(res[i], tmp[i]));
++    public void OLDtestBackslashEscaping() throws IOException {
++        String code =
++                "one,two,three\n"
++                        + "on\\\"e,two\n"
++                        + "on\"e,two\n"
++                        + "one,\"tw\\\"o\"\n"
++                        + "one,\"t\\,wo\"\n"
++                        + "one,two,\"th,ree\"\n"
++                        + "\"a\\\\\"\n"
++                        + "a\\,b\n"
++                        + "\"a\\\\,b\"";
++        String[][] res = {
++                {"one", "two", "three"},
++                {"on\\\"e", "two"},
++                {"on\"e", "two"},
++                {"one", "tw\"o"},
++                {"one", "t\\,wo"},  // backslash in quotes only escapes a delimiter (",")
++                {"one", "two", "th,ree"},
++                {"a\\\\"},     // backslash in quotes only escapes a delimiter (",")
++                {"a\\", "b"},  // a backslash must be returnd
++                {"a\\\\,b"}    // backslash in quotes only escapes a delimiter (",")
++        };
++        CSVParser parser = new CSVParser(new StringReader(code));
++        String[][] tmp = parser.getAllValues();
++        assertEquals(res.length, tmp.length);
++        assertTrue(tmp.length > 0);
++        for (int i = 0; i < res.length; i++) {
++            assertTrue(Arrays.equals(res[i], tmp[i]));
++        }
+     }
+-  }
+ 
+
+commit ee95ad7a13b3d69096bac45ad344575e2cb54c1a
+Author: Henri Yandell <bayard@apache.org>
+Date:   Tue Feb 26 03:40:45 2008
+
+    Removing System outs - SANDBOX-217
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/sandbox/csv/trunk@631129 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/csv/CSVParserTest.java b/src/test/org/apache/commons/csv/CSVParserTest.java
+--- a/src/test/org/apache/commons/csv/CSVParserTest.java
++++ b/src/test/org/apache/commons/csv/CSVParserTest.java
+@@ -479,40 +443,36 @@
+     String code =
+       "one,two,three\n" // 0
+       + "'',''\n"       // 1) empty encapsulators
+       + "/',/'\n"       // 2) single encapsulators
+       + "'/'','/''\n"   // 3) single encapsulators encapsulated via escape
+       + "'''',''''\n"   // 4) single encapsulators encapsulated via doubling
+       + "/,,/,\n"       // 5) separator escaped
+       + "//,//\n"       // 6) escape escaped
+       + "'//','//'\n"   // 7) escape escaped in encapsulation
+       + "   8   ,   \"quoted \"\" /\" // string\"   \n"     // don't eat spaces
+       + "9,   /\n   \n"  // escaped newline
+       + "";
+     String[][] res = {
+         { "one", "two", "three" }, // 0
+         { "", "" },                // 1
+         { "'", "'" },              // 2
+         { "'", "'" },              // 3
+         { "'", "'" },              // 4
+         { ",", "," },              // 5
+         { "/", "/" },              // 6
+         { "/", "/" },              // 7
+         { "   8   ", "   \"quoted \"\" \" / string\"   " },
+         { "9", "   \n   " },
+       };
+ 
+ 
+     CSVStrategy strategy = new CSVStrategy(',','\'',CSVStrategy.COMMENTS_DISABLED,'/',false,false,true,true);
+ 
+     CSVParser parser = new CSVParser(new StringReader(code), strategy);
+-    System.out.println("---------\n" + code + "\n-------------");
+     String[][] tmp = parser.getAllValues();
+     assertTrue(tmp.length > 0);
+     for (int i = 0; i < res.length; i++) {
+-      for (int j = 0; j < tmp[i].length; j++) {
+-        System.out.println("'" + tmp[i][j] + "'  should be '" + res[i][j] + "'");
+-      }
+       assertTrue(Arrays.equals(res[i], tmp[i]));
+     }
+   }
+ 
+
+commit 086f434320e68a82ce1adcac69668ffcd7f48e52
+Author: Yonik Seeley <yonik@apache.org>
+Date:   Sun Jan 6 10:13:09 2008
+
+    SANDBOX-206: fix whitespace handling w/ escaping, add an option to not remove trailing whitespace
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/sandbox/csv/trunk@609327 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/csv/CSVParserTest.java b/src/test/org/apache/commons/csv/CSVParserTest.java
+--- a/src/test/org/apache/commons/csv/CSVParserTest.java
++++ b/src/test/org/apache/commons/csv/CSVParserTest.java
+@@ -479,36 +479,40 @@
+     String code =
+       "one,two,three\n" // 0
+       + "'',''\n"       // 1) empty encapsulators
+       + "/',/'\n"       // 2) single encapsulators
+       + "'/'','/''\n"   // 3) single encapsulators encapsulated via escape
+       + "'''',''''\n"   // 4) single encapsulators encapsulated via doubling
+       + "/,,/,\n"       // 5) separator escaped
+       + "//,//\n"       // 6) escape escaped
+       + "'//','//'\n"   // 7) escape escaped in encapsulation
++      + "   8   ,   \"quoted \"\" /\" // string\"   \n"     // don't eat spaces
++      + "9,   /\n   \n"  // escaped newline
+       + "";
+     String[][] res = {
+         { "one", "two", "three" }, // 0
+         { "", "" },                // 1
+         { "'", "'" },              // 2
+         { "'", "'" },              // 3
+         { "'", "'" },              // 4
+         { ",", "," },              // 5
+         { "/", "/" },              // 6
+         { "/", "/" },              // 7
++        { "   8   ", "   \"quoted \"\" \" / string\"   " },
++        { "9", "   \n   " },
+       };
+ 
+ 
+-    CSVStrategy strategy = new CSVStrategy(',','\'',CSVStrategy.COMMENTS_DISABLED,'/',true,true,true);
++    CSVStrategy strategy = new CSVStrategy(',','\'',CSVStrategy.COMMENTS_DISABLED,'/',false,false,true,true);
+ 
+     CSVParser parser = new CSVParser(new StringReader(code), strategy);
+     System.out.println("---------\n" + code + "\n-------------");
+     String[][] tmp = parser.getAllValues();
+     assertTrue(tmp.length > 0);
+     for (int i = 0; i < res.length; i++) {
+       for (int j = 0; j < tmp[i].length; j++) {
+         System.out.println("'" + tmp[i][j] + "'  should be '" + res[i][j] + "'");
+       }
+       assertTrue(Arrays.equals(res[i], tmp[i]));
+     }
+   }
+ 
+
+commit b55fb21d78e30748ae19f1c8d16902439643799a
+Author: Yonik Seeley <yonik@apache.org>
+Date:   Sat Jan 5 10:37:26 2008
+
+    SANDBOX-206: add escape to strategy, turn off backslash-style escaping by default
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/sandbox/csv/trunk@609155 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/csv/CSVParserTest.java b/src/test/org/apache/commons/csv/CSVParserTest.java
+--- a/src/test/org/apache/commons/csv/CSVParserTest.java
++++ b/src/test/org/apache/commons/csv/CSVParserTest.java
+@@ -477,0 +479,36 @@
++    String code =
++      "one,two,three\n" // 0
++      + "'',''\n"       // 1) empty encapsulators
++      + "/',/'\n"       // 2) single encapsulators
++      + "'/'','/''\n"   // 3) single encapsulators encapsulated via escape
++      + "'''',''''\n"   // 4) single encapsulators encapsulated via doubling
++      + "/,,/,\n"       // 5) separator escaped
++      + "//,//\n"       // 6) escape escaped
++      + "'//','//'\n"   // 7) escape escaped in encapsulation
++      + "";
++    String[][] res = {
++        { "one", "two", "three" }, // 0
++        { "", "" },                // 1
++        { "'", "'" },              // 2
++        { "'", "'" },              // 3
++        { "'", "'" },              // 4
++        { ",", "," },              // 5
++        { "/", "/" },              // 6
++        { "/", "/" },              // 7
++      };
++
++
++    CSVStrategy strategy = new CSVStrategy(',','\'',CSVStrategy.COMMENTS_DISABLED,'/',true,true,true);
++
++    CSVParser parser = new CSVParser(new StringReader(code), strategy);
++    System.out.println("---------\n" + code + "\n-------------");
++    String[][] tmp = parser.getAllValues();
++    assertTrue(tmp.length > 0);
++    for (int i = 0; i < res.length; i++) {
++      for (int j = 0; j < tmp[i].length; j++) {
++        System.out.println("'" + tmp[i][j] + "'  should be '" + res[i][j] + "'");
++      }
++      assertTrue(Arrays.equals(res[i], tmp[i]));
++    }
++  }
++

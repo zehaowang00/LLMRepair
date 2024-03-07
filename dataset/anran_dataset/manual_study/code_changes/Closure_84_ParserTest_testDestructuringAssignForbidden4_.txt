@@ -1,0 +1,58 @@
+commit 4839e1ea57f9a1a26debd2cc8f22beef7282b490
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Jan 11 14:28:55 2011
+
+    Don't let invalid LHS assignments to slip through.
+    Fixes issue 215.
+    Fixes issue 214.
+    
+    R=nicksantos
+    DELTA=98  (82 added, 1 deleted, 15 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=248
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@685 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/parsing/ParserTest.java b/test/com/google/javascript/jscomp/parsing/ParserTest.java
+--- a/test/com/google/javascript/jscomp/parsing/ParserTest.java
++++ b/test/com/google/javascript/jscomp/parsing/ParserTest.java
+@@ -624,4 +624,6 @@
+   public void testDestructuringAssignForbidden4() {
+-    parseError("[x, y] = foo();", "destructuring assignment forbidden");
++    parseError("[x, y] = foo();",
++        "destructuring assignment forbidden",
++        "invalid assignment target");
+   }
+ 
+
+commit 3924ff1e4a236d68a0b5448d185537d90ca04419
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Wed Dec 2 20:12:42 2009
+
+    Warn about all with statements, unless there's an explicit
+    /** @suppress {with} */ tag
+    
+    Refactor a bunch of stuff into PassConfigs
+    
+    Add a bunch of parser tests.
+    
+    Up-integrate John and Norris' latest changes to Rhino at trunk
+    
+    Minor type-tightening bug fixes.
+    
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@18 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/parsing/ParserTest.java b/test/com/google/javascript/jscomp/parsing/ParserTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/parsing/ParserTest.java
+@@ -0,0 +604,4 @@
++  public void testDestructuringAssignForbidden4() {
++    parseError("[x, y] = foo();", "destructuring assignment forbidden");
++  }
++

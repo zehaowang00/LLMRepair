@@ -1,0 +1,68 @@
+commit 75944e541d358d5b06ebbba3098a919fbf2539d4
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Thu Jan 3 01:19:52 2013
+
+    [LANG-865] LocaleUtils.toLocale does not parse strings starting with an underscore.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@1428174 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/LocaleUtilsTest.java b/src/test/java/org/apache/commons/lang3/LocaleUtilsTest.java
+--- a/src/test/java/org/apache/commons/lang3/LocaleUtilsTest.java
++++ b/src/test/java/org/apache/commons/lang3/LocaleUtilsTest.java
+@@ -499,1 +504,42 @@
++    public void testLang865() {
++        assertValidToLocale("_GB", "", "GB", "");
++        assertValidToLocale("_GB_P", "", "GB", "P");
++        assertValidToLocale("_GB_POSIX", "", "GB", "POSIX");
++        try {
++            LocaleUtils.toLocale("_G");
++            fail("Must be at least 3 chars if starts with underscore");
++        } catch (final IllegalArgumentException iae) {
++        }
++        try {
++            LocaleUtils.toLocale("_Gb");
++            fail("Must be uppercase if starts with underscore");
++        } catch (final IllegalArgumentException iae) {
++        }
++        try {
++            LocaleUtils.toLocale("_gB");
++            fail("Must be uppercase if starts with underscore");
++        } catch (final IllegalArgumentException iae) {
++        }
++        try {
++            LocaleUtils.toLocale("_1B");
++            fail("Must be letter if starts with underscore");
++        } catch (final IllegalArgumentException iae) {
++        }
++        try {
++            LocaleUtils.toLocale("_G1");
++            fail("Must be letter if starts with underscore");
++        } catch (final IllegalArgumentException iae) {
++        }
++        try {
++            LocaleUtils.toLocale("_GB_");
++            fail("Must be at least 5 chars if starts with underscore");
++        } catch (final IllegalArgumentException iae) {
++        }
++        try {
++            LocaleUtils.toLocale("_GBAP");
++            fail("Must have underscore after the country if starts with underscore and is at least 5 chars");
++        } catch (final IllegalArgumentException iae) {
++        }
++    }
++
+ }
+
+commit ddd4f84525178a0722ecbc01229d919d11c526f7
+Author: Stephen Colebourne <scolebourne@apache.org>
+Date:   Fri Sep 23 19:17:31 2005
+
+    Test LocaleUtils
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@291219 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/LocaleUtilsTest.java b/src/test/org/apache/commons/lang/LocaleUtilsTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/lang/LocaleUtilsTest.java
+@@ -0,0 +475,1 @@
++}

@@ -1,0 +1,43 @@
+commit fbf87122e0f7229892b6dbbf2e211cc46acea008
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Fri Sep 26 15:51:13 2008
+
+    propagated trunk changes from r699157 into branch 2.0
+    MATH-227.  fixed F distribution inverse CDF computation for small denominator degrees of freedom.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/branches/MATH_2_0@699468 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/distribution/FDistributionTest.java b/src/test/org/apache/commons/math/distribution/FDistributionTest.java
+--- a/src/test/org/apache/commons/math/distribution/FDistributionTest.java
++++ b/src/test/org/apache/commons/math/distribution/FDistributionTest.java
+@@ -108,1 +109,15 @@
++    public void testSmallDegreesOfFreedom() throws Exception {
++        org.apache.commons.math.distribution.FDistributionImpl fd =
++            new org.apache.commons.math.distribution.FDistributionImpl(
++                1.0, 1.0);
++        double p = fd.cumulativeProbability(0.975);
++        double x = fd.inverseCumulativeProbability(p);
++        assertEquals(0.975, x, 1.0e-5);
++
++        fd.setDenominatorDegreesOfFreedom(2.0);
++        p = fd.cumulativeProbability(0.975);
++        x = fd.inverseCumulativeProbability(p);
++        assertEquals(0.975, x, 1.0e-5);
++    }
++
+ }
+
+commit 0a904461932f2c0455611e77ec6a8d8aced2980b
+Author: Mark R. Diggory <mdiggory@apache.org>
+Date:   Fri Nov 14 17:25:28 2003
+
+    Attempting to recover last revision.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@141013 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/distribution/FDistributionTest.java b/src/test/org/apache/commons/math/distribution/FDistributionTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/math/distribution/FDistributionTest.java
+@@ -0,0 +125,1 @@
++}

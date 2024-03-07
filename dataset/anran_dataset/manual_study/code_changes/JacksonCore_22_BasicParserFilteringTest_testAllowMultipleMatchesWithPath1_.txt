@@ -1,0 +1,39 @@
+commit 6feec20c842586056aa5b19c402b26be08c88ca3
+Author: Rafal Foltynski <r.foltynski@gmail.com>
+Date:   Sat Jun 3 23:32:03 2017
+
+    Fix #208: FilteringParserDelegate match count support
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java b/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
+--- a/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
++++ b/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
+@@ -118,1 +155,16 @@
+-        assertEquals(aposToQuotes("3 4"), result);
++    public void testAllowMultipleMatchesWithPath1() throws Exception
++    {
++        String jsonString = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4,'value':{'value0':2}},'value':\"val\",'b':true}");
++        JsonParser p0 = JSON_F.createParser(jsonString);
++        FilteringParserDelegate p = new FilteringParserDelegate(p0,
++                new NameMatchFilter("value"),
++                true, // includePath
++                true // multipleMatches - true
++        );
++        String result = readAndWrite(JSON_F, p);
++        assertEquals(aposToQuotes("{\"ob\":{\"value\":3,\"value\":{\"value0\":2}},\"value\":\"val\"}"), result);
++        assertEquals(3, p.getMatchCount());
++    }
++
++
++    @SuppressWarnings("resource")
+
+commit fd32772bb402f6cc2ffea5f58c162f86a8aa81e3
+Author: LokeshN <ln@vmware.com>
+Date:   Sun Mar 20 07:58:25 2016
+
+    Fix for issue 209 - make use of _allowMultipleMatches FilterParsingDelegate
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java b/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
+--- a/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
++++ b/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
+@@ -106,0 +132,1 @@
++        assertEquals(aposToQuotes("3 4"), result);

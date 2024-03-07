@@ -1,0 +1,138 @@
+commit f86b8929454da31fbc59cbf95293c7138e0b8200
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Jul 15 17:01:20 2010
+
+    Change on 2010/07/15 12:32:23 by johnlenz
+    
+            Add writing mode to CssProperties object definition.
+            Fixes issue 196.
+    
+            R=nicksantos
+            DELTA=16  (14 added, 0 deleted, 2 changed)
+    
+    Change on 2010/07/15 12:58:13 by johnlenz
+    
+            Last set of tweaks to reduce build time impact of creating source maps:
+             skip unused mapping entries to reduce the size of the file written.
+    
+            R=jschorr
+            DELTA=374  (193 added, 88 deleted, 93 changed)
+    
+    Change on 2010/07/15 12:58:15 by johnlenz
+    
+            Add support for "typeof void 0" to "undefined" folding.
+            Fixes issue 197
+    
+            R=dcc
+            DELTA=4  (4 added, 0 deleted, 0 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=48015
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@279 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/SourceMapTest.java b/test/com/google/javascript/jscomp/SourceMapTest.java
+--- a/test/com/google/javascript/jscomp/SourceMapTest.java
++++ b/test/com/google/javascript/jscomp/SourceMapTest.java
+@@ -166,21 +161,17 @@
+   public void testGoldenOutput4() throws Exception {
+     checkSourceMap("c:\\myfile.js",
+                    "foo;   boo;   goo;",
+ 
+                    "/** Begin line maps. **/" +
+-                   "{ \"file\" : \"testMap\", \"count\": 1 }\n" +
+-                   "[2,2,2,4,4,4,4,6,6,6,6]\n" +
++                   "{ \"file\" : \"testcode\", \"count\": 1 }\n" +
++                   "[0,0,0,1,1,1,1,2,2,2,2]\n" +
+ 
+                    "/** Begin file information. **/\n" +
+                    "[]\n" +
+ 
+                    "/** Begin mapping definitions. **/\n" +
+-                   "[\"c:\\\\myfile.js\",1,0]\n" +
+-                   "[\"c:\\\\myfile.js\",1,0]\n" +
+                    "[\"c:\\\\myfile.js\",1,0,\"foo\"]\n" +
+-                   "[\"c:\\\\myfile.js\",1,7]\n" +
+                    "[\"c:\\\\myfile.js\",1,7,\"boo\"]\n" +
+-                   "[\"c:\\\\myfile.js\",1,14]\n" +
+                    "[\"c:\\\\myfile.js\",1,14,\"goo\"]\n");
+   }
+ 
+
+commit 660e7b525f76cd64d10ccc8724a1b0e0c501d1d9
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Jul 13 18:28:57 2010
+
+    Change on 2010/07/13 09:58:55 by johnlenz
+    
+            Change source map generation so that runs in O(n) time. Source map
+            generation is now roughly the time it takes to write the bytes to disk.
+    
+            R=acleung
+            DELTA=820  (508 added, 270 deleted, 42 changed)
+    
+    Change on 2010/07/13 11:14:56 by acleung
+    
+            Google Analytics Externs Contribution
+    
+            R=bkuhn,nicksantos
+            DELTA=438  (438 added, 0 deleted, 0 changed)
+    
+    Change on 2010/07/13 11:37:57 by nicksantos
+    
+            Fix goog.scope processing so that it works even if an alias
+            shadows a global variable.
+    
+            R=robbyw
+            DELTA=28  (16 added, 3 deleted, 9 changed)
+    
+    Change on 2010/07/13 12:45:31 by nicksantos
+    
+            fix a silly bug where an assignment of a name is interpreted
+            as an assignment to a name.
+    
+            R=robbyw
+            DELTA=7  (6 added, 0 deleted, 1 changed)
+    
+    Change on 2010/07/13 14:02:13 by nicksantos
+    
+            Make the goog.asserts functions work better for qualified names
+            (like x.y).
+    
+            R=agrieve
+            DELTA=37  (17 added, 3 deleted, 17 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=50006
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@274 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/SourceMapTest.java b/test/com/google/javascript/jscomp/SourceMapTest.java
+--- a/test/com/google/javascript/jscomp/SourceMapTest.java
++++ b/test/com/google/javascript/jscomp/SourceMapTest.java
+@@ -155,0 +166,21 @@
++  public void testGoldenOutput4() throws Exception {
++    checkSourceMap("c:\\myfile.js",
++                   "foo;   boo;   goo;",
++
++                   "/** Begin line maps. **/" +
++                   "{ \"file\" : \"testMap\", \"count\": 1 }\n" +
++                   "[2,2,2,4,4,4,4,6,6,6,6]\n" +
++
++                   "/** Begin file information. **/\n" +
++                   "[]\n" +
++
++                   "/** Begin mapping definitions. **/\n" +
++                   "[\"c:\\\\myfile.js\",1,0]\n" +
++                   "[\"c:\\\\myfile.js\",1,0]\n" +
++                   "[\"c:\\\\myfile.js\",1,0,\"foo\"]\n" +
++                   "[\"c:\\\\myfile.js\",1,7]\n" +
++                   "[\"c:\\\\myfile.js\",1,7,\"boo\"]\n" +
++                   "[\"c:\\\\myfile.js\",1,14]\n" +
++                   "[\"c:\\\\myfile.js\",1,14,\"goo\"]\n");
++  }
++

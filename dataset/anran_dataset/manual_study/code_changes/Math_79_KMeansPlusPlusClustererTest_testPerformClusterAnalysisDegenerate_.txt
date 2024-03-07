@@ -1,0 +1,48 @@
+commit 138baec1c778c2ea1dc1a6efe6d5e76a3b072b1d
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Fri Nov 27 16:45:38 2009
+
+    Fixed an overflow error in MathUtils.distance that was causing KMeansPlusPlusClusterer to fail with a NullPointerException when
+    component distances between points exceeded Integer.MAXVALUE.
+    JIRA: MATH-305
+    Reported by Erik van Ingen
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@885027 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/stat/clustering/KMeansPlusPlusClustererTest.java b/src/test/java/org/apache/commons/math/stat/clustering/KMeansPlusPlusClustererTest.java
+--- a/src/test/java/org/apache/commons/math/stat/clustering/KMeansPlusPlusClustererTest.java
++++ b/src/test/java/org/apache/commons/math/stat/clustering/KMeansPlusPlusClustererTest.java
+@@ -96,2 +103,17 @@
++    public void testPerformClusterAnalysisDegenerate() {
++        KMeansPlusPlusClusterer<EuclideanIntegerPoint> transformer = new KMeansPlusPlusClusterer<EuclideanIntegerPoint>(
++                new Random(1746432956321l));
++        EuclideanIntegerPoint[] points = new EuclideanIntegerPoint[] {
++                new EuclideanIntegerPoint(new int[] { 1959, 325100 }),
++                new EuclideanIntegerPoint(new int[] { 1960, 373200 }), };
++        List<Cluster<EuclideanIntegerPoint>> clusters = transformer.cluster(Arrays.asList(points), 1, 1);
++        assertEquals(1, clusters.size());
++        assertEquals(2, (clusters.get(0).getPoints().size()));
++        EuclideanIntegerPoint pt1 = new EuclideanIntegerPoint(new int[] { 1959, 325100 });
++        EuclideanIntegerPoint pt2 = new EuclideanIntegerPoint(new int[] { 1960, 373200 });
++        assertTrue(clusters.get(0).getPoints().contains(pt1));
++        assertTrue(clusters.get(0).getPoints().contains(pt2));
++
++    } 
+ 
+ }
+
+commit 189717fd10f468e2d0a40bc94369fca5b3d1ec41
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sat May 2 15:34:51 2009
+
+    added a clustering package with an implementation of k-means++
+    JIRA: MATH-266
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@770979 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/stat/clustering/KMeansPlusPlusClustererTest.java b/src/test/org/apache/commons/math/stat/clustering/KMeansPlusPlusClustererTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/math/stat/clustering/KMeansPlusPlusClustererTest.java
+@@ -0,0 +96,2 @@
++
++}

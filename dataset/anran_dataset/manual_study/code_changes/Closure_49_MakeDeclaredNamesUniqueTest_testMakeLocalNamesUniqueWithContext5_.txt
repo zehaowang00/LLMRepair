@@ -1,0 +1,47 @@
+commit 1a7ba5cb0111dd3ed9afd9691cab39b3c341e408
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Nov 3 17:10:49 2011
+
+    Modify normalization to distinguish function expression names from
+    parameters and local variables.
+    Fixes issue 539.
+    
+    R=nicksantos
+    DELTA=246  (61 added, 11 deleted, 174 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3615
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1552 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/MakeDeclaredNamesUniqueTest.java b/test/com/google/javascript/jscomp/MakeDeclaredNamesUniqueTest.java
+--- a/test/com/google/javascript/jscomp/MakeDeclaredNamesUniqueTest.java
++++ b/test/com/google/javascript/jscomp/MakeDeclaredNamesUniqueTest.java
+@@ -208,0 +208,25 @@
++  public void testMakeLocalNamesUniqueWithContext5() {
++    // Set the test type
++    this.useDefaultRenamer = true;
++
++    testWithInversion(
++        "function f(){var f; f = 1}",
++        "function f(){var f$$1; f$$1 = 1}");
++    testWithInversion(
++        "function f(f){f = 1}",
++        "function f(f$$1){f$$1 = 1}");
++    testWithInversion(
++        "function f(f){var f; f = 1}",
++        "function f(f$$1){var f$$1; f$$1 = 1}");
++
++    test(
++        "var fn = function f(){var f; f = 1}",
++        "var fn = function f(){var f$$1; f$$1 = 1}");
++    test(
++        "var fn = function f(f){f = 1}",
++        "var fn = function f(f$$1){f$$1 = 1}");
++    test(
++        "var fn = function f(f){var f; f = 1}",
++        "var fn = function f(f$$1){var f$$1; f$$1 = 1}");
++  }
++

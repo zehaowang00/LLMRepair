@@ -1,0 +1,24 @@
+commit a93139165b160af1c908c85a06b0af6b3dda3387
+Author: Oliver Heger <oheger@apache.org>
+Date:   Thu Jul 24 15:38:04 2008
+
+    CLI-158: Default arguments are now applied even if arguments are passed. The default values for missing arguments will be set.
+    Thanks to tobias dot bocanegra at day dot com for the patch.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/trunk@679511 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli2/bug/BugCLI158Test.java b/src/test/org/apache/commons/cli2/bug/BugCLI158Test.java
+--- /dev/null
++++ b/src/test/org/apache/commons/cli2/bug/BugCLI158Test.java
+@@ -0,0 +62,11 @@
++    public void testSingleOptionSingleArgument() throws Exception {
++        Parser parser = createDefaultValueParser(new String[]{"100", "1000"});
++        String enteredValue1 = "1";
++        String[] args = new String[]{"-b", enteredValue1};
++        CommandLine cl = parser.parse(args);
++        CommandLine cmd = cl;
++        assertNotNull(cmd);
++        List b = cmd.getValues("-b");
++        assertEquals("[" + enteredValue1 + ", 1000]", b + "");
++    }
++

@@ -1,0 +1,58 @@
+commit 4461539017646f2afe8cf78b167575f7f79c41f0
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Wed Feb 17 15:13:41 2010
+
+    Fixed issue 166
+    Added @Captor annotation that makes easier to create ArgumentCaptors
+    (fixed test)
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401856
+
+diff --git a/test/org/mockitousage/basicapi/CaptorAnnotationTest.java b/test/org/mockitousage/basicapi/CaptorAnnotationTest.java
+--- a/test/org/mockitousage/basicapi/CaptorAnnotationTest.java
++++ b/test/org/mockitousage/basicapi/CaptorAnnotationTest.java
+@@ -104,13 +104,11 @@
+     public void shouldScreamWhenMoreThanOneMockitoAnnotaton() {
+         try {
+             MockitoAnnotations.initMocks(new ToManyAnnotations());
+             fail();
+         } catch (MockitoException e) {
+-            assertEquals(
+-                    "Cannot have more than one Mockito annotation on field. For info how to use annotations see examples in javadoc for MockitoAnnotations class.",
+-                    e.getMessage());
++            assertContains("missingGenericsField", e.getMessage());
++            assertContains("multiple Mockito annotations", e.getMessage());            
+         }
+-
+     }
+ 
+     @Test
+
+commit 896c61e3fd5581432760ab7dce2a5d20eed6ac7e
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Wed Feb 17 15:13:28 2010
+
+    Fixed issue 166
+    Added @Captor annotation that makes easier to create ArgumentCaptors
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401855
+
+diff --git a/test/org/mockitousage/basicapi/CaptorAnnotationTest.java b/test/org/mockitousage/basicapi/CaptorAnnotationTest.java
+--- /dev/null
++++ b/test/org/mockitousage/basicapi/CaptorAnnotationTest.java
+@@ -0,0 +104,13 @@
++    public void shouldScreamWhenMoreThanOneMockitoAnnotaton() {
++        try {
++            MockitoAnnotations.initMocks(new ToManyAnnotations());
++            fail();
++        } catch (MockitoException e) {
++            assertEquals(
++                    "Cannot have more than one Mockito annotation on field. For info how to use annotations see examples in javadoc for MockitoAnnotations class.",
++                    e.getMessage());
++        }
++
++    }
++
++    @Test

@@ -1,0 +1,313 @@
+commit 982e295053663787bb0396b81a8956c3c87dc25b
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Fri May 28 12:33:23 2010
+
+    (LANG-624) SystemUtils.getJavaVersionAsFloat throws StringIndexOutOfBoundsException on Android runtime/Dalvik VM. Oops, fix return type.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@949223 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/SystemUtilsTest.java b/src/test/java/org/apache/commons/lang3/SystemUtilsTest.java
+--- a/src/test/java/org/apache/commons/lang3/SystemUtilsTest.java
++++ b/src/test/java/org/apache/commons/lang3/SystemUtilsTest.java
+@@ -209,19 +209,19 @@
+     public void testJavaVersionAsInt() {
+-        assertEquals(0, SystemUtils.toJavaVersionInt(null), 0.000001f);
+-        assertEquals(0, SystemUtils.toJavaVersionInt(""), 0.000001f);
+-        assertEquals(0, SystemUtils.toJavaVersionInt("0"), 0.000001f);
+-        assertEquals(110, SystemUtils.toJavaVersionInt("1.1"), 0.000001f);
+-        assertEquals(120, SystemUtils.toJavaVersionInt("1.2"), 0.000001f);
+-        assertEquals(130, SystemUtils.toJavaVersionInt("1.3.0"), 0.000001f);
+-        assertEquals(131, SystemUtils.toJavaVersionInt("1.3.1"), 0.000001f);
+-        assertEquals(140, SystemUtils.toJavaVersionInt("1.4.0"), 0.000001f);
+-        assertEquals(141, SystemUtils.toJavaVersionInt("1.4.1"), 0.000001f);
+-        assertEquals(142, SystemUtils.toJavaVersionInt("1.4.2"), 0.000001f);
+-        assertEquals(150, SystemUtils.toJavaVersionInt("1.5.0"), 0.000001f);
+-        assertEquals(160, SystemUtils.toJavaVersionInt("1.6.0"), 0.000001f);
+-        assertEquals(131, SystemUtils.toJavaVersionInt("JavaVM-1.3.1"), 0.000001f);
+-        assertEquals(131, SystemUtils.toJavaVersionInt("1.3.1 subset"), 0.000001f);
++        assertEquals(0, SystemUtils.toJavaVersionInt(null));
++        assertEquals(0, SystemUtils.toJavaVersionInt(""));
++        assertEquals(0, SystemUtils.toJavaVersionInt("0"));
++        assertEquals(110, SystemUtils.toJavaVersionInt("1.1"));
++        assertEquals(120, SystemUtils.toJavaVersionInt("1.2"));
++        assertEquals(130, SystemUtils.toJavaVersionInt("1.3.0"));
++        assertEquals(131, SystemUtils.toJavaVersionInt("1.3.1"));
++        assertEquals(140, SystemUtils.toJavaVersionInt("1.4.0"));
++        assertEquals(141, SystemUtils.toJavaVersionInt("1.4.1"));
++        assertEquals(142, SystemUtils.toJavaVersionInt("1.4.2"));
++        assertEquals(150, SystemUtils.toJavaVersionInt("1.5.0"));
++        assertEquals(160, SystemUtils.toJavaVersionInt("1.6.0"));
++        assertEquals(131, SystemUtils.toJavaVersionInt("JavaVM-1.3.1"));
++        assertEquals(131, SystemUtils.toJavaVersionInt("1.3.1 subset"));
+         // This used to return 0f in [lang] version 2.5:
+-        assertEquals(130, SystemUtils.toJavaVersionInt("XXX-1.3.x"), 0.000001f);
++        assertEquals(130, SystemUtils.toJavaVersionInt("XXX-1.3.x"));
+     }
+ 
+
+commit cbf8e4eb017a99af9a8f24eb8429e8a12b62af8b
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Fri May 28 12:30:16 2010
+
+    (LANG-624) SystemUtils.getJavaVersionAsFloat throws StringIndexOutOfBoundsException on Android runtime/Dalvik VM. More assertions.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@949222 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/SystemUtilsTest.java b/src/test/java/org/apache/commons/lang3/SystemUtilsTest.java
+--- a/src/test/java/org/apache/commons/lang3/SystemUtilsTest.java
++++ b/src/test/java/org/apache/commons/lang3/SystemUtilsTest.java
+@@ -208,18 +209,19 @@
+     public void testJavaVersionAsInt() {
+         assertEquals(0, SystemUtils.toJavaVersionInt(null), 0.000001f);
+         assertEquals(0, SystemUtils.toJavaVersionInt(""), 0.000001f);
+         assertEquals(0, SystemUtils.toJavaVersionInt("0"), 0.000001f);
+         assertEquals(110, SystemUtils.toJavaVersionInt("1.1"), 0.000001f);
+         assertEquals(120, SystemUtils.toJavaVersionInt("1.2"), 0.000001f);
+         assertEquals(130, SystemUtils.toJavaVersionInt("1.3.0"), 0.000001f);
+         assertEquals(131, SystemUtils.toJavaVersionInt("1.3.1"), 0.000001f);
+         assertEquals(140, SystemUtils.toJavaVersionInt("1.4.0"), 0.000001f);
+         assertEquals(141, SystemUtils.toJavaVersionInt("1.4.1"), 0.000001f);
+         assertEquals(142, SystemUtils.toJavaVersionInt("1.4.2"), 0.000001f);
+         assertEquals(150, SystemUtils.toJavaVersionInt("1.5.0"), 0.000001f);
+         assertEquals(160, SystemUtils.toJavaVersionInt("1.6.0"), 0.000001f);
+         assertEquals(131, SystemUtils.toJavaVersionInt("JavaVM-1.3.1"), 0.000001f);
++        assertEquals(131, SystemUtils.toJavaVersionInt("1.3.1 subset"), 0.000001f);
+         // This used to return 0f in [lang] version 2.5:
+         assertEquals(130, SystemUtils.toJavaVersionInt("XXX-1.3.x"), 0.000001f);
+     }
+ 
+
+commit ef9524aed96ca4d195fc390ece625a902fb37f4b
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Fri May 28 06:12:04 2010
+
+    - Fix (LANG-624) SystemUtils.getJavaVersionAsFloat throws StringIndexOutOfBoundsException on Android runtime/Dalvik VM
+    - Refactor for unit testing.
+    - Remove odd test code which is copy and pasted from SystemUtils, which therefore does not test anything.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@949140 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/SystemUtilsTest.java b/src/test/java/org/apache/commons/lang3/SystemUtilsTest.java
+--- a/src/test/java/org/apache/commons/lang3/SystemUtilsTest.java
++++ b/src/test/java/org/apache/commons/lang3/SystemUtilsTest.java
+@@ -354,36 +208,18 @@
+     public void testJavaVersionAsInt() {
+-        JAVA_VERSION = null;
+-        JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+-        assertEquals(0, getJavaVersionAsInt());
+-        JAVA_VERSION = "1.1";
+-        JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+-        assertEquals(110, getJavaVersionAsInt());
+-        JAVA_VERSION = "1.2";
+-        JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+-        assertEquals(120, getJavaVersionAsInt());
+-        JAVA_VERSION = "1.3.0";
+-        JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+-        assertEquals(130, getJavaVersionAsInt());
+-        JAVA_VERSION = "1.3.1";
+-        JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+-        assertEquals(131, getJavaVersionAsInt());
+-        JAVA_VERSION = "1.4.0";
+-        JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+-        assertEquals(140, getJavaVersionAsInt());
+-        JAVA_VERSION = "1.4.1";
+-        JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+-        assertEquals(141, getJavaVersionAsInt());
+-        JAVA_VERSION = "1.5.0";
+-        JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+-        assertEquals(150, getJavaVersionAsInt());
+-        JAVA_VERSION = "1.6.0";
+-        JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+-        assertEquals(160, getJavaVersionAsInt());
+-        JAVA_VERSION = "JavaVM-1.3.1";  //HP-UX
+-        JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+-        assertEquals(131, getJavaVersionAsInt());
+-        JAVA_VERSION = "XXX-1.3.x";  //error
+-        JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+-        assertEquals(0, getJavaVersionAsInt());
++        assertEquals(0, SystemUtils.toJavaVersionInt(null), 0.000001f);
++        assertEquals(0, SystemUtils.toJavaVersionInt(""), 0.000001f);
++        assertEquals(0, SystemUtils.toJavaVersionInt("0"), 0.000001f);
++        assertEquals(110, SystemUtils.toJavaVersionInt("1.1"), 0.000001f);
++        assertEquals(120, SystemUtils.toJavaVersionInt("1.2"), 0.000001f);
++        assertEquals(130, SystemUtils.toJavaVersionInt("1.3.0"), 0.000001f);
++        assertEquals(131, SystemUtils.toJavaVersionInt("1.3.1"), 0.000001f);
++        assertEquals(140, SystemUtils.toJavaVersionInt("1.4.0"), 0.000001f);
++        assertEquals(141, SystemUtils.toJavaVersionInt("1.4.1"), 0.000001f);
++        assertEquals(142, SystemUtils.toJavaVersionInt("1.4.2"), 0.000001f);
++        assertEquals(150, SystemUtils.toJavaVersionInt("1.5.0"), 0.000001f);
++        assertEquals(160, SystemUtils.toJavaVersionInt("1.6.0"), 0.000001f);
++        assertEquals(131, SystemUtils.toJavaVersionInt("JavaVM-1.3.1"), 0.000001f);
++        // This used to return 0f in [lang] version 2.5:
++        assertEquals(130, SystemUtils.toJavaVersionInt("XXX-1.3.x"), 0.000001f);
+     }
+ 
+
+commit 341c6c0c3fa795c74bae3404b27760e6ff1e7309
+Author: Stephen Colebourne <scolebourne@apache.org>
+Date:   Wed Mar 29 17:22:32 2006
+
+    Handle badly formatted java version numbers without exceptions
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@389911 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/SystemUtilsTest.java b/src/test/org/apache/commons/lang/SystemUtilsTest.java
+--- a/src/test/org/apache/commons/lang/SystemUtilsTest.java
++++ b/src/test/org/apache/commons/lang/SystemUtilsTest.java
+@@ -329,33 +340,36 @@
+     public void testJavaVersionAsInt() {
+         JAVA_VERSION = null;
+         JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+         assertEquals(0, getJavaVersionAsInt());
+         JAVA_VERSION = "1.1";
+         JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+         assertEquals(110, getJavaVersionAsInt());
+         JAVA_VERSION = "1.2";
+         JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+         assertEquals(120, getJavaVersionAsInt());
+         JAVA_VERSION = "1.3.0";
+         JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+         assertEquals(130, getJavaVersionAsInt());
+         JAVA_VERSION = "1.3.1";
+         JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+         assertEquals(131, getJavaVersionAsInt());
+         JAVA_VERSION = "1.4.0";
+         JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+         assertEquals(140, getJavaVersionAsInt());
+         JAVA_VERSION = "1.4.1";
+         JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+         assertEquals(141, getJavaVersionAsInt());
+         JAVA_VERSION = "1.5.0";
+         JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+         assertEquals(150, getJavaVersionAsInt());
+         JAVA_VERSION = "1.6.0";
+         JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+         assertEquals(160, getJavaVersionAsInt());
+         JAVA_VERSION = "JavaVM-1.3.1";  //HP-UX
+         JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+         assertEquals(131, getJavaVersionAsInt());
++        JAVA_VERSION = "XXX-1.3.x";  //error
++        JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
++        assertEquals(0, getJavaVersionAsInt());
+     }
+ 
+
+commit 6a23fd60fa26d2bbb15ce8147a57da8ff8c2b12c
+Author: Stephen Colebourne <scolebourne@apache.org>
+Date:   Thu Nov 11 19:48:41 2004
+
+    Handle Java version with text prefix, as found on HP-UX
+    bug 32123, from Jason Gritman
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137994 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/SystemUtilsTest.java b/src/test/org/apache/commons/lang/SystemUtilsTest.java
+--- a/src/test/org/apache/commons/lang/SystemUtilsTest.java
++++ b/src/test/org/apache/commons/lang/SystemUtilsTest.java
+@@ -308,21 +329,33 @@
+     public void testJavaVersionAsInt() {
+         JAVA_VERSION = null;
++        JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+         assertEquals(0, getJavaVersionAsInt());
+         JAVA_VERSION = "1.1";
++        JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+         assertEquals(110, getJavaVersionAsInt());
+         JAVA_VERSION = "1.2";
++        JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+         assertEquals(120, getJavaVersionAsInt());
+         JAVA_VERSION = "1.3.0";
++        JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+         assertEquals(130, getJavaVersionAsInt());
+         JAVA_VERSION = "1.3.1";
++        JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+         assertEquals(131, getJavaVersionAsInt());
+         JAVA_VERSION = "1.4.0";
++        JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+         assertEquals(140, getJavaVersionAsInt());
+         JAVA_VERSION = "1.4.1";
++        JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+         assertEquals(141, getJavaVersionAsInt());
+         JAVA_VERSION = "1.5.0";
++        JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+         assertEquals(150, getJavaVersionAsInt());
+         JAVA_VERSION = "1.6.0";
++        JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
+         assertEquals(160, getJavaVersionAsInt());
++        JAVA_VERSION = "JavaVM-1.3.1";  //HP-UX
++        JAVA_VERSION_TRIMMED = getJavaVersionTrimmed();
++        assertEquals(131, getJavaVersionAsInt());
+     }
+ 
+
+commit de98e6c1f969a872de88591aad15651c89e31eed
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Tue Feb 24 19:25:29 2004
+
+    Add support for java.awt.headless (Java 1.4.)
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137817 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/SystemUtilsTest.java b/src/test/org/apache/commons/lang/SystemUtilsTest.java
+--- a/src/test/org/apache/commons/lang/SystemUtilsTest.java
++++ b/src/test/org/apache/commons/lang/SystemUtilsTest.java
+@@ -293,21 +308,21 @@
+     public void testJavaVersionAsInt() {
+         JAVA_VERSION = null;
+         assertEquals(0, getJavaVersionAsInt());
+         JAVA_VERSION = "1.1";
+         assertEquals(110, getJavaVersionAsInt());
+         JAVA_VERSION = "1.2";
+         assertEquals(120, getJavaVersionAsInt());
+         JAVA_VERSION = "1.3.0";
+         assertEquals(130, getJavaVersionAsInt());
+         JAVA_VERSION = "1.3.1";
+         assertEquals(131, getJavaVersionAsInt());
+         JAVA_VERSION = "1.4.0";
+         assertEquals(140, getJavaVersionAsInt());
+         JAVA_VERSION = "1.4.1";
+         assertEquals(141, getJavaVersionAsInt());
+         JAVA_VERSION = "1.5.0";
+         assertEquals(150, getJavaVersionAsInt());
+         JAVA_VERSION = "1.6.0";
+         assertEquals(160, getJavaVersionAsInt());
+     }
+-    
++
+
+commit 97f585dcfaec184af8819137fcec63ead84a4a05
+Author: Stephen Colebourne <scolebourne@apache.org>
+Date:   Sat May 24 08:11:02 2003
+
+    Add SystemUtils tests
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137337 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/SystemUtilsTest.java b/src/test/org/apache/commons/lang/SystemUtilsTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/lang/SystemUtilsTest.java
+@@ -0,0 +242,21 @@
++    public void testJavaVersionAsInt() {
++        JAVA_VERSION = null;
++        assertEquals(0, getJavaVersionAsInt());
++        JAVA_VERSION = "1.1";
++        assertEquals(110, getJavaVersionAsInt());
++        JAVA_VERSION = "1.2";
++        assertEquals(120, getJavaVersionAsInt());
++        JAVA_VERSION = "1.3.0";
++        assertEquals(130, getJavaVersionAsInt());
++        JAVA_VERSION = "1.3.1";
++        assertEquals(131, getJavaVersionAsInt());
++        JAVA_VERSION = "1.4.0";
++        assertEquals(140, getJavaVersionAsInt());
++        JAVA_VERSION = "1.4.1";
++        assertEquals(141, getJavaVersionAsInt());
++        JAVA_VERSION = "1.5.0";
++        assertEquals(150, getJavaVersionAsInt());
++        JAVA_VERSION = "1.6.0";
++        assertEquals(160, getJavaVersionAsInt());
++    }
++    

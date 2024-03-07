@@ -1,0 +1,26 @@
+commit 59a30b48325cccadabae8687fdf603d72e26c157
+Author: zhuyi@google.com <zhuyi@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Wed Jun 8 16:18:15 2011
+
+    Fixes Issue 482
+    In percent typed counting, ignore the nodes of Enum elements
+    
+    R=acleung
+    DELTA=13  (13 added, 0 deleted, 0 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=2202
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1167 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- a/test/com/google/javascript/jscomp/TypeCheckTest.java
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -7782,0 +7787,5 @@
++  public void testGetTypedPercent6() throws Exception {
++    String js = "a = {TRUE: 1, FALSE: 0};";
++    assertEquals(100.0, getTypedPercent(js), 0.1);
++  }
++

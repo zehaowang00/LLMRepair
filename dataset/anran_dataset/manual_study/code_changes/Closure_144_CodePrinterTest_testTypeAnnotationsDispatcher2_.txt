@@ -1,0 +1,195 @@
+commit 465282f1ca28a208b06c47b55fd292d4631c55da
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Jun 22 20:19:37 2010
+
+    Change on 2010/06/22 by nicksantos
+    
+            Inferred return types.
+            Fixes issue 143.
+            I eventually decided that it was wrong for the subtype's method
+            to affect the supertype's method, since this will make incremental
+            compilation a lot harder in the long run.
+    
+            R=moedinger
+            DELTA=481  (313 added, 38 deleted, 130 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=34007
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@249 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -692,25 +709,27 @@
+   public void testTypeAnnotationsDispatcher2() {
+     assertTypeAnnotations(
+         "var a = {};\n" +
+         "/** \n" +
+         " * @constructor \n" +
+         " */\n" +
+         "a.Foo = function(){}\n" +
+         "/**\n" +
+         " * @javadispatch\n" +
+         " */\n" +
+         "a.Foo.prototype.foo = function() {};",
+ 
+         "var a = {};\n" +
+         "/**\n" +
++        " * @return {undefined}\n" +
+         " * @constructor\n" +
+         " */\n" +
+         "a.Foo = function() {\n" +
+         "};\n" +
+         "/**\n" +
++        " * @return {undefined}\n" +
+         " * @javadispatch\n" +
+         " */\n" +
+         "a.Foo.prototype.foo = function() {\n" +
+         "}");
+   }
+ 
+
+commit 222eafd303155b3eac5cd244584b2cb3c4c11975
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Apr 5 15:30:23 2010
+
+    tighten up some types. (Nick)
+    R=alan
+    DELTA=4  (2 added, 0 deleted, 2 changed)
+    
+    Don't use NAME for label names, introduce LABEL_NAME. This improves the correctness of the compiler as many passes don't distinguish between label names and variable names appropriately. (John)
+    R=robert
+    
+    Remove now unneeded checks for label names when inspecting NAME nodes. (John)
+    R=robert
+    
+    Tweak code generator to break after blocks for better pretty printing. (John)
+    R=robert
+    DELTA=196  (160 added, 0 deleted, 36 changed)
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=ktmses
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@170 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -575,25 +669,25 @@
+   public void testTypeAnnotationsDispatcher2() {
+     assertTypeAnnotations(
+         "var a = {};\n" +
+         "/** \n" +
+         " * @constructor \n" +
+         " */\n" +
+         "a.Foo = function(){}\n" +
+         "/**\n" +
+         " * @javadispatch\n" +
+         " */\n" +
+         "a.Foo.prototype.foo = function() {};",
+ 
+         "var a = {};\n" +
+         "/**\n" +
+         " * @constructor\n" +
+         " */\n" +
+         "a.Foo = function() {\n" +
+         "};\n" +
+         "/**\n" +
+         " * @javadispatch\n" +
+         " */\n" +
+         "a.Foo.prototype.foo = function() {\n" +
+         "}");
+   }
+-  
++
+
+commit b8c52bf5e76948ee8d561fa55a36cc6c9f5d0c68
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Feb 12 14:40:24 2010
+
+    Fix a null pointer exception in FunctionType.
+    
+    Fix a bug in @export generation.
+    
+    Remove references to StringUtil.
+    
+    Only create one ParserConfig per compilation process.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@104 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -481,24 +481,25 @@
+   public void testTypeAnnotationsDispatcher2() {
+     assertTypeAnnotations(
+         "var a = {};\n" +
+         "/** \n" +
+         " * @constructor \n" +
+         " */\n" +
+         "a.Foo = function(){}\n" +
+         "/**\n" +
+         " * @javadispatch\n" +
+         " */\n" +
+         "a.Foo.prototype.foo = function() {};",
+ 
+         "var a = {};\n" +
+         "/**\n" +
+         " * @constructor\n" +
+         " */\n" +
+         "a.Foo = function() {\n" +
+         "};\n" +
+         "/**\n" +
+         " * @javadispatch\n" +
+         " */\n" +
+         "a.Foo.prototype.foo = function() {\n" +
+         "}");
+   }
++  
+
+commit 83e4a9768aadbdfb0481a0aa44157b4dc80189d2
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Feb 1 12:35:41 2010
+
+    Fix a null pointer exception in TypedScopeCreator
+    
+    Add AST annotations for @javadispatch
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@82 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -464,0 +481,24 @@
++  public void testTypeAnnotationsDispatcher2() {
++    assertTypeAnnotations(
++        "var a = {};\n" +
++        "/** \n" +
++        " * @constructor \n" +
++        " */\n" +
++        "a.Foo = function(){}\n" +
++        "/**\n" +
++        " * @javadispatch\n" +
++        " */\n" +
++        "a.Foo.prototype.foo = function() {};",
++
++        "var a = {};\n" +
++        "/**\n" +
++        " * @constructor\n" +
++        " */\n" +
++        "a.Foo = function() {\n" +
++        "};\n" +
++        "/**\n" +
++        " * @javadispatch\n" +
++        " */\n" +
++        "a.Foo.prototype.foo = function() {\n" +
++        "}");
++  }

@@ -1,0 +1,151 @@
+commit be114a9a286c4d194cd268ac8153173c52619a8d
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Wed Sep 28 18:49:01 2016
+
+    Fix #1385
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/jsontype/ext/ExternalTypeIdTest.java b/src/test/java/com/fasterxml/jackson/databind/jsontype/ext/ExternalTypeIdTest.java
+--- a/src/test/java/com/fasterxml/jackson/databind/jsontype/ext/ExternalTypeIdTest.java
++++ b/src/test/java/com/fasterxml/jackson/databind/jsontype/ext/ExternalTypeIdTest.java
+@@ -471,24 +471,16 @@
+     public void testWithAsValue() throws Exception
+     {
+         ExternalTypeWithNonPOJO input = new ExternalTypeWithNonPOJO(new AsValueThingy(12345L));
+         String json = MAPPER.writeValueAsString(input);
+         assertNotNull(json);
+-        assertEquals("{\"value\":12345,\"type\":\"date\"}", json);
++        assertEquals("{\"value\":12345,\"type\":\"thingy\"}", json);
+ 
+         // and get it back too:
+         ExternalTypeWithNonPOJO result = MAPPER.readValue(json, ExternalTypeWithNonPOJO.class);
+         assertNotNull(result);
+         assertNotNull(result.value);
+-        /* 13-Feb-2013, tatu: Urgh. I don't think this can work quite as intended...
+-         *   since POJO type, and type of thing @JsonValue annotated method returns
+-         *   are not related. Best we can do is thus this:
+-         */
+-        /*
+         assertEquals(AsValueThingy.class, result.value.getClass());
+         assertEquals(12345L, ((AsValueThingy) result.value).rawDate);
+-        */
+-        assertEquals(Date.class, result.value.getClass());
+-        assertEquals(12345L, ((Date) result.value).getTime());
+     }
+ 
+     // for [databind#222]
+
+commit 44dea1f292933192ea5287d9b3e14a7daaef3c0f
+Author: Cowtowncoder <tatu.saloranta@iki.fi>
+Date:   Wed Jun 10 19:33:17 2015
+
+    Minor clean up for #222 fix
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java
+--- a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java
++++ b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java
+@@ -403,22 +421,24 @@
+     public void testWithAsValue() throws Exception
+     {
+         ExternalTypeWithNonPOJO input = new ExternalTypeWithNonPOJO(new AsValueThingy(12345L));
+         String json = MAPPER.writeValueAsString(input);
+         assertNotNull(json);
+         assertEquals("{\"value\":12345,\"type\":\"date\"}", json);
+ 
+         // and get it back too:
+         ExternalTypeWithNonPOJO result = MAPPER.readValue(json, ExternalTypeWithNonPOJO.class);
+         assertNotNull(result);
+         assertNotNull(result.value);
+         /* 13-Feb-2013, tatu: Urgh. I don't think this can work quite as intended...
+          *   since POJO type, and type of thing @JsonValue annotated method returns
+          *   are not related. Best we can do is thus this:
+          */
+         /*
+         assertEquals(AsValueThingy.class, result.value.getClass());
+         assertEquals(12345L, ((AsValueThingy) result.value).rawDate);
+         */
+         assertEquals(Date.class, result.value.getClass());
+         assertEquals(12345L, ((Date) result.value).getTime());
+     }
++
++    // for [databind#222]
+
+commit 96cae1740555bb0c4a31a0e886403b6a958542d3
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Wed Feb 13 20:00:02 2013
+
+    Fix #167
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java
+--- a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java
++++ b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java
+@@ -403,14 +403,22 @@
+     public void testWithAsValue() throws Exception
+     {
+         ExternalTypeWithNonPOJO input = new ExternalTypeWithNonPOJO(new AsValueThingy(12345L));
+         String json = MAPPER.writeValueAsString(input);
+         assertNotNull(json);
+-        assertEquals("{\"value\":12345,\"type\":\"thingy\"}", json);
++        assertEquals("{\"value\":12345,\"type\":\"date\"}", json);
+ 
+         // and get it back too:
+         ExternalTypeWithNonPOJO result = MAPPER.readValue(json, ExternalTypeWithNonPOJO.class);
+         assertNotNull(result);
+         assertNotNull(result.value);
++        /* 13-Feb-2013, tatu: Urgh. I don't think this can work quite as intended...
++         *   since POJO type, and type of thing @JsonValue annotated method returns
++         *   are not related. Best we can do is thus this:
++         */
++        /*
+         assertEquals(AsValueThingy.class, result.value.getClass());
+         assertEquals(12345L, ((AsValueThingy) result.value).rawDate);
++        */
++        assertEquals(Date.class, result.value.getClass());
++        assertEquals(12345L, ((Date) result.value).getTime());
+     }
+
+commit d5fc827d5bb9ed8d48780ca092f146376dc5a7ef
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Mon Dec 3 23:50:47 2012
+
+    Fix #119 for 2.2
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java
+--- a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java
++++ b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java
+@@ -367,8 +370,14 @@
+     public void testWithAsValue() throws Exception
+     {
+-        ExternalTypeWithNonPOJO input = new ExternalTypeWithNonPOJO(new AsValueThingy());
++        ExternalTypeWithNonPOJO input = new ExternalTypeWithNonPOJO(new AsValueThingy(12345L));
+         String json = MAPPER.writeValueAsString(input);
+         assertNotNull(json);
+-        String className = getClass().getSimpleName() + "$" + AsValueThingy.class.getSimpleName();
+-        assertEquals(json, "{\"value\":4,\"type\":\""+className+"\"}");
++        assertEquals("{\"value\":12345,\"type\":\"thingy\"}", json);
++
++        // and get it back too:
++        ExternalTypeWithNonPOJO result = MAPPER.readValue(json, ExternalTypeWithNonPOJO.class);
++        assertNotNull(result);
++        assertNotNull(result.value);
++        assertEquals(AsValueThingy.class, result.value.getClass());
++        assertEquals(12345L, ((AsValueThingy) result.value).rawDate);
+     }
+
+commit 30fc0eed5f562b3b3e05f6d538e060d9cc324cd6
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sun Dec 2 20:28:01 2012
+
+    trying to reproduce #119
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java
+--- a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java
++++ b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestExternalId.java
+@@ -359,0 +367,8 @@
++    public void testWithAsValue() throws Exception
++    {
++        ExternalTypeWithNonPOJO input = new ExternalTypeWithNonPOJO(new AsValueThingy());
++        String json = MAPPER.writeValueAsString(input);
++        assertNotNull(json);
++        String className = getClass().getSimpleName() + "$" + AsValueThingy.class.getSimpleName();
++        assertEquals(json, "{\"value\":4,\"type\":\""+className+"\"}");
++    }

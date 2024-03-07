@@ -1,0 +1,54 @@
+commit 57c8aaf94b95323c295dcfec5f40f181846164e7
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Thu Mar 31 20:22:59 2011
+
+    Duraton.toPeriod(), new Period(long), new MutablePeriod(long) [3264409]
+    Fixed to obey Javadoc. Previously, they didn't obey the Javadoc if the default time-zone had no daylight savings.
+    
+    git-svn-id: https://joda-time.svn.sourceforge.net/svnroot/joda-time/trunk@1610 1e1cfbb7-5c0e-0410-a2f0-f98d92ec03a1
+
+diff --git a/JodaTime/src/test/java/org/joda/time/TestPeriod_Constructors.java b/JodaTime/src/test/java/org/joda/time/TestPeriod_Constructors.java
+--- a/JodaTime/src/test/java/org/joda/time/TestPeriod_Constructors.java
++++ b/JodaTime/src/test/java/org/joda/time/TestPeriod_Constructors.java
+@@ -174,1 +174,26 @@
++    public void testConstructor_long_fixedZone() throws Throwable {
++        DateTimeZone zone = DateTimeZone.getDefault();
++        try {
++            DateTimeZone.setDefault(DateTimeZone.forOffsetHours(2));
++            long length =
++                (4L + (3L * 7L) + (2L * 30L) + 365L) * DateTimeConstants.MILLIS_PER_DAY +
++                5L * DateTimeConstants.MILLIS_PER_HOUR +
++                6L * DateTimeConstants.MILLIS_PER_MINUTE +
++                7L * DateTimeConstants.MILLIS_PER_SECOND + 8L;
++            Period test = new Period(length);
++            assertEquals(PeriodType.standard(), test.getPeriodType());
++            // only time fields are precise in AllType
++            assertEquals(0, test.getYears());  // (4 + (3 * 7) + (2 * 30) + 365) == 450
++            assertEquals(0, test.getMonths());
++            assertEquals(0, test.getWeeks());
++            assertEquals(0, test.getDays());
++            assertEquals((450 * 24) + 5, test.getHours());
++            assertEquals(6, test.getMinutes());
++            assertEquals(7, test.getSeconds());
++            assertEquals(8, test.getMillis());
++        } finally {
++            DateTimeZone.setDefault(zone);
++        }
++    }
++
+     //-----------------------------------------------------------------------
+
+commit d60dc845888e826919c3f79025431ba4d95c7236
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Fri Jul 23 18:20:17 2004
+
+    Additional testing
+    
+    
+    git-svn-id: https://joda-time.svn.sourceforge.net/svnroot/joda-time/trunk@334 1e1cfbb7-5c0e-0410-a2f0-f98d92ec03a1
+
+diff --git a/JodaTime/src/test/org/joda/time/TestMutableDuration_Constructors.java b/JodaTime/src/test/org/joda/time/TestMutableDuration_Constructors.java
+--- /dev/null
++++ b/JodaTime/src/test/org/joda/time/TestMutableDuration_Constructors.java
+@@ -0,0 +259,1 @@
++    //-----------------------------------------------------------------------

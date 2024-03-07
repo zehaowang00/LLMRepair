@@ -1,0 +1,79 @@
+commit 7f6700e2b54af3af409f3e8851a0d98a72beef4b
+Author: Ben Lickly <blickly@google.com>
+Date:   Tue Feb 26 20:10:03 2013
+
+    Add patch from issue 921 as well as accompanying unit test.
+    
+    Fixes issue 921.
+    -------------
+    Created by MOE: http://code.google.com/p/moe-java
+    MOE_MIGRATED_REVID=43087590
+
+diff --git a/test/com/google/javascript/jscomp/ConvertToDottedPropertiesTest.java b/test/com/google/javascript/jscomp/ConvertToDottedPropertiesTest.java
+--- a/test/com/google/javascript/jscomp/ConvertToDottedPropertiesTest.java
++++ b/test/com/google/javascript/jscomp/ConvertToDottedPropertiesTest.java
+@@ -66,6 +68,7 @@
+   public void testQuotedProps() {
+     testSame("({'':0})");
+     testSame("({'1.0':0})");
+     testSame("({'\u1d17A':0})");
++    testSame("({'a\u0004b':0})");
+   }
+ 
+
+commit 7ba4542ae58a5a99cbd69ea413a0b74c07b9cae7
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Dec 12 15:46:37 2011
+
+    Remove logic for checking for escaped characters in JS
+    indentifiers (which was broken), checking for escaped characters is
+    approriate in a raw token stream but not appropriate once those
+    characters have been normalized.
+    
+    R=nicksantos
+    DELTA=60  (10 added, 39 deleted, 11 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3953
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1675 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/ConvertToDottedPropertiesTest.java b/test/com/google/javascript/jscomp/ConvertToDottedPropertiesTest.java
+--- a/test/com/google/javascript/jscomp/ConvertToDottedPropertiesTest.java
++++ b/test/com/google/javascript/jscomp/ConvertToDottedPropertiesTest.java
+@@ -66,5 +66,6 @@
+   public void testQuotedProps() {
+     testSame("({'':0})");
+     testSame("({'1.0':0})");
+     testSame("({'\u1d17A':0})");
+   }
++
+
+commit 5811ff459cf6847fcb30650fa82564abe2742b2f
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Wed Apr 13 19:43:52 2011
+
+    Only remove the "quoted" attribute from those object literal keys where
+    it is valid to have them removed.
+    
+    R=acleung
+    DELTA=9  (8 added, 0 deleted, 1 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=1457
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1006 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/ConvertToDottedPropertiesTest.java b/test/com/google/javascript/jscomp/ConvertToDottedPropertiesTest.java
+--- a/test/com/google/javascript/jscomp/ConvertToDottedPropertiesTest.java
++++ b/test/com/google/javascript/jscomp/ConvertToDottedPropertiesTest.java
+@@ -64,0 +66,5 @@
++  public void testQuotedProps() {
++    testSame("({'':0})");
++    testSame("({'1.0':0})");
++    testSame("({'\u1d17A':0})");
++  }

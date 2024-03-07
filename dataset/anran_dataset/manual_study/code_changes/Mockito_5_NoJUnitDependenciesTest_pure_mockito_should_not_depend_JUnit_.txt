@@ -1,0 +1,30 @@
+commit 611aadad684ed247741da29ae42cb32c1eec5ee6
+Author: Brice Dutheil <brice.dutheil@gmail.com>
+Date:   Fri Jan 2 13:09:45 2015
+
+    fixes #152, removes the dependency to junit in VerificationOverTimeImpl
+    
+    Added test verify that non JUnit related classes of mockito can be loaded without JUnit in the classpath
+
+diff --git a/test/org/mockitointegration/NoJUnitDependenciesTest.java b/test/org/mockitointegration/NoJUnitDependenciesTest.java
+--- /dev/null
++++ b/test/org/mockitointegration/NoJUnitDependenciesTest.java
+@@ -0,0 +14,18 @@
++    public void pure_mockito_should_not_depend_JUnit() throws Exception {
++        ClassLoader classLoader_without_JUnit = ClassLoaders.excludingClassLoader()
++                .withCodeSourceUrlOf(
++                        Mockito.class,
++                        Matcher.class,
++                        Enhancer.class,
++                        Objenesis.class
++                )
++                .without("junit", "org.junit")
++                .build();
++
++        Set<String> pureMockitoAPIClasses = ClassLoaders.in(classLoader_without_JUnit).omit("runners", "junit", "JUnit").listOwnedClasses();
++
++        for (String pureMockitoAPIClass : pureMockitoAPIClasses) {
++            checkDependency(classLoader_without_JUnit, pureMockitoAPIClass);
++        }
++    }
++

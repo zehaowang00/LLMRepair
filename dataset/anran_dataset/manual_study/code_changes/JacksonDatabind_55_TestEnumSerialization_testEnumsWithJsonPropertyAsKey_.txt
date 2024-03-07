@@ -1,0 +1,57 @@
+commit 2936ba525b22c3aabbb2fc914d1a191938b2375b
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Tue Aug 16 01:19:04 2016
+
+    Fix #1322
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/ser/TestEnumSerialization.java b/src/test/java/com/fasterxml/jackson/databind/ser/TestEnumSerialization.java
+--- a/src/test/java/com/fasterxml/jackson/databind/ser/TestEnumSerialization.java
++++ b/src/test/java/com/fasterxml/jackson/databind/ser/TestEnumSerialization.java
+@@ -435,9 +437,15 @@
++    public void testEnumsWithJsonPropertyAsKey() throws Exception
++    {
++        EnumMap<EnumWithJsonProperty,String> input = new EnumMap<EnumWithJsonProperty,String>(EnumWithJsonProperty.class);
++        input.put(EnumWithJsonProperty.A, "b");
++        assertEquals("{\"aleph\":\"b\"}", MAPPER.writeValueAsString(input));
++    }
+ }
+ 
+ // [JACKSON-757], non-inner enum
+ enum NOT_OK2 {
+     V2("v2"); 
+     protected String key;
+     // any runtime-persistent annotation is fine
+     NOT_OK2(@JsonProperty String key) { this.key = key; }
+ }
+
+commit 0410f9a80edfb1fe4c73badd0e4c0ccf34da3ebb
+Author: Tatu <tatu@ning.com>
+Date:   Wed Jan 25 15:07:04 2012
+
+    Further fixes for [JACKSON-757]
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/ser/TestEnumSerialization.java b/src/test/java/com/fasterxml/jackson/databind/ser/TestEnumSerialization.java
+--- a/src/test/java/com/fasterxml/jackson/databind/ser/TestEnumSerialization.java
++++ b/src/test/java/com/fasterxml/jackson/databind/ser/TestEnumSerialization.java
+@@ -231,1 +226,9 @@
+ }
++
++// [JACKSON-757], non-inner enum
++enum NOT_OK2 {
++    V2("v2"); 
++    protected String key;
++    // any runtime-persistent annotation is fine
++    NOT_OK2(@JsonProperty String key) { this.key = key; }
++}
+
+commit a63c2038a03c7090ce4773d6cf54809150e59350
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 03:26:53 2011
+
+    Add unit tests, almost compilable
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/ser/TestEnumSerialization.java b/src/test/java/com/fasterxml/jackson/databind/ser/TestEnumSerialization.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/ser/TestEnumSerialization.java
+@@ -0,0 +241,1 @@
++}

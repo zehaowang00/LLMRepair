@@ -1,0 +1,44 @@
+commit 8cf08115c6b252f8c6b54348a4089dccc45a01fb
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Feb 13 11:07:52 2012
+
+    Negative zero is a special case, and needs to be handled
+    differently to prevent it from getting confused with decrement
+    fixes issue 657
+    
+    R=johnlenz
+    DELTA=9  (7 added, 0 deleted, 2 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=4211
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1775 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -1370,1 +1371,6 @@
++  public void testMinusNegativeZero() {
++    // Negative zero is weird, because we have to be able to distinguish
++    // it from positive zero (there are some subtle differences in behavior).
++    assertPrint("x- -0", "x- -0.0");
++  }
+ }
+
+commit 6b49cfd9022fe111bdad745c78ea877fbc2f7ba3
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 3 18:51:57 2009
+
+    Initial commit.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -0,0 +619,1 @@
++}

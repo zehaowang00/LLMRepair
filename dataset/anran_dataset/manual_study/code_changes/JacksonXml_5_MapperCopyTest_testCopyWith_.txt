@@ -1,0 +1,61 @@
+commit 8aa276ba6b2092a562195f9a94eb562686a3352c
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Mon May 21 15:28:21 2018
+
+    Fix #282
+
+diff --git a/src/test/java/com/fasterxml/jackson/dataformat/xml/MapperCopyTest.java b/src/test/java/com/fasterxml/jackson/dataformat/xml/MapperCopyTest.java
+--- a/src/test/java/com/fasterxml/jackson/dataformat/xml/MapperCopyTest.java
++++ b/src/test/java/com/fasterxml/jackson/dataformat/xml/MapperCopyTest.java
+@@ -75,20 +74,19 @@
+     public void testCopyWith() throws Exception
+     {
+         XmlMapper xmlMapper = newMapper();
+         final ObjectMapper xmlMapperNoAnno = xmlMapper.copy()
+                 .disable(MapperFeature.USE_ANNOTATIONS)
+                 .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+ 
+         String xml1 = xmlMapper.writeValueAsString(new Pojo282());
+         String xml2 = xmlMapperNoAnno.writeValueAsString(new Pojo282());
+ 
+         if (!xml1.contains("AnnotatedName")) {
+             fail("Should use name 'AnnotatedName', xml = "+xml1);
+         }
+         if (!xml2.contains("Pojo282")
+                 || xml2.contains("AnnotatedName")) {
+             fail("Should NOT use name 'AnnotatedName' but 'Pojo282', xml = "+xml1);
+         }
+     }
+-    */
+ }
+
+commit ce61138456e10580c6bf78bc4009de926105c4d6
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Mon May 21 14:55:03 2018
+
+    Add a reproduction of #282
+
+diff --git a/src/test/java/com/fasterxml/jackson/dataformat/xml/MapperCopyTest.java b/src/test/java/com/fasterxml/jackson/dataformat/xml/MapperCopyTest.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/dataformat/xml/MapperCopyTest.java
+@@ -0,0 +75,20 @@
++    public void testCopyWith() throws Exception
++    {
++        XmlMapper xmlMapper = newMapper();
++        final ObjectMapper xmlMapperNoAnno = xmlMapper.copy()
++                .disable(MapperFeature.USE_ANNOTATIONS)
++                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
++
++        String xml1 = xmlMapper.writeValueAsString(new Pojo282());
++        String xml2 = xmlMapperNoAnno.writeValueAsString(new Pojo282());
++
++        if (!xml1.contains("AnnotatedName")) {
++            fail("Should use name 'AnnotatedName', xml = "+xml1);
++        }
++        if (!xml2.contains("Pojo282")
++                || xml2.contains("AnnotatedName")) {
++            fail("Should NOT use name 'AnnotatedName' but 'Pojo282', xml = "+xml1);
++        }
++    }
++    */
++}

@@ -1,0 +1,29 @@
+commit 119ddc9701c94ac184362166742ceaa7437eec8f
+Author: Cowtowncoder <tatu.saloranta@iki.fi>
+Date:   Thu Apr 2 17:32:26 2015
+
+    Fix #731
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/convert/TestConvertingSerializer.java b/src/test/java/com/fasterxml/jackson/databind/convert/TestConvertingSerializer.java
+--- a/src/test/java/com/fasterxml/jackson/databind/convert/TestConvertingSerializer.java
++++ b/src/test/java/com/fasterxml/jackson/databind/convert/TestConvertingSerializer.java
+@@ -171,1 +199,7 @@
++    public void testIssue731() throws Exception
++    {
++        String json = objectWriter().writeValueAsString(new ConvertingBeanWithUntypedConverter(1, 2));
++        // must be  {"a":2,"b":4}
++        assertEquals("{\"a\":2,\"b\":4}", json);
++    }
+ }
+
+commit d5daa45d6fd13867bca1e7dfe8c027436ae0d92f
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Tue Feb 19 00:25:17 2013
+
+    Working on #124, serializer converters
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/convert/TestConvertingSerializer.java b/src/test/java/com/fasterxml/jackson/databind/convert/TestConvertingSerializer.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/convert/TestConvertingSerializer.java
+@@ -0,0 +121,1 @@
++}

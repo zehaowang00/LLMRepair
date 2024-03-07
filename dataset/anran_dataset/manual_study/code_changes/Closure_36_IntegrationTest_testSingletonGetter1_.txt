@@ -1,0 +1,43 @@
+commit be397ee0d0be2aad8f71d12f097b17563866445a
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Wed Feb 29 00:56:20 2012
+
+    Remove addSingletonGetter stragglers.
+    Fixes issue 668
+    
+    R=nicksantos
+    DELTA=34  (31 added, 2 deleted, 1 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=4297
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1800 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/IntegrationTest.java b/test/com/google/javascript/jscomp/IntegrationTest.java
+--- a/test/com/google/javascript/jscomp/IntegrationTest.java
++++ b/test/com/google/javascript/jscomp/IntegrationTest.java
+@@ -1937,0 +1937,22 @@
++  public void testSingletonGetter1() {
++    CompilerOptions options = createCompilerOptions();
++    CompilationLevel.ADVANCED_OPTIMIZATIONS
++        .setOptionsForCompilationLevel(options);
++    options.setCodingConvention(new ClosureCodingConvention());
++    test(options,
++        "/** @const */\n" +
++        "var goog = goog || {};\n" +
++        "goog.addSingletonGetter = function(ctor) {\n" +
++        "  ctor.getInstance = function() {\n" +
++        "    return ctor.instance_ || (ctor.instance_ = new ctor());\n" +
++        "  };\n" +
++        "};" +
++        "function Foo() {}\n" +
++        "goog.addSingletonGetter(Foo);" +
++        "Foo.prototype.bar = 1;" +
++        "function Bar() {}\n" +
++        "goog.addSingletonGetter(Bar);" +
++        "Bar.prototype.bar = 1;",
++        "");
++  }
++

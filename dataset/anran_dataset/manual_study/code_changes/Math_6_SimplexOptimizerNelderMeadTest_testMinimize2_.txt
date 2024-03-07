@@ -1,0 +1,171 @@
+commit 5a8be77a303c9e2f8c19d029e8628d7697fb581d
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Sat Feb 11 19:37:23 2012
+
+    MATH-707
+    Renamed "RealPointValuePair" to "PointValuePair" and made it a subclass
+    of "Pair<double[], Double>".
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1243186 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerNelderMeadTest.java b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerNelderMeadTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerNelderMeadTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerNelderMeadTest.java
+@@ -50,15 +50,15 @@
+     public void testMinimize2() {
+         SimplexOptimizer optimizer = new SimplexOptimizer(1e-10, 1e-30);
+         optimizer.setSimplex(new NelderMeadSimplex(new double[] { 0.2, 0.2 }));
+         final FourExtrema fourExtrema = new FourExtrema();
+ 
+-        final RealPointValuePair optimum
++        final PointValuePair optimum
+             = optimizer.optimize(100, fourExtrema, GoalType.MINIMIZE, new double[] { 1, 0 });
+         Assert.assertEquals(fourExtrema.xP, optimum.getPoint()[0], 5e-6);
+         Assert.assertEquals(fourExtrema.yM, optimum.getPoint()[1], 6e-6);
+         Assert.assertEquals(fourExtrema.valueXpYm, optimum.getValue(), 1e-11);
+         Assert.assertTrue(optimizer.getEvaluations() > 60);
+         Assert.assertTrue(optimizer.getEvaluations() < 90);
+     }
+ 
+     @Test
+
+commit 3e7a3e8f0cde866cdfe33dae387a9e796c324023
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Thu Sep 1 19:37:36 2011
+
+    MATH-413
+    Convergence checker passed in the constructor.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1164300 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerNelderMeadTest.java b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerNelderMeadTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerNelderMeadTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerNelderMeadTest.java
+@@ -66,12 +50,15 @@
+-        optimum = optimizer.optimize(100, fourExtrema, GoalType.MINIMIZE, new double[] { 1, 0 });
+-        Assert.assertEquals(xP,        optimum.getPoint()[0], 5e-6);
+-        Assert.assertEquals(yM,        optimum.getPoint()[1], 6e-6);
+-        Assert.assertEquals(valueXpYm, optimum.getValue(),    1e-11);
++    public void testMinimize2() {
++        SimplexOptimizer optimizer = new SimplexOptimizer(1e-10, 1e-30);
++        optimizer.setSimplex(new NelderMeadSimplex(new double[] { 0.2, 0.2 }));
++        final FourExtrema fourExtrema = new FourExtrema();
++
++        final RealPointValuePair optimum
++            = optimizer.optimize(100, fourExtrema, GoalType.MINIMIZE, new double[] { 1, 0 });
++        Assert.assertEquals(fourExtrema.xP, optimum.getPoint()[0], 5e-6);
++        Assert.assertEquals(fourExtrema.yM, optimum.getPoint()[1], 6e-6);
++        Assert.assertEquals(fourExtrema.valueXpYm, optimum.getValue(), 1e-11);
+         Assert.assertTrue(optimizer.getEvaluations() > 60);
+         Assert.assertTrue(optimizer.getEvaluations() < 90);
++    }
+ 
+-        // maximization
+-        optimum = optimizer.optimize(100, fourExtrema, GoalType.MAXIMIZE, new double[] { -3, 0 });
+-        Assert.assertEquals(xM,        optimum.getPoint()[0], 1e-5);
+-        Assert.assertEquals(yM,        optimum.getPoint()[1], 3e-6);
+-        Assert.assertEquals(valueXmYm, optimum.getValue(),    3e-12);
++    @Test
+
+commit a4bbdaf426a92d6351796b1d57407776f09f0a3d
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sun Mar 20 13:24:14 2011
+
+    Converted tests to Junit4.
+    
+    There is one thing remaining: the retry feature in RetryTestCase has been disabled temporarily. We need to find some way to implement it using Junit 4 API.
+    
+    JIRA: MATH-423
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1083514 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerNelderMeadTest.java b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerNelderMeadTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerNelderMeadTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerNelderMeadTest.java
+@@ -68,14 +67,12 @@
+         optimum = optimizer.optimize(100, fourExtrema, GoalType.MINIMIZE, new double[] { 1, 0 });
+-        assertEquals(xP,        optimum.getPoint()[0], 5e-6);
+-        assertEquals(yM,        optimum.getPoint()[1], 6e-6);
+-        assertEquals(valueXpYm, optimum.getValue(),    1e-11);
+-        assertTrue(optimizer.getEvaluations() > 60);
+-        assertTrue(optimizer.getEvaluations() < 90);
++        Assert.assertEquals(xP,        optimum.getPoint()[0], 5e-6);
++        Assert.assertEquals(yM,        optimum.getPoint()[1], 6e-6);
++        Assert.assertEquals(valueXpYm, optimum.getValue(),    1e-11);
++        Assert.assertTrue(optimizer.getEvaluations() > 60);
++        Assert.assertTrue(optimizer.getEvaluations() < 90);
+ 
+         // maximization
+         optimum = optimizer.optimize(100, fourExtrema, GoalType.MAXIMIZE, new double[] { -3, 0 });
+-        assertEquals(xM,        optimum.getPoint()[0], 1e-5);
+-        assertEquals(yM,        optimum.getPoint()[1], 3e-6);
+-        assertEquals(valueXmYm, optimum.getValue(),    3e-12);
+-        assertTrue(optimizer.getEvaluations() > 60);
+-        assertTrue(optimizer.getEvaluations() < 90);
++        Assert.assertEquals(xM,        optimum.getPoint()[0], 1e-5);
++        Assert.assertEquals(yM,        optimum.getPoint()[1], 3e-6);
++        Assert.assertEquals(valueXmYm, optimum.getValue(),    3e-12);
+
+commit 9be0992c0d829f45d0473127efdceda3c54a317d
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Tue Dec 7 10:01:37 2010
+
+    MATH-454
+    Pass the number of allowed function evaluations as a parameter to the
+    "optimize" methods.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1043078 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerNelderMeadTest.java b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerNelderMeadTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerNelderMeadTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerNelderMeadTest.java
+@@ -71,14 +68,14 @@
+-        optimum = optimizer.optimize(fourExtrema, GoalType.MINIMIZE, new double[] { 1, 0 });
++        optimum = optimizer.optimize(100, fourExtrema, GoalType.MINIMIZE, new double[] { 1, 0 });
+         assertEquals(xP,        optimum.getPoint()[0], 5e-6);
+         assertEquals(yM,        optimum.getPoint()[1], 6e-6);
+         assertEquals(valueXpYm, optimum.getValue(),    1e-11);
+         assertTrue(optimizer.getEvaluations() > 60);
+         assertTrue(optimizer.getEvaluations() < 90);
+ 
+         // maximization
+-        optimum = optimizer.optimize(fourExtrema, GoalType.MAXIMIZE, new double[] { -3, 0 });
++        optimum = optimizer.optimize(100, fourExtrema, GoalType.MAXIMIZE, new double[] { -3, 0 });
+         assertEquals(xM,        optimum.getPoint()[0], 1e-5);
+         assertEquals(yM,        optimum.getPoint()[1], 3e-6);
+         assertEquals(valueXmYm, optimum.getValue(),    3e-12);
+         assertTrue(optimizer.getEvaluations() > 60);
+         assertTrue(optimizer.getEvaluations() < 90);
+
+commit 3c3ccb79d4e909ddbb552a07a7e9acf2c4e75377
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Mon Oct 25 05:42:33 2010
+
+    MATH-428
+    Refactoring of "DirectSearchOptimizer" to separate the optimization and
+    simplex management aspects. Old classes are deprecated.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1027007 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerNelderMeadTest.java b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerNelderMeadTest.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerNelderMeadTest.java
+@@ -0,0 +76,14 @@
++        optimum = optimizer.optimize(fourExtrema, GoalType.MINIMIZE, new double[] { 1, 0 });
++        assertEquals(xP,        optimum.getPoint()[0], 5e-6);
++        assertEquals(yM,        optimum.getPoint()[1], 6e-6);
++        assertEquals(valueXpYm, optimum.getValue(),    1e-11);
++        assertTrue(optimizer.getEvaluations() > 60);
++        assertTrue(optimizer.getEvaluations() < 90);
++
++        // maximization
++        optimum = optimizer.optimize(fourExtrema, GoalType.MAXIMIZE, new double[] { -3, 0 });
++        assertEquals(xM,        optimum.getPoint()[0], 1e-5);
++        assertEquals(yM,        optimum.getPoint()[1], 3e-6);
++        assertEquals(valueXmYm, optimum.getValue(),    3e-12);
++        assertTrue(optimizer.getEvaluations() > 60);
++        assertTrue(optimizer.getEvaluations() < 90);

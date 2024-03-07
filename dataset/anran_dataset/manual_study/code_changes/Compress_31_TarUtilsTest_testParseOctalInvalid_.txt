@@ -1,0 +1,527 @@
+commit f8bf45444c49053a92f6f560c5008d5ac43aa27f
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Fri Feb 20 11:30:45 2015
+
+    revert 'fix' for COMPRESS-301 as GNU tar doesn't like embedded NULs either
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1661155 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+@@ -79,28 +79,34 @@
+     public void testParseOctalInvalid() throws Exception{
+         byte [] buffer;
+         buffer=new byte[0]; // empty byte array
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - should be at least 2 bytes long");
+         } catch (IllegalArgumentException expected) {
+         }
+         buffer=new byte[]{0}; // 1-byte array
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - should be at least 2 bytes long");
+         } catch (IllegalArgumentException expected) {
+         }
+         buffer = "abcdef ".getBytes(CharsetNames.UTF_8); // Invalid input
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException");
+         } catch (IllegalArgumentException expected) {
+         }
+         buffer = " 0 07 ".getBytes(CharsetNames.UTF_8); // Invalid - embedded space
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - embedded space");
+         } catch (IllegalArgumentException expected) {
+         }
++        buffer = " 0\00007 ".getBytes(CharsetNames.UTF_8); // Invalid - embedded NUL
++        try {
++            TarUtils.parseOctal(buffer,0, buffer.length);
++            fail("Expected IllegalArgumentException - embedded NUL");
++        } catch (IllegalArgumentException expected) {
++        }
+     }
+ 
+
+commit 915fdd3fcb55f81fbb4f63f9f9752c329488c524
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Fri Feb 13 14:12:09 2015
+
+    python tarfile library seems to create embedded NULs, COMPRESS-301, unit test to follow
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1659649 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+@@ -72,34 +72,28 @@
+     public void testParseOctalInvalid() throws Exception{
+         byte [] buffer;
+         buffer=new byte[0]; // empty byte array
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - should be at least 2 bytes long");
+         } catch (IllegalArgumentException expected) {
+         }
+         buffer=new byte[]{0}; // 1-byte array
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - should be at least 2 bytes long");
+         } catch (IllegalArgumentException expected) {
+         }
+         buffer = "abcdef ".getBytes(CharsetNames.UTF_8); // Invalid input
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException");
+         } catch (IllegalArgumentException expected) {
+         }
+         buffer = " 0 07 ".getBytes(CharsetNames.UTF_8); // Invalid - embedded space
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - embedded space");
+         } catch (IllegalArgumentException expected) {
+         }
+-        buffer = " 0\00007 ".getBytes(CharsetNames.UTF_8); // Invalid - embedded NUL
+-        try {
+-            TarUtils.parseOctal(buffer,0, buffer.length);
+-            fail("Expected IllegalArgumentException - embedded NUL");
+-        } catch (IllegalArgumentException expected) {
+-        }
+     }
+ 
+
+commit 1ea7e01eb6776071eddf60f7783d650ec7d60e74
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Sat Apr 19 02:00:19 2014
+
+    COMPRESS-278 all empty numeric fields should be ignored in tars
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1588618 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+@@ -69,40 +72,34 @@
+     public void testParseOctalInvalid() throws Exception{
+         byte [] buffer;
+         buffer=new byte[0]; // empty byte array
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - should be at least 2 bytes long");
+         } catch (IllegalArgumentException expected) {
+         }
+         buffer=new byte[]{0}; // 1-byte array
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - should be at least 2 bytes long");
+         } catch (IllegalArgumentException expected) {
+         }
+-        buffer=new byte[]{' ',0,0,0}; // not all NULs
+-        try {
+-            TarUtils.parseOctal(buffer,0, buffer.length);
+-            fail("Expected IllegalArgumentException - not all NULs");
+-        } catch (IllegalArgumentException expected) {
+-        }
+         buffer = "abcdef ".getBytes(CharsetNames.UTF_8); // Invalid input
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException");
+         } catch (IllegalArgumentException expected) {
+         }
+         buffer = " 0 07 ".getBytes(CharsetNames.UTF_8); // Invalid - embedded space
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - embedded space");
+         } catch (IllegalArgumentException expected) {
+         }
+         buffer = " 0\00007 ".getBytes(CharsetNames.UTF_8); // Invalid - embedded NUL
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - embedded NUL");
+         } catch (IllegalArgumentException expected) {
+         }
+     }
+ 
+
+commit 8da377299d085b4ce1f15dbc0732232ea32e601d
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Fri Feb 21 00:20:08 2014
+
+    COMPRESS-262 be more lenient when parsing tar headers as some dialect use up all space for big numbers
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1570452 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+@@ -65,46 +69,40 @@
+     public void testParseOctalInvalid() throws Exception{
+         byte [] buffer;
+         buffer=new byte[0]; // empty byte array
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - should be at least 2 bytes long");
+         } catch (IllegalArgumentException expected) {
+         }
+         buffer=new byte[]{0}; // 1-byte array
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - should be at least 2 bytes long");
+         } catch (IllegalArgumentException expected) {
+         }
+         buffer=new byte[]{' ',0,0,0}; // not all NULs
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - not all NULs");
+         } catch (IllegalArgumentException expected) {
+         }
+         buffer = "abcdef ".getBytes(CharsetNames.UTF_8); // Invalid input
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException");
+         } catch (IllegalArgumentException expected) {
+         }
+-        buffer = "77777777777".getBytes(CharsetNames.UTF_8); // Invalid input - no trailer
+-        try {
+-            TarUtils.parseOctal(buffer,0, buffer.length);
+-            fail("Expected IllegalArgumentException - no trailer");
+-        } catch (IllegalArgumentException expected) {
+-        }
+         buffer = " 0 07 ".getBytes(CharsetNames.UTF_8); // Invalid - embedded space
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - embedded space");
+         } catch (IllegalArgumentException expected) {
+         }
+         buffer = " 0\00007 ".getBytes(CharsetNames.UTF_8); // Invalid - embedded NUL
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - embedded NUL");
+         } catch (IllegalArgumentException expected) {
+         }
+     }
+ 
+
+commit d7119be63642c0cc862e636071b96daaa0b99ec0
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Sat Mar 31 18:36:04 2012
+
+    Replace magic strings "UTF-8", "US-ASCII", and so on with references to a new .util class CharsetNames (like in other commons components.) The Charsets class will be more useful when [compress] moves to Java 6 and can use String#getBytes(Charset) instead of String#getBytes(String).
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1307926 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+@@ -63,46 +65,46 @@
+     public void testParseOctalInvalid() throws Exception{
+         byte [] buffer;
+         buffer=new byte[0]; // empty byte array
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - should be at least 2 bytes long");
+         } catch (IllegalArgumentException expected) {
+         }
+         buffer=new byte[]{0}; // 1-byte array
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - should be at least 2 bytes long");
+         } catch (IllegalArgumentException expected) {
+         }
+         buffer=new byte[]{' ',0,0,0}; // not all NULs
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - not all NULs");
+         } catch (IllegalArgumentException expected) {
+         }
+-        buffer = "abcdef ".getBytes("UTF-8"); // Invalid input
++        buffer = "abcdef ".getBytes(CharsetNames.UTF_8); // Invalid input
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException");
+         } catch (IllegalArgumentException expected) {
+         }
+-        buffer = "77777777777".getBytes("UTF-8"); // Invalid input - no trailer
++        buffer = "77777777777".getBytes(CharsetNames.UTF_8); // Invalid input - no trailer
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - no trailer");
+         } catch (IllegalArgumentException expected) {
+         }
+-        buffer = " 0 07 ".getBytes("UTF-8"); // Invalid - embedded space
++        buffer = " 0 07 ".getBytes(CharsetNames.UTF_8); // Invalid - embedded space
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - embedded space");
+         } catch (IllegalArgumentException expected) {
+         }
+-        buffer = " 0\00007 ".getBytes("UTF-8"); // Invalid - embedded NUL
++        buffer = " 0\00007 ".getBytes(CharsetNames.UTF_8); // Invalid - embedded NUL
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - embedded NUL");
+         } catch (IllegalArgumentException expected) {
+         }
+     }
+ 
+
+commit 40f2e6380094ebfdc73e4adaf4059b80e1327aad
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Fri Mar 2 14:59:50 2012
+
+    workaround for tar implementations that insert a NUL byte into header fields.  COMPRESS-181
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1296420 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+@@ -61,52 +61,46 @@
+     public void testParseOctalInvalid() throws Exception{
+         byte [] buffer;
+         buffer=new byte[0]; // empty byte array
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - should be at least 2 bytes long");
+         } catch (IllegalArgumentException expected) {
+         }
+         buffer=new byte[]{0}; // 1-byte array
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - should be at least 2 bytes long");
+         } catch (IllegalArgumentException expected) {
+         }
+-        buffer=new byte[]{0,0,' '}; // not all NULs
+-        try {
+-            TarUtils.parseOctal(buffer,0, buffer.length);
+-            fail("Expected IllegalArgumentException - not all NULs");
+-        } catch (IllegalArgumentException expected) {
+-        }
+         buffer=new byte[]{' ',0,0,0}; // not all NULs
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - not all NULs");
+         } catch (IllegalArgumentException expected) {
+         }
+         buffer = "abcdef ".getBytes("UTF-8"); // Invalid input
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException");
+         } catch (IllegalArgumentException expected) {
+         }
+         buffer = "77777777777".getBytes("UTF-8"); // Invalid input - no trailer
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - no trailer");
+         } catch (IllegalArgumentException expected) {
+         }
+         buffer = " 0 07 ".getBytes("UTF-8"); // Invalid - embedded space
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - embedded space");
+         } catch (IllegalArgumentException expected) {
+         }
+         buffer = " 0\00007 ".getBytes("UTF-8"); // Invalid - embedded NUL
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException - embedded NUL");
+         } catch (IllegalArgumentException expected) {
+         }
+     }
+ 
+
+commit 35e4e4fb6848ddfa3878270523f3f9336ae7f9b8
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Wed Jun 2 07:00:25 2010
+
+    COMPRESS-113:  TarArchiveEntry.parseTarHeader() includes the trailing space/NUL when parsing the octal size
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@950489 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+@@ -53,14 +61,52 @@
++    public void testParseOctalInvalid() throws Exception{
++        byte [] buffer;
++        buffer=new byte[0]; // empty byte array
++        try {
++            TarUtils.parseOctal(buffer,0, buffer.length);
++            fail("Expected IllegalArgumentException - should be at least 2 bytes long");
++        } catch (IllegalArgumentException expected) {
++        }
++        buffer=new byte[]{0}; // 1-byte array
++        try {
++            TarUtils.parseOctal(buffer,0, buffer.length);
++            fail("Expected IllegalArgumentException - should be at least 2 bytes long");
++        } catch (IllegalArgumentException expected) {
++        }
++        buffer=new byte[]{0,0,' '}; // not all NULs
++        try {
++            TarUtils.parseOctal(buffer,0, buffer.length);
++            fail("Expected IllegalArgumentException - not all NULs");
++        } catch (IllegalArgumentException expected) {
++        }
++        buffer=new byte[]{' ',0,0,0}; // not all NULs
++        try {
++            TarUtils.parseOctal(buffer,0, buffer.length);
++            fail("Expected IllegalArgumentException - not all NULs");
++        } catch (IllegalArgumentException expected) {
++        }
+         buffer = "abcdef ".getBytes("UTF-8"); // Invalid input
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException");
+         } catch (IllegalArgumentException expected) {
+         }
+-        buffer = "77777777777".getBytes("UTF-8"); // Invalid input
++        buffer = "77777777777".getBytes("UTF-8"); // Invalid input - no trailer
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+-            fail("Expected IllegalArgumentException");
++            fail("Expected IllegalArgumentException - no trailer");
++        } catch (IllegalArgumentException expected) {
++        }
++        buffer = " 0 07 ".getBytes("UTF-8"); // Invalid - embedded space
++        try {
++            TarUtils.parseOctal(buffer,0, buffer.length);
++            fail("Expected IllegalArgumentException - embedded space");
++        } catch (IllegalArgumentException expected) {
++        }
++        buffer = " 0\00007 ".getBytes("UTF-8"); // Invalid - embedded NUL
++        try {
++            TarUtils.parseOctal(buffer,0, buffer.length);
++            fail("Expected IllegalArgumentException - embedded NUL");
+         } catch (IllegalArgumentException expected) {
+         }
+     }
+-    
++
+
+commit d7398f46ccd552eb315d94bf652cc264ea21799a
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Tue Jun 1 12:58:22 2010
+
+    Must have trailing space/NUL
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@950163 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+@@ -53,8 +53,14 @@
+-        buffer = "abcdef".getBytes("UTF-8"); // Invalid input
++        buffer = "abcdef ".getBytes("UTF-8"); // Invalid input
++        try {
++            TarUtils.parseOctal(buffer,0, buffer.length);
++            fail("Expected IllegalArgumentException");
++        } catch (IllegalArgumentException expected) {
++        }
++        buffer = "77777777777".getBytes("UTF-8"); // Invalid input
+         try {
+             TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException");
+         } catch (IllegalArgumentException expected) {
+         }
+     }
+     
+
+commit 4ca99827695a09065b8b73397d3abde7f7008f47
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Tue Jun 1 11:19:53 2010
+
+    Fixup tests - should only allow at most 11 octal digits in 12-byte buffer
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@950111 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+@@ -53,18 +53,8 @@
+-        value = TarUtils.parseOctal(buffer,0, 11);
+-        assertEquals(077777777777L, value);
+-        value = TarUtils.parseOctal(buffer,0, 12);
+-        assertEquals(0777777777777L, value);
+-        buffer[11]=' ';
+-        value = TarUtils.parseOctal(buffer,0, 11);
+-        assertEquals(077777777777L, value);
+-        buffer[11]=0;
+-        value = TarUtils.parseOctal(buffer,0, 11);
+-        assertEquals(077777777777L, value);
+-        fillBuff(buffer, "abcdef"); // Invalid input
++        buffer = "abcdef".getBytes("UTF-8"); // Invalid input
+         try {
+-            value = TarUtils.parseOctal(buffer,0, 11);
++            TarUtils.parseOctal(buffer,0, buffer.length);
+             fail("Expected IllegalArgumentException");
+         } catch (IllegalArgumentException expected) {
+         }
+     }
+     
+
+commit 1d5567004306b3c6019b4e828f811220fc3fe990
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Thu Apr 2 14:45:02 2009
+
+    Rename TarUtils.getXXX methods as formatXXX
+    Update Javadoc
+    Throw IllegalArgumentException if value won't fit in buffer
+    Treat long values as unsigned
+    Use String instead of StringBuffer for names etc
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@761372 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+@@ -53,15 +53,18 @@
+         value = TarUtils.parseOctal(buffer,0, 11);
+         assertEquals(077777777777L, value);
+         value = TarUtils.parseOctal(buffer,0, 12);
+         assertEquals(0777777777777L, value);
+         buffer[11]=' ';
+         value = TarUtils.parseOctal(buffer,0, 11);
+         assertEquals(077777777777L, value);
+         buffer[11]=0;
+         value = TarUtils.parseOctal(buffer,0, 11);
+         assertEquals(077777777777L, value);
+         fillBuff(buffer, "abcdef"); // Invalid input
+-        value = TarUtils.parseOctal(buffer,0, 11);
+-//        assertEquals(0, value); // Or perhaps an Exception?
++        try {
++            value = TarUtils.parseOctal(buffer,0, 11);
++            fail("Expected IllegalArgumentException");
++        } catch (IllegalArgumentException expected) {
++        }
+     }
+     
+
+commit 161511fb50910920c612de82bfe06f86e6a5aa50
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Tue Mar 31 19:49:45 2009
+
+    Some test cases for TarUtils
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@760738 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarUtilsTest.java
+@@ -0,0 +53,15 @@
++        value = TarUtils.parseOctal(buffer,0, 11);
++        assertEquals(077777777777L, value);
++        value = TarUtils.parseOctal(buffer,0, 12);
++        assertEquals(0777777777777L, value);
++        buffer[11]=' ';
++        value = TarUtils.parseOctal(buffer,0, 11);
++        assertEquals(077777777777L, value);
++        buffer[11]=0;
++        value = TarUtils.parseOctal(buffer,0, 11);
++        assertEquals(077777777777L, value);
++        fillBuff(buffer, "abcdef"); // Invalid input
++        value = TarUtils.parseOctal(buffer,0, 11);
++//        assertEquals(0, value); // Or perhaps an Exception?
++    }
++    

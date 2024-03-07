@@ -1,0 +1,235 @@
+commit c8627c8ab831dec86eeb52fc02600b22c81ba858
+Author: Jake Wharton <jw@squareup.com>
+Date:   Mon Jan 18 15:07:33 2016
+
+    Update reader and writer for RFC 7159.
+
+diff --git a/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java b/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java
+--- a/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java
++++ b/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java
+@@ -1230,31 +1222,27 @@
+-  public void testStrictTopLevelString() {
+-    JsonReader reader = new JsonReader(reader("\"a\""));
+-    try {
+-      reader.nextString();
+-      fail();
+-    } catch (IOException expected) {
+-    }
+-  }
++  public void testTopLevelValueTypes() throws IOException {
++    JsonReader reader1 = new JsonReader(reader("true"));
++    assertTrue(reader1.nextBoolean());
++    assertEquals(JsonToken.END_DOCUMENT, reader1.peek());
+ 
+-  public void testLenientTopLevelString() throws IOException {
+-    JsonReader reader = new JsonReader(reader("\"a\""));
+-    reader.setLenient(true);
+-    assertEquals("a", reader.nextString());
+-    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+-  }
++    JsonReader reader2 = new JsonReader(reader("false"));
++    assertFalse(reader2.nextBoolean());
++    assertEquals(JsonToken.END_DOCUMENT, reader2.peek());
+ 
+-  public void testStrictTopLevelValueType() {
+-    JsonReader reader = new JsonReader(reader("true"));
+-    try {
+-      reader.nextBoolean();
+-      fail();
+-    } catch (IOException expected) {
+-    }
+-  }
++    JsonReader reader3 = new JsonReader(reader("null"));
++    assertEquals(JsonToken.NULL, reader3.peek());
++    reader3.nextNull();
++    assertEquals(JsonToken.END_DOCUMENT, reader3.peek());
+ 
+-  public void testLenientTopLevelValueType() throws IOException {
+-    JsonReader reader = new JsonReader(reader("true"));
+-    reader.setLenient(true);
+-    assertEquals(true, reader.nextBoolean());
++    JsonReader reader4 = new JsonReader(reader("123"));
++    assertEquals(123, reader4.nextInt());
++    assertEquals(JsonToken.END_DOCUMENT, reader4.peek());
++
++    JsonReader reader5 = new JsonReader(reader("123.4"));
++    assertEquals(123.4, reader5.nextDouble());
++    assertEquals(JsonToken.END_DOCUMENT, reader5.peek());
++
++    JsonReader reader6 = new JsonReader(reader("\"a\""));
++    assertEquals("a", reader6.nextString());
++    assertEquals(JsonToken.END_DOCUMENT, reader6.peek());
+   }
+ 
+
+commit 46b73632b0f7591ef1328ee7ddd1e883916fec1e
+Author: Jesse Wilson <jesse@swank.ca>
+Date:   Mon Aug 27 21:48:25 2012
+
+    Fix a bug where we weren't reading enough characters when a BOM was encountered.
+
+diff --git a/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java b/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java
+--- a/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java
++++ b/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java
+@@ -1111,31 +1111,31 @@
+   public void testStrictTopLevelString() {
+-    JsonReader reader = new JsonReader(new StringReader("\"a\""));
++    JsonReader reader = new JsonReader(reader("\"a\""));
+     try {
+       reader.nextString();
+       fail();
+     } catch (IOException expected) {
+     }
+   }
+ 
+   public void testLenientTopLevelString() throws IOException {
+-    JsonReader reader = new JsonReader(new StringReader("\"a\""));
++    JsonReader reader = new JsonReader(reader("\"a\""));
+     reader.setLenient(true);
+     assertEquals("a", reader.nextString());
+     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+   }
+ 
+   public void testStrictTopLevelValueType() {
+-    JsonReader reader = new JsonReader(new StringReader("true"));
++    JsonReader reader = new JsonReader(reader("true"));
+     try {
+       reader.nextBoolean();
+       fail();
+     } catch (IOException expected) {
+     }
+   }
+ 
+   public void testLenientTopLevelValueType() throws IOException {
+-    JsonReader reader = new JsonReader(new StringReader("true"));
++    JsonReader reader = new JsonReader(reader("true"));
+     reader.setLenient(true);
+     assertEquals(true, reader.nextBoolean());
+   }
+ 
+
+commit 085856c12843a6b58d6de59672d37da47afdaa72
+Author: Jesse Wilson <jesse@swank.ca>
+Date:   Sun Aug 26 18:06:57 2012
+
+    Don't leave the JsonReader in an invalid state if nextInt(), nextDouble() or nextLong() fails. We now save a reference to the string before we parse it, and keep that referenced value if parsing fails.
+
+diff --git a/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java b/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java
+--- a/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java
++++ b/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java
+@@ -1063,31 +1063,31 @@
+   public void testStrictTopLevelString() {
+     JsonReader reader = new JsonReader(new StringReader("\"a\""));
+     try {
+-      reader.nextBoolean();
++      reader.nextString();
+       fail();
+     } catch (IOException expected) {
+     }
+   }
+ 
+   public void testLenientTopLevelString() throws IOException {
+     JsonReader reader = new JsonReader(new StringReader("\"a\""));
+     reader.setLenient(true);
+     assertEquals("a", reader.nextString());
+     assertEquals(JsonToken.END_DOCUMENT, reader.peek());
+   }
+ 
+   public void testStrictTopLevelValueType() {
+     JsonReader reader = new JsonReader(new StringReader("true"));
+     try {
+       reader.nextBoolean();
+       fail();
+     } catch (IOException expected) {
+     }
+   }
+ 
+   public void testLenientTopLevelValueType() throws IOException {
+     JsonReader reader = new JsonReader(new StringReader("true"));
+     reader.setLenient(true);
+     assertEquals(true, reader.nextBoolean());
+   }
+ 
+
+commit 46b4346505d85885f2dee28b24d4d2d15190564e
+Author: Jesse Wilson <jesse@swank.ca>
+Date:   Sun Aug 26 00:02:09 2012
+
+    Get JsonReader2 to the point that it's passing most tests.
+    
+    Still missing:
+     - non-execute prefixes
+     - rolling back 'pos' when a double fails to parse
+     - octal prefix failures
+
+diff --git a/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java b/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java
+--- a/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java
++++ b/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java
+@@ -1025,15 +1058,31 @@
++  public void testStrictTopLevelString() {
++    JsonReader reader = new JsonReader(new StringReader("\"a\""));
++    try {
++      reader.nextBoolean();
++      fail();
++    } catch (IOException expected) {
++    }
++  }
++
++  public void testLenientTopLevelString() throws IOException {
++    JsonReader reader = new JsonReader(new StringReader("\"a\""));
++    reader.setLenient(true);
++    assertEquals("a", reader.nextString());
++    assertEquals(JsonToken.END_DOCUMENT, reader.peek());
++  }
++
+   public void testStrictTopLevelValueType() {
+     JsonReader reader = new JsonReader(new StringReader("true"));
+     try {
+       reader.nextBoolean();
+       fail();
+     } catch (IOException expected) {
+     }
+   }
+ 
+   public void testLenientTopLevelValueType() throws IOException {
+     JsonReader reader = new JsonReader(new StringReader("true"));
+     reader.setLenient(true);
+     assertEquals(true, reader.nextBoolean());
+   }
+ 
+
+commit 765a9f1ecdfaf96f3587f488385111c9d6a4927e
+Author: Jesse Wilson <jesse@swank.ca>
+Date:   Thu Aug 26 04:44:02 2010
+
+    Brand new classes for streaming JSON efficiently.
+    
+    Notable features:
+     - Efficiency. The parser is faster than the current javacc parser. It's also faster than popular libraries for JSON streaming.
+     - Toggle lenient/strict
+     - Toggle pretty/compact
+     - Friendly error messages on bad JSON
+     - GSON-quality Javadoc
+     - Non-execute prefix handling
+    
+    This doesn't wire JsonReader up into Gson just yet. That's coming soon...
+
+diff --git a/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java b/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java
+--- /dev/null
++++ b/gson/src/test/java/com/google/gson/stream/JsonReaderTest.java
+@@ -0,0 +717,15 @@
++  public void testStrictTopLevelValueType() {
++    JsonReader reader = new JsonReader(new StringReader("true"));
++    try {
++      reader.nextBoolean();
++      fail();
++    } catch (IOException expected) {
++    }
++  }
++
++  public void testLenientTopLevelValueType() throws IOException {
++    JsonReader reader = new JsonReader(new StringReader("true"));
++    reader.setLenient(true);
++    assertEquals(true, reader.nextBoolean());
++  }
++

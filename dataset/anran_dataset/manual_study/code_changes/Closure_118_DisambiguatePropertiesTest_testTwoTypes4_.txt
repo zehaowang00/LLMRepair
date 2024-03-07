@@ -1,0 +1,42 @@
+commit f17961ae4d3d7cf5ea291d82804239982d009ef7
+Author: Ben Lickly <blickly@google.com>
+Date:   Mon Aug 26 12:54:11 2013
+
+    Fix DisambiguateProperties handling of quoted properties
+    
+    Fixes issue 1024
+    -------------
+    Created by MOE: http://code.google.com/p/moe-java
+    MOE_MIGRATED_REVID=51382261
+
+diff --git a/test/com/google/javascript/jscomp/DisambiguatePropertiesTest.java b/test/com/google/javascript/jscomp/DisambiguatePropertiesTest.java
+--- a/test/com/google/javascript/jscomp/DisambiguatePropertiesTest.java
++++ b/test/com/google/javascript/jscomp/DisambiguatePropertiesTest.java
+@@ -223,0 +235,27 @@
++  public void testTwoTypes4() {
++    String js = ""
++        + "/** @constructor */ function Foo() {}\n"
++        + "Foo.prototype = {a: 0};"
++        + "/** @type Foo */\n"
++        + "var F = new Foo;\n"
++        + "F.a = 0;"
++        + "/** @constructor */ function Bar() {}\n"
++        + "Bar.prototype = {'a': 0};"
++        + "/** @type Bar */\n"
++        + "var B = new Bar;\n"
++        + "B['a'] = 0;";
++
++    String output = ""
++        + "function Foo(){}"
++        + "Foo.prototype = {a: 0};"
++        + "var F=new Foo;"
++        + "F.a=0;"
++        + "function Bar(){}"
++        + "Bar.prototype = {'a': 0};"
++        + "var B=new Bar;"
++        + "B['a']=0";
++
++    testSets(false, js, output, "{a=[[Foo.prototype]]}");
++    testSets(true, js, output, "{a=[[Foo.prototype]]}");
++  }
++

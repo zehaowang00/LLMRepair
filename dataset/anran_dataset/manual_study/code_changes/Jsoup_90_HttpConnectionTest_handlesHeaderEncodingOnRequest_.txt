@@ -1,0 +1,30 @@
+commit 7de614ffd01161d8718d7458bab9d9690ad2334f
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sun May 12 14:37:10 2019
+
+    Validate string length
+    
+    Fixes #1172
+
+diff --git a/src/test/java/org/jsoup/helper/HttpConnectionTest.java b/src/test/java/org/jsoup/helper/HttpConnectionTest.java
+index 4e6bf335..896383d8 100644
+--- a/src/test/java/org/jsoup/helper/HttpConnectionTest.java
++++ b/src/test/java/org/jsoup/helper/HttpConnectionTest.java
+@@ -1,6 +1,7 @@
+ package org.jsoup.helper;
+ 
+ import org.jsoup.Connection;
++import org.jsoup.Jsoup;
+ import org.jsoup.MultiLocaleRule;
+ import org.jsoup.MultiLocaleRule.MultiLocaleTest;
+ import org.jsoup.integration.ParseTest;
+@@ -249,4 +250,9 @@
+         }
+         assertTrue(threw);
+     }
++
++    @Test public void handlesHeaderEncodingOnRequest() {
++        Connection.Request req = new HttpConnection.Request();
++        req.addHeader("xxx", "Ã©");
++    }
+ }

@@ -1,0 +1,50 @@
+commit d72a578a8949e4b1c437ec55997d8786836f139c
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Thu May 29 09:35:20 2008
+
+    Parser no longer removes the required options from the Options instance (CLI-156)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/branches/cli-1.x@661332 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/ParseRequiredTest.java b/src/test/org/apache/commons/cli/ParseRequiredTest.java
+--- a/src/test/org/apache/commons/cli/ParseRequiredTest.java
++++ b/src/test/org/apache/commons/cli/ParseRequiredTest.java
+@@ -143,1 +143,23 @@
++    public void testReuseOptionsTwice() throws Exception
++    {
++        Options opts = new Options();
++		opts.addOption(OptionBuilder.isRequired().create('v'));
++
++		GnuParser parser = new GnuParser();
++
++        // first parsing
++        parser.parse(opts, new String[] { "-v" });
++
++        try
++        {
++            // second parsing, with the same Options instance and an invalid command line
++            parser.parse(opts, new String[0]);
++            fail("MissingOptionException not thrown");
++        }
++        catch (MissingOptionException e)
++        {
++            // expected
++        }
++    }
++
+ }
+
+commit aae50c585ec3ac33c6a9af792e80378904a73195
+Author: James Strachan <jstrachan@apache.org>
+Date:   Mon Jun 10 14:01:16 2002
+
+    moved cli over from the sandbox to commons proper
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129767 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/ParseRequiredTest.java b/src/test/org/apache/commons/cli/ParseRequiredTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/cli/ParseRequiredTest.java
+@@ -0,0 +110,1 @@
++}

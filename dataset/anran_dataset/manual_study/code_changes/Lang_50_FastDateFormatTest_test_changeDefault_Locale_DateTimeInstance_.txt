@@ -1,0 +1,32 @@
+commit 659ef247b1452b6d5b9f92271357381fa59fea50
+Author: Henri Yandell <bayard@apache.org>
+Date:   Tue Oct 30 23:58:52 2007
+
+    Applying Sebb's test and fix from LANG-368 - fixing it so that FastDateFormat getDateInstance and getDateTimeInstance continue to work if Locale.getDefault() changes
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@590551 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/time/FastDateFormatTest.java b/src/test/org/apache/commons/lang/time/FastDateFormatTest.java
+--- a/src/test/org/apache/commons/lang/time/FastDateFormatTest.java
++++ b/src/test/org/apache/commons/lang/time/FastDateFormatTest.java
+@@ -135,0 +155,20 @@
++    public void test_changeDefault_Locale_DateTimeInstance() {
++        Locale realDefaultLocale = Locale.getDefault();
++        try {
++            Locale.setDefault(Locale.US);
++            FastDateFormat format1 = FastDateFormat.getDateTimeInstance(FastDateFormat.FULL, FastDateFormat.FULL, Locale.GERMANY);
++            FastDateFormat format2 = FastDateFormat.getDateTimeInstance(FastDateFormat.FULL, FastDateFormat.FULL);
++            Locale.setDefault(Locale.GERMANY);
++            FastDateFormat format3 = FastDateFormat.getDateTimeInstance(FastDateFormat.FULL, FastDateFormat.FULL);
++
++            assertSame(Locale.GERMANY, format1.getLocale());
++            assertSame(Locale.US, format2.getLocale());
++            assertSame(Locale.GERMANY, format3.getLocale());
++            assertTrue(format1 != format2); // -- junit 3.8 version -- assertFalse(format1 == format2);
++            assertTrue(format2 != format3);
++
++        } finally {
++            Locale.setDefault(realDefaultLocale);
++        }
++    }
++

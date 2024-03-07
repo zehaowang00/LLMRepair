@@ -1,0 +1,25 @@
+commit 916639bda234a8e5a030361c4068667764b34cb7
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Wed Apr 2 12:08:21 2008
+
+    (LANG-421) StringEscapeUtils.escapeJava(String) escapes '/' characters
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@643953 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java b/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java
+--- a/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java
++++ b/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java
+@@ -100,0 +103,13 @@
++    public void testEscapeJavaWithSlash() {
++        final String input = "String with a slash (/) in it";
++
++        final String expected = input;
++        final String actual = StringEscapeUtils.escapeJava(input);
++
++        /**
++         * In 2.4 StringEscapeUtils.escapeJava(String) escapes '/' characters, which are not a valid character to escape
++         * in a Java string.
++         */
++        assertEquals(expected, actual);
++    }
++    

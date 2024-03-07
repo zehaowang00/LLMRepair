@@ -1,0 +1,31 @@
+commit b214b98a69c4d71fd30b0115aa5eced840d09a9b
+Author: Slobodan Pejic <slobo@showbie.com>
+Date:   Thu Jun 8 12:54:29 2017
+
+    Add test for #1647
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/type/RecursiveTypeTest.java b/src/test/java/com/fasterxml/jackson/databind/type/RecursiveTypeTest.java
+--- a/src/test/java/com/fasterxml/jackson/databind/type/RecursiveTypeTest.java
++++ b/src/test/java/com/fasterxml/jackson/databind/type/RecursiveTypeTest.java
+@@ -96,1 +107,9 @@
++    public void testSuperClassWithReferencedJavaType() {
++        TypeFactory tf = objectMapper().getTypeFactory();
++        tf.constructType(Base.class); // must be constructed before sub to set the cache correctly
++        JavaType subType = tf.constructType(Sub.class);
++        // baseTypeFromSub should be a ResolvedRecursiveType in this test
++        JavaType baseTypeFromSub = subType.getSuperClass();
++        assertNotNull(baseTypeFromSub.getSuperClass());
++    }
+ }
+
+commit b4eac5450ac0aba899659b9d4f6294d2130832e7
+Author: Cowtowncoder <tatu.saloranta@iki.fi>
+Date:   Wed Sep 23 18:27:53 2015
+
+    Fix #938
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/type/RecursiveType938Test.java b/src/test/java/com/fasterxml/jackson/databind/type/RecursiveType938Test.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/type/RecursiveType938Test.java
+@@ -0,0 +57,1 @@
++}

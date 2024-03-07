@@ -1,0 +1,19 @@
+commit a6cb59ed2280ab0a32995fa8b5f1a7b0d47cb815
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Fri Nov 1 10:06:59 2013
+
+    Fix handling of PeriodType when either years or months missing
+    
+    Fixes #79
+
+diff --git a/src/test/java/org/joda/time/TestPeriod_Basics.java b/src/test/java/org/joda/time/TestPeriod_Basics.java
+--- a/src/test/java/org/joda/time/TestPeriod_Basics.java
++++ b/src/test/java/org/joda/time/TestPeriod_Basics.java
+@@ -1519,0 +1520,7 @@
++    public void testNormalizedStandard_periodType_months1() {
++        Period test = new Period(1, 15, 0, 0, 0, 0, 0, 0);
++        Period result = test.normalizedStandard(PeriodType.months());
++        assertEquals(new Period(1, 15, 0, 0, 0, 0, 0, 0), test);
++        assertEquals(new Period(0, 27, 0, 0, 0, 0, 0, 0, PeriodType.months()), result);
++    }
++

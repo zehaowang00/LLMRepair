@@ -1,0 +1,36 @@
+commit 0123fd5303c85d0d26add64aa2e19fee33f73aaa
+Author: Ben Lickly <blickly@google.com>
+Date:   Tue Aug 13 19:07:20 2013
+
+    Fix inlining bug in https://code.google.com/p/closure-compiler/issues/detail?id=1053
+    Attempt 2
+    Fixes issue 1053
+    -------------
+    Created by MOE: http://code.google.com/p/moe-java
+    MOE_MIGRATED_REVID=50800167
+
+diff --git a/test/com/google/javascript/jscomp/InlineVariablesTest.java b/test/com/google/javascript/jscomp/InlineVariablesTest.java
+--- a/test/com/google/javascript/jscomp/InlineVariablesTest.java
++++ b/test/com/google/javascript/jscomp/InlineVariablesTest.java
+@@ -1067,1 +1068,5 @@
++  public void testExternalIssue1053() {
++    testSame(
++        "var u; function f() { u = Random(); var x = u; f(); alert(x===u)}");
++  }
+ }
+
+commit 6b49cfd9022fe111bdad745c78ea877fbc2f7ba3
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 3 18:51:57 2009
+
+    Initial commit.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/InlineVariablesTest.java b/test/com/google/javascript/jscomp/InlineVariablesTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/InlineVariablesTest.java
+@@ -0,0 +502,1 @@
++}

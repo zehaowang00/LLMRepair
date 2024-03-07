@@ -1,0 +1,64 @@
+commit 8b1a8e178abb46cc048a3982636b8ec4e6ffc8dc
+Author: Henri Yandell <bayard@apache.org>
+Date:   Thu Oct 22 01:46:33 2009
+
+    Applying the final part of Benjamin Bentmann's patch to LANG-432, improving our handling of case-insensitive Strings
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@828317 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/StringUtilsEqualsIndexOfTest.java b/src/test/org/apache/commons/lang/StringUtilsEqualsIndexOfTest.java
+--- a/src/test/org/apache/commons/lang/StringUtilsEqualsIndexOfTest.java
++++ b/src/test/org/apache/commons/lang/StringUtilsEqualsIndexOfTest.java
+@@ -314,1 +316,35 @@
+-    //-----------------------------------------------------------------------
++    public void testContainsIgnoreCase_LocaleIndependence() {
++        Locale orig = Locale.getDefault();
++
++        Locale[] locales = { Locale.ENGLISH, new Locale("tr"), Locale.getDefault() };
++
++        String[][] tdata = { 
++            { "i", "I" },
++            { "I", "i" },
++            { "\u03C2", "\u03C3" },
++            { "\u03A3", "\u03C2" },
++            { "\u03A3", "\u03C3" },
++        };
++
++        String[][] fdata = { 
++            { "\u00DF", "SS" },
++        };
++
++        try {
++            for (int i = 0; i < locales.length; i++) {
++                Locale.setDefault(locales[i]);
++                for (int j = 0; j < tdata.length; j++) {
++                    assertTrue(Locale.getDefault() + ": " + j + " " + tdata[j][0] + " " + tdata[j][1], StringUtils
++                            .containsIgnoreCase(tdata[j][0], tdata[j][1]));
++                }
++                for (int j = 0; j < fdata.length; j++) {
++                    assertFalse(Locale.getDefault() + ": " + j + " " + fdata[j][0] + " " + fdata[j][1], StringUtils
++                            .containsIgnoreCase(fdata[j][0], fdata[j][1]));
++                }
++            }
++        } finally {
++            Locale.setDefault(orig);
++        }
++    }
++
++    // -----------------------------------------------------------------------
+
+commit 251a47618ed658d9ffb9c8522248b76ee345a98c
+Author: Stephen Colebourne <scolebourne@apache.org>
+Date:   Sat Jul 19 19:29:06 2003
+
+    Add new methods for null-safe indexOf/lastIndexOf
+    Add new methods for contains
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137461 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/StringUtilsEqualsIndexOfTest.java b/src/test/org/apache/commons/lang/StringUtilsEqualsIndexOfTest.java
+--- a/src/test/org/apache/commons/lang/StringUtilsEqualsIndexOfTest.java
++++ b/src/test/org/apache/commons/lang/StringUtilsEqualsIndexOfTest.java
+@@ -118,0 +242,1 @@
++    //-----------------------------------------------------------------------

@@ -1,0 +1,37 @@
+commit 707db7a972e2d088647450f9a890c438fb735933
+Author: Cowtowncoder <tatu.saloranta@iki.fi>
+Date:   Thu Jun 11 17:10:54 2015
+
+    Fix #677
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/deser/TestEnumDeserialization.java b/src/test/java/com/fasterxml/jackson/databind/deser/TestEnumDeserialization.java
+--- a/src/test/java/com/fasterxml/jackson/databind/deser/TestEnumDeserialization.java
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/TestEnumDeserialization.java
+@@ -467,1 +470,15 @@
++    public void testEnumWithJsonPropertyRename() throws Exception
++    {
++        String json = MAPPER.writeValueAsString(new EnumWithPropertyAnno[] {
++                EnumWithPropertyAnno.B, EnumWithPropertyAnno.A
++        });
++        assertEquals("[\"b\",\"a\"]", json);
++
++        // and while not really proper place, let's also verify deser while we're at it
++        EnumWithPropertyAnno[] result = MAPPER.readValue(json, EnumWithPropertyAnno[].class);
++        assertNotNull(result);
++        assertEquals(2, result.length);
++        assertSame(EnumWithPropertyAnno.B, result[0]);
++        assertSame(EnumWithPropertyAnno.A, result[1]);
++    }
+ }
+
+commit a63c2038a03c7090ce4773d6cf54809150e59350
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 03:26:53 2011
+
+    Add unit tests, almost compilable
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/deser/TestEnumDeserialization.java b/src/test/java/com/fasterxml/jackson/databind/deser/TestEnumDeserialization.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/TestEnumDeserialization.java
+@@ -0,0 +200,1 @@
++}

@@ -1,0 +1,112 @@
+commit 211dc0161ae737f59cac22f30b048d56a059d14b
+Author: Ben Lickly <blickly@google.com>
+Date:   Fri Mar 22 20:27:43 2013
+
+    Fix tests and code in UCE that do unsound optimizations in finally blocks.
+    
+    Fixes issue 936
+    -------------
+    Created by MOE: http://code.google.com/p/moe-java
+    MOE_MIGRATED_REVID=44335607
+
+diff --git a/test/com/google/javascript/jscomp/UnreachableCodeEliminationTest.java b/test/com/google/javascript/jscomp/UnreachableCodeEliminationTest.java
+--- a/test/com/google/javascript/jscomp/UnreachableCodeEliminationTest.java
++++ b/test/com/google/javascript/jscomp/UnreachableCodeEliminationTest.java
+@@ -354,36 +324,20 @@
+   public void testIssue4177428c() {
+-    test(
+-        "f = function() {\n" +
+-        "  var action;\n" +
+-        "  a: {\n" +
+-        "    var proto = null;\n" +
+-        "    try {\n" +
+-        "    } finally {\n" +
+-        "    try {\n" +
+-        "      proto = new Proto\n" +
+-        "    } finally {\n" +
+-        "      action = proto;\n" +
+-        "      break a\n" +  // Remove this...
+-        "    }\n" +
+-        "    }\n" +
+-        "  }\n" +
+-        "  alert(action)\n" + // but not this.
+-        "};",
++    testSame(
+         "f = function() {\n" +
+         "  var action;\n" +
+         "  a: {\n" +
+         "    var proto = null;\n" +
+         "    try {\n" +
+         "    } finally {\n" +
+         "    try {\n" +
+         "      proto = new Proto\n" +
+         "    } finally {\n" +
+         "      action = proto;\n" +
++        "      break a\n" +  // Keep this...
+         "    }\n" +
+         "    }\n" +
+         "  }\n" +
+-        "  alert(action)\n" +  // but not this.
+-        "};"
+-        );
++        "  alert(action)\n" + // and this.
++        "};");
+   }
+ 
+
+commit da8366a51512687284bd51ef8b0c5e7bdd515149
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Mar 28 20:11:55 2011
+
+    Correct the code flow when a break or continue is used from within a finally block.
+    
+    R=acleung
+    DELTA=404  (350 added, 0 deleted, 54 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=1135
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@948 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/UnreachableCodeEliminationTest.java b/test/com/google/javascript/jscomp/UnreachableCodeEliminationTest.java
+--- a/test/com/google/javascript/jscomp/UnreachableCodeEliminationTest.java
++++ b/test/com/google/javascript/jscomp/UnreachableCodeEliminationTest.java
+@@ -275,0 +343,36 @@
++  public void testIssue4177428c() {
++    test(
++        "f = function() {\n" +
++        "  var action;\n" +
++        "  a: {\n" +
++        "    var proto = null;\n" +
++        "    try {\n" +
++        "    } finally {\n" +
++        "    try {\n" +
++        "      proto = new Proto\n" +
++        "    } finally {\n" +
++        "      action = proto;\n" +
++        "      break a\n" +  // Remove this...
++        "    }\n" +
++        "    }\n" +
++        "  }\n" +
++        "  alert(action)\n" + // but not this.
++        "};",
++        "f = function() {\n" +
++        "  var action;\n" +
++        "  a: {\n" +
++        "    var proto = null;\n" +
++        "    try {\n" +
++        "    } finally {\n" +
++        "    try {\n" +
++        "      proto = new Proto\n" +
++        "    } finally {\n" +
++        "      action = proto;\n" +
++        "    }\n" +
++        "    }\n" +
++        "  }\n" +
++        "  alert(action)\n" +  // but not this.
++        "};"
++        );
++  }
++

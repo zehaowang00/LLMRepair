@@ -1,0 +1,298 @@
+commit ebf229b05f4ee71bc05d70830f5dd5683271d661
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Jun 21 18:45:36 2012
+
+    fix a bad String() optimization
+    fixes issue 759
+    
+    R=johnlenz
+    DELTA=18  (16 added, 0 deleted, 2 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=5055
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2061 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java b/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
+--- a/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
++++ b/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
+@@ -1028,12 +1028,14 @@
+   public void testSimpleFunctionCall() {
+     test("var a = String(23)", "var a = '' + 23");
+     test("var a = String('hello')", "var a = '' + 'hello'");
++    testSame("var a = String('hello', bar());");
++    testSame("var a = String({valueOf: function() { return 1; }});");
+   }
+ 
+   private static class StringCompareTestCase extends CompilerTestCase {
+ 
+     StringCompareTestCase() {
+       super("", false);
+     }
+ 
+     @Override
+
+commit 208aa65bee67c464bbe5b9bf5e6385b8a06a920f
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Apr 23 16:17:00 2012
+
+    Automated g4 rollback.
+    
+    *** Reason for rollback ***
+    
+    This doesn't work for Rhino classes where toString returns {java.lang.String|null}
+    
+    Seems like we should make this change more conservatively, by doing
+    this only in cases where the "toString" is called to append to a
+    string literal or similiar.
+    
+    *** Original change description ***
+    
+    Transform toString() calls to string literal concatonation. (Helps
+    string simplification in some cases)
+    
+    R=nicksantos
+    DELTA=25  (0 added, 17 deleted, 8 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=4604
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1917 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java b/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
+--- a/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
++++ b/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
+@@ -1028,20 +1028,12 @@
+   public void testSimpleFunctionCall() {
+     test("var a = String(23)", "var a = '' + 23");
+     test("var a = String('hello')", "var a = '' + 'hello'");
+-    testSame("var a = String(23,45)");
+-  }
+-
+-  public void testSimpleMethodCall() {
+-    test("var a = (23).toString()", "var a = '' + 23");
+-    test("var a = ('hello').toString()", "var a = '' + 'hello'");
+-    test("var a = (b).toString()", "var a = '' + b");
+-    testSame("var a = (23).toString(45)");
+   }
+ 
+   private static class StringCompareTestCase extends CompilerTestCase {
+ 
+     StringCompareTestCase() {
+       super("", false);
+     }
+ 
+     @Override
+
+commit 3f6743d5fe399a7475e072eedf87b23017e91d40
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Apr 17 16:58:57 2012
+
+    Transform toString() calls to string literal concatonation. (Helps
+    string simplification in some cases)
+    
+    R=nicksantos
+    DELTA=25  (17 added, 0 deleted, 8 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=4556
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1904 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java b/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
+--- a/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
++++ b/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
+@@ -1021,12 +1021,20 @@
+   public void testSimpleFunctionCall() {
+     test("var a = String(23)", "var a = '' + 23");
+     test("var a = String('hello')", "var a = '' + 'hello'");
++    testSame("var a = String(23,45)");
++  }
++
++  public void testSimpleMethodCall() {
++    test("var a = (23).toString()", "var a = '' + 23");
++    test("var a = ('hello').toString()", "var a = '' + 'hello'");
++    test("var a = (b).toString()", "var a = '' + b");
++    testSame("var a = (23).toString(45)");
+   }
+ 
+   private static class StringCompareTestCase extends CompilerTestCase {
+ 
+     StringCompareTestCase() {
+       super("", false);
+     }
+ 
+     @Override
+
+commit 413b936f57cc2e91f608875251448d57483a2f78
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Apr 16 18:50:50 2012
+
+    Automated g4 rollback
+    
+    *** Reason for rollback ***
+    
+    appears to break some tests
+    
+    
+    *** Original change description ***
+    
+    Transform toString() calls to string literal concatonation. (Helps
+    string simplification in some cases)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=4546
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1903 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java b/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
+--- a/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
++++ b/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
+@@ -1021,20 +1021,12 @@
+   public void testSimpleFunctionCall() {
+     test("var a = String(23)", "var a = '' + 23");
+     test("var a = String('hello')", "var a = '' + 'hello'");
+-    testSame("var a = String(23,45)");
+-  }
+-
+-  public void testSimpleMethodCall() {
+-    test("var a = (23).toString()", "var a = '' + 23");
+-    test("var a = ('hello').toString()", "var a = '' + 'hello'");
+-    test("var a = (b).toString()", "var a = '' + b");
+-    testSame("var a = (23).toString(45)");
+   }
+ 
+   private static class StringCompareTestCase extends CompilerTestCase {
+ 
+     StringCompareTestCase() {
+       super("", false);
+     }
+ 
+     @Override
+
+commit 6da361c5865ecac18ee147014c9e84244d19c2a9
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Apr 16 17:51:18 2012
+
+    Transform toString() calls to string literal concatonation. (Helps
+    string simplification in some cases)
+    
+    R=nicksantos
+    DELTA=25  (17 added, 0 deleted, 8 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=4544
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1901 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java b/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
+--- a/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
++++ b/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
+@@ -1021,12 +1021,20 @@
+   public void testSimpleFunctionCall() {
+     test("var a = String(23)", "var a = '' + 23");
+     test("var a = String('hello')", "var a = '' + 'hello'");
++    testSame("var a = String(23,45)");
++  }
++
++  public void testSimpleMethodCall() {
++    test("var a = (23).toString()", "var a = '' + 23");
++    test("var a = ('hello').toString()", "var a = '' + 'hello'");
++    test("var a = (b).toString()", "var a = '' + b");
++    testSame("var a = (23).toString(45)");
+   }
+ 
+   private static class StringCompareTestCase extends CompilerTestCase {
+ 
+     StringCompareTestCase() {
+       super("", false);
+     }
+ 
+     @Override
+
+commit dfdbb7db25c17eed1315afbfa0229f339528ffc3
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Nov 3 11:12:56 2011
+
+    More "new String" "String" folding. Contributed by Tim Wintle.
+    Fixes issue 531.
+    
+    R=acleung
+    DELTA=42  (39 added, 0 deleted, 3 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3612
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1549 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java b/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
+--- a/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
++++ b/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
+@@ -962,7 +962,12 @@
++  public void testSimpleFunctionCall() {
++    test("var a = String(23)", "var a = '' + 23");
++    test("var a = String('hello')", "var a = '' + 'hello'");
++  }
++
+   private static class StringCompareTestCase extends CompilerTestCase {
+ 
+     StringCompareTestCase() {
+       super("", false);
+     }
+ 
+     @Override
+
+commit 26dfe37d9ace5bf791ff4ab8cec7bf1e2eb1b3f5
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Jun 24 13:58:50 2011
+
+    Automated g4 rollback.
+    
+    *** Reason for rollback ***
+    
+    Fix bind/call folding by taking care to maintain the FREE_CALL
+    attribute.
+    
+    *** Original change description ***
+    
+    Automated g4 rollback.
+    
+    *** Reason for rollback ***
+    This breaks gmail
+    
+    
+    ... description truncated by g4 rollback ...
+    
+    R=moedinger
+    DELTA=151  (150 added, 0 deleted, 1 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=2406
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1209 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java b/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
+--- a/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
++++ b/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
+@@ -859,0 +926,7 @@
++  private static class StringCompareTestCase extends CompilerTestCase {
++
++    StringCompareTestCase() {
++      super("", false);
++    }
++
++    @Override

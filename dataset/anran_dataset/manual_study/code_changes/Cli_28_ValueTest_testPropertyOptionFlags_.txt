@@ -1,0 +1,351 @@
+commit 3433f467554985a6bd9bf530a4810376be6fe250
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Tue Jun 15 20:00:14 2010
+
+    The processing of the default options is no longer stopped by a flag with a false value (CLI-201)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/trunk@955096 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/ValueTest.java b/src/test/org/apache/commons/cli/ValueTest.java
+--- a/src/test/org/apache/commons/cli/ValueTest.java
++++ b/src/test/org/apache/commons/cli/ValueTest.java
+@@ -192,47 +192,47 @@
+     public void testPropertyOptionFlags() throws Exception
+     {
+         Properties properties = new Properties();
+         properties.setProperty( "a", "true" );
+         properties.setProperty( "c", "yes" );
+         properties.setProperty( "e", "1" );
+ 
+         Parser parser = new PosixParser();
+ 
+         CommandLine cmd = parser.parse(opts, null, properties);
+         assertTrue( cmd.hasOption("a") );
+         assertTrue( cmd.hasOption("c") );
+         assertTrue( cmd.hasOption("e") );
+ 
+ 
+         properties = new Properties();
+         properties.setProperty( "a", "false" );
+         properties.setProperty( "c", "no" );
+         properties.setProperty( "e", "0" );
+ 
+         cmd = parser.parse(opts, null, properties);
+         assertTrue( !cmd.hasOption("a") );
+         assertTrue( !cmd.hasOption("c") );
+-        assertTrue( !cmd.hasOption("e") );
++        assertTrue( cmd.hasOption("e") ); // this option accepts as argument
+ 
+ 
+         properties = new Properties();
+         properties.setProperty( "a", "TRUE" );
+         properties.setProperty( "c", "nO" );
+         properties.setProperty( "e", "TrUe" );
+ 
+         cmd = parser.parse(opts, null, properties);
+         assertTrue( cmd.hasOption("a") );
+         assertTrue( !cmd.hasOption("c") );
+         assertTrue( cmd.hasOption("e") );
+ 
+         
+         properties = new Properties();
+         properties.setProperty( "a", "just a string" );
+         properties.setProperty( "e", "" );
+ 
+         cmd = parser.parse(opts, null, properties);
+         assertTrue( !cmd.hasOption("a") );
+         assertTrue( !cmd.hasOption("c") );
+-        assertTrue( !cmd.hasOption("e") );
++        assertTrue( cmd.hasOption("e") );
+     } 
+ 
+
+commit f887e8b6e2ebb519c6d0e51b1ddae6bd356dc3c0
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Thu May 29 12:11:48 2008
+
+    Simplified the test cases by removing the unnecessary fail() calls in the catch blocks
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/branches/cli-1.x@661378 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/ValueTest.java b/src/test/org/apache/commons/cli/ValueTest.java
+--- a/src/test/org/apache/commons/cli/ValueTest.java
++++ b/src/test/org/apache/commons/cli/ValueTest.java
+@@ -291,70 +228,47 @@
+-    public void testPropertyOptionFlags()
++    public void testPropertyOptionFlags() throws Exception
+     {
+         Properties properties = new Properties();
+         properties.setProperty( "a", "true" );
+         properties.setProperty( "c", "yes" );
+         properties.setProperty( "e", "1" );
+ 
+         Parser parser = new PosixParser();
+-        
+-        try
+-        {
+-            CommandLine cmd = parser.parse(opts, null, properties);
+-            assertTrue( cmd.hasOption("a") );
+-            assertTrue( cmd.hasOption("c") );
+-            assertTrue( cmd.hasOption("e") );
+-        }
+-        catch (ParseException e)
+-        {
+-            fail("Cannot setUp() CommandLine: " + e.toString());
+-        }
++
++        CommandLine cmd = parser.parse(opts, null, properties);
++        assertTrue( cmd.hasOption("a") );
++        assertTrue( cmd.hasOption("c") );
++        assertTrue( cmd.hasOption("e") );
++
+ 
+         properties = new Properties();
+         properties.setProperty( "a", "false" );
+         properties.setProperty( "c", "no" );
+         properties.setProperty( "e", "0" );
+-        try
+-        {
+-            CommandLine cmd = parser.parse(opts, null, properties);
+-            assertTrue( !cmd.hasOption("a") );
+-            assertTrue( !cmd.hasOption("c") );
+-            assertTrue( !cmd.hasOption("e") );
+-        }
+-        catch (ParseException e)
+-        {
+-            fail("Cannot setUp() CommandLine: " + e.toString());
+-        }
++
++        cmd = parser.parse(opts, null, properties);
++        assertTrue( !cmd.hasOption("a") );
++        assertTrue( !cmd.hasOption("c") );
++        assertTrue( !cmd.hasOption("e") );
++
+ 
+         properties = new Properties();
+         properties.setProperty( "a", "TRUE" );
+         properties.setProperty( "c", "nO" );
+         properties.setProperty( "e", "TrUe" );
+-        try
+-        {
+-            CommandLine cmd = parser.parse(opts, null, properties);
+-            assertTrue( cmd.hasOption("a") );
+-            assertTrue( !cmd.hasOption("c") );
+-            assertTrue( cmd.hasOption("e") );
+-        }
+-        catch (ParseException e)
+-        {
+-            fail("Cannot setUp() CommandLine: " + e.toString());
+-        }
+ 
++        cmd = parser.parse(opts, null, properties);
++        assertTrue( cmd.hasOption("a") );
++        assertTrue( !cmd.hasOption("c") );
++        assertTrue( cmd.hasOption("e") );
++
++        
+         properties = new Properties();
+         properties.setProperty( "a", "just a string" );
+         properties.setProperty( "e", "" );
+-        try
+-        {
+-            CommandLine cmd = parser.parse(opts, null, properties);
+-            assertTrue( !cmd.hasOption("a") );
+-            assertTrue( !cmd.hasOption("c") );
+-            assertTrue( !cmd.hasOption("e") );
+-        }
+-        catch (ParseException e)
+-        {
+-            fail("Cannot setUp() CommandLine: " + e.toString());
+-        }
+ 
++        cmd = parser.parse(opts, null, properties);
++        assertTrue( !cmd.hasOption("a") );
++        assertTrue( !cmd.hasOption("c") );
++        assertTrue( !cmd.hasOption("e") );
+     } 
+ 
+
+commit 08cf0f5d990cdc0daa251fd1a84d011e8cbecc9a
+Author: Henri Yandell <bayard@apache.org>
+Date:   Fri Jun 29 02:54:58 2007
+
+    The previous commit removed an incorrect method. This puts it back and removes the right one, along with a fix for a unit test that fails to compile as a result. See CLI-134
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/branches/cli-1.0.x@551813 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/ValueTest.java b/src/test/org/apache/commons/cli/ValueTest.java
+--- a/src/test/org/apache/commons/cli/ValueTest.java
++++ b/src/test/org/apache/commons/cli/ValueTest.java
+@@ -308,70 +308,70 @@
+     public void testPropertyOptionFlags()
+     {
+         Properties properties = new Properties();
+         properties.setProperty( "a", "true" );
+         properties.setProperty( "c", "yes" );
+         properties.setProperty( "e", "1" );
+ 
+-        CommandLineParser parser = new PosixParser();
++        Parser parser = new PosixParser();
+         
+         try
+         {
+             CommandLine cmd = parser.parse(opts, null, properties);
+             assertTrue( cmd.hasOption("a") );
+             assertTrue( cmd.hasOption("c") );
+             assertTrue( cmd.hasOption("e") );
+         }
+         catch (ParseException e)
+         {
+             fail("Cannot setUp() CommandLine: " + e.toString());
+         }
+ 
+         properties = new Properties();
+         properties.setProperty( "a", "false" );
+         properties.setProperty( "c", "no" );
+         properties.setProperty( "e", "0" );
+         try
+         {
+             CommandLine cmd = parser.parse(opts, null, properties);
+             assertTrue( !cmd.hasOption("a") );
+             assertTrue( !cmd.hasOption("c") );
+             assertTrue( !cmd.hasOption("e") );
+         }
+         catch (ParseException e)
+         {
+             fail("Cannot setUp() CommandLine: " + e.toString());
+         }
+ 
+         properties = new Properties();
+         properties.setProperty( "a", "TRUE" );
+         properties.setProperty( "c", "nO" );
+         properties.setProperty( "e", "TrUe" );
+         try
+         {
+             CommandLine cmd = parser.parse(opts, null, properties);
+             assertTrue( cmd.hasOption("a") );
+             assertTrue( !cmd.hasOption("c") );
+             assertTrue( cmd.hasOption("e") );
+         }
+         catch (ParseException e)
+         {
+             fail("Cannot setUp() CommandLine: " + e.toString());
+         }
+ 
+         properties = new Properties();
+         properties.setProperty( "a", "just a string" );
+         properties.setProperty( "e", "" );
+         try
+         {
+             CommandLine cmd = parser.parse(opts, null, properties);
+             assertTrue( !cmd.hasOption("a") );
+             assertTrue( !cmd.hasOption("c") );
+             assertTrue( !cmd.hasOption("e") );
+         }
+         catch (ParseException e)
+         {
+             fail("Cannot setUp() CommandLine: " + e.toString());
+         }
+ 
+     } 
+ 
+
+commit 6dffb657aa427151ba9bf2b832977c42f8c01f7a
+Author: John Keyes <jkeyes@apache.org>
+Date:   Wed Nov 27 18:24:38 2002
+
+    some more tests
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129855 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/ValueTest.java b/src/test/org/apache/commons/cli/ValueTest.java
+--- a/src/test/org/apache/commons/cli/ValueTest.java
++++ b/src/test/org/apache/commons/cli/ValueTest.java
+@@ -291,2 +302,70 @@
++    public void testPropertyOptionFlags()
++    {
++        Properties properties = new Properties();
++        properties.setProperty( "a", "true" );
++        properties.setProperty( "c", "yes" );
++        properties.setProperty( "e", "1" );
++
++        CommandLineParser parser = new PosixParser();
++        
++        try
++        {
++            CommandLine cmd = parser.parse(opts, null, properties);
++            assertTrue( cmd.hasOption("a") );
++            assertTrue( cmd.hasOption("c") );
++            assertTrue( cmd.hasOption("e") );
++        }
++        catch (ParseException e)
++        {
++            fail("Cannot setUp() CommandLine: " + e.toString());
++        }
++
++        properties = new Properties();
++        properties.setProperty( "a", "false" );
++        properties.setProperty( "c", "no" );
++        properties.setProperty( "e", "0" );
++        try
++        {
++            CommandLine cmd = parser.parse(opts, null, properties);
++            assertTrue( !cmd.hasOption("a") );
++            assertTrue( !cmd.hasOption("c") );
++            assertTrue( !cmd.hasOption("e") );
++        }
++        catch (ParseException e)
++        {
++            fail("Cannot setUp() CommandLine: " + e.toString());
++        }
++
++        properties = new Properties();
++        properties.setProperty( "a", "TRUE" );
++        properties.setProperty( "c", "nO" );
++        properties.setProperty( "e", "TrUe" );
++        try
++        {
++            CommandLine cmd = parser.parse(opts, null, properties);
++            assertTrue( cmd.hasOption("a") );
++            assertTrue( !cmd.hasOption("c") );
++            assertTrue( cmd.hasOption("e") );
++        }
++        catch (ParseException e)
++        {
++            fail("Cannot setUp() CommandLine: " + e.toString());
++        }
++
++        properties = new Properties();
++        properties.setProperty( "a", "just a string" );
++        properties.setProperty( "e", "" );
++        try
++        {
++            CommandLine cmd = parser.parse(opts, null, properties);
++            assertTrue( !cmd.hasOption("a") );
++            assertTrue( !cmd.hasOption("c") );
++            assertTrue( !cmd.hasOption("e") );
++        }
++        catch (ParseException e)
++        {
++            fail("Cannot setUp() CommandLine: " + e.toString());
++        }
++
+     } 
+ 
+
+commit 347bbeb8f98a49744501ac50850457ba8751d545
+Author: John Keyes <jkeyes@apache.org>
+Date:   Mon Nov 18 03:41:26 2002
+
+    refactored the option string handling, added property support for options with an argument value
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129846 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/ValueTest.java b/src/test/org/apache/commons/cli/ValueTest.java
+--- a/src/test/org/apache/commons/cli/ValueTest.java
++++ b/src/test/org/apache/commons/cli/ValueTest.java
+@@ -272,0 +291,2 @@
++    } 
++

@@ -1,0 +1,33 @@
+commit 15a67164cbefb9f9ae03b334888947d5fe5dccb4
+Author: Matthew Jason Benson <mbenson@apache.org>
+Date:   Wed Jul 25 15:49:33 2007
+
+    [JXPATH-97] handle createPathAndSetValue() for externally registered namespaced attributes; also refactor to ensure externally-registered namespaces preclude those explicitly assigned within a document
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/jxpath/trunk@559574 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/jxpath/ri/model/ExternalXMLNamespaceTest.java b/src/test/org/apache/commons/jxpath/ri/model/ExternalXMLNamespaceTest.java
+--- a/src/test/org/apache/commons/jxpath/ri/model/ExternalXMLNamespaceTest.java
++++ b/src/test/org/apache/commons/jxpath/ri/model/ExternalXMLNamespaceTest.java
+@@ -73,1 +82,5 @@
++    public void testCreateAndSetAttributeDOM() {
++        doTestCreateAndSetAttribute(DocumentContainer.MODEL_DOM);
++    }
++
+ }
+\ No newline at end of file
+
+commit d52074012200f55cbd3635591b914e2c1b19674f
+Author: Matthew Jason Benson <mbenson@apache.org>
+Date:   Mon Jul 23 17:32:41 2007
+
+    [JXPATH-97] implement prefix matching for undeclared XML namespaces
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/jxpath/trunk@558866 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/jxpath/ri/model/ExternalXMLNamespaceTest.java b/src/test/org/apache/commons/jxpath/ri/model/ExternalXMLNamespaceTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/jxpath/ri/model/ExternalXMLNamespaceTest.java
+@@ -0,0 +73,1 @@
++}
+\ No newline at end of file

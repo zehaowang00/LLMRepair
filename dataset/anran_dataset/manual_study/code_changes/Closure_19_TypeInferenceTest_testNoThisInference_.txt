@@ -1,0 +1,44 @@
+commit 686146c4de7d2bd985156ae15175365633dd0f94
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Jul 3 00:13:14 2012
+
+    Handle 'this' properly in the RAI.
+    fixes issue 769
+    
+    R=johnlenz
+    DELTA=11  (11 added, 0 deleted, 0 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=5099
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2072 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeInferenceTest.java b/test/com/google/javascript/jscomp/TypeInferenceTest.java
+--- a/test/com/google/javascript/jscomp/TypeInferenceTest.java
++++ b/test/com/google/javascript/jscomp/TypeInferenceTest.java
+@@ -999,1 +1000,7 @@
++  public void testNoThisInference() {
++    JSType thisType = createNullableType(OBJECT_TYPE);
++    assumingThisType(thisType);
++    inFunction("var out = 3; if (goog.isNull(this)) out = this;");
++    verify("out", createUnionType(OBJECT_TYPE, NUMBER_TYPE));
++  }
+ }
+
+commit 6b49cfd9022fe111bdad745c78ea877fbc2f7ba3
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 3 18:51:57 2009
+
+    Initial commit.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeInferenceTest.java b/test/com/google/javascript/jscomp/TypeInferenceTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/TypeInferenceTest.java
+@@ -0,0 +609,1 @@
++}

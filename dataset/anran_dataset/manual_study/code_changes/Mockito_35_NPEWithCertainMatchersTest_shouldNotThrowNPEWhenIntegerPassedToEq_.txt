@@ -1,0 +1,141 @@
+commit 27a2f515197d4688c4df82afb791bf8ce20a5504
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Mon Nov 9 17:36:06 2009
+
+    Fixed issue 98
+    In order to avoid NPE in some very rare cases.
+    
+    --HG--
+    rename : test/org/mockitousage/bugs/NPEWithIsAClassMatcherTest.java => test/org/mockitousage/bugs/NPEWithCertainMatchersTest.java
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401677
+
+diff --git a/test/org/mockitousage/bugs/NPEWithIsAClassMatcherTest.java b/test/org/mockitousage/bugs/NPEWithCertainMatchersTest.java
+--- a/test/org/mockitousage/bugs/NPEWithIsAClassMatcherTest.java
++++ b/test/org/mockitousage/bugs/NPEWithCertainMatchersTest.java
+@@ -43,5 +42,7 @@
+     public void shouldNotThrowNPEWhenIntegerPassedToEq() {
+         mock.intArgumentMethod(100);
+         
+         verify(mock).intArgumentMethod(eq(new Integer(100)));
+     }
++
++    @Test
+
+commit 0906aa7cc3937729a81078622f06140ae9cef2a7
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Thu Jul 23 15:28:14 2009
+
+    In order to have all OS headers consistent
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401577
+
+diff --git a/test/org/mockitousage/bugs/NPEWithIsAClassMatcherTest.java b/test/org/mockitousage/bugs/NPEWithIsAClassMatcherTest.java
+--- a/test/org/mockitousage/bugs/NPEWithIsAClassMatcherTest.java
++++ b/test/org/mockitousage/bugs/NPEWithIsAClassMatcherTest.java
+@@ -1,43 +43,5 @@
+-package org.mockitousage.bugs;
+-
+-import static org.mockito.Matchers.*;
+-import static org.mockito.Mockito.*;
+-
+-import org.junit.After;
+-import org.junit.Ignore;
+-import org.junit.Test;
+-import org.mockito.Mock;
+-import org.mockitousage.IMethods;
+-import org.mockitoutil.TestBase;
+-
+-@Ignore
+-//TODO
+-public class NPEWithIsAClassMatcherTest extends TestBase {
+-
+-    @Mock IMethods mock;
+-    
+-    @After
+-    public void clearState() {
+-        this.resetState();
+-    }
+-
+-    @Test
+-    public void shouldNotThrowNPEWhenIntegerPassed() {
+-        mock.intArgumentMethod(100);
+-
+-        verify(mock).intArgumentMethod(isA(Integer.class));
+-    }
+-
+-    @Test
+-    public void shouldNotThrowNPEWhenIntPassed() {
+-        mock.intArgumentMethod(100);
+-        
+-        verify(mock).intArgumentMethod(isA(Integer.class));
+-    }
+-    
+-    @Test
+-    public void shouldNotThrowNPEWhenIntegerPassedToEq() {
+-        mock.intArgumentMethod(100);
+-        
+-        verify(mock).intArgumentMethod(eq(new Integer(100)));
+-    }
++    public void shouldNotThrowNPEWhenIntegerPassedToEq() {
++        mock.intArgumentMethod(100);
++        
++        verify(mock).intArgumentMethod(eq(new Integer(100)));
++    }
+
+commit a663d2fe76bf1ff54bbe59bddcb52f9badec3f2a
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sat Jun 20 12:30:35 2009
+
+    In order to keep track on todo things added TODOs
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401548
+
+diff --git a/test/org/mockitousage/bugs/NPEWithIsAClassMatcherTest.java b/test/org/mockitousage/bugs/NPEWithIsAClassMatcherTest.java
+--- /dev/null
++++ b/test/org/mockitousage/bugs/NPEWithIsAClassMatcherTest.java
+@@ -0,0 +1,43 @@
++package org.mockitousage.bugs;
++
++import static org.mockito.Matchers.*;
++import static org.mockito.Mockito.*;
++
++import org.junit.After;
++import org.junit.Ignore;
++import org.junit.Test;
++import org.mockito.Mock;
++import org.mockitousage.IMethods;
++import org.mockitoutil.TestBase;
++
++@Ignore
++//TODO
++public class NPEWithIsAClassMatcherTest extends TestBase {
++
++    @Mock IMethods mock;
++    
++    @After
++    public void clearState() {
++        this.resetState();
++    }
++
++    @Test
++    public void shouldNotThrowNPEWhenIntegerPassed() {
++        mock.intArgumentMethod(100);
++
++        verify(mock).intArgumentMethod(isA(Integer.class));
++    }
++
++    @Test
++    public void shouldNotThrowNPEWhenIntPassed() {
++        mock.intArgumentMethod(100);
++        
++        verify(mock).intArgumentMethod(isA(Integer.class));
++    }
++    
++    @Test
++    public void shouldNotThrowNPEWhenIntegerPassedToEq() {
++        mock.intArgumentMethod(100);
++        
++        verify(mock).intArgumentMethod(eq(new Integer(100)));
++    }

@@ -1,0 +1,375 @@
+commit 0b2b82ad923b0455cde93286e3f504a1abd0863b
+Author: Henri Yandell <bayard@apache.org>
+Date:   Sun Jan 16 23:30:05 2011
+
+    Adding first method check from Math's MathUtils.gcd method; and unit tests showing that this was needed. Bug reported and solved by Christian Semrau [LANG-662]
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@1059749 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/math/FractionTest.java b/src/test/java/org/apache/commons/lang3/math/FractionTest.java
+--- a/src/test/java/org/apache/commons/lang3/math/FractionTest.java
++++ b/src/test/java/org/apache/commons/lang3/math/FractionTest.java
+@@ -250,85 +250,90 @@
+     public void testReducedFactory_int_int() {
+         Fraction f = null;
+         
+         // zero
+         f = Fraction.getReducedFraction(0, 1);
+         assertEquals(0, f.getNumerator());
+         assertEquals(1, f.getDenominator());
+         
+         // normal
+         f = Fraction.getReducedFraction(1, 1);
+         assertEquals(1, f.getNumerator());
+         assertEquals(1, f.getDenominator());
+         
+         f = Fraction.getReducedFraction(2, 1);
+         assertEquals(2, f.getNumerator());
+         assertEquals(1, f.getDenominator());
+         
+         // improper
+         f = Fraction.getReducedFraction(22, 7);
+         assertEquals(22, f.getNumerator());
+         assertEquals(7, f.getDenominator());
+         
+         // negatives
+         f = Fraction.getReducedFraction(-6, 10);
+         assertEquals(-3, f.getNumerator());
+         assertEquals(5, f.getDenominator());
+         
+         f = Fraction.getReducedFraction(6, -10);
+         assertEquals(-3, f.getNumerator());
+         assertEquals(5, f.getDenominator());
+         
+         f = Fraction.getReducedFraction(-6, -10);
+         assertEquals(3, f.getNumerator());
+         assertEquals(5, f.getDenominator());
+         
+         // zero denominator
+         try {
+             f = Fraction.getReducedFraction(1, 0);
+             fail("expecting ArithmeticException");
+         } catch (ArithmeticException ex) {}
+         
+         try {
+             f = Fraction.getReducedFraction(2, 0);
+             fail("expecting ArithmeticException");
+         } catch (ArithmeticException ex) {}
+         
+         try {
+             f = Fraction.getReducedFraction(-3, 0);
+             fail("expecting ArithmeticException");
+         } catch (ArithmeticException ex) {}
+ 
+         // reduced        
+         f = Fraction.getReducedFraction(0, 2);
+         assertEquals(0, f.getNumerator());
+         assertEquals(1, f.getDenominator());
+         
+         f = Fraction.getReducedFraction(2, 2);
+         assertEquals(1, f.getNumerator());
+         assertEquals(1, f.getDenominator());
+         
+         f = Fraction.getReducedFraction(2, 4);
+         assertEquals(1, f.getNumerator());
+         assertEquals(2, f.getDenominator());
+         
+         f = Fraction.getReducedFraction(15, 10);
+         assertEquals(3, f.getNumerator());
+         assertEquals(2, f.getDenominator());
+         
+         f = Fraction.getReducedFraction(121, 22);
+         assertEquals(11, f.getNumerator());
+         assertEquals(2, f.getDenominator());
+         
+         // Extreme values 
+         // OK, can reduce before negating
+         f = Fraction.getReducedFraction(-2, Integer.MIN_VALUE);
+         assertEquals(1, f.getNumerator());
+         assertEquals(-(Integer.MIN_VALUE / 2), f.getDenominator());
+         
+         // Can't reduce, negation will throw
+         try { 
+             f = Fraction.getReducedFraction(-7, Integer.MIN_VALUE);  
+             fail("Expecting ArithmeticException");
+         } catch (ArithmeticException ex) {}      
++
++        // LANG-662
++        f = Fraction.getReducedFraction(Integer.MIN_VALUE, 2);
++        assertEquals(Integer.MIN_VALUE / 2, f.getNumerator());
++        assertEquals(1, f.getDenominator());
+     }
+ 
+
+commit 9a662f1bfd76c49bfcb9e9947f008aade2db54eb
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sun Jul 11 19:20:17 2004
+
+    Fixed numeric problems reported in PR #29294
+    Submitted by: C. Scott Ananian
+    Reviewed by: Phil Steitz
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137879 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/math/FractionTest.java b/src/test/org/apache/commons/lang/math/FractionTest.java
+--- a/src/test/org/apache/commons/lang/math/FractionTest.java
++++ b/src/test/org/apache/commons/lang/math/FractionTest.java
+@@ -228,73 +262,85 @@
+     public void testReducedFactory_int_int() {
+         Fraction f = null;
+         
+         // zero
+         f = Fraction.getReducedFraction(0, 1);
+         assertEquals(0, f.getNumerator());
+         assertEquals(1, f.getDenominator());
+         
+         // normal
+         f = Fraction.getReducedFraction(1, 1);
+         assertEquals(1, f.getNumerator());
+         assertEquals(1, f.getDenominator());
+         
+         f = Fraction.getReducedFraction(2, 1);
+         assertEquals(2, f.getNumerator());
+         assertEquals(1, f.getDenominator());
+         
+         // improper
+         f = Fraction.getReducedFraction(22, 7);
+         assertEquals(22, f.getNumerator());
+         assertEquals(7, f.getDenominator());
+         
+         // negatives
+         f = Fraction.getReducedFraction(-6, 10);
+         assertEquals(-3, f.getNumerator());
+         assertEquals(5, f.getDenominator());
+         
+         f = Fraction.getReducedFraction(6, -10);
+         assertEquals(-3, f.getNumerator());
+         assertEquals(5, f.getDenominator());
+         
+         f = Fraction.getReducedFraction(-6, -10);
+         assertEquals(3, f.getNumerator());
+         assertEquals(5, f.getDenominator());
+         
+         // zero denominator
+         try {
+             f = Fraction.getReducedFraction(1, 0);
+             fail("expecting ArithmeticException");
+         } catch (ArithmeticException ex) {}
+         
+         try {
+             f = Fraction.getReducedFraction(2, 0);
+             fail("expecting ArithmeticException");
+         } catch (ArithmeticException ex) {}
+         
+         try {
+             f = Fraction.getReducedFraction(-3, 0);
+             fail("expecting ArithmeticException");
+         } catch (ArithmeticException ex) {}
+ 
+         // reduced        
+         f = Fraction.getReducedFraction(0, 2);
+         assertEquals(0, f.getNumerator());
+         assertEquals(1, f.getDenominator());
+         
+         f = Fraction.getReducedFraction(2, 2);
+         assertEquals(1, f.getNumerator());
+         assertEquals(1, f.getDenominator());
+         
+         f = Fraction.getReducedFraction(2, 4);
+         assertEquals(1, f.getNumerator());
+         assertEquals(2, f.getDenominator());
+         
+         f = Fraction.getReducedFraction(15, 10);
+         assertEquals(3, f.getNumerator());
+         assertEquals(2, f.getDenominator());
+         
+         f = Fraction.getReducedFraction(121, 22);
+         assertEquals(11, f.getNumerator());
+         assertEquals(2, f.getDenominator());
++        
++        // Extreme values 
++        // OK, can reduce before negating
++        f = Fraction.getReducedFraction(-2, Integer.MIN_VALUE);
++        assertEquals(1, f.getNumerator());
++        assertEquals(-(Integer.MIN_VALUE / 2), f.getDenominator());
++        
++        // Can't reduce, negation will throw
++        try { 
++            f = Fraction.getReducedFraction(-7, Integer.MIN_VALUE);  
++            fail("Expecting ArithmeticException");
++        } catch (ArithmeticException ex) {}      
+     }
+ 
+
+commit ab3779080b0c12668cca7fc9f12d6f38d6495892
+Author: Stephen Colebourne <scolebourne@apache.org>
+Date:   Wed Aug 13 19:42:17 2003
+
+    Improve Fraction Javadoc, implementation and tests
+    bug 22386, from Phil Steitz
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137586 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/math/FractionTest.java b/src/test/org/apache/commons/lang/math/FractionTest.java
+--- a/src/test/org/apache/commons/lang/math/FractionTest.java
++++ b/src/test/org/apache/commons/lang/math/FractionTest.java
+@@ -244,70 +266,73 @@
+     public void testReducedFactory_int_int() {
+         Fraction f = null;
+         
+         // zero
+         f = Fraction.getReducedFraction(0, 1);
+         assertEquals(0, f.getNumerator());
+         assertEquals(1, f.getDenominator());
+         
+         // normal
+         f = Fraction.getReducedFraction(1, 1);
+         assertEquals(1, f.getNumerator());
+         assertEquals(1, f.getDenominator());
+         
+         f = Fraction.getReducedFraction(2, 1);
+         assertEquals(2, f.getNumerator());
+         assertEquals(1, f.getDenominator());
+         
+         // improper
+         f = Fraction.getReducedFraction(22, 7);
+         assertEquals(22, f.getNumerator());
+         assertEquals(7, f.getDenominator());
+         
+         // negatives
+         f = Fraction.getReducedFraction(-6, 10);
+         assertEquals(-3, f.getNumerator());
+         assertEquals(5, f.getDenominator());
+         
+         f = Fraction.getReducedFraction(6, -10);
+         assertEquals(-3, f.getNumerator());
+         assertEquals(5, f.getDenominator());
+         
+         f = Fraction.getReducedFraction(-6, -10);
+         assertEquals(3, f.getNumerator());
+         assertEquals(5, f.getDenominator());
+         
+         // zero denominator
+         try {
+             f = Fraction.getReducedFraction(1, 0);
++            fail("expecting ArithmeticException");
+         } catch (ArithmeticException ex) {}
+         
+         try {
+             f = Fraction.getReducedFraction(2, 0);
++            fail("expecting ArithmeticException");
+         } catch (ArithmeticException ex) {}
+         
+         try {
+             f = Fraction.getReducedFraction(-3, 0);
++            fail("expecting ArithmeticException");
+         } catch (ArithmeticException ex) {}
+ 
+         // reduced        
+         f = Fraction.getReducedFraction(0, 2);
+         assertEquals(0, f.getNumerator());
+         assertEquals(1, f.getDenominator());
+         
+         f = Fraction.getReducedFraction(2, 2);
+         assertEquals(1, f.getNumerator());
+         assertEquals(1, f.getDenominator());
+         
+         f = Fraction.getReducedFraction(2, 4);
+         assertEquals(1, f.getNumerator());
+         assertEquals(2, f.getDenominator());
+         
+         f = Fraction.getReducedFraction(15, 10);
+         assertEquals(3, f.getNumerator());
+         assertEquals(2, f.getDenominator());
+         
+         f = Fraction.getReducedFraction(121, 22);
+         assertEquals(11, f.getNumerator());
+         assertEquals(2, f.getDenominator());
+     }
+ 
+
+commit 7e8976d60b8a24f9fc03f89d98304d77e6153b6d
+Author: Stephen Colebourne <scolebourne@apache.org>
+Date:   Sun Dec 22 14:39:39 2002
+
+    Add Fraction class and associated tests
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137198 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/math/FractionTest.java b/src/test/org/apache/commons/lang/math/FractionTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/lang/math/FractionTest.java
+@@ -0,0 +244,70 @@
++    public void testReducedFactory_int_int() {
++        Fraction f = null;
++        
++        // zero
++        f = Fraction.getReducedFraction(0, 1);
++        assertEquals(0, f.getNumerator());
++        assertEquals(1, f.getDenominator());
++        
++        // normal
++        f = Fraction.getReducedFraction(1, 1);
++        assertEquals(1, f.getNumerator());
++        assertEquals(1, f.getDenominator());
++        
++        f = Fraction.getReducedFraction(2, 1);
++        assertEquals(2, f.getNumerator());
++        assertEquals(1, f.getDenominator());
++        
++        // improper
++        f = Fraction.getReducedFraction(22, 7);
++        assertEquals(22, f.getNumerator());
++        assertEquals(7, f.getDenominator());
++        
++        // negatives
++        f = Fraction.getReducedFraction(-6, 10);
++        assertEquals(-3, f.getNumerator());
++        assertEquals(5, f.getDenominator());
++        
++        f = Fraction.getReducedFraction(6, -10);
++        assertEquals(-3, f.getNumerator());
++        assertEquals(5, f.getDenominator());
++        
++        f = Fraction.getReducedFraction(-6, -10);
++        assertEquals(3, f.getNumerator());
++        assertEquals(5, f.getDenominator());
++        
++        // zero denominator
++        try {
++            f = Fraction.getReducedFraction(1, 0);
++        } catch (ArithmeticException ex) {}
++        
++        try {
++            f = Fraction.getReducedFraction(2, 0);
++        } catch (ArithmeticException ex) {}
++        
++        try {
++            f = Fraction.getReducedFraction(-3, 0);
++        } catch (ArithmeticException ex) {}
++
++        // reduced        
++        f = Fraction.getReducedFraction(0, 2);
++        assertEquals(0, f.getNumerator());
++        assertEquals(1, f.getDenominator());
++        
++        f = Fraction.getReducedFraction(2, 2);
++        assertEquals(1, f.getNumerator());
++        assertEquals(1, f.getDenominator());
++        
++        f = Fraction.getReducedFraction(2, 4);
++        assertEquals(1, f.getNumerator());
++        assertEquals(2, f.getDenominator());
++        
++        f = Fraction.getReducedFraction(15, 10);
++        assertEquals(3, f.getNumerator());
++        assertEquals(2, f.getDenominator());
++        
++        f = Fraction.getReducedFraction(121, 22);
++        assertEquals(11, f.getNumerator());
++        assertEquals(2, f.getDenominator());
++    }
++

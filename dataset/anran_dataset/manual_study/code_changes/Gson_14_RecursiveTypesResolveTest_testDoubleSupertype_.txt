@@ -1,0 +1,23 @@
+commit a300148003e3a067875b1444e8268b6e0f0e0e02
+Author: Andrey Mogilev <amogilev@gmail.com>
+Date:   Tue May 30 20:47:04 2017
+
+    Fix StackOverflowError on resolving recursive types by collapsing chains of type bounds (#1075)
+    
+    * Fixes StackOverflowError on resolving recursive types.
+    
+    See Issue #440, Issue #603, tests.
+    
+    * fix 'codacy' coding style warnings
+    
+    * added copyright header
+
+diff --git a/gson/src/test/java/com/google/gson/internal/bind/RecursiveTypesResolveTest.java b/gson/src/test/java/com/google/gson/internal/bind/RecursiveTypesResolveTest.java
+--- /dev/null
++++ b/gson/src/test/java/com/google/gson/internal/bind/RecursiveTypesResolveTest.java
+@@ -0,0 +70,5 @@
++  public void testDoubleSupertype() {
++    assertEquals($Gson$Types.supertypeOf(Number.class),
++            $Gson$Types.supertypeOf($Gson$Types.supertypeOf(Number.class)));
++  }
++

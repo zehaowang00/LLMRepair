@@ -1,0 +1,96 @@
+commit 0cefc4c212e92e5dccdfa658785c419483317558
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Mon Apr 30 07:27:07 2012
+
+    FieldUtils.safeMultiply(long,int) [3520651]
+    
+    Fix implementation to throw exception for (Long.MIN_VALUE, -1)
+
+diff --git a/src/test/java/org/joda/time/field/TestFieldUtils.java b/src/test/java/org/joda/time/field/TestFieldUtils.java
+--- a/src/test/java/org/joda/time/field/TestFieldUtils.java
++++ b/src/test/java/org/joda/time/field/TestFieldUtils.java
+@@ -233,8 +241,44 @@
+-      try {
+-          FieldUtils.safeMultiply(Long.MAX_VALUE, Long.MIN_VALUE);
+-          fail();
+-      } catch (ArithmeticException e) {
+-      }
+-  }
++    public void testSafeMultiplyLongInt() {
++        assertEquals(0L, FieldUtils.safeMultiply(0L, 0));
++        
++        assertEquals(1L, FieldUtils.safeMultiply(1L, 1));
++        assertEquals(3L, FieldUtils.safeMultiply(1L, 3));
++        assertEquals(3L, FieldUtils.safeMultiply(3L, 1));
++        
++        assertEquals(6L, FieldUtils.safeMultiply(2L, 3));
++        assertEquals(-6L, FieldUtils.safeMultiply(2L, -3));
++        assertEquals(-6L, FieldUtils.safeMultiply(-2L, 3));
++        assertEquals(6L, FieldUtils.safeMultiply(-2L, -3));
++        
++        assertEquals(-1L * Integer.MIN_VALUE, FieldUtils.safeMultiply(-1L, Integer.MIN_VALUE));
++        
++        assertEquals(Long.MAX_VALUE, FieldUtils.safeMultiply(Long.MAX_VALUE, 1));
++        assertEquals(Long.MIN_VALUE, FieldUtils.safeMultiply(Long.MIN_VALUE, 1));
++        assertEquals(-Long.MAX_VALUE, FieldUtils.safeMultiply(Long.MAX_VALUE, -1));
++        
++        try {
++            FieldUtils.safeMultiply(Long.MIN_VALUE, -1);
++            fail();
++        } catch (ArithmeticException e) {
++        }
++        
++        try {
++            FieldUtils.safeMultiply(Long.MIN_VALUE, 100);
++            fail();
++        } catch (ArithmeticException e) {
++        }
++        
++        try {
++            FieldUtils.safeMultiply(Long.MIN_VALUE, Integer.MAX_VALUE);
++            fail();
++        } catch (ArithmeticException e) {
++        }
++        
++        try {
++            FieldUtils.safeMultiply(Long.MAX_VALUE, Integer.MIN_VALUE);
++            fail();
++        } catch (ArithmeticException e) {
++        }
++    }
+ }
+ 
+
+commit 714c53e2af8fe894fda54eb805958ced0ce08532
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Tue Feb 21 11:16:36 2012
+
+    Fix multiplication of Long.MIN_VALUE by -1 in safeMultiply()
+
+diff --git a/src/test/java/org/joda/time/field/TestFieldUtils.java b/src/test/java/org/joda/time/field/TestFieldUtils.java
+--- a/src/test/java/org/joda/time/field/TestFieldUtils.java
++++ b/src/test/java/org/joda/time/field/TestFieldUtils.java
+@@ -191,1 +233,8 @@
++      try {
++          FieldUtils.safeMultiply(Long.MAX_VALUE, Long.MIN_VALUE);
++          fail();
++      } catch (ArithmeticException e) {
++      }
++  }
+ }
++
+
+commit f6e53770a373272f8779b61116c6a36660644963
+Author: Brian S O'Neill <bronee@gmail.com>
+Date:   Wed Sep 7 14:26:06 2005
+
+    Added tests for FieldUtils.
+    
+    
+    git-svn-id: https://joda-time.svn.sourceforge.net/svnroot/joda-time/trunk@894 1e1cfbb7-5c0e-0410-a2f0-f98d92ec03a1
+
+diff --git a/JodaTime/src/test/org/joda/time/field/TestFieldUtils.java b/JodaTime/src/test/org/joda/time/field/TestFieldUtils.java
+--- /dev/null
++++ b/JodaTime/src/test/org/joda/time/field/TestFieldUtils.java
+@@ -0,0 +191,1 @@
++}

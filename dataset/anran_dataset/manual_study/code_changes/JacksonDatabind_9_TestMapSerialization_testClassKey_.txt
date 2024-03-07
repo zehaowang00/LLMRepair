@@ -1,0 +1,30 @@
+commit 00bb11edc3581f42e1f3c78a047538c8ea9eb0d9
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Tue Jan 20 01:14:14 2015
+
+    Fix #682
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/ser/TestMapSerialization.java b/src/test/java/com/fasterxml/jackson/databind/ser/TestMapSerialization.java
+--- a/src/test/java/com/fasterxml/jackson/databind/ser/TestMapSerialization.java
++++ b/src/test/java/com/fasterxml/jackson/databind/ser/TestMapSerialization.java
+@@ -250,1 +251,8 @@
++    public void testClassKey() throws IOException
++    {
++        Map<Class<?>,Integer> map = new LinkedHashMap<Class<?>,Integer>();
++        map.put(String.class, 2);
++        String json = MAPPER.writeValueAsString(map);
++        assertEquals(aposToQuotes("{'java.lang.String':2}"), json);
++    }
+ }
+
+commit a63c2038a03c7090ce4773d6cf54809150e59350
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 03:26:53 2011
+
+    Add unit tests, almost compilable
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/ser/TestMapSerialization.java b/src/test/java/com/fasterxml/jackson/databind/ser/TestMapSerialization.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/ser/TestMapSerialization.java
+@@ -0,0 +114,1 @@
++}

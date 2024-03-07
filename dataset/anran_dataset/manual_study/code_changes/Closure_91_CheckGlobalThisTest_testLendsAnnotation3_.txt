@@ -1,0 +1,44 @@
+commit 7eb2d84de101a125d41d3a1157f4eed789ca4a0d
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Oct 22 18:22:01 2010
+
+    don't emit unsafe global this warnings
+    when the @lends annotation is used correctly.
+    fixes issue 248
+    
+    R=acleung
+    DELTA=28  (28 added, 0 deleted, 0 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=636002
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@506 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CheckGlobalThisTest.java b/test/com/google/javascript/jscomp/CheckGlobalThisTest.java
+--- a/test/com/google/javascript/jscomp/CheckGlobalThisTest.java
++++ b/test/com/google/javascript/jscomp/CheckGlobalThisTest.java
+@@ -223,1 +235,6 @@
++  public void testLendsAnnotation3() {
++    testSame("/** @constructor */ function F() {}" +
++        "dojo.declare(F, /** @lends {F.prototype} */ (" +
++        "    {foo: function() { return this.foo; }}));");
++  }
+ }
+
+commit 6b49cfd9022fe111bdad745c78ea877fbc2f7ba3
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 3 18:51:57 2009
+
+    Initial commit.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CheckGlobalThisTest.java b/test/com/google/javascript/jscomp/CheckGlobalThisTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/CheckGlobalThisTest.java
+@@ -0,0 +161,1 @@
++}

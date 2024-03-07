@@ -1,0 +1,60 @@
+commit 0b3a8a3128890f710700d04e38df48b883d11d91
+Author: Henri Yandell <bayard@apache.org>
+Date:   Sun Jul 3 03:55:33 2011
+
+    Adding tests and resolving LANG-710, reported by Benjamin Valentin. Note that this changed such that the code will now escape an unfinished entity (i.e. &#030). This matches browser behaviour.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@1142389 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaperTest.java b/src/test/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaperTest.java
+--- a/src/test/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaperTest.java
++++ b/src/test/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaperTest.java
+@@ -39,8 +46,10 @@
+-        String input = "Test &";
+-        String expected = input;
++    public void testUnfinishedEntity() {
++        NumericEntityUnescaper neu = new NumericEntityUnescaper();
++        String input = "Test &#x30 not test";
++        String expected = "Test \u0030 not test";
+ 
+         String result = neu.translate(input);
+-        assertEquals("Failed to ignore when last character is &", expected, result);
++        assertEquals("Failed to support unfinished entities (i.e. missing semi-colon", expected, result);
+     }
+ 
+ }
+
+commit 8bbab3898bb91f1efa442b3997f92be8ce191d02
+Author: Henri Yandell <bayard@apache.org>
+Date:   Sun Jan 30 03:01:19 2011
+
+    Implemented TODO to protect unescaper from ArrayIndexOutOfBounds
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@1065215 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaperTest.java b/src/test/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaperTest.java
+--- a/src/test/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaperTest.java
++++ b/src/test/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaperTest.java
+@@ -37,1 +39,8 @@
++        String input = "Test &";
++        String expected = input;
++
++        String result = neu.translate(input);
++        assertEquals("Failed to ignore when last character is &", expected, result);
++    }
++
+ }
+
+commit 3e1afecc200d7e3be9537c95b7cf52a7c5031300
+Author: Henri Yandell <bayard@apache.org>
+Date:   Tue Jun 22 02:34:18 2010
+
+    Adding a test, and code fix, to have supplementary chars working in numeric entity unescaping. See LANG-617
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@956787 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaperTest.java b/src/test/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaperTest.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaperTest.java
+@@ -0,0 +36,1 @@
++}

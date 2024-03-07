@@ -1,0 +1,63 @@
+commit 00d95be253a9ef52a46d57a8d93330334db90260
+Author: Emory Merryman <emory.merryman@gmail.com>
+Date:   Sun Apr 6 05:22:58 2014
+
+    added test to show issue 484
+    http://code.google.com/p/mockito/issues/detail?id=484
+
+diff --git a/test/org/mockito/internal/matchers/EqualityTest.java b/test/org/mockito/internal/matchers/EqualityTest.java
+--- a/test/org/mockito/internal/matchers/EqualityTest.java
++++ b/test/org/mockito/internal/matchers/EqualityTest.java
+@@ -14,15 +14,19 @@
+     public void shouldKnowIfObjectsAreEqual() throws Exception {
+         int[] arr = new int[] {1, 2};
+         assertTrue(areEqual(arr, arr));
+         assertTrue(areEqual(new int[] {1, 2}, new int[] {1, 2}));
+         assertTrue(areEqual(new Double[] {1.0}, new Double[] {1.0}));
+         assertTrue(areEqual(new String[0], new String[0]));
+         assertTrue(areEqual(new Object[10], new Object[10]));
+         assertTrue(areEqual(new int[] {1}, new Integer[] {1}));
+         assertTrue(areEqual(new Object[] {"1"}, new String[] {"1"}));
++	Object badequals=new BadEquals();
++	assertTrue(areEqual(badequals,badequals));
+ 
+         assertFalse(areEqual(new Object[9], new Object[10]));
+         assertFalse(areEqual(new int[] {1, 2}, new int[] {1}));
+         assertFalse(areEqual(new int[] {1}, new double[] {1.0}));
+     }
+-}
+\ No newline at end of file
++
++   private final class BadEquals {
++    @Override
+
+commit 8717814f2e075927e4058d91ba746f4d9ec54dcc
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Tue Nov 10 17:10:48 2009
+
+    Fixed issue 141
+    In order to do smarter matching when parameters are arrays.
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401679
+
+diff --git a/test/org/mockito/internal/matchers/EqualityTest.java b/test/org/mockito/internal/matchers/EqualityTest.java
+--- /dev/null
++++ b/test/org/mockito/internal/matchers/EqualityTest.java
+@@ -0,0 +10,15 @@
++    public void shouldKnowIfObjectsAreEqual() throws Exception {
++        int[] arr = new int[] {1, 2};
++        assertTrue(areEqual(arr, arr));
++        assertTrue(areEqual(new int[] {1, 2}, new int[] {1, 2}));
++        assertTrue(areEqual(new Double[] {1.0}, new Double[] {1.0}));
++        assertTrue(areEqual(new String[0], new String[0]));
++        assertTrue(areEqual(new Object[10], new Object[10]));
++        assertTrue(areEqual(new int[] {1}, new Integer[] {1}));
++        assertTrue(areEqual(new Object[] {"1"}, new String[] {"1"}));
++
++        assertFalse(areEqual(new Object[9], new Object[10]));
++        assertFalse(areEqual(new int[] {1, 2}, new int[] {1}));
++        assertFalse(areEqual(new int[] {1}, new double[] {1.0}));
++    }
++}
+\ No newline at end of file

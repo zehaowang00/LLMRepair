@@ -1,0 +1,40 @@
+commit ac239c7c53aa4d6c3105f600dec8af69da530883
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Oct 19 12:41:16 2012
+
+    Add a new isInvariant relation.
+    Fixes issue 791.
+    
+    R=dimvar
+    DELTA=231  (175 added, 7 deleted, 49 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=5678
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2265 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/rhino/jstype/RecordTypeTest.java b/test/com/google/javascript/rhino/jstype/RecordTypeTest.java
+--- a/test/com/google/javascript/rhino/jstype/RecordTypeTest.java
++++ b/test/com/google/javascript/rhino/jstype/RecordTypeTest.java
+@@ -112,0 +124,19 @@
++  public void testSubtypeWithUnknowns2() throws Exception {
++    JSType recordA = new RecordTypeBuilder(registry)
++        .addProperty("a",
++            new FunctionBuilder(registry)
++            .withReturnType(NUMBER_TYPE)
++            .build(),
++            null)
++        .build();
++    JSType recordB = new RecordTypeBuilder(registry)
++        .addProperty("a",
++            new FunctionBuilder(registry)
++            .withReturnType(UNKNOWN_TYPE)
++            .build(),
++            null)
++        .build();
++    assertTrue(recordA.isSubtype(recordB));
++    assertTrue(recordB.isSubtype(recordA));
++  }
++

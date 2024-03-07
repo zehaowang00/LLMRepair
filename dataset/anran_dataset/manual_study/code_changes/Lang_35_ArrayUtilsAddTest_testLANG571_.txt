@@ -1,0 +1,62 @@
+commit 80bd78ea0685d28ddec9b8162d652db9dec949ce
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Sat Jan 16 07:39:20 2010
+
+    LANG-571 ArrayUtils.add(T[] array[, offset], T element) can create unexpected ClassCastException
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@899929 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/ArrayUtilsAddTest.java b/src/test/java/org/apache/commons/lang3/ArrayUtilsAddTest.java
+--- a/src/test/java/org/apache/commons/lang3/ArrayUtilsAddTest.java
++++ b/src/test/java/org/apache/commons/lang3/ArrayUtilsAddTest.java
+@@ -224,1 +225,19 @@
++    public void testLANG571(){
++        String[] stringArray=null;
++        String aString=null;
++        try {
++            @SuppressWarnings("unused")
++            String[] sa = ArrayUtils.add(stringArray, aString);
++            fail("Should have caused IllegalArgumentException");
++        } catch (IllegalArgumentException iae){
++            //expected
++        }
++        try {
++            @SuppressWarnings("unused")
++            String[] sa = ArrayUtils.add(stringArray, 0, aString);
++            fail("Should have caused IllegalArgumentException");
++        } catch (IllegalArgumentException iae){
++            //expected
++        }
++    }
+ 
+
+commit f1f885f17f9039702cc258fb7bc7688755fc0229
+Author: Matthew Jason Benson <mbenson@apache.org>
+Date:   Fri Sep 11 14:27:18 2009
+
+    ArrayUtils generics
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@813971 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/ArrayUtilsAddTest.java b/src/test/org/apache/commons/lang/ArrayUtilsAddTest.java
+--- a/src/test/org/apache/commons/lang/ArrayUtilsAddTest.java
++++ b/src/test/org/apache/commons/lang/ArrayUtilsAddTest.java
+@@ -212,1 +223,1 @@
+-    
++
+
+commit 70de8cc81082b1a1bd25be1c0453b3a2adb89b02
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Tue Feb 3 17:14:24 2004
+
+    Bugzilla Bug 26056 [lang] Add methods to ArrayUtils: add at end and insert-like ops
+    Added methods: primitiveType[] add(primitiveType[], primitiveType)
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137769 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/ArrayUtilsAddTest.java b/src/test/org/apache/commons/lang/ArrayUtilsAddTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/lang/ArrayUtilsAddTest.java
+@@ -0,0 +231,1 @@
++    

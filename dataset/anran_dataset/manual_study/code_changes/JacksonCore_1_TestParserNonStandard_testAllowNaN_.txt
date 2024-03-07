@@ -1,0 +1,16 @@
+commit 5ff8a2d9a72f0741f9465bf7f04584a3c3e8c28f
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 00:52:24 2011
+
+    Add unit tests from 1.x, all but 2 passing
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/json/TestParserNonStandard.java b/src/test/java/com/fasterxml/jackson/core/json/TestParserNonStandard.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/core/json/TestParserNonStandard.java
+@@ -0,0 +62,6 @@
++    public void testAllowNaN() throws Exception {
++        _testAllowNaN(false);
++        _testAllowNaN(true);
++    }
++
++    // [JACKSON-142]: allow +Inf/-Inf

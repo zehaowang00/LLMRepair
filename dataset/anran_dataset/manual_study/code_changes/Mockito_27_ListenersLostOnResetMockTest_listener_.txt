@@ -1,0 +1,25 @@
+commit a8ec4fa290bc1cdde060218d6bb811ac1fa6da6f
+Author: Brice <brice.Dutheil@gmail.com>
+Date:   Sat Oct 1 11:09:50 2011
+
+    issue 282 : mock invocation listeners were removed on reset(mock)
+    
+    --HG--
+    branch : 1.9-rc1
+    extra : transplant_source : R%1C%F1%AA%AA%FEJ%AAZ%E9Dy%F4%5D%29%91%B7%5E%12%7F
+
+diff --git a/test/org/mockitousage/bugs/ListenersLostOnResetMockTest.java b/test/org/mockitousage/bugs/ListenersLostOnResetMockTest.java
+--- /dev/null
++++ b/test/org/mockitousage/bugs/ListenersLostOnResetMockTest.java
+@@ -0,0 +15,11 @@
++    public void listener() throws Exception {
++        InvocationListener invocationListener = mock(InvocationListener.class);
++
++        List mockedList = mock(List.class, withSettings().invocationListeners(invocationListener));
++        reset(mockedList);
++
++        mockedList.clear();
++
++        verify(invocationListener).reportInvocation(any(MethodInvocationReport.class));
++    }
++}

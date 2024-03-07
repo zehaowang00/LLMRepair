@@ -1,0 +1,306 @@
+commit d58006a939b740ea78dc61128065a6fdb8f303ca
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Aug 2 18:05:42 2012
+
+    Clean up the reverse abstract interpreter a bit so that
+    we handle "checked unknowns" better, and don't have lots of spurious
+    unknown slots during data flow-based type inference.
+    fixes issue 783
+    
+    Tested:
+    yes
+    
+    R=johnlenz
+    DELTA=249  (87 added, 130 deleted, 32 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=5297
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2121 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/rhino/jstype/JSTypeTest.java b/test/com/google/javascript/rhino/jstype/JSTypeTest.java
+--- a/test/com/google/javascript/rhino/jstype/JSTypeTest.java
++++ b/test/com/google/javascript/rhino/jstype/JSTypeTest.java
+@@ -5216,68 +5216,68 @@
+       public void testRestrictedTypeGivenToBoolean() {
+     // simple cases
+     assertTypeEquals(BOOLEAN_TYPE,
+         BOOLEAN_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
+     assertTypeEquals(BOOLEAN_TYPE,
+         BOOLEAN_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
+ 
+     assertTypeEquals(NO_TYPE,
+         NULL_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
+     assertTypeEquals(NULL_TYPE,
+         NULL_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
+ 
+     assertTypeEquals(NUMBER_TYPE,
+         NUMBER_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
+     assertTypeEquals(NUMBER_TYPE,
+         NUMBER_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
+ 
+     assertTypeEquals(STRING_TYPE,
+         STRING_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
+     assertTypeEquals(STRING_TYPE,
+         STRING_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
+ 
+     assertTypeEquals(STRING_OBJECT_TYPE,
+         STRING_OBJECT_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
+     assertTypeEquals(NO_TYPE,
+         STRING_OBJECT_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
+ 
+     assertTypeEquals(NO_TYPE,
+         VOID_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
+     assertTypeEquals(VOID_TYPE,
+         VOID_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
+ 
+     assertTypeEquals(NO_OBJECT_TYPE,
+         NO_OBJECT_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
+     assertTypeEquals(NO_TYPE,
+         NO_OBJECT_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
+ 
+     assertTypeEquals(NO_TYPE,
+         NO_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
+     assertTypeEquals(NO_TYPE,
+         NO_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
+ 
+     assertTypeEquals(ALL_TYPE,
+         ALL_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
+     assertTypeEquals(ALL_TYPE,
+         ALL_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
+ 
+-    assertTypeEquals(UNKNOWN_TYPE,
++    assertTypeEquals(CHECKED_UNKNOWN_TYPE,
+         UNKNOWN_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
+     assertTypeEquals(UNKNOWN_TYPE,
+         UNKNOWN_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
+ 
+     // unions
+     UnionType nullableStringValue =
+         (UnionType) createNullableType(STRING_TYPE);
+     assertTypeEquals(STRING_TYPE,
+         nullableStringValue.getRestrictedTypeGivenToBooleanOutcome(true));
+     assertTypeEquals(nullableStringValue,
+         nullableStringValue.getRestrictedTypeGivenToBooleanOutcome(false));
+ 
+     UnionType nullableStringObject =
+         (UnionType) createNullableType(STRING_OBJECT_TYPE);
+     assertTypeEquals(STRING_OBJECT_TYPE,
+         nullableStringObject.getRestrictedTypeGivenToBooleanOutcome(true));
+     assertTypeEquals(NULL_TYPE,
+         nullableStringObject.getRestrictedTypeGivenToBooleanOutcome(false));
+   }
+ 
+
+commit cf5fd88f13f0b11625ac407f85cb58b36862e173
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Wed May 26 11:26:52 2010
+
+    Change on 2010/05/25 by nicksantos
+    
+            start moving away from using Object#equals for type equality.
+    
+            R=johnlenz
+            DELTA=445  (98 added, 3 deleted, 344 changed)
+    
+    Change on 2010/05/25 by acleung
+    
+            Fix bug with resolving a member function of a resolved constructor.
+    
+            R=johnlenz
+            DELTA=48  (48 added, 0 deleted, 0 changed)
+    
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=12002
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@231 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/rhino/jstype/JSTypeTest.java b/test/com/google/javascript/rhino/jstype/JSTypeTest.java
+--- a/test/com/google/javascript/rhino/jstype/JSTypeTest.java
++++ b/test/com/google/javascript/rhino/jstype/JSTypeTest.java
+@@ -4724,68 +4755,68 @@
+       public void testRestrictedTypeGivenToBoolean() {
+     // simple cases
+-    assertEquals(BOOLEAN_TYPE,
++    assertTypeEquals(BOOLEAN_TYPE,
+         BOOLEAN_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
+-    assertEquals(BOOLEAN_TYPE,
++    assertTypeEquals(BOOLEAN_TYPE,
+         BOOLEAN_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
+ 
+-    assertEquals(NO_TYPE,
++    assertTypeEquals(NO_TYPE,
+         NULL_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
+-    assertEquals(NULL_TYPE,
++    assertTypeEquals(NULL_TYPE,
+         NULL_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
+ 
+-    assertEquals(NUMBER_TYPE,
++    assertTypeEquals(NUMBER_TYPE,
+         NUMBER_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
+-    assertEquals(NUMBER_TYPE,
++    assertTypeEquals(NUMBER_TYPE,
+         NUMBER_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
+ 
+-    assertEquals(STRING_TYPE,
++    assertTypeEquals(STRING_TYPE,
+         STRING_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
+-    assertEquals(STRING_TYPE,
++    assertTypeEquals(STRING_TYPE,
+         STRING_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
+ 
+-    assertEquals(STRING_OBJECT_TYPE,
++    assertTypeEquals(STRING_OBJECT_TYPE,
+         STRING_OBJECT_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
+-    assertEquals(NO_TYPE,
++    assertTypeEquals(NO_TYPE,
+         STRING_OBJECT_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
+ 
+-    assertEquals(NO_TYPE,
++    assertTypeEquals(NO_TYPE,
+         VOID_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
+-    assertEquals(VOID_TYPE,
++    assertTypeEquals(VOID_TYPE,
+         VOID_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
+ 
+-    assertEquals(NO_OBJECT_TYPE,
++    assertTypeEquals(NO_OBJECT_TYPE,
+         NO_OBJECT_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
+-    assertEquals(NO_TYPE,
++    assertTypeEquals(NO_TYPE,
+         NO_OBJECT_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
+ 
+-    assertEquals(NO_TYPE,
++    assertTypeEquals(NO_TYPE,
+         NO_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
+-    assertEquals(NO_TYPE,
++    assertTypeEquals(NO_TYPE,
+         NO_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
+ 
+-    assertEquals(ALL_TYPE,
++    assertTypeEquals(ALL_TYPE,
+         ALL_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
+-    assertEquals(ALL_TYPE,
++    assertTypeEquals(ALL_TYPE,
+         ALL_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
+ 
+-    assertEquals(UNKNOWN_TYPE,
++    assertTypeEquals(UNKNOWN_TYPE,
+         UNKNOWN_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
+-    assertEquals(UNKNOWN_TYPE,
++    assertTypeEquals(UNKNOWN_TYPE,
+         UNKNOWN_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
+ 
+     // unions
+     UnionType nullableStringValue =
+         (UnionType) createNullableType(STRING_TYPE);
+-    assertEquals(STRING_TYPE,
++    assertTypeEquals(STRING_TYPE,
+         nullableStringValue.getRestrictedTypeGivenToBooleanOutcome(true));
+-    assertEquals(nullableStringValue,
++    assertTypeEquals(nullableStringValue,
+         nullableStringValue.getRestrictedTypeGivenToBooleanOutcome(false));
+ 
+     UnionType nullableStringObject =
+         (UnionType) createNullableType(STRING_OBJECT_TYPE);
+-    assertEquals(STRING_OBJECT_TYPE,
++    assertTypeEquals(STRING_OBJECT_TYPE,
+         nullableStringObject.getRestrictedTypeGivenToBooleanOutcome(true));
+-    assertEquals(NULL_TYPE,
++    assertTypeEquals(NULL_TYPE,
+         nullableStringObject.getRestrictedTypeGivenToBooleanOutcome(false));
+   }
+ 
+
+commit 845f5ff65858fd0d1829f3d2f16f758725e8028f
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Dec 7 16:53:31 2009
+
+    Add buttloads of tests.
+    
+    Rewrite JSDoc inference to be more redundant, which should help it
+    to be more robust.
+    
+    Assorted other fixes.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@20 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/rhino/jstype/JSTypeTest.java b/test/com/google/javascript/rhino/jstype/JSTypeTest.java
+--- /dev/null
++++ b/test/com/google/javascript/rhino/jstype/JSTypeTest.java
+@@ -0,0 +4810,68 @@
++      public void testRestrictedTypeGivenToBoolean() {
++    // simple cases
++    assertEquals(BOOLEAN_TYPE,
++        BOOLEAN_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
++    assertEquals(BOOLEAN_TYPE,
++        BOOLEAN_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
++
++    assertEquals(NO_TYPE,
++        NULL_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
++    assertEquals(NULL_TYPE,
++        NULL_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
++
++    assertEquals(NUMBER_TYPE,
++        NUMBER_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
++    assertEquals(NUMBER_TYPE,
++        NUMBER_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
++
++    assertEquals(STRING_TYPE,
++        STRING_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
++    assertEquals(STRING_TYPE,
++        STRING_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
++
++    assertEquals(STRING_OBJECT_TYPE,
++        STRING_OBJECT_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
++    assertEquals(NO_TYPE,
++        STRING_OBJECT_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
++
++    assertEquals(NO_TYPE,
++        VOID_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
++    assertEquals(VOID_TYPE,
++        VOID_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
++
++    assertEquals(NO_OBJECT_TYPE,
++        NO_OBJECT_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
++    assertEquals(NO_TYPE,
++        NO_OBJECT_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
++
++    assertEquals(NO_TYPE,
++        NO_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
++    assertEquals(NO_TYPE,
++        NO_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
++
++    assertEquals(ALL_TYPE,
++        ALL_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
++    assertEquals(ALL_TYPE,
++        ALL_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
++
++    assertEquals(UNKNOWN_TYPE,
++        UNKNOWN_TYPE.getRestrictedTypeGivenToBooleanOutcome(true));
++    assertEquals(UNKNOWN_TYPE,
++        UNKNOWN_TYPE.getRestrictedTypeGivenToBooleanOutcome(false));
++
++    // unions
++    UnionType nullableStringValue =
++        (UnionType) createNullableType(STRING_TYPE);
++    assertEquals(STRING_TYPE,
++        nullableStringValue.getRestrictedTypeGivenToBooleanOutcome(true));
++    assertEquals(nullableStringValue,
++        nullableStringValue.getRestrictedTypeGivenToBooleanOutcome(false));
++
++    UnionType nullableStringObject =
++        (UnionType) createNullableType(STRING_OBJECT_TYPE);
++    assertEquals(STRING_OBJECT_TYPE,
++        nullableStringObject.getRestrictedTypeGivenToBooleanOutcome(true));
++    assertEquals(NULL_TYPE,
++        nullableStringObject.getRestrictedTypeGivenToBooleanOutcome(false));
++  }
++

@@ -1,0 +1,255 @@
+commit 654bc6f981587bd4b39b66702550bad33e1eacc9
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sun Jun 25 02:47:45 2017
+
+    Stream network loading (#905)
+    
+    Implements a stream based input reader.
+    
+    This changes URL & file inputs from buffering the whole content into a
+    string before starting to parse, into a stream based read.
+    
+    Memory consumption when loading large pages from the network or a file is substantially reduced.
+
+diff --git a/src/test/java/org/jsoup/parser/CharacterReaderTest.java b/src/test/java/org/jsoup/parser/CharacterReaderTest.java
+index 1a09ce22..2a0084e5 100644
+--- a/src/test/java/org/jsoup/parser/CharacterReaderTest.java
++++ b/src/test/java/org/jsoup/parser/CharacterReaderTest.java
+@@ -165,6 +165,7 @@
+         assertFalse(r.matches("ne Two Three Four"));
+         assertEquals("ne Two Three", r.consumeToEnd());
+         assertFalse(r.matches("ne"));
++        assertTrue(r.isEmpty());
+     }
+ 
+     @Test
+@@ -244,5 +245,16 @@ public void rangeEquals() {
+         assertFalse(r.rangeEquals(18, 5, "CHIKE"));
+     }
+ 
++    @Test
++    public void empty() {
++        CharacterReader r = new CharacterReader("One");
++        assertTrue(r.matchConsume("One"));
++        assertTrue(r.isEmpty());
++
++        r = new CharacterReader("Two");
++        String two = r.consumeToEnd();
++        assertEquals("Two", two);
++    }
++
+ 
+ }
+
+commit 231aab61e228513853d08374e188217933f70986
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sun Jun 3 21:44:14 2012
+
+    Replaced Strings with char array in CharacterReader, for well improved parse times.
+    
+    Faster to scan, and less garbage created.
+
+diff --git a/src/test/java/org/jsoup/parser/CharacterReaderTest.java b/src/test/java/org/jsoup/parser/CharacterReaderTest.java
+index ce573f26..0a1176ac 100644
+--- a/src/test/java/org/jsoup/parser/CharacterReaderTest.java
++++ b/src/test/java/org/jsoup/parser/CharacterReaderTest.java
+@@ -68,4 +68,135 @@
+         assertEquals(in, toEnd);
+         assertTrue(r.isEmpty());
+     }
++
++    @Test public void nextIndexOfChar() {
++        String in = "blah blah";
++        CharacterReader r = new CharacterReader(in);
++
++        assertEquals(-1, r.nextIndexOf('x'));
++        assertEquals(3, r.nextIndexOf('h'));
++        String pull = r.consumeTo('h');
++        assertEquals("bla", pull);
++        r.consume();
++        assertEquals(2, r.nextIndexOf('l'));
++        assertEquals(" blah", r.consumeToEnd());
++        assertEquals(-1, r.nextIndexOf('x'));
++    }
++
++    @Test public void nextIndexOfString() {
++        String in = "One Two something Two Three Four";
++        CharacterReader r = new CharacterReader(in);
++
++        assertEquals(-1, r.nextIndexOf("Foo"));
++        assertEquals(4, r.nextIndexOf("Two"));
++        assertEquals("One Two ", r.consumeTo("something"));
++        assertEquals(10, r.nextIndexOf("Two"));
++        assertEquals("something Two Three Four", r.consumeToEnd());
++        assertEquals(-1, r.nextIndexOf("Two"));
++    }
++
++    @Test public void consumeToChar() {
++        CharacterReader r = new CharacterReader("One Two Three");
++        assertEquals("One ", r.consumeTo('T'));
++        assertEquals("", r.consumeTo('T')); // on Two
++        assertEquals('T', r.consume());
++        assertEquals("wo ", r.consumeTo('T'));
++        assertEquals('T', r.consume());
++        assertEquals("hree", r.consumeTo('T')); // consume to end
++    }
++
++    @Test public void consumeToString() {
++        CharacterReader r = new CharacterReader("One Two Two Four");
++        assertEquals("One ", r.consumeTo("Two"));
++        assertEquals('T', r.consume());
++        assertEquals("wo ", r.consumeTo("Two"));
++        assertEquals('T', r.consume());
++        assertEquals("wo Four", r.consumeTo("Qux"));
++    }
++
++    @Test public void advance() {
++        CharacterReader r = new CharacterReader("One Two Three");
++        assertEquals('O', r.consume());
++        r.advance();
++        assertEquals('e', r.consume());
++    }
++
++    @Test public void consumeToAny() {
++        CharacterReader r = new CharacterReader("One &bar; qux");
++        assertEquals("One ", r.consumeToAny('&', ';'));
++        assertTrue(r.matches('&'));
++        assertTrue(r.matches("&bar;"));
++        assertEquals('&', r.consume());
++        assertEquals("bar", r.consumeToAny('&', ';'));
++        assertEquals(';', r.consume());
++        assertEquals(" qux", r.consumeToAny('&', ';'));
++    }
++
++    @Test public void consumeLetterSequence() {
++        CharacterReader r = new CharacterReader("One &bar; qux");
++        assertEquals("One", r.consumeLetterSequence());
++        assertEquals(" &", r.consumeTo("bar;"));
++        assertEquals("bar", r.consumeLetterSequence());
++        assertEquals("; qux", r.consumeToEnd());
++    }
++
++    @Test public void consumeLetterThenDigitSequence() {
++        CharacterReader r = new CharacterReader("One12 Two &bar; qux");
++        assertEquals("One12", r.consumeLetterThenDigitSequence());
++        assertEquals(' ', r.consume());
++        assertEquals("Two", r.consumeLetterThenDigitSequence());
++        assertEquals(" &bar; qux", r.consumeToEnd());
++    }
++
++    @Test public void matches() {
++        CharacterReader r = new CharacterReader("One Two Three");
++        assertTrue(r.matches('O'));
++        assertTrue(r.matches("One Two Three"));
++        assertTrue(r.matches("One"));
++        assertFalse(r.matches("one"));
++        assertEquals('O', r.consume());
++        assertFalse(r.matches("One"));
++        assertTrue(r.matches("ne Two Three"));
++        assertFalse(r.matches("ne Two Three Four"));
++        assertEquals("ne Two Three", r.consumeToEnd());
++        assertFalse(r.matches("ne"));
++    }
++
++    @Test
++    public void matchesIgnoreCase() {
++        CharacterReader r = new CharacterReader("One Two Three");
++        assertTrue(r.matchesIgnoreCase("O"));
++        assertTrue(r.matchesIgnoreCase("o"));
++        assertTrue(r.matches('O'));
++        assertFalse(r.matches('o'));
++        assertTrue(r.matchesIgnoreCase("One Two Three"));
++        assertTrue(r.matchesIgnoreCase("ONE two THREE"));
++        assertTrue(r.matchesIgnoreCase("One"));
++        assertTrue(r.matchesIgnoreCase("one"));
++        assertEquals('O', r.consume());
++        assertFalse(r.matchesIgnoreCase("One"));
++        assertTrue(r.matchesIgnoreCase("NE Two Three"));
++        assertFalse(r.matchesIgnoreCase("ne Two Three Four"));
++        assertEquals("ne Two Three", r.consumeToEnd());
++        assertFalse(r.matchesIgnoreCase("ne"));
++    }
++
++    @Test public void containsIgnoreCase() {
++        CharacterReader r = new CharacterReader("One TWO three");
++        assertTrue(r.containsIgnoreCase("two"));
++        assertTrue(r.containsIgnoreCase("three"));
++        // weird one: does not find one, because it scans for consistent case only
++        assertFalse(r.containsIgnoreCase("one"));
++    }
++
++    @Test public void matchesAny() {
++        char[] scan = {' ', '\n', '\t'};
++        CharacterReader r = new CharacterReader("One\nTwo\tThree");
++        assertFalse(r.matchesAny(scan));
++        assertEquals("One", r.consumeToAny(scan));
++        assertTrue(r.matchesAny(scan));
++        assertEquals('\n', r.consume());
++        assertFalse(r.matchesAny(scan));
++    }
++
+ }
+
+commit 3e284b6ce28acdf41d7a7cc8ead881d6ab54a8f9
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Mon May 28 23:59:27 2012
+
+    No longer strip \r before parsing.
+    
+    This saves memory and CPU time at start of parse.
+
+diff --git a/src/test/java/org/jsoup/parser/CharacterReaderTest.java b/src/test/java/org/jsoup/parser/CharacterReaderTest.java
+index 69fd7d4a..ce573f26 100644
+--- a/src/test/java/org/jsoup/parser/CharacterReaderTest.java
++++ b/src/test/java/org/jsoup/parser/CharacterReaderTest.java
+@@ -61,15 +61,6 @@
+         assertEquals('n', r.consume());
+     }
+ 
+-    @Test public void handleCarriageReturnAsLineFeed() {
+-        String in = "one \r two \r\n three";
+-        CharacterReader r = new CharacterReader(in);
+-
+-        String first = r.consumeTo('\n');
+-        assertEquals("one ", first);
+-        assertEquals("\n two \n three", r.consumeToEnd());
+-    }
+-
+     @Test public void consumeToEnd() {
+         String in = "one two three";
+         CharacterReader r = new CharacterReader(in);
+
+commit 128b3f8212e357468cb608546a52da3826903fad
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Thu Jun 23 07:48:42 2011
+
+    Fixed normalisation of carriage returns to newlines on input HTML
+    
+    Fixes #110
+
+diff --git a/src/test/java/org/jsoup/parser/CharacterReaderTest.java b/src/test/java/org/jsoup/parser/CharacterReaderTest.java
+index 8cee06e9..69fd7d4a 100644
+--- a/src/test/java/org/jsoup/parser/CharacterReaderTest.java
++++ b/src/test/java/org/jsoup/parser/CharacterReaderTest.java
+@@ -60,4 +60,21 @@
+         r.rewindToMark();
+         assertEquals('n', r.consume());
+     }
++
++    @Test public void handleCarriageReturnAsLineFeed() {
++        String in = "one \r two \r\n three";
++        CharacterReader r = new CharacterReader(in);
++
++        String first = r.consumeTo('\n');
++        assertEquals("one ", first);
++        assertEquals("\n two \n three", r.consumeToEnd());
++    }
++
++    @Test public void consumeToEnd() {
++        String in = "one two three";
++        CharacterReader r = new CharacterReader(in);
++        String toEnd = r.consumeToEnd();
++        assertEquals(in, toEnd);
++        assertTrue(r.isEmpty());
++    }
+ }

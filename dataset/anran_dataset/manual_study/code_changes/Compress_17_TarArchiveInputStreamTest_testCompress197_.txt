@@ -1,0 +1,45 @@
+commit ab456436d20f386641e605c17de24cc8cd3c1770
+Author: Jukka Zitting <jukka@apache.org>
+Date:   Sun Aug 5 15:51:15 2012
+
+    COMPRESS-197: Tar file for Android backup cannot be read
+    
+    Allow more than one or two NUL or space characters at the end of a field
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1369655 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarArchiveInputStreamTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarArchiveInputStreamTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarArchiveInputStreamTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarArchiveInputStreamTest.java
+@@ -123,1 +126,14 @@
+-}
+\ No newline at end of file
++    public void testCompress197() throws Exception {
++        TarArchiveInputStream tar = getTestStream("/COMPRESS-197.tar");
++        try {
++            TarArchiveEntry entry = tar.getNextTarEntry();
++            while (entry != null) {
++                entry = tar.getNextTarEntry();
++            }
++        } catch (IOException e) {
++            fail("COMPRESS-197: " + e.getMessage());
++        } finally {
++            tar.close();
++        }
++    }
++
+
+commit 5c136a3f9089fd8b787258462b40cb057195b5d6
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Wed Dec 7 10:01:27 2011
+
+    prove parsing of PAX headers works correctly.  COMPRESS-167
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1211465 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarArchiveInputStreamTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarArchiveInputStreamTest.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarArchiveInputStreamTest.java
+@@ -0,0 +43,1 @@
++}
+\ No newline at end of file

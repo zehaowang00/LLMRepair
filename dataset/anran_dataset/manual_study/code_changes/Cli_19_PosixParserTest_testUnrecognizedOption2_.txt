@@ -1,0 +1,27 @@
+commit b1331806960001da95424315b6103d755107b519
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Mon Jul 28 04:43:28 2008
+
+    Fixed the handling of unrecognized options starting with '-' by PosixParser (CLI-164) (stopAtNonOption=false case)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/branches/cli-1.x@680289 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/PosixParserTest.java b/src/test/org/apache/commons/cli/PosixParserTest.java
+--- a/src/test/org/apache/commons/cli/PosixParserTest.java
++++ b/src/test/org/apache/commons/cli/PosixParserTest.java
+@@ -103,0 +103,15 @@
++    public void testUnrecognizedOption2() throws Exception
++    {
++        String[] args = new String[] { "-z", "-abtoast", "foo", "bar" };
++
++        try
++        {
++            parser.parse(options, args);
++            fail("UnrecognizedOptionException wasn't thrown");
++        }
++        catch (UnrecognizedOptionException e)
++        {
++            assertEquals("-z", e.getOption());
++        }
++    }
++

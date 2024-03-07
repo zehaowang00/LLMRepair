@@ -1,0 +1,152 @@
+commit ad57102c451b9b19cd224736e498658a95f6cebc
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Sun Feb 12 18:38:24 2012
+
+    MATH-707
+    "SimpleScalarValueChecker" renamed to "SimpleValueChecker".
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1243366 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
+@@ -75,15 +75,15 @@
+     public void testMaximize2() {
+-        SimplexOptimizer optimizer = new SimplexOptimizer(new SimpleScalarValueChecker(1e-15, 1e-30));
++        SimplexOptimizer optimizer = new SimplexOptimizer(new SimpleValueChecker(1e-15, 1e-30));
+         optimizer.setSimplex(new MultiDirectionalSimplex(new double[] { 0.2, 0.2 }));
+         final FourExtrema fourExtrema = new FourExtrema();
+ 
+         final PointValuePair optimum
+             = optimizer.optimize(200, fourExtrema, GoalType.MAXIMIZE, new double[] { 1, 0 });
+         Assert.assertEquals(fourExtrema.xP, optimum.getPoint()[0], 2e-8);
+         Assert.assertEquals(fourExtrema.yP, optimum.getPoint()[1], 3e-6);
+         Assert.assertEquals(fourExtrema.valueXpYp, optimum.getValue(), 2e-12);
+         Assert.assertTrue(optimizer.getEvaluations() > 180);
+         Assert.assertTrue(optimizer.getEvaluations() < 220);
+     }
+ 
+     @Test
+
+commit 5a8be77a303c9e2f8c19d029e8628d7697fb581d
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Sat Feb 11 19:37:23 2012
+
+    MATH-707
+    Renamed "RealPointValuePair" to "PointValuePair" and made it a subclass
+    of "Pair<double[], Double>".
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1243186 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
+@@ -75,15 +75,15 @@
+     public void testMaximize2() {
+         SimplexOptimizer optimizer = new SimplexOptimizer(new SimpleScalarValueChecker(1e-15, 1e-30));
+         optimizer.setSimplex(new MultiDirectionalSimplex(new double[] { 0.2, 0.2 }));
+         final FourExtrema fourExtrema = new FourExtrema();
+ 
+-        final RealPointValuePair optimum
++        final PointValuePair optimum
+             = optimizer.optimize(200, fourExtrema, GoalType.MAXIMIZE, new double[] { 1, 0 });
+         Assert.assertEquals(fourExtrema.xP, optimum.getPoint()[0], 2e-8);
+         Assert.assertEquals(fourExtrema.yP, optimum.getPoint()[1], 3e-6);
+         Assert.assertEquals(fourExtrema.valueXpYp, optimum.getValue(), 2e-12);
+         Assert.assertTrue(optimizer.getEvaluations() > 180);
+         Assert.assertTrue(optimizer.getEvaluations() < 220);
+     }
+ 
+     @Test
+
+commit 3e7a3e8f0cde866cdfe33dae387a9e796c324023
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Thu Sep 1 19:37:36 2011
+
+    MATH-413
+    Convergence checker passed in the constructor.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1164300 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
+@@ -75,11 +75,15 @@
++    public void testMaximize2() {
++        SimplexOptimizer optimizer = new SimplexOptimizer(new SimpleScalarValueChecker(1e-15, 1e-30));
++        optimizer.setSimplex(new MultiDirectionalSimplex(new double[] { 0.2, 0.2 }));
++        final FourExtrema fourExtrema = new FourExtrema();
+ 
+-        optimizer.setConvergenceChecker(new SimpleScalarValueChecker(1e-15, 1e-30));
+-        optimum = optimizer.optimize(200, fourExtrema, GoalType.MAXIMIZE, new double[] { 1, 0 });
+-        Assert.assertEquals(xP,        optimum.getPoint()[0], 2e-8);
+-        Assert.assertEquals(yP,        optimum.getPoint()[1], 3e-6);
+-        Assert.assertEquals(valueXpYp, optimum.getValue(),    2e-12);
++        final RealPointValuePair optimum
++            = optimizer.optimize(200, fourExtrema, GoalType.MAXIMIZE, new double[] { 1, 0 });
++        Assert.assertEquals(fourExtrema.xP, optimum.getPoint()[0], 2e-8);
++        Assert.assertEquals(fourExtrema.yP, optimum.getPoint()[1], 3e-6);
++        Assert.assertEquals(fourExtrema.valueXpYp, optimum.getValue(), 2e-12);
+         Assert.assertTrue(optimizer.getEvaluations() > 180);
+         Assert.assertTrue(optimizer.getEvaluations() < 220);
+     }
+ 
+     @Test
+
+commit 9be0992c0d829f45d0473127efdceda3c54a317d
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Tue Dec 7 10:01:37 2010
+
+    MATH-454
+    Pass the number of allowed function evaluations as a parameter to the
+    "optimize" methods.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1043078 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
+@@ -78,11 +76,11 @@
+ 
+         optimizer.setConvergenceChecker(new SimpleScalarValueChecker(1e-15, 1e-30));
+-        optimum = optimizer.optimize(fourExtrema, GoalType.MAXIMIZE, new double[] { 1, 0 });
++        optimum = optimizer.optimize(200, fourExtrema, GoalType.MAXIMIZE, new double[] { 1, 0 });
+         Assert.assertEquals(xP,        optimum.getPoint()[0], 2e-8);
+         Assert.assertEquals(yP,        optimum.getPoint()[1], 3e-6);
+         Assert.assertEquals(valueXpYp, optimum.getValue(),    2e-12);
+         Assert.assertTrue(optimizer.getEvaluations() > 180);
+         Assert.assertTrue(optimizer.getEvaluations() < 220);
+     }
+ 
+     @Test
+
+commit 3c3ccb79d4e909ddbb552a07a7e9acf2c4e75377
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Mon Oct 25 05:42:33 2010
+
+    MATH-428
+    Refactoring of "DirectSearchOptimizer" to separate the optimization and
+    simplex management aspects. Old classes are deprecated.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1027007 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
+@@ -0,0 +78,11 @@
++
++        optimizer.setConvergenceChecker(new SimpleScalarValueChecker(1e-15, 1e-30));
++        optimum = optimizer.optimize(fourExtrema, GoalType.MAXIMIZE, new double[] { 1, 0 });
++        Assert.assertEquals(xP,        optimum.getPoint()[0], 2e-8);
++        Assert.assertEquals(yP,        optimum.getPoint()[1], 3e-6);
++        Assert.assertEquals(valueXpYp, optimum.getValue(),    2e-12);
++        Assert.assertTrue(optimizer.getEvaluations() > 180);
++        Assert.assertTrue(optimizer.getEvaluations() < 220);
++    }
++
++    @Test

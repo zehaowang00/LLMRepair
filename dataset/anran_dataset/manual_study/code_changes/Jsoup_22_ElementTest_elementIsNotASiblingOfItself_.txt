@@ -1,0 +1,28 @@
+commit 4b0dde413a3c38a77461ac64ad278a042d6eea68
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sat Apr 14 13:48:29 2012
+
+    If a node has no parent, return null on previousSibling and nextSibling instead of throwing a null pointer exception.
+    
+    Fixes #184
+
+diff --git a/src/test/java/org/jsoup/nodes/ElementTest.java b/src/test/java/org/jsoup/nodes/ElementTest.java
+index 60addb9a..7f7eef65 100644
+--- a/src/test/java/org/jsoup/nodes/ElementTest.java
++++ b/src/test/java/org/jsoup/nodes/ElementTest.java
+@@ -528,4 +528,15 @@
+         List<DataNode> pData = p.dataNodes();
+         assertEquals(0, pData.size());
+     }
++
++    @Test public void elementIsNotASiblingOfItself() {
++        Document doc = Jsoup.parse("<div><p>One<p>Two<p>Three</div>");
++        Element p2 = doc.select("p").get(1);
++
++        assertEquals("Two", p2.text());
++        Elements els = p2.siblingElements();
++        assertEquals(2, els.size());
++        assertEquals("<p>One</p>", els.get(0).outerHtml());
++        assertEquals("<p>Three</p>", els.get(1).outerHtml());
++    }
+ }

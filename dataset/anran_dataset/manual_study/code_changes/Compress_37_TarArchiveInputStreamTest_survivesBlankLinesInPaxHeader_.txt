@@ -1,0 +1,23 @@
+commit 19a620c904587dc0397b43bfe9071ff60033c097
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Fri May 20 12:18:05 2016
+
+    COMPRESS-355 properly deal with blank PAX header lines
+    
+    Patch-by: Jeremy Gustie
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarArchiveInputStreamTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarArchiveInputStreamTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarArchiveInputStreamTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarArchiveInputStreamTest.java
+@@ -300,0 +305,11 @@
++    public void survivesBlankLinesInPaxHeader() throws Exception {
++        final TarArchiveInputStream is = getTestStream("/COMPRESS-355.tar");
++        try {
++            final TarArchiveEntry entry = is.getNextTarEntry();
++            assertEquals("package/package.json", entry.getName());
++            assertNull(is.getNextTarEntry());
++        } finally {
++            is.close();
++        }
++    }
++

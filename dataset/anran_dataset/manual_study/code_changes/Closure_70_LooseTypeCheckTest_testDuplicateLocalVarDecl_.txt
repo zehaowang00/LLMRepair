@@ -1,0 +1,114 @@
+commit ec4a34c2bd87ba54fa8770affdeeea4f3c42089b
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri May 20 15:48:47 2011
+
+    Parameter types should be declared, rather than inferred.
+    This means that if the programmer re-assignes the argument
+    to a different type, they will get a type warning.
+    Fixes issue 433.
+    
+    
+    R=zhuyi
+    DELTA=91  (62 added, 14 deleted, 15 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=1963
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1120 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/LooseTypeCheckTest.java b/test/com/google/javascript/jscomp/LooseTypeCheckTest.java
+--- a/test/com/google/javascript/jscomp/LooseTypeCheckTest.java
++++ b/test/com/google/javascript/jscomp/LooseTypeCheckTest.java
+@@ -1969,8 +1969,12 @@
+   public void testDuplicateLocalVarDecl() throws Exception {
+-    testTypes(
++    testClosureTypesMultipleWarnings(
+         "/** @param {number} x */\n" +
+         "function f(x) { /** @type {string} */ var x = ''; }",
+-        "variable x redefined with type string, " +
+-        "original definition at [testcode]:2 with type number");
++        Lists.newArrayList(
++            "variable x redefined with type string, original definition" +
++            " at  [testcode] :2 with type number",
++            "initializing variable\n" +
++            "found   : string\n" +
++            "required: number"));
+   }
+ 
+
+commit de13c3313c05f4449c50c560324389d6905a214d
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Apr 13 17:39:25 2010
+
+    Change on 2010/04/13 by john
+    
+            Experimental option: Flag to change named object references from "Object|null" to "Object|null|undefined".
+    
+            R=alan,nick
+            DELTA=7144  (7131 added, 5 deleted, 8 changed)
+    
+    Change on 2010/04/13 by nicksantos
+    
+            get rid of some backdoor gmail apis.
+    
+            R=john
+            DELTA=44  (0 added, 33 deleted, 11 changed)
+    
+    Change on 2010/04/13 by nicksantos
+    
+            fix TypeCheckTest to parse externs files properly.
+            i still need to merge the TypeCheckTest-forking cl into this one.
+    
+            R=john
+            DELTA=42  (12 added, 0 deleted, 30 changed)
+    
+    Change on 2010/04/13 by john
+    
+            Enable expression decomposition for function inlining by default.
+    
+            R=nick
+            DELTA=1  (0 added, 0 deleted, 1 changed)
+    
+    Change on 2010/04/13 by john
+    
+            Move ReplaceCssNames to allow type checking of goog.getCssName.
+    
+            R=mark
+            DELTA=39  (35 added, 4 deleted, 0 changed)
+    
+    Change on 2010/04/13 by john
+    
+            Maintain source and type information during ReplaceCssNames.
+    
+            R=mark
+            DELTA=31  (30 added, 0 deleted, 1 changed)
+    
+    Change on 2010/04/13 by nick
+    
+            fix up type information on event listener functions.
+    
+            R=alan
+            DELTA=2  (0 added, 0 deleted, 2 changed)
+    
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=wescxy
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@182 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/LooseTypeCheckTest.java b/test/com/google/javascript/jscomp/LooseTypeCheckTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/LooseTypeCheckTest.java
+@@ -0,0 +1964,8 @@
++  public void testDuplicateLocalVarDecl() throws Exception {
++    testTypes(
++        "/** @param {number} x */\n" +
++        "function f(x) { /** @type {string} */ var x = ''; }",
++        "variable x redefined with type string, " +
++        "original definition at [testcode]:2 with type number");
++  }
++

@@ -1,0 +1,275 @@
+commit bc91126c55dc513735a2a95ace4c00a6021c76f4
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Wed Aug 15 10:13:38 2018
+
+    Fix #2109 with tests
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/type/TestTypeFactory.java b/src/test/java/com/fasterxml/jackson/databind/type/TestTypeFactory.java
+--- a/src/test/java/com/fasterxml/jackson/databind/type/TestTypeFactory.java
++++ b/src/test/java/com/fasterxml/jackson/databind/type/TestTypeFactory.java
+@@ -209,45 +209,51 @@
+     public void testCanonicalNames()
+     {
+         TypeFactory tf = TypeFactory.defaultInstance();
+         JavaType t = tf.constructType(java.util.Calendar.class);
+         String can = t.toCanonical();
+         assertEquals("java.util.Calendar", can);
+         assertEquals(t, tf.constructFromCanonical(can));
+ 
+         // Generic maps and collections will default to Object.class if type-erased
+         t = tf.constructType(java.util.ArrayList.class);
+         can = t.toCanonical();
+         assertEquals("java.util.ArrayList<java.lang.Object>", can);
+         assertEquals(t, tf.constructFromCanonical(can));
+ 
+         t = tf.constructType(java.util.TreeMap.class);
+         can = t.toCanonical();
+         assertEquals("java.util.TreeMap<java.lang.Object,java.lang.Object>", can);
+         assertEquals(t, tf.constructFromCanonical(can));
+ 
+         // And then EnumMap (actual use case for us)
+         t = tf.constructMapType(EnumMap.class, EnumForCanonical.class, String.class);
+         can = t.toCanonical();
+         assertEquals("java.util.EnumMap<com.fasterxml.jackson.databind.type.TestTypeFactory$EnumForCanonical,java.lang.String>",
+                 can);
+         assertEquals(t, tf.constructFromCanonical(can));
+ 
+-        // [databind#1941]: allow "raw" types too
++        // [databind#2109]: also ReferenceTypes
++        t = tf.constructType(new TypeReference<AtomicReference<Long>>() { });
++        can = t.toCanonical();
++        assertEquals("java.util.concurrent.atomic.AtomicReference<java.lang.Long>",
++                can);
++        assertEquals(t, tf.constructFromCanonical(can));
+ 
++        // [databind#1941]: allow "raw" types too
+         t = tf.constructFromCanonical("java.util.List");
+         assertEquals(List.class, t.getRawClass());
+         assertEquals(CollectionType.class, t.getClass());
+         // 01-Mar-2018, tatu: not 100% should we expect type parameters here...
+         //    But currently we do NOT get any
+         /*
+         assertEquals(1, t.containedTypeCount());
+         assertEquals(Object.class, t.containedType(0).getRawClass());
+         */
+         assertEquals(Object.class, t.getContentType().getRawClass());
+         can = t.toCanonical();
+         assertEquals("java.util.List<java.lang.Object>", can);
+         assertEquals(t, tf.constructFromCanonical(can));
+     }
+ 
+     // [databind#1768]
+     @SuppressWarnings("serial")
+
+commit 18dc249e793b15e40e67753ea5e988bd428b1a92
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Thu Mar 1 17:28:31 2018
+
+    Fix #1941
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/type/TestTypeFactory.java b/src/test/java/com/fasterxml/jackson/databind/type/TestTypeFactory.java
+--- a/src/test/java/com/fasterxml/jackson/databind/type/TestTypeFactory.java
++++ b/src/test/java/com/fasterxml/jackson/databind/type/TestTypeFactory.java
+@@ -209,29 +209,45 @@
+     public void testCanonicalNames()
+     {
+         TypeFactory tf = TypeFactory.defaultInstance();
+         JavaType t = tf.constructType(java.util.Calendar.class);
+         String can = t.toCanonical();
+         assertEquals("java.util.Calendar", can);
+         assertEquals(t, tf.constructFromCanonical(can));
+ 
+         // Generic maps and collections will default to Object.class if type-erased
+         t = tf.constructType(java.util.ArrayList.class);
+         can = t.toCanonical();
+         assertEquals("java.util.ArrayList<java.lang.Object>", can);
+         assertEquals(t, tf.constructFromCanonical(can));
+ 
+         t = tf.constructType(java.util.TreeMap.class);
+         can = t.toCanonical();
+         assertEquals("java.util.TreeMap<java.lang.Object,java.lang.Object>", can);
+         assertEquals(t, tf.constructFromCanonical(can));
+ 
+         // And then EnumMap (actual use case for us)
+         t = tf.constructMapType(EnumMap.class, EnumForCanonical.class, String.class);
+         can = t.toCanonical();
+         assertEquals("java.util.EnumMap<com.fasterxml.jackson.databind.type.TestTypeFactory$EnumForCanonical,java.lang.String>",
+                 can);
+         assertEquals(t, tf.constructFromCanonical(can));
++
++        // [databind#1941]: allow "raw" types too
++
++        t = tf.constructFromCanonical("java.util.List");
++        assertEquals(List.class, t.getRawClass());
++        assertEquals(CollectionType.class, t.getClass());
++        // 01-Mar-2018, tatu: not 100% should we expect type parameters here...
++        //    But currently we do NOT get any
++        /*
++        assertEquals(1, t.containedTypeCount());
++        assertEquals(Object.class, t.containedType(0).getRawClass());
++        */
++        assertEquals(Object.class, t.getContentType().getRawClass());
++        can = t.toCanonical();
++        assertEquals("java.util.List<java.lang.Object>", can);
++        assertEquals(t, tf.constructFromCanonical(can));
+     }
+ 
+     // [databind#1768]
+     @SuppressWarnings("serial")
+
+commit 798da688fb0433f739bfbc066d205d42038ca7a0
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Mon Sep 18 23:44:52 2017
+
+    Fix #1768
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/type/TestTypeFactory.java b/src/test/java/com/fasterxml/jackson/databind/type/TestTypeFactory.java
+--- a/src/test/java/com/fasterxml/jackson/databind/type/TestTypeFactory.java
++++ b/src/test/java/com/fasterxml/jackson/databind/type/TestTypeFactory.java
+@@ -209,26 +209,29 @@
+     public void testCanonicalNames()
+     {
+         TypeFactory tf = TypeFactory.defaultInstance();
+         JavaType t = tf.constructType(java.util.Calendar.class);
+         String can = t.toCanonical();
+         assertEquals("java.util.Calendar", can);
+         assertEquals(t, tf.constructFromCanonical(can));
+ 
+         // Generic maps and collections will default to Object.class if type-erased
+         t = tf.constructType(java.util.ArrayList.class);
+         can = t.toCanonical();
+         assertEquals("java.util.ArrayList<java.lang.Object>", can);
+         assertEquals(t, tf.constructFromCanonical(can));
+ 
+         t = tf.constructType(java.util.TreeMap.class);
+         can = t.toCanonical();
+         assertEquals("java.util.TreeMap<java.lang.Object,java.lang.Object>", can);
+         assertEquals(t, tf.constructFromCanonical(can));
+ 
+         // And then EnumMap (actual use case for us)
+         t = tf.constructMapType(EnumMap.class, EnumForCanonical.class, String.class);
+         can = t.toCanonical();
+         assertEquals("java.util.EnumMap<com.fasterxml.jackson.databind.type.TestTypeFactory$EnumForCanonical,java.lang.String>",
+                 can);
+         assertEquals(t, tf.constructFromCanonical(can));
+-        
++    }
++
++    // [databind#1768]
++    @SuppressWarnings("serial")
+
+commit 2abae1d236fd605c12709d5fa558cdf9270e0653
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Thu Dec 29 18:36:49 2011
+
+    TypeFactory cleanup
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/type/TestTypeFactory.java b/src/test/java/com/fasterxml/jackson/databind/type/TestTypeFactory.java
+--- a/src/test/java/com/fasterxml/jackson/databind/type/TestTypeFactory.java
++++ b/src/test/java/com/fasterxml/jackson/databind/type/TestTypeFactory.java
+@@ -249,26 +247,26 @@
+     public void testCanonicalNames()
+     {
+         TypeFactory tf = TypeFactory.defaultInstance();
+         JavaType t = tf.constructType(java.util.Calendar.class);
+         String can = t.toCanonical();
+         assertEquals("java.util.Calendar", can);
+-        assertEquals(t, TypeFactory.fromCanonical(can));
++        assertEquals(t, tf.constructFromCanonical(can));
+ 
+         // Generic maps and collections will default to Object.class if type-erased
+         t = tf.constructType(java.util.ArrayList.class);
+         can = t.toCanonical();
+         assertEquals("java.util.ArrayList<java.lang.Object>", can);
+-        assertEquals(t, TypeFactory.fromCanonical(can));
++        assertEquals(t, tf.constructFromCanonical(can));
+ 
+         t = tf.constructType(java.util.TreeMap.class);
+         can = t.toCanonical();
+         assertEquals("java.util.TreeMap<java.lang.Object,java.lang.Object>", can);
+-        assertEquals(t, TypeFactory.fromCanonical(can));
++        assertEquals(t, tf.constructFromCanonical(can));
+ 
+         // And then EnumMap (actual use case for us)
+         t = tf.constructMapType(EnumMap.class, EnumForCanonical.class, String.class);
+         can = t.toCanonical();
+         assertEquals("java.util.EnumMap<com.fasterxml.jackson.databind.type.TestTypeFactory$EnumForCanonical,java.lang.String>",
+                 can);
+-        assertEquals(t, TypeFactory.fromCanonical(can));
++        assertEquals(t, tf.constructFromCanonical(can));
+         
+
+commit 533421e328e9d7335ed3bd0bd3c65b759848b696
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 14:06:33 2011
+
+    More unit test fixes; joda, xml ones not getting registered
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/type/TestTypeFactory.java b/src/test/java/com/fasterxml/jackson/databind/type/TestTypeFactory.java
+--- a/src/test/java/com/fasterxml/jackson/databind/type/TestTypeFactory.java
++++ b/src/test/java/com/fasterxml/jackson/databind/type/TestTypeFactory.java
+@@ -249,26 +249,26 @@
+     public void testCanonicalNames()
+     {
+         TypeFactory tf = TypeFactory.defaultInstance();
+         JavaType t = tf.constructType(java.util.Calendar.class);
+         String can = t.toCanonical();
+         assertEquals("java.util.Calendar", can);
+         assertEquals(t, TypeFactory.fromCanonical(can));
+ 
+         // Generic maps and collections will default to Object.class if type-erased
+         t = tf.constructType(java.util.ArrayList.class);
+         can = t.toCanonical();
+         assertEquals("java.util.ArrayList<java.lang.Object>", can);
+         assertEquals(t, TypeFactory.fromCanonical(can));
+ 
+         t = tf.constructType(java.util.TreeMap.class);
+         can = t.toCanonical();
+         assertEquals("java.util.TreeMap<java.lang.Object,java.lang.Object>", can);
+         assertEquals(t, TypeFactory.fromCanonical(can));
+ 
+         // And then EnumMap (actual use case for us)
+         t = tf.constructMapType(EnumMap.class, EnumForCanonical.class, String.class);
+         can = t.toCanonical();
+-        assertEquals("java.util.EnumMap<org.codehaus.jackson.map.type.TestTypeFactory$EnumForCanonical,java.lang.String>",
++        assertEquals("java.util.EnumMap<com.fasterxml.jackson.databind.type.TestTypeFactory$EnumForCanonical,java.lang.String>",
+                 can);
+         assertEquals(t, TypeFactory.fromCanonical(can));
+         
+
+commit a63c2038a03c7090ce4773d6cf54809150e59350
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 03:26:53 2011
+
+    Add unit tests, almost compilable
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/type/TestTypeFactory.java b/src/test/java/com/fasterxml/jackson/databind/type/TestTypeFactory.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/type/TestTypeFactory.java
+@@ -0,0 +249,26 @@
++    public void testCanonicalNames()
++    {
++        TypeFactory tf = TypeFactory.defaultInstance();
++        JavaType t = tf.constructType(java.util.Calendar.class);
++        String can = t.toCanonical();
++        assertEquals("java.util.Calendar", can);
++        assertEquals(t, TypeFactory.fromCanonical(can));
++
++        // Generic maps and collections will default to Object.class if type-erased
++        t = tf.constructType(java.util.ArrayList.class);
++        can = t.toCanonical();
++        assertEquals("java.util.ArrayList<java.lang.Object>", can);
++        assertEquals(t, TypeFactory.fromCanonical(can));
++
++        t = tf.constructType(java.util.TreeMap.class);
++        can = t.toCanonical();
++        assertEquals("java.util.TreeMap<java.lang.Object,java.lang.Object>", can);
++        assertEquals(t, TypeFactory.fromCanonical(can));
++
++        // And then EnumMap (actual use case for us)
++        t = tf.constructMapType(EnumMap.class, EnumForCanonical.class, String.class);
++        can = t.toCanonical();
++        assertEquals("java.util.EnumMap<org.codehaus.jackson.map.type.TestTypeFactory$EnumForCanonical,java.lang.String>",
++                can);
++        assertEquals(t, TypeFactory.fromCanonical(can));
++        

@@ -1,0 +1,92 @@
+commit b4ef0a65150a7311ebb9119b1ac6898e33dc0baf
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Fri Aug 7 01:12:59 2015
+
+    Fix #889
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/ser/TestConfig.java b/src/test/java/com/fasterxml/jackson/databind/ser/TestConfig.java
+--- a/src/test/java/com/fasterxml/jackson/databind/ser/TestConfig.java
++++ b/src/test/java/com/fasterxml/jackson/databind/ser/TestConfig.java
+@@ -195,26 +195,32 @@
+     public void testDateFormatConfig() throws Exception
+     {
+         ObjectMapper mapper = new ObjectMapper();
+         TimeZone tz1 = TimeZone.getTimeZone("America/Los_Angeles");
+         TimeZone tz2 = TimeZone.getTimeZone("Central Standard Time");
+ 
+         // sanity checks
+         assertEquals(tz1, tz1);
+         assertEquals(tz2, tz2);
+         if (tz1.equals(tz2)) {
+             fail();
+         }
+ 
+         mapper.setTimeZone(tz1);
+         assertEquals(tz1, mapper.getSerializationConfig().getTimeZone());
+         assertEquals(tz1, mapper.getDeserializationConfig().getTimeZone());
++
++        // also better stick via reader/writer as well
++        assertEquals(tz1, mapper.writer().getConfig().getTimeZone());
++        assertEquals(tz1, mapper.reader().getConfig().getTimeZone());
+         
+         SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+         f.setTimeZone(tz2);
+         mapper.setDateFormat(f);
+ 
+         // should not change the timezone tho
+         assertEquals(tz1, mapper.getSerializationConfig().getTimeZone());
+         assertEquals(tz1, mapper.getDeserializationConfig().getTimeZone());
++        assertEquals(tz1, mapper.writer().getConfig().getTimeZone());
++        assertEquals(tz1, mapper.reader().getConfig().getTimeZone());
+     }
+     
+
+commit 2e364ba54e7f0946bcda2226d37752aa41ee43d0
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Fri Aug 7 00:58:41 2015
+
+    Add test for #889, passes with 2.5
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/ser/TestConfig.java b/src/test/java/com/fasterxml/jackson/databind/ser/TestConfig.java
+--- a/src/test/java/com/fasterxml/jackson/databind/ser/TestConfig.java
++++ b/src/test/java/com/fasterxml/jackson/databind/ser/TestConfig.java
+@@ -193,1 +195,26 @@
++    public void testDateFormatConfig() throws Exception
++    {
++        ObjectMapper mapper = new ObjectMapper();
++        TimeZone tz1 = TimeZone.getTimeZone("America/Los_Angeles");
++        TimeZone tz2 = TimeZone.getTimeZone("Central Standard Time");
++
++        // sanity checks
++        assertEquals(tz1, tz1);
++        assertEquals(tz2, tz2);
++        if (tz1.equals(tz2)) {
++            fail();
++        }
++
++        mapper.setTimeZone(tz1);
++        assertEquals(tz1, mapper.getSerializationConfig().getTimeZone());
++        assertEquals(tz1, mapper.getDeserializationConfig().getTimeZone());
++        
++        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
++        f.setTimeZone(tz2);
++        mapper.setDateFormat(f);
++
++        // should not change the timezone tho
++        assertEquals(tz1, mapper.getSerializationConfig().getTimeZone());
++        assertEquals(tz1, mapper.getDeserializationConfig().getTimeZone());
++    }
+     
+
+commit 1995cea05b57d4a66eddcf4dabbd867322a58fba
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Thu Mar 28 16:38:47 2013
+
+    bit more unit testing
+    x
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/ser/TestConfig.java b/src/test/java/com/fasterxml/jackson/databind/ser/TestConfig.java
+--- a/src/test/java/com/fasterxml/jackson/databind/ser/TestConfig.java
++++ b/src/test/java/com/fasterxml/jackson/databind/ser/TestConfig.java
+@@ -167,0 +177,1 @@
++    

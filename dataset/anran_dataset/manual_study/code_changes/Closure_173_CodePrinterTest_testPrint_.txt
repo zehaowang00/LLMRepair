@@ -1,0 +1,2927 @@
+commit e96ce395944edfe9ba8e9de6b475cb64a7f8d626
+Author: Ben Lickly <blickly@google.com>
+Date:   Tue Aug 20 14:15:56 2013
+
+    Fix 8-year old bug in CodeGenerator.
+    
+    Rather than try to optimize the AST as it is being printed,
+    simply print the AST as-is. Additionally, create an optimization
+    in PeepholeSubstituteAlternateSyntax that rotates associative
+    operators to the left to get rid of unnecessary parens at the
+    AST level.
+    
+    Fixes issue 1062
+    -------------
+    Created by MOE: http://code.google.com/p/moe-java
+    MOE_MIGRATED_REVID=51094530
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -166,204 +166,206 @@
+   public void testPrint() {
+     assertPrint("10 + a + b", "10+a+b");
+     assertPrint("10 + (30*50)", "10+30*50");
+     assertPrint("with(x) { x + 3; }", "with(x)x+3");
+     assertPrint("\"aa'a\"", "\"aa'a\"");
+     assertPrint("\"aa\\\"a\"", "'aa\"a'");
+     assertPrint("function foo()\n{return 10;}", "function foo(){return 10}");
+     assertPrint("a instanceof b", "a instanceof b");
+     assertPrint("typeof(a)", "typeof a");
+     assertPrint(
+         "var foo = x ? { a : 1 } : {a: 3, b:4, \"default\": 5, \"foo-bar\": 6}",
+         "var foo=x?{a:1}:{a:3,b:4,\"default\":5,\"foo-bar\":6}");
+ 
+     // Safari: needs ';' at the end of a throw statement
+     assertPrint("function foo(){throw 'error';}",
+         "function foo(){throw\"error\";}");
+     // Safari 3 needs a "{" around a single function
+     assertPrint("if (true) function foo(){return}",
+         "if(true){function foo(){return}}");
+ 
+     assertPrint("var x = 10; { var y = 20; }", "var x=10;var y=20");
+ 
+     assertPrint("while (x-- > 0);", "while(x-- >0);");
+     assertPrint("x-- >> 1", "x-- >>1");
+ 
+     assertPrint("(function () {})(); ",
+         "(function(){})()");
+ 
+     // Associativity
+     assertPrint("var a,b,c,d;a || (b&& c) && (a || d)",
+         "var a,b,c,d;a||b&&c&&(a||d)");
+     assertPrint("var a,b,c; a || (b || c); a * (b * c); a | (b | c)",
+-        "var a,b,c;a||b||c;a*b*c;a|b|c");
++        "var a,b,c;a||(b||c);a*(b*c);a|(b|c)");
+     assertPrint("var a,b,c; a / b / c;a / (b / c); a - (b - c);",
+         "var a,b,c;a/b/c;a/(b/c);a-(b-c)");
++
++    // Nested assignments
+     assertPrint("var a,b; a = b = 3;",
+         "var a,b;a=b=3");
+     assertPrint("var a,b,c,d; a = (b = c = (d = 3));",
+         "var a,b,c,d;a=b=c=d=3");
+     assertPrint("var a,b,c; a += (b = c += 3);",
+         "var a,b,c;a+=b=c+=3");
+     assertPrint("var a,b,c; a *= (b -= c);",
+         "var a,b,c;a*=b-=c");
+ 
+     // Precedence
+     assertPrint("a ? delete b[0] : 3", "a?delete b[0]:3");
+     assertPrint("(delete a[0])/10", "delete a[0]/10");
+ 
+     // optional '()' for new
+ 
+     // simple new
+     assertPrint("new A", "new A");
+     assertPrint("new A()", "new A");
+     assertPrint("new A('x')", "new A(\"x\")");
+ 
+     // calling instance method directly after new
+     assertPrint("new A().a()", "(new A).a()");
+     assertPrint("(new A).a()", "(new A).a()");
+ 
+     // this case should be fixed
+     assertPrint("new A('y').a()", "(new A(\"y\")).a()");
+ 
+     // internal class
+     assertPrint("new A.B", "new A.B");
+     assertPrint("new A.B()", "new A.B");
+     assertPrint("new A.B('z')", "new A.B(\"z\")");
+ 
+     // calling instance method directly after new internal class
+     assertPrint("(new A.B).a()", "(new A.B).a()");
+     assertPrint("new A.B().a()", "(new A.B).a()");
+     // this case should be fixed
+     assertPrint("new A.B('w').a()", "(new A.B(\"w\")).a()");
+ 
+     // Operators: make sure we don't convert binary + and unary + into ++
+     assertPrint("x + +y", "x+ +y");
+     assertPrint("x - (-y)", "x- -y");
+     assertPrint("x++ +y", "x++ +y");
+     assertPrint("x-- -y", "x-- -y");
+     assertPrint("x++ -y", "x++-y");
+ 
+     // Label
+     assertPrint("foo:for(;;){break foo;}", "foo:for(;;)break foo");
+     assertPrint("foo:while(1){continue foo;}", "foo:while(1)continue foo");
+ 
+     // Object literals.
+     assertPrint("({})", "({})");
+     assertPrint("var x = {};", "var x={}");
+     assertPrint("({}).x", "({}).x");
+     assertPrint("({})['x']", "({})[\"x\"]");
+     assertPrint("({}) instanceof Object", "({})instanceof Object");
+     assertPrint("({}) || 1", "({})||1");
+     assertPrint("1 || ({})", "1||{}");
+     assertPrint("({}) ? 1 : 2", "({})?1:2");
+     assertPrint("0 ? ({}) : 2", "0?{}:2");
+     assertPrint("0 ? 1 : ({})", "0?1:{}");
+     assertPrint("typeof ({})", "typeof{}");
+     assertPrint("f({})", "f({})");
+ 
+     // Anonymous function expressions.
+     assertPrint("(function(){})", "(function(){})");
+     assertPrint("(function(){})()", "(function(){})()");
+     assertPrint("(function(){})instanceof Object",
+         "(function(){})instanceof Object");
+     assertPrint("(function(){}).bind().call()",
+         "(function(){}).bind().call()");
+     assertPrint("var x = function() { };", "var x=function(){}");
+     assertPrint("var x = function() { }();", "var x=function(){}()");
+     assertPrint("(function() {}), 2", "(function(){}),2");
+ 
+     // Name functions expression.
+     assertPrint("(function f(){})", "(function f(){})");
+ 
+     // Function declaration.
+     assertPrint("function f(){}", "function f(){}");
+ 
+     // Make sure we don't treat non-Latin character escapes as raw strings.
+     assertPrint("({ 'a': 4, '\\u0100': 4 })", "({\"a\":4,\"\\u0100\":4})");
+     assertPrint("({ a: 4, '\\u0100': 4 })", "({a:4,\"\\u0100\":4})");
+ 
+     // Test if statement and for statements with single statements in body.
+     assertPrint("if (true) { alert();}", "if(true)alert()");
+     assertPrint("if (false) {} else {alert(\"a\");}",
+         "if(false);else alert(\"a\")");
+     assertPrint("for(;;) { alert();};", "for(;;)alert()");
+ 
+     assertPrint("do { alert(); } while(true);",
+         "do alert();while(true)");
+     assertPrint("myLabel: { alert();}",
+         "myLabel:alert()");
+     assertPrint("myLabel: for(;;) continue myLabel;",
+         "myLabel:for(;;)continue myLabel");
+ 
+     // Test nested var statement
+     assertPrint("if (true) var x; x = 4;", "if(true)var x;x=4");
+ 
+     // Non-latin identifier. Make sure we keep them escaped.
+     assertPrint("\\u00fb", "\\u00fb");
+     assertPrint("\\u00fa=1", "\\u00fa=1");
+     assertPrint("function \\u00f9(){}", "function \\u00f9(){}");
+     assertPrint("x.\\u00f8", "x.\\u00f8");
+     assertPrint("x.\\u00f8", "x.\\u00f8");
+     assertPrint("abc\\u4e00\\u4e01jkl", "abc\\u4e00\\u4e01jkl");
+ 
+     // Test the right-associative unary operators for spurious parens
+     assertPrint("! ! true", "!!true");
+     assertPrint("!(!(true))", "!!true");
+     assertPrint("typeof(void(0))", "typeof void 0");
+     assertPrint("typeof(void(!0))", "typeof void!0");
+     assertPrint("+ - + + - + 3", "+-+ +-+3"); // chained unary plus/minus
+     assertPrint("+(--x)", "+--x");
+     assertPrint("-(++x)", "-++x");
+ 
+     // needs a space to prevent an ambiguous parse
+     assertPrint("-(--x)", "- --x");
+     assertPrint("!(~~5)", "!~~5");
+     assertPrint("~(a/b)", "~(a/b)");
+ 
+     // Preserve parens to overcome greedy binding of NEW
+     assertPrint("new (foo.bar()).factory(baz)", "new (foo.bar().factory)(baz)");
+     assertPrint("new (bar()).factory(baz)", "new (bar().factory)(baz)");
+     assertPrint("new (new foobar(x)).factory(baz)",
+         "new (new foobar(x)).factory(baz)");
+ 
+     // Make sure that HOOK is right associative
+     assertPrint("a ? b : (c ? d : e)", "a?b:c?d:e");
+     assertPrint("a ? (b ? c : d) : e", "a?b?c:d:e");
+     assertPrint("(a ? b : c) ? d : e", "(a?b:c)?d:e");
+ 
+     // Test nested ifs
+     assertPrint("if (x) if (y); else;", "if(x)if(y);else;");
+ 
+     // Test comma.
+     assertPrint("a,b,c", "a,b,c");
+     assertPrint("(a,b),c", "a,b,c");
+     assertPrint("a,(b,c)", "a,b,c");
+     assertPrint("x=a,b,c", "x=a,b,c");
+     assertPrint("x=(a,b),c", "x=(a,b),c");
+     assertPrint("x=a,(b,c)", "x=a,b,c");
+     assertPrint("x=a,y=b,z=c", "x=a,y=b,z=c");
+     assertPrint("x=(a,y=b,z=c)", "x=(a,y=b,z=c)");
+     assertPrint("x=[a,b,c,d]", "x=[a,b,c,d]");
+     assertPrint("x=[(a,b,c),d]", "x=[(a,b,c),d]");
+     assertPrint("x=[(a,(b,c)),d]", "x=[(a,b,c),d]");
+     assertPrint("x=[a,(b,c,d)]", "x=[a,(b,c,d)]");
+     assertPrint("var x=(a,b)", "var x=(a,b)");
+     assertPrint("var x=a,b,c", "var x=a,b,c");
+     assertPrint("var x=(a,b),c", "var x=(a,b),c");
+     assertPrint("var x=a,b=(c,d)", "var x=a,b=(c,d)");
+     assertPrint("foo(a,b,c,d)", "foo(a,b,c,d)");
+     assertPrint("foo((a,b,c),d)", "foo((a,b,c),d)");
+     assertPrint("foo((a,(b,c)),d)", "foo((a,b,c),d)");
+     assertPrint("f(a+b,(c,d,(e,f,g)))", "f(a+b,(c,d,e,f,g))");
+     assertPrint("({}) , 1 , 2", "({}),1,2");
+     assertPrint("({}) , {} , {}", "({}),{},{}");
+ 
+     // EMPTY nodes
+     assertPrint("if (x){}", "if(x);");
+     assertPrint("if(x);", "if(x);");
+     assertPrint("if(x)if(y);", "if(x)if(y);");
+     assertPrint("if(x){if(y);}", "if(x)if(y);");
+     assertPrint("if(x){if(y){};;;}", "if(x)if(y);");
+     assertPrint("if(x){;;function y(){};;}", "if(x){function y(){}}");
+   }
+ 
+
+commit 6c51485e898eee8140bf05cbda29427cdc8bcc24
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Dec 7 14:39:40 2012
+
+    Add an explicit "trusted strings" mode.
+    
+    R=johnlenz
+    DELTA=188  (143 added, 19 deleted, 26 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=5931
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2372 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -138,219 +151,204 @@
+   public void testPrint() {
+     assertPrint("10 + a + b", "10+a+b");
+     assertPrint("10 + (30*50)", "10+30*50");
+     assertPrint("with(x) { x + 3; }", "with(x)x+3");
+     assertPrint("\"aa'a\"", "\"aa'a\"");
+     assertPrint("\"aa\\\"a\"", "'aa\"a'");
+     assertPrint("function foo()\n{return 10;}", "function foo(){return 10}");
+     assertPrint("a instanceof b", "a instanceof b");
+     assertPrint("typeof(a)", "typeof a");
+     assertPrint(
+         "var foo = x ? { a : 1 } : {a: 3, b:4, \"default\": 5, \"foo-bar\": 6}",
+         "var foo=x?{a:1}:{a:3,b:4,\"default\":5,\"foo-bar\":6}");
+ 
+     // Safari: needs ';' at the end of a throw statement
+     assertPrint("function foo(){throw 'error';}",
+         "function foo(){throw\"error\";}");
+     // Safari 3 needs a "{" around a single function
+     assertPrint("if (true) function foo(){return}",
+         "if(true){function foo(){return}}");
+ 
+     assertPrint("var x = 10; { var y = 20; }", "var x=10;var y=20");
+ 
+     assertPrint("while (x-- > 0);", "while(x-- >0);");
+     assertPrint("x-- >> 1", "x-- >>1");
+ 
+     assertPrint("(function () {})(); ",
+         "(function(){})()");
+ 
+     // Associativity
+     assertPrint("var a,b,c,d;a || (b&& c) && (a || d)",
+         "var a,b,c,d;a||b&&c&&(a||d)");
+     assertPrint("var a,b,c; a || (b || c); a * (b * c); a | (b | c)",
+         "var a,b,c;a||b||c;a*b*c;a|b|c");
+     assertPrint("var a,b,c; a / b / c;a / (b / c); a - (b - c);",
+         "var a,b,c;a/b/c;a/(b/c);a-(b-c)");
+     assertPrint("var a,b; a = b = 3;",
+         "var a,b;a=b=3");
+     assertPrint("var a,b,c,d; a = (b = c = (d = 3));",
+         "var a,b,c,d;a=b=c=d=3");
+     assertPrint("var a,b,c; a += (b = c += 3);",
+         "var a,b,c;a+=b=c+=3");
+     assertPrint("var a,b,c; a *= (b -= c);",
+         "var a,b,c;a*=b-=c");
+ 
+-    // Break scripts
+-    assertPrint("'<script>'", "\"<script>\"");
+-    assertPrint("'</script>'", "\"<\\/script>\"");
+-    assertPrint("\"</script> </SCRIPT>\"", "\"<\\/script> <\\/SCRIPT>\"");
+-
+-    assertPrint("'-->'", "\"--\\>\"");
+-    assertPrint("']]>'", "\"]]\\>\"");
+-    assertPrint("' --></script>'", "\" --\\><\\/script>\"");
+-
+-    assertPrint("/--> <\\/script>/g", "/--\\> <\\/script>/g");
+-
+-    // Break HTML start comments. Certain versions of WebKit
+-    // begin an HTML comment when they see this.
+-    assertPrint("'<!-- I am a string -->'", "\"<\\!-- I am a string --\\>\"");
+-
+     // Precedence
+     assertPrint("a ? delete b[0] : 3", "a?delete b[0]:3");
+     assertPrint("(delete a[0])/10", "delete a[0]/10");
+ 
+     // optional '()' for new
+ 
+     // simple new
+     assertPrint("new A", "new A");
+     assertPrint("new A()", "new A");
+     assertPrint("new A('x')", "new A(\"x\")");
+ 
+     // calling instance method directly after new
+     assertPrint("new A().a()", "(new A).a()");
+     assertPrint("(new A).a()", "(new A).a()");
+ 
+     // this case should be fixed
+     assertPrint("new A('y').a()", "(new A(\"y\")).a()");
+ 
+     // internal class
+     assertPrint("new A.B", "new A.B");
+     assertPrint("new A.B()", "new A.B");
+     assertPrint("new A.B('z')", "new A.B(\"z\")");
+ 
+     // calling instance method directly after new internal class
+     assertPrint("(new A.B).a()", "(new A.B).a()");
+     assertPrint("new A.B().a()", "(new A.B).a()");
+     // this case should be fixed
+     assertPrint("new A.B('w').a()", "(new A.B(\"w\")).a()");
+ 
+     // Operators: make sure we don't convert binary + and unary + into ++
+     assertPrint("x + +y", "x+ +y");
+     assertPrint("x - (-y)", "x- -y");
+     assertPrint("x++ +y", "x++ +y");
+     assertPrint("x-- -y", "x-- -y");
+     assertPrint("x++ -y", "x++-y");
+ 
+     // Label
+     assertPrint("foo:for(;;){break foo;}", "foo:for(;;)break foo");
+     assertPrint("foo:while(1){continue foo;}", "foo:while(1)continue foo");
+ 
+     // Object literals.
+     assertPrint("({})", "({})");
+     assertPrint("var x = {};", "var x={}");
+     assertPrint("({}).x", "({}).x");
+     assertPrint("({})['x']", "({})[\"x\"]");
+     assertPrint("({}) instanceof Object", "({})instanceof Object");
+     assertPrint("({}) || 1", "({})||1");
+     assertPrint("1 || ({})", "1||{}");
+     assertPrint("({}) ? 1 : 2", "({})?1:2");
+     assertPrint("0 ? ({}) : 2", "0?{}:2");
+     assertPrint("0 ? 1 : ({})", "0?1:{}");
+     assertPrint("typeof ({})", "typeof{}");
+     assertPrint("f({})", "f({})");
+ 
+     // Anonymous function expressions.
+     assertPrint("(function(){})", "(function(){})");
+     assertPrint("(function(){})()", "(function(){})()");
+     assertPrint("(function(){})instanceof Object",
+         "(function(){})instanceof Object");
+     assertPrint("(function(){}).bind().call()",
+         "(function(){}).bind().call()");
+     assertPrint("var x = function() { };", "var x=function(){}");
+     assertPrint("var x = function() { }();", "var x=function(){}()");
+     assertPrint("(function() {}), 2", "(function(){}),2");
+ 
+     // Name functions expression.
+     assertPrint("(function f(){})", "(function f(){})");
+ 
+     // Function declaration.
+     assertPrint("function f(){}", "function f(){}");
+ 
+     // Make sure we don't treat non-Latin character escapes as raw strings.
+     assertPrint("({ 'a': 4, '\\u0100': 4 })", "({\"a\":4,\"\\u0100\":4})");
+     assertPrint("({ a: 4, '\\u0100': 4 })", "({a:4,\"\\u0100\":4})");
+ 
+     // Test if statement and for statements with single statements in body.
+     assertPrint("if (true) { alert();}", "if(true)alert()");
+     assertPrint("if (false) {} else {alert(\"a\");}",
+         "if(false);else alert(\"a\")");
+     assertPrint("for(;;) { alert();};", "for(;;)alert()");
+ 
+     assertPrint("do { alert(); } while(true);",
+         "do alert();while(true)");
+     assertPrint("myLabel: { alert();}",
+         "myLabel:alert()");
+     assertPrint("myLabel: for(;;) continue myLabel;",
+         "myLabel:for(;;)continue myLabel");
+ 
+     // Test nested var statement
+     assertPrint("if (true) var x; x = 4;", "if(true)var x;x=4");
+ 
+     // Non-latin identifier. Make sure we keep them escaped.
+     assertPrint("\\u00fb", "\\u00fb");
+     assertPrint("\\u00fa=1", "\\u00fa=1");
+     assertPrint("function \\u00f9(){}", "function \\u00f9(){}");
+     assertPrint("x.\\u00f8", "x.\\u00f8");
+     assertPrint("x.\\u00f8", "x.\\u00f8");
+     assertPrint("abc\\u4e00\\u4e01jkl", "abc\\u4e00\\u4e01jkl");
+ 
+     // Test the right-associative unary operators for spurious parens
+     assertPrint("! ! true", "!!true");
+     assertPrint("!(!(true))", "!!true");
+     assertPrint("typeof(void(0))", "typeof void 0");
+     assertPrint("typeof(void(!0))", "typeof void!0");
+     assertPrint("+ - + + - + 3", "+-+ +-+3"); // chained unary plus/minus
+     assertPrint("+(--x)", "+--x");
+     assertPrint("-(++x)", "-++x");
+ 
+     // needs a space to prevent an ambiguous parse
+     assertPrint("-(--x)", "- --x");
+     assertPrint("!(~~5)", "!~~5");
+     assertPrint("~(a/b)", "~(a/b)");
+ 
+     // Preserve parens to overcome greedy binding of NEW
+     assertPrint("new (foo.bar()).factory(baz)", "new (foo.bar().factory)(baz)");
+     assertPrint("new (bar()).factory(baz)", "new (bar().factory)(baz)");
+     assertPrint("new (new foobar(x)).factory(baz)",
+         "new (new foobar(x)).factory(baz)");
+ 
+     // Make sure that HOOK is right associative
+     assertPrint("a ? b : (c ? d : e)", "a?b:c?d:e");
+     assertPrint("a ? (b ? c : d) : e", "a?b?c:d:e");
+     assertPrint("(a ? b : c) ? d : e", "(a?b:c)?d:e");
+ 
+     // Test nested ifs
+     assertPrint("if (x) if (y); else;", "if(x)if(y);else;");
+ 
+     // Test comma.
+     assertPrint("a,b,c", "a,b,c");
+     assertPrint("(a,b),c", "a,b,c");
+     assertPrint("a,(b,c)", "a,b,c");
+     assertPrint("x=a,b,c", "x=a,b,c");
+     assertPrint("x=(a,b),c", "x=(a,b),c");
+     assertPrint("x=a,(b,c)", "x=a,b,c");
+     assertPrint("x=a,y=b,z=c", "x=a,y=b,z=c");
+     assertPrint("x=(a,y=b,z=c)", "x=(a,y=b,z=c)");
+     assertPrint("x=[a,b,c,d]", "x=[a,b,c,d]");
+     assertPrint("x=[(a,b,c),d]", "x=[(a,b,c),d]");
+     assertPrint("x=[(a,(b,c)),d]", "x=[(a,b,c),d]");
+     assertPrint("x=[a,(b,c,d)]", "x=[a,(b,c,d)]");
+     assertPrint("var x=(a,b)", "var x=(a,b)");
+     assertPrint("var x=a,b,c", "var x=a,b,c");
+     assertPrint("var x=(a,b),c", "var x=(a,b),c");
+     assertPrint("var x=a,b=(c,d)", "var x=a,b=(c,d)");
+     assertPrint("foo(a,b,c,d)", "foo(a,b,c,d)");
+     assertPrint("foo((a,b,c),d)", "foo((a,b,c),d)");
+     assertPrint("foo((a,(b,c)),d)", "foo((a,b,c),d)");
+     assertPrint("f(a+b,(c,d,(e,f,g)))", "f(a+b,(c,d,e,f,g))");
+     assertPrint("({}) , 1 , 2", "({}),1,2");
+     assertPrint("({}) , {} , {}", "({}),{},{}");
+ 
+     // EMPTY nodes
+     assertPrint("if (x){}", "if(x);");
+     assertPrint("if(x);", "if(x);");
+     assertPrint("if(x)if(y);", "if(x)if(y);");
+     assertPrint("if(x){if(y);}", "if(x)if(y);");
+     assertPrint("if(x){if(y){};;;}", "if(x)if(y);");
+     assertPrint("if(x){;;function y(){};;}", "if(x){function y(){}}");
+   }
+ 
+
+commit fe5f03ca2181173fab182a6b048d46cf5c821a2a
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Oct 22 20:47:06 2012
+
+    Automated g4 rollback
+    
+    *** Reason for rollback ***
+    
+    i'm going to make this an option instead
+    
+    *** Original change description ***
+    
+    Use single quotes by default for command-line runners.
+    Fixes issue 836.
+    
+    R=johnlenz
+    DELTA=265  (0 added, 20 deleted, 245 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=5695
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2275 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -125,219 +121,219 @@
+   public void testPrint() {
+     assertPrint("10 + a + b", "10+a+b");
+     assertPrint("10 + (30*50)", "10+30*50");
+     assertPrint("with(x) { x + 3; }", "with(x)x+3");
+     assertPrint("\"aa'a\"", "\"aa'a\"");
+     assertPrint("\"aa\\\"a\"", "'aa\"a'");
+     assertPrint("function foo()\n{return 10;}", "function foo(){return 10}");
+     assertPrint("a instanceof b", "a instanceof b");
+     assertPrint("typeof(a)", "typeof a");
+     assertPrint(
+-        "var foo = x ? { a : 1 } : {a: 3, b:4, 'default': 5, 'foo-bar': 6}",
+-        "var foo=x?{a:1}:{a:3,b:4,'default':5,'foo-bar':6}");
++        "var foo = x ? { a : 1 } : {a: 3, b:4, \"default\": 5, \"foo-bar\": 6}",
++        "var foo=x?{a:1}:{a:3,b:4,\"default\":5,\"foo-bar\":6}");
+ 
+     // Safari: needs ';' at the end of a throw statement
+     assertPrint("function foo(){throw 'error';}",
+-        "function foo(){throw'error';}");
++        "function foo(){throw\"error\";}");
+     // Safari 3 needs a "{" around a single function
+     assertPrint("if (true) function foo(){return}",
+         "if(true){function foo(){return}}");
+ 
+     assertPrint("var x = 10; { var y = 20; }", "var x=10;var y=20");
+ 
+     assertPrint("while (x-- > 0);", "while(x-- >0);");
+     assertPrint("x-- >> 1", "x-- >>1");
+ 
+     assertPrint("(function () {})(); ",
+         "(function(){})()");
+ 
+     // Associativity
+     assertPrint("var a,b,c,d;a || (b&& c) && (a || d)",
+         "var a,b,c,d;a||b&&c&&(a||d)");
+     assertPrint("var a,b,c; a || (b || c); a * (b * c); a | (b | c)",
+         "var a,b,c;a||b||c;a*b*c;a|b|c");
+     assertPrint("var a,b,c; a / b / c;a / (b / c); a - (b - c);",
+         "var a,b,c;a/b/c;a/(b/c);a-(b-c)");
+     assertPrint("var a,b; a = b = 3;",
+         "var a,b;a=b=3");
+     assertPrint("var a,b,c,d; a = (b = c = (d = 3));",
+         "var a,b,c,d;a=b=c=d=3");
+     assertPrint("var a,b,c; a += (b = c += 3);",
+         "var a,b,c;a+=b=c+=3");
+     assertPrint("var a,b,c; a *= (b -= c);",
+         "var a,b,c;a*=b-=c");
+ 
+     // Break scripts
+-    assertPrint("'<script>'", "'<script>'");
+-    assertPrint("'</script>'", "'<\\/script>'");
+-    assertPrint("\"</script> </SCRIPT>\"", "'<\\/script> <\\/SCRIPT>'");
++    assertPrint("'<script>'", "\"<script>\"");
++    assertPrint("'</script>'", "\"<\\/script>\"");
++    assertPrint("\"</script> </SCRIPT>\"", "\"<\\/script> <\\/SCRIPT>\"");
+ 
+-    assertPrint("'-->'", "'--\\>'");
+-    assertPrint("']]>'", "']]\\>'");
+-    assertPrint("' --></script>'", "' --\\><\\/script>'");
++    assertPrint("'-->'", "\"--\\>\"");
++    assertPrint("']]>'", "\"]]\\>\"");
++    assertPrint("' --></script>'", "\" --\\><\\/script>\"");
+ 
+     assertPrint("/--> <\\/script>/g", "/--\\> <\\/script>/g");
+ 
+     // Break HTML start comments. Certain versions of WebKit
+     // begin an HTML comment when they see this.
+-    assertPrint("'<!-- I am a string -->'", "'<\\!-- I am a string --\\>'");
++    assertPrint("'<!-- I am a string -->'", "\"<\\!-- I am a string --\\>\"");
+ 
+     // Precedence
+     assertPrint("a ? delete b[0] : 3", "a?delete b[0]:3");
+     assertPrint("(delete a[0])/10", "delete a[0]/10");
+ 
+     // optional '()' for new
+ 
+     // simple new
+     assertPrint("new A", "new A");
+     assertPrint("new A()", "new A");
+-    assertPrint("new A('x')", "new A('x')");
++    assertPrint("new A('x')", "new A(\"x\")");
+ 
+     // calling instance method directly after new
+     assertPrint("new A().a()", "(new A).a()");
+     assertPrint("(new A).a()", "(new A).a()");
+ 
+     // this case should be fixed
+-    assertPrint("new A('y').a()", "(new A('y')).a()");
++    assertPrint("new A('y').a()", "(new A(\"y\")).a()");
+ 
+     // internal class
+     assertPrint("new A.B", "new A.B");
+     assertPrint("new A.B()", "new A.B");
+-    assertPrint("new A.B('z')", "new A.B('z')");
++    assertPrint("new A.B('z')", "new A.B(\"z\")");
+ 
+     // calling instance method directly after new internal class
+     assertPrint("(new A.B).a()", "(new A.B).a()");
+     assertPrint("new A.B().a()", "(new A.B).a()");
+     // this case should be fixed
+-    assertPrint("new A.B('w').a()", "(new A.B('w')).a()");
++    assertPrint("new A.B('w').a()", "(new A.B(\"w\")).a()");
+ 
+     // Operators: make sure we don't convert binary + and unary + into ++
+     assertPrint("x + +y", "x+ +y");
+     assertPrint("x - (-y)", "x- -y");
+     assertPrint("x++ +y", "x++ +y");
+     assertPrint("x-- -y", "x-- -y");
+     assertPrint("x++ -y", "x++-y");
+ 
+     // Label
+     assertPrint("foo:for(;;){break foo;}", "foo:for(;;)break foo");
+     assertPrint("foo:while(1){continue foo;}", "foo:while(1)continue foo");
+ 
+     // Object literals.
+     assertPrint("({})", "({})");
+     assertPrint("var x = {};", "var x={}");
+     assertPrint("({}).x", "({}).x");
+-    assertPrint("({})['x']", "({})['x']");
++    assertPrint("({})['x']", "({})[\"x\"]");
+     assertPrint("({}) instanceof Object", "({})instanceof Object");
+     assertPrint("({}) || 1", "({})||1");
+     assertPrint("1 || ({})", "1||{}");
+     assertPrint("({}) ? 1 : 2", "({})?1:2");
+     assertPrint("0 ? ({}) : 2", "0?{}:2");
+     assertPrint("0 ? 1 : ({})", "0?1:{}");
+     assertPrint("typeof ({})", "typeof{}");
+     assertPrint("f({})", "f({})");
+ 
+     // Anonymous function expressions.
+     assertPrint("(function(){})", "(function(){})");
+     assertPrint("(function(){})()", "(function(){})()");
+     assertPrint("(function(){})instanceof Object",
+         "(function(){})instanceof Object");
+     assertPrint("(function(){}).bind().call()",
+         "(function(){}).bind().call()");
+     assertPrint("var x = function() { };", "var x=function(){}");
+     assertPrint("var x = function() { }();", "var x=function(){}()");
+     assertPrint("(function() {}), 2", "(function(){}),2");
+ 
+     // Name functions expression.
+     assertPrint("(function f(){})", "(function f(){})");
+ 
+     // Function declaration.
+     assertPrint("function f(){}", "function f(){}");
+ 
+     // Make sure we don't treat non-Latin character escapes as raw strings.
+-    assertPrint("({ 'a': 4, '\\u0100': 4 })", "({'a':4,'\\u0100':4})");
+-    assertPrint("({ a: 4, '\\u0100': 4 })", "({a:4,'\\u0100':4})");
++    assertPrint("({ 'a': 4, '\\u0100': 4 })", "({\"a\":4,\"\\u0100\":4})");
++    assertPrint("({ a: 4, '\\u0100': 4 })", "({a:4,\"\\u0100\":4})");
+ 
+     // Test if statement and for statements with single statements in body.
+     assertPrint("if (true) { alert();}", "if(true)alert()");
+-    assertPrint("if (false) {} else {alert('a');}",
+-        "if(false);else alert('a')");
++    assertPrint("if (false) {} else {alert(\"a\");}",
++        "if(false);else alert(\"a\")");
+     assertPrint("for(;;) { alert();};", "for(;;)alert()");
+ 
+     assertPrint("do { alert(); } while(true);",
+         "do alert();while(true)");
+     assertPrint("myLabel: { alert();}",
+         "myLabel:alert()");
+     assertPrint("myLabel: for(;;) continue myLabel;",
+         "myLabel:for(;;)continue myLabel");
+ 
+     // Test nested var statement
+     assertPrint("if (true) var x; x = 4;", "if(true)var x;x=4");
+ 
+     // Non-latin identifier. Make sure we keep them escaped.
+     assertPrint("\\u00fb", "\\u00fb");
+     assertPrint("\\u00fa=1", "\\u00fa=1");
+     assertPrint("function \\u00f9(){}", "function \\u00f9(){}");
+     assertPrint("x.\\u00f8", "x.\\u00f8");
+     assertPrint("x.\\u00f8", "x.\\u00f8");
+     assertPrint("abc\\u4e00\\u4e01jkl", "abc\\u4e00\\u4e01jkl");
+ 
+     // Test the right-associative unary operators for spurious parens
+     assertPrint("! ! true", "!!true");
+     assertPrint("!(!(true))", "!!true");
+     assertPrint("typeof(void(0))", "typeof void 0");
+     assertPrint("typeof(void(!0))", "typeof void!0");
+     assertPrint("+ - + + - + 3", "+-+ +-+3"); // chained unary plus/minus
+     assertPrint("+(--x)", "+--x");
+     assertPrint("-(++x)", "-++x");
+ 
+     // needs a space to prevent an ambiguous parse
+     assertPrint("-(--x)", "- --x");
+     assertPrint("!(~~5)", "!~~5");
+     assertPrint("~(a/b)", "~(a/b)");
+ 
+     // Preserve parens to overcome greedy binding of NEW
+     assertPrint("new (foo.bar()).factory(baz)", "new (foo.bar().factory)(baz)");
+     assertPrint("new (bar()).factory(baz)", "new (bar().factory)(baz)");
+     assertPrint("new (new foobar(x)).factory(baz)",
+         "new (new foobar(x)).factory(baz)");
+ 
+     // Make sure that HOOK is right associative
+     assertPrint("a ? b : (c ? d : e)", "a?b:c?d:e");
+     assertPrint("a ? (b ? c : d) : e", "a?b?c:d:e");
+     assertPrint("(a ? b : c) ? d : e", "(a?b:c)?d:e");
+ 
+     // Test nested ifs
+     assertPrint("if (x) if (y); else;", "if(x)if(y);else;");
+ 
+     // Test comma.
+     assertPrint("a,b,c", "a,b,c");
+     assertPrint("(a,b),c", "a,b,c");
+     assertPrint("a,(b,c)", "a,b,c");
+     assertPrint("x=a,b,c", "x=a,b,c");
+     assertPrint("x=(a,b),c", "x=(a,b),c");
+     assertPrint("x=a,(b,c)", "x=a,b,c");
+     assertPrint("x=a,y=b,z=c", "x=a,y=b,z=c");
+     assertPrint("x=(a,y=b,z=c)", "x=(a,y=b,z=c)");
+     assertPrint("x=[a,b,c,d]", "x=[a,b,c,d]");
+     assertPrint("x=[(a,b,c),d]", "x=[(a,b,c),d]");
+     assertPrint("x=[(a,(b,c)),d]", "x=[(a,b,c),d]");
+     assertPrint("x=[a,(b,c,d)]", "x=[a,(b,c,d)]");
+     assertPrint("var x=(a,b)", "var x=(a,b)");
+     assertPrint("var x=a,b,c", "var x=a,b,c");
+     assertPrint("var x=(a,b),c", "var x=(a,b),c");
+     assertPrint("var x=a,b=(c,d)", "var x=a,b=(c,d)");
+     assertPrint("foo(a,b,c,d)", "foo(a,b,c,d)");
+     assertPrint("foo((a,b,c),d)", "foo((a,b,c),d)");
+     assertPrint("foo((a,(b,c)),d)", "foo((a,b,c),d)");
+     assertPrint("f(a+b,(c,d,(e,f,g)))", "f(a+b,(c,d,e,f,g))");
+     assertPrint("({}) , 1 , 2", "({}),1,2");
+     assertPrint("({}) , {} , {}", "({}),{},{}");
+ 
+     // EMPTY nodes
+     assertPrint("if (x){}", "if(x);");
+     assertPrint("if(x);", "if(x);");
+     assertPrint("if(x)if(y);", "if(x)if(y);");
+     assertPrint("if(x){if(y);}", "if(x)if(y);");
+     assertPrint("if(x){if(y){};;;}", "if(x)if(y);");
+     assertPrint("if(x){;;function y(){};;}", "if(x){function y(){}}");
+   }
+ 
+
+commit e61c3d71fcb983d38a30996bae7a3ed738bb1871
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Oct 15 11:37:10 2012
+
+    Use single quotes by default for command-line runners.
+    Fixes issue 836.
+    
+    R=johnlenz
+    DELTA=265  (20 added, 0 deleted, 245 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=5652
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2258 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -121,219 +125,219 @@
+   public void testPrint() {
+     assertPrint("10 + a + b", "10+a+b");
+     assertPrint("10 + (30*50)", "10+30*50");
+     assertPrint("with(x) { x + 3; }", "with(x)x+3");
+     assertPrint("\"aa'a\"", "\"aa'a\"");
+     assertPrint("\"aa\\\"a\"", "'aa\"a'");
+     assertPrint("function foo()\n{return 10;}", "function foo(){return 10}");
+     assertPrint("a instanceof b", "a instanceof b");
+     assertPrint("typeof(a)", "typeof a");
+     assertPrint(
+-        "var foo = x ? { a : 1 } : {a: 3, b:4, \"default\": 5, \"foo-bar\": 6}",
+-        "var foo=x?{a:1}:{a:3,b:4,\"default\":5,\"foo-bar\":6}");
++        "var foo = x ? { a : 1 } : {a: 3, b:4, 'default': 5, 'foo-bar': 6}",
++        "var foo=x?{a:1}:{a:3,b:4,'default':5,'foo-bar':6}");
+ 
+     // Safari: needs ';' at the end of a throw statement
+     assertPrint("function foo(){throw 'error';}",
+-        "function foo(){throw\"error\";}");
++        "function foo(){throw'error';}");
+     // Safari 3 needs a "{" around a single function
+     assertPrint("if (true) function foo(){return}",
+         "if(true){function foo(){return}}");
+ 
+     assertPrint("var x = 10; { var y = 20; }", "var x=10;var y=20");
+ 
+     assertPrint("while (x-- > 0);", "while(x-- >0);");
+     assertPrint("x-- >> 1", "x-- >>1");
+ 
+     assertPrint("(function () {})(); ",
+         "(function(){})()");
+ 
+     // Associativity
+     assertPrint("var a,b,c,d;a || (b&& c) && (a || d)",
+         "var a,b,c,d;a||b&&c&&(a||d)");
+     assertPrint("var a,b,c; a || (b || c); a * (b * c); a | (b | c)",
+         "var a,b,c;a||b||c;a*b*c;a|b|c");
+     assertPrint("var a,b,c; a / b / c;a / (b / c); a - (b - c);",
+         "var a,b,c;a/b/c;a/(b/c);a-(b-c)");
+     assertPrint("var a,b; a = b = 3;",
+         "var a,b;a=b=3");
+     assertPrint("var a,b,c,d; a = (b = c = (d = 3));",
+         "var a,b,c,d;a=b=c=d=3");
+     assertPrint("var a,b,c; a += (b = c += 3);",
+         "var a,b,c;a+=b=c+=3");
+     assertPrint("var a,b,c; a *= (b -= c);",
+         "var a,b,c;a*=b-=c");
+ 
+     // Break scripts
+-    assertPrint("'<script>'", "\"<script>\"");
+-    assertPrint("'</script>'", "\"<\\/script>\"");
+-    assertPrint("\"</script> </SCRIPT>\"", "\"<\\/script> <\\/SCRIPT>\"");
++    assertPrint("'<script>'", "'<script>'");
++    assertPrint("'</script>'", "'<\\/script>'");
++    assertPrint("\"</script> </SCRIPT>\"", "'<\\/script> <\\/SCRIPT>'");
+ 
+-    assertPrint("'-->'", "\"--\\>\"");
+-    assertPrint("']]>'", "\"]]\\>\"");
+-    assertPrint("' --></script>'", "\" --\\><\\/script>\"");
++    assertPrint("'-->'", "'--\\>'");
++    assertPrint("']]>'", "']]\\>'");
++    assertPrint("' --></script>'", "' --\\><\\/script>'");
+ 
+     assertPrint("/--> <\\/script>/g", "/--\\> <\\/script>/g");
+ 
+     // Break HTML start comments. Certain versions of WebKit
+     // begin an HTML comment when they see this.
+-    assertPrint("'<!-- I am a string -->'", "\"<\\!-- I am a string --\\>\"");
++    assertPrint("'<!-- I am a string -->'", "'<\\!-- I am a string --\\>'");
+ 
+     // Precedence
+     assertPrint("a ? delete b[0] : 3", "a?delete b[0]:3");
+     assertPrint("(delete a[0])/10", "delete a[0]/10");
+ 
+     // optional '()' for new
+ 
+     // simple new
+     assertPrint("new A", "new A");
+     assertPrint("new A()", "new A");
+-    assertPrint("new A('x')", "new A(\"x\")");
++    assertPrint("new A('x')", "new A('x')");
+ 
+     // calling instance method directly after new
+     assertPrint("new A().a()", "(new A).a()");
+     assertPrint("(new A).a()", "(new A).a()");
+ 
+     // this case should be fixed
+-    assertPrint("new A('y').a()", "(new A(\"y\")).a()");
++    assertPrint("new A('y').a()", "(new A('y')).a()");
+ 
+     // internal class
+     assertPrint("new A.B", "new A.B");
+     assertPrint("new A.B()", "new A.B");
+-    assertPrint("new A.B('z')", "new A.B(\"z\")");
++    assertPrint("new A.B('z')", "new A.B('z')");
+ 
+     // calling instance method directly after new internal class
+     assertPrint("(new A.B).a()", "(new A.B).a()");
+     assertPrint("new A.B().a()", "(new A.B).a()");
+     // this case should be fixed
+-    assertPrint("new A.B('w').a()", "(new A.B(\"w\")).a()");
++    assertPrint("new A.B('w').a()", "(new A.B('w')).a()");
+ 
+     // Operators: make sure we don't convert binary + and unary + into ++
+     assertPrint("x + +y", "x+ +y");
+     assertPrint("x - (-y)", "x- -y");
+     assertPrint("x++ +y", "x++ +y");
+     assertPrint("x-- -y", "x-- -y");
+     assertPrint("x++ -y", "x++-y");
+ 
+     // Label
+     assertPrint("foo:for(;;){break foo;}", "foo:for(;;)break foo");
+     assertPrint("foo:while(1){continue foo;}", "foo:while(1)continue foo");
+ 
+     // Object literals.
+     assertPrint("({})", "({})");
+     assertPrint("var x = {};", "var x={}");
+     assertPrint("({}).x", "({}).x");
+-    assertPrint("({})['x']", "({})[\"x\"]");
++    assertPrint("({})['x']", "({})['x']");
+     assertPrint("({}) instanceof Object", "({})instanceof Object");
+     assertPrint("({}) || 1", "({})||1");
+     assertPrint("1 || ({})", "1||{}");
+     assertPrint("({}) ? 1 : 2", "({})?1:2");
+     assertPrint("0 ? ({}) : 2", "0?{}:2");
+     assertPrint("0 ? 1 : ({})", "0?1:{}");
+     assertPrint("typeof ({})", "typeof{}");
+     assertPrint("f({})", "f({})");
+ 
+     // Anonymous function expressions.
+     assertPrint("(function(){})", "(function(){})");
+     assertPrint("(function(){})()", "(function(){})()");
+     assertPrint("(function(){})instanceof Object",
+         "(function(){})instanceof Object");
+     assertPrint("(function(){}).bind().call()",
+         "(function(){}).bind().call()");
+     assertPrint("var x = function() { };", "var x=function(){}");
+     assertPrint("var x = function() { }();", "var x=function(){}()");
+     assertPrint("(function() {}), 2", "(function(){}),2");
+ 
+     // Name functions expression.
+     assertPrint("(function f(){})", "(function f(){})");
+ 
+     // Function declaration.
+     assertPrint("function f(){}", "function f(){}");
+ 
+     // Make sure we don't treat non-Latin character escapes as raw strings.
+-    assertPrint("({ 'a': 4, '\\u0100': 4 })", "({\"a\":4,\"\\u0100\":4})");
+-    assertPrint("({ a: 4, '\\u0100': 4 })", "({a:4,\"\\u0100\":4})");
++    assertPrint("({ 'a': 4, '\\u0100': 4 })", "({'a':4,'\\u0100':4})");
++    assertPrint("({ a: 4, '\\u0100': 4 })", "({a:4,'\\u0100':4})");
+ 
+     // Test if statement and for statements with single statements in body.
+     assertPrint("if (true) { alert();}", "if(true)alert()");
+-    assertPrint("if (false) {} else {alert(\"a\");}",
+-        "if(false);else alert(\"a\")");
++    assertPrint("if (false) {} else {alert('a');}",
++        "if(false);else alert('a')");
+     assertPrint("for(;;) { alert();};", "for(;;)alert()");
+ 
+     assertPrint("do { alert(); } while(true);",
+         "do alert();while(true)");
+     assertPrint("myLabel: { alert();}",
+         "myLabel:alert()");
+     assertPrint("myLabel: for(;;) continue myLabel;",
+         "myLabel:for(;;)continue myLabel");
+ 
+     // Test nested var statement
+     assertPrint("if (true) var x; x = 4;", "if(true)var x;x=4");
+ 
+     // Non-latin identifier. Make sure we keep them escaped.
+     assertPrint("\\u00fb", "\\u00fb");
+     assertPrint("\\u00fa=1", "\\u00fa=1");
+     assertPrint("function \\u00f9(){}", "function \\u00f9(){}");
+     assertPrint("x.\\u00f8", "x.\\u00f8");
+     assertPrint("x.\\u00f8", "x.\\u00f8");
+     assertPrint("abc\\u4e00\\u4e01jkl", "abc\\u4e00\\u4e01jkl");
+ 
+     // Test the right-associative unary operators for spurious parens
+     assertPrint("! ! true", "!!true");
+     assertPrint("!(!(true))", "!!true");
+     assertPrint("typeof(void(0))", "typeof void 0");
+     assertPrint("typeof(void(!0))", "typeof void!0");
+     assertPrint("+ - + + - + 3", "+-+ +-+3"); // chained unary plus/minus
+     assertPrint("+(--x)", "+--x");
+     assertPrint("-(++x)", "-++x");
+ 
+     // needs a space to prevent an ambiguous parse
+     assertPrint("-(--x)", "- --x");
+     assertPrint("!(~~5)", "!~~5");
+     assertPrint("~(a/b)", "~(a/b)");
+ 
+     // Preserve parens to overcome greedy binding of NEW
+     assertPrint("new (foo.bar()).factory(baz)", "new (foo.bar().factory)(baz)");
+     assertPrint("new (bar()).factory(baz)", "new (bar().factory)(baz)");
+     assertPrint("new (new foobar(x)).factory(baz)",
+         "new (new foobar(x)).factory(baz)");
+ 
+     // Make sure that HOOK is right associative
+     assertPrint("a ? b : (c ? d : e)", "a?b:c?d:e");
+     assertPrint("a ? (b ? c : d) : e", "a?b?c:d:e");
+     assertPrint("(a ? b : c) ? d : e", "(a?b:c)?d:e");
+ 
+     // Test nested ifs
+     assertPrint("if (x) if (y); else;", "if(x)if(y);else;");
+ 
+     // Test comma.
+     assertPrint("a,b,c", "a,b,c");
+     assertPrint("(a,b),c", "a,b,c");
+     assertPrint("a,(b,c)", "a,b,c");
+     assertPrint("x=a,b,c", "x=a,b,c");
+     assertPrint("x=(a,b),c", "x=(a,b),c");
+     assertPrint("x=a,(b,c)", "x=a,b,c");
+     assertPrint("x=a,y=b,z=c", "x=a,y=b,z=c");
+     assertPrint("x=(a,y=b,z=c)", "x=(a,y=b,z=c)");
+     assertPrint("x=[a,b,c,d]", "x=[a,b,c,d]");
+     assertPrint("x=[(a,b,c),d]", "x=[(a,b,c),d]");
+     assertPrint("x=[(a,(b,c)),d]", "x=[(a,b,c),d]");
+     assertPrint("x=[a,(b,c,d)]", "x=[a,(b,c,d)]");
+     assertPrint("var x=(a,b)", "var x=(a,b)");
+     assertPrint("var x=a,b,c", "var x=a,b,c");
+     assertPrint("var x=(a,b),c", "var x=(a,b),c");
+     assertPrint("var x=a,b=(c,d)", "var x=a,b=(c,d)");
+     assertPrint("foo(a,b,c,d)", "foo(a,b,c,d)");
+     assertPrint("foo((a,b,c),d)", "foo((a,b,c),d)");
+     assertPrint("foo((a,(b,c)),d)", "foo((a,b,c),d)");
+     assertPrint("f(a+b,(c,d,(e,f,g)))", "f(a+b,(c,d,e,f,g))");
+     assertPrint("({}) , 1 , 2", "({}),1,2");
+     assertPrint("({}) , {} , {}", "({}),{},{}");
+ 
+     // EMPTY nodes
+     assertPrint("if (x){}", "if(x);");
+     assertPrint("if(x);", "if(x);");
+     assertPrint("if(x)if(y);", "if(x)if(y);");
+     assertPrint("if(x){if(y);}", "if(x)if(y);");
+     assertPrint("if(x){if(y){};;;}", "if(x)if(y);");
+     assertPrint("if(x){;;function y(){};;}", "if(x){function y(){}}");
+   }
+ 
+
+commit 70a5626922ea7e8c98747e22b6986638ba38fadc
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri May 18 14:09:14 2012
+
+    Fix various typos, spelling and grammar errors.
+    Fixes issue 734.
+    Contributed by Robert Gust Bardon
+    
+    R=nicksantos
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=4827
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1979 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -122,219 +122,219 @@
+   public void testPrint() {
+     assertPrint("10 + a + b", "10+a+b");
+     assertPrint("10 + (30*50)", "10+30*50");
+     assertPrint("with(x) { x + 3; }", "with(x)x+3");
+     assertPrint("\"aa'a\"", "\"aa'a\"");
+     assertPrint("\"aa\\\"a\"", "'aa\"a'");
+     assertPrint("function foo()\n{return 10;}", "function foo(){return 10}");
+     assertPrint("a instanceof b", "a instanceof b");
+     assertPrint("typeof(a)", "typeof a");
+     assertPrint(
+         "var foo = x ? { a : 1 } : {a: 3, b:4, \"default\": 5, \"foo-bar\": 6}",
+         "var foo=x?{a:1}:{a:3,b:4,\"default\":5,\"foo-bar\":6}");
+ 
+     // Safari: needs ';' at the end of a throw statement
+     assertPrint("function foo(){throw 'error';}",
+         "function foo(){throw\"error\";}");
+     // Safari 3 needs a "{" around a single function
+     assertPrint("if (true) function foo(){return}",
+         "if(true){function foo(){return}}");
+ 
+     assertPrint("var x = 10; { var y = 20; }", "var x=10;var y=20");
+ 
+     assertPrint("while (x-- > 0);", "while(x-- >0);");
+     assertPrint("x-- >> 1", "x-- >>1");
+ 
+     assertPrint("(function () {})(); ",
+         "(function(){})()");
+ 
+     // Associativity
+     assertPrint("var a,b,c,d;a || (b&& c) && (a || d)",
+         "var a,b,c,d;a||b&&c&&(a||d)");
+     assertPrint("var a,b,c; a || (b || c); a * (b * c); a | (b | c)",
+         "var a,b,c;a||b||c;a*b*c;a|b|c");
+     assertPrint("var a,b,c; a / b / c;a / (b / c); a - (b - c);",
+         "var a,b,c;a/b/c;a/(b/c);a-(b-c)");
+     assertPrint("var a,b; a = b = 3;",
+         "var a,b;a=b=3");
+     assertPrint("var a,b,c,d; a = (b = c = (d = 3));",
+         "var a,b,c,d;a=b=c=d=3");
+     assertPrint("var a,b,c; a += (b = c += 3);",
+         "var a,b,c;a+=b=c+=3");
+     assertPrint("var a,b,c; a *= (b -= c);",
+         "var a,b,c;a*=b-=c");
+ 
+     // Break scripts
+     assertPrint("'<script>'", "\"<script>\"");
+     assertPrint("'</script>'", "\"<\\/script>\"");
+     assertPrint("\"</script> </SCRIPT>\"", "\"<\\/script> <\\/SCRIPT>\"");
+ 
+     assertPrint("'-->'", "\"--\\>\"");
+     assertPrint("']]>'", "\"]]\\>\"");
+     assertPrint("' --></script>'", "\" --\\><\\/script>\"");
+ 
+     assertPrint("/--> <\\/script>/g", "/--\\> <\\/script>/g");
+ 
+-    // Break HTML start comments. Certain versions of Webkit
++    // Break HTML start comments. Certain versions of WebKit
+     // begin an HTML comment when they see this.
+     assertPrint("'<!-- I am a string -->'", "\"<\\!-- I am a string --\\>\"");
+ 
+     // Precedence
+     assertPrint("a ? delete b[0] : 3", "a?delete b[0]:3");
+     assertPrint("(delete a[0])/10", "delete a[0]/10");
+ 
+     // optional '()' for new
+ 
+     // simple new
+     assertPrint("new A", "new A");
+     assertPrint("new A()", "new A");
+     assertPrint("new A('x')", "new A(\"x\")");
+ 
+     // calling instance method directly after new
+     assertPrint("new A().a()", "(new A).a()");
+     assertPrint("(new A).a()", "(new A).a()");
+ 
+     // this case should be fixed
+     assertPrint("new A('y').a()", "(new A(\"y\")).a()");
+ 
+     // internal class
+     assertPrint("new A.B", "new A.B");
+     assertPrint("new A.B()", "new A.B");
+     assertPrint("new A.B('z')", "new A.B(\"z\")");
+ 
+     // calling instance method directly after new internal class
+     assertPrint("(new A.B).a()", "(new A.B).a()");
+     assertPrint("new A.B().a()", "(new A.B).a()");
+     // this case should be fixed
+     assertPrint("new A.B('w').a()", "(new A.B(\"w\")).a()");
+ 
+     // Operators: make sure we don't convert binary + and unary + into ++
+     assertPrint("x + +y", "x+ +y");
+     assertPrint("x - (-y)", "x- -y");
+     assertPrint("x++ +y", "x++ +y");
+     assertPrint("x-- -y", "x-- -y");
+     assertPrint("x++ -y", "x++-y");
+ 
+     // Label
+     assertPrint("foo:for(;;){break foo;}", "foo:for(;;)break foo");
+     assertPrint("foo:while(1){continue foo;}", "foo:while(1)continue foo");
+ 
+     // Object literals.
+     assertPrint("({})", "({})");
+     assertPrint("var x = {};", "var x={}");
+     assertPrint("({}).x", "({}).x");
+     assertPrint("({})['x']", "({})[\"x\"]");
+     assertPrint("({}) instanceof Object", "({})instanceof Object");
+     assertPrint("({}) || 1", "({})||1");
+     assertPrint("1 || ({})", "1||{}");
+     assertPrint("({}) ? 1 : 2", "({})?1:2");
+     assertPrint("0 ? ({}) : 2", "0?{}:2");
+     assertPrint("0 ? 1 : ({})", "0?1:{}");
+     assertPrint("typeof ({})", "typeof{}");
+     assertPrint("f({})", "f({})");
+ 
+     // Anonymous function expressions.
+     assertPrint("(function(){})", "(function(){})");
+     assertPrint("(function(){})()", "(function(){})()");
+     assertPrint("(function(){})instanceof Object",
+         "(function(){})instanceof Object");
+     assertPrint("(function(){}).bind().call()",
+         "(function(){}).bind().call()");
+     assertPrint("var x = function() { };", "var x=function(){}");
+     assertPrint("var x = function() { }();", "var x=function(){}()");
+     assertPrint("(function() {}), 2", "(function(){}),2");
+ 
+     // Name functions expression.
+     assertPrint("(function f(){})", "(function f(){})");
+ 
+     // Function declaration.
+     assertPrint("function f(){}", "function f(){}");
+ 
+-    // Make sure we don't treat non-latin character escapes as raw strings.
++    // Make sure we don't treat non-Latin character escapes as raw strings.
+     assertPrint("({ 'a': 4, '\\u0100': 4 })", "({\"a\":4,\"\\u0100\":4})");
+     assertPrint("({ a: 4, '\\u0100': 4 })", "({a:4,\"\\u0100\":4})");
+ 
+     // Test if statement and for statements with single statements in body.
+     assertPrint("if (true) { alert();}", "if(true)alert()");
+     assertPrint("if (false) {} else {alert(\"a\");}",
+         "if(false);else alert(\"a\")");
+     assertPrint("for(;;) { alert();};", "for(;;)alert()");
+ 
+     assertPrint("do { alert(); } while(true);",
+         "do alert();while(true)");
+     assertPrint("myLabel: { alert();}",
+         "myLabel:alert()");
+     assertPrint("myLabel: for(;;) continue myLabel;",
+         "myLabel:for(;;)continue myLabel");
+ 
+     // Test nested var statement
+     assertPrint("if (true) var x; x = 4;", "if(true)var x;x=4");
+ 
+     // Non-latin identifier. Make sure we keep them escaped.
+     assertPrint("\\u00fb", "\\u00fb");
+     assertPrint("\\u00fa=1", "\\u00fa=1");
+     assertPrint("function \\u00f9(){}", "function \\u00f9(){}");
+     assertPrint("x.\\u00f8", "x.\\u00f8");
+     assertPrint("x.\\u00f8", "x.\\u00f8");
+     assertPrint("abc\\u4e00\\u4e01jkl", "abc\\u4e00\\u4e01jkl");
+ 
+     // Test the right-associative unary operators for spurious parens
+     assertPrint("! ! true", "!!true");
+     assertPrint("!(!(true))", "!!true");
+     assertPrint("typeof(void(0))", "typeof void 0");
+     assertPrint("typeof(void(!0))", "typeof void!0");
+     assertPrint("+ - + + - + 3", "+-+ +-+3"); // chained unary plus/minus
+     assertPrint("+(--x)", "+--x");
+     assertPrint("-(++x)", "-++x");
+ 
+     // needs a space to prevent an ambiguous parse
+     assertPrint("-(--x)", "- --x");
+     assertPrint("!(~~5)", "!~~5");
+     assertPrint("~(a/b)", "~(a/b)");
+ 
+     // Preserve parens to overcome greedy binding of NEW
+     assertPrint("new (foo.bar()).factory(baz)", "new (foo.bar().factory)(baz)");
+     assertPrint("new (bar()).factory(baz)", "new (bar().factory)(baz)");
+     assertPrint("new (new foobar(x)).factory(baz)",
+         "new (new foobar(x)).factory(baz)");
+ 
+     // Make sure that HOOK is right associative
+     assertPrint("a ? b : (c ? d : e)", "a?b:c?d:e");
+     assertPrint("a ? (b ? c : d) : e", "a?b?c:d:e");
+     assertPrint("(a ? b : c) ? d : e", "(a?b:c)?d:e");
+ 
+     // Test nested ifs
+     assertPrint("if (x) if (y); else;", "if(x)if(y);else;");
+ 
+     // Test comma.
+     assertPrint("a,b,c", "a,b,c");
+     assertPrint("(a,b),c", "a,b,c");
+     assertPrint("a,(b,c)", "a,b,c");
+     assertPrint("x=a,b,c", "x=a,b,c");
+     assertPrint("x=(a,b),c", "x=(a,b),c");
+     assertPrint("x=a,(b,c)", "x=a,b,c");
+     assertPrint("x=a,y=b,z=c", "x=a,y=b,z=c");
+     assertPrint("x=(a,y=b,z=c)", "x=(a,y=b,z=c)");
+     assertPrint("x=[a,b,c,d]", "x=[a,b,c,d]");
+     assertPrint("x=[(a,b,c),d]", "x=[(a,b,c),d]");
+     assertPrint("x=[(a,(b,c)),d]", "x=[(a,b,c),d]");
+     assertPrint("x=[a,(b,c,d)]", "x=[a,(b,c,d)]");
+     assertPrint("var x=(a,b)", "var x=(a,b)");
+     assertPrint("var x=a,b,c", "var x=a,b,c");
+     assertPrint("var x=(a,b),c", "var x=(a,b),c");
+     assertPrint("var x=a,b=(c,d)", "var x=a,b=(c,d)");
+     assertPrint("foo(a,b,c,d)", "foo(a,b,c,d)");
+     assertPrint("foo((a,b,c),d)", "foo((a,b,c),d)");
+     assertPrint("foo((a,(b,c)),d)", "foo((a,b,c),d)");
+     assertPrint("f(a+b,(c,d,(e,f,g)))", "f(a+b,(c,d,e,f,g))");
+     assertPrint("({}) , 1 , 2", "({}),1,2");
+     assertPrint("({}) , {} , {}", "({}),{},{}");
+ 
+     // EMPTY nodes
+     assertPrint("if (x){}", "if(x);");
+     assertPrint("if(x);", "if(x);");
+     assertPrint("if(x)if(y);", "if(x)if(y);");
+     assertPrint("if(x){if(y);}", "if(x)if(y);");
+     assertPrint("if(x){if(y){};;;}", "if(x)if(y);");
+     assertPrint("if(x){;;function y(){};;}", "if(x){function y(){}}");
+   }
+ 
+
+commit 6ee4f24898632726e63ade4b42636b18e1df6aa7
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Jan 25 17:14:59 2011
+
+    Preserve quotes on object literals unless they are explicitly removed.
+    
+    R=acleung
+    DELTA=22  (18 added, 0 deleted, 4 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=347
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@730 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -94,218 +94,219 @@
+   public void testPrint() {
+     assertPrint("10 + a + b", "10+a+b");
+     assertPrint("10 + (30*50)", "10+30*50");
+     assertPrint("with(x) { x + 3; }", "with(x)x+3");
+     assertPrint("\"aa'a\"", "\"aa'a\"");
+     assertPrint("\"aa\\\"a\"", "'aa\"a'");
+     assertPrint("function foo()\n{return 10;}", "function foo(){return 10}");
+     assertPrint("a instanceof b", "a instanceof b");
+     assertPrint("typeof(a)", "typeof a");
+     assertPrint(
+         "var foo = x ? { a : 1 } : {a: 3, b:4, \"default\": 5, \"foo-bar\": 6}",
+         "var foo=x?{a:1}:{a:3,b:4,\"default\":5,\"foo-bar\":6}");
+ 
+     // Safari: needs ';' at the end of a throw statement
+     assertPrint("function foo(){throw 'error';}",
+         "function foo(){throw\"error\";}");
+     // Safari 3 needs a "{" around a single function
+     assertPrint("if (true) function foo(){return}",
+         "if(true){function foo(){return}}");
+ 
+     assertPrint("var x = 10; { var y = 20; }", "var x=10;var y=20");
+ 
+     assertPrint("while (x-- > 0);", "while(x-- >0);");
+     assertPrint("x-- >> 1", "x-- >>1");
+ 
+     assertPrint("(function () {})(); ",
+         "(function(){})()");
+ 
+     // Associativity
+     assertPrint("var a,b,c,d;a || (b&& c) && (a || d)",
+         "var a,b,c,d;a||b&&c&&(a||d)");
+     assertPrint("var a,b,c; a || (b || c); a * (b * c); a | (b | c)",
+         "var a,b,c;a||b||c;a*b*c;a|b|c");
+     assertPrint("var a,b,c; a / b / c;a / (b / c); a - (b - c);",
+         "var a,b,c;a/b/c;a/(b/c);a-(b-c)");
+     assertPrint("var a,b; a = b = 3;",
+         "var a,b;a=b=3");
+     assertPrint("var a,b,c,d; a = (b = c = (d = 3));",
+         "var a,b,c,d;a=b=c=d=3");
+     assertPrint("var a,b,c; a += (b = c += 3);",
+         "var a,b,c;a+=b=c+=3");
+     assertPrint("var a,b,c; a *= (b -= c);",
+         "var a,b,c;a*=b-=c");
+ 
+     // Break scripts
+     assertPrint("'<script>'", "\"<script>\"");
+     assertPrint("'</script>'", "\"<\\/script>\"");
+     assertPrint("\"</script> </SCRIPT>\"", "\"<\\/script> <\\/SCRIPT>\"");
+ 
+     assertPrint("'-->'", "\"--\\>\"");
+     assertPrint("']]>'", "\"]]\\>\"");
+     assertPrint("' --></script>'", "\" --\\><\\/script>\"");
+ 
+     assertPrint("/--> <\\/script>/g", "/--\\> <\\/script>/g");
+ 
+     // Break HTML start comments. Certain versions of Webkit
+     // begin an HTML comment when they see this.
+     assertPrint("'<!-- I am a string -->'", "\"<\\!-- I am a string --\\>\"");
+ 
+     // Precedence
+     assertPrint("a ? delete b[0] : 3", "a?delete b[0]:3");
+     assertPrint("(delete a[0])/10", "delete a[0]/10");
+ 
+     // optional '()' for new
+ 
+     // simple new
+     assertPrint("new A", "new A");
+     assertPrint("new A()", "new A");
+     assertPrint("new A('x')", "new A(\"x\")");
+ 
+     // calling instance method directly after new
+     assertPrint("new A().a()", "(new A).a()");
+     assertPrint("(new A).a()", "(new A).a()");
+ 
+     // this case should be fixed
+     assertPrint("new A('y').a()", "(new A(\"y\")).a()");
+ 
+     // internal class
+     assertPrint("new A.B", "new A.B");
+     assertPrint("new A.B()", "new A.B");
+     assertPrint("new A.B('z')", "new A.B(\"z\")");
+ 
+     // calling instance method directly after new internal class
+     assertPrint("(new A.B).a()", "(new A.B).a()");
+     assertPrint("new A.B().a()", "(new A.B).a()");
+     // this case should be fixed
+     assertPrint("new A.B('w').a()", "(new A.B(\"w\")).a()");
+ 
+     // Operators: make sure we don't convert binary + and unary + into ++
+     assertPrint("x + +y", "x+ +y");
+     assertPrint("x - (-y)", "x- -y");
+     assertPrint("x++ +y", "x++ +y");
+     assertPrint("x-- -y", "x-- -y");
+     assertPrint("x++ -y", "x++-y");
+ 
+     // Label
+     assertPrint("foo:for(;;){break foo;}", "foo:for(;;)break foo");
+     assertPrint("foo:while(1){continue foo;}", "foo:while(1)continue foo");
+ 
+     // Object literals.
+     assertPrint("({})", "({})");
+     assertPrint("var x = {};", "var x={}");
+     assertPrint("({}).x", "({}).x");
+     assertPrint("({})['x']", "({})[\"x\"]");
+     assertPrint("({}) instanceof Object", "({})instanceof Object");
+     assertPrint("({}) || 1", "({})||1");
+     assertPrint("1 || ({})", "1||{}");
+     assertPrint("({}) ? 1 : 2", "({})?1:2");
+     assertPrint("0 ? ({}) : 2", "0?{}:2");
+     assertPrint("0 ? 1 : ({})", "0?1:{}");
+     assertPrint("typeof ({})", "typeof{}");
+     assertPrint("f({})", "f({})");
+ 
+     // Anonymous function expressions.
+     assertPrint("(function(){})", "(function(){})");
+     assertPrint("(function(){})()", "(function(){})()");
+     assertPrint("(function(){})instanceof Object",
+         "(function(){})instanceof Object");
+     assertPrint("(function(){}).bind().call()",
+         "(function(){}).bind().call()");
+     assertPrint("var x = function() { };", "var x=function(){}");
+     assertPrint("var x = function() { }();", "var x=function(){}()");
+     assertPrint("(function() {}), 2", "(function(){}),2");
+ 
+     // Name functions expression.
+     assertPrint("(function f(){})", "(function f(){})");
+ 
+     // Function declaration.
+     assertPrint("function f(){}", "function f(){}");
+ 
+     // Make sure we don't treat non-latin character escapes as raw strings.
+-    assertPrint("({ 'a': 4, '\\u0100': 4 })", "({a:4,\"\\u0100\":4})");
++    assertPrint("({ 'a': 4, '\\u0100': 4 })", "({\"a\":4,\"\\u0100\":4})");
++    assertPrint("({ a: 4, '\\u0100': 4 })", "({a:4,\"\\u0100\":4})");
+ 
+     // Test if statement and for statements with single statements in body.
+     assertPrint("if (true) { alert();}", "if(true)alert()");
+     assertPrint("if (false) {} else {alert(\"a\");}",
+         "if(false);else alert(\"a\")");
+     assertPrint("for(;;) { alert();};", "for(;;)alert()");
+ 
+     assertPrint("do { alert(); } while(true);",
+         "do alert();while(true)");
+     assertPrint("myLabel: { alert();}",
+         "myLabel:alert()");
+     assertPrint("myLabel: for(;;) continue myLabel;",
+         "myLabel:for(;;)continue myLabel");
+ 
+     // Test nested var statement
+     assertPrint("if (true) var x; x = 4;", "if(true)var x;x=4");
+ 
+     // Non-latin identifier. Make sure we keep them escaped.
+     assertPrint("\\u00fb", "\\u00fb");
+     assertPrint("\\u00fa=1", "\\u00fa=1");
+     assertPrint("function \\u00f9(){}", "function \\u00f9(){}");
+     assertPrint("x.\\u00f8", "x.\\u00f8");
+     assertPrint("x.\\u00f8", "x.\\u00f8");
+     assertPrint("abc\\u4e00\\u4e01jkl", "abc\\u4e00\\u4e01jkl");
+ 
+     // Test the right-associative unary operators for spurious parens
+     assertPrint("! ! true", "!!true");
+     assertPrint("!(!(true))", "!!true");
+     assertPrint("typeof(void(0))", "typeof void 0");
+     assertPrint("typeof(void(!0))", "typeof void!0");
+     assertPrint("+ - + + - + 3", "+-+ +-+3"); // chained unary plus/minus
+     assertPrint("+(--x)", "+--x");
+     assertPrint("-(++x)", "-++x");
+ 
+     // needs a space to prevent an ambiguous parse
+     assertPrint("-(--x)", "- --x");
+     assertPrint("!(~~5)", "!~~5");
+     assertPrint("~(a/b)", "~(a/b)");
+ 
+     // Preserve parens to overcome greedy binding of NEW
+     assertPrint("new (foo.bar()).factory(baz)", "new (foo.bar().factory)(baz)");
+     assertPrint("new (bar()).factory(baz)", "new (bar().factory)(baz)");
+     assertPrint("new (new foobar(x)).factory(baz)",
+         "new (new foobar(x)).factory(baz)");
+ 
+     // Make sure that HOOK is right associative
+     assertPrint("a ? b : (c ? d : e)", "a?b:c?d:e");
+     assertPrint("a ? (b ? c : d) : e", "a?b?c:d:e");
+     assertPrint("(a ? b : c) ? d : e", "(a?b:c)?d:e");
+ 
+     // Test nested ifs
+     assertPrint("if (x) if (y); else;", "if(x)if(y);else;");
+ 
+     // Test comma.
+     assertPrint("a,b,c", "a,b,c");
+     assertPrint("(a,b),c", "a,b,c");
+     assertPrint("a,(b,c)", "a,b,c");
+     assertPrint("x=a,b,c", "x=a,b,c");
+     assertPrint("x=(a,b),c", "x=(a,b),c");
+     assertPrint("x=a,(b,c)", "x=a,b,c");
+     assertPrint("x=a,y=b,z=c", "x=a,y=b,z=c");
+     assertPrint("x=(a,y=b,z=c)", "x=(a,y=b,z=c)");
+     assertPrint("x=[a,b,c,d]", "x=[a,b,c,d]");
+     assertPrint("x=[(a,b,c),d]", "x=[(a,b,c),d]");
+     assertPrint("x=[(a,(b,c)),d]", "x=[(a,b,c),d]");
+     assertPrint("x=[a,(b,c,d)]", "x=[a,(b,c,d)]");
+     assertPrint("var x=(a,b)", "var x=(a,b)");
+     assertPrint("var x=a,b,c", "var x=a,b,c");
+     assertPrint("var x=(a,b),c", "var x=(a,b),c");
+     assertPrint("var x=a,b=(c,d)", "var x=a,b=(c,d)");
+     assertPrint("foo(a,b,c,d)", "foo(a,b,c,d)");
+     assertPrint("foo((a,b,c),d)", "foo((a,b,c),d)");
+     assertPrint("foo((a,(b,c)),d)", "foo((a,b,c),d)");
+     assertPrint("f(a+b,(c,d,(e,f,g)))", "f(a+b,(c,d,e,f,g))");
+     assertPrint("({}) , 1 , 2", "({}),1,2");
+     assertPrint("({}) , {} , {}", "({}),{},{}");
+ 
+     // EMPTY nodes
+     assertPrint("if (x){}", "if(x);");
+     assertPrint("if(x);", "if(x);");
+     assertPrint("if(x)if(y);", "if(x)if(y);");
+     assertPrint("if(x){if(y);}", "if(x)if(y);");
+     assertPrint("if(x){if(y){};;;}", "if(x)if(y);");
+     assertPrint("if(x){;;function y(){};;}", "if(x){function y(){}}");
+   }
+ 
+
+commit 9f8345afa4e5eaa24e3ff6a84d16691764698799
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Jan 11 11:36:50 2011
+
+    Escape start-html comments in strings,  because certain versions
+    of webkit don't parse them properly. We already escape end html
+    comments and </script> tags in this way, so this seems reasonable.
+    
+    R=adeboor
+    DELTA=14  (12 added, 0 deleted, 2 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=247
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@684 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -94,214 +94,218 @@
+   public void testPrint() {
+     assertPrint("10 + a + b", "10+a+b");
+     assertPrint("10 + (30*50)", "10+30*50");
+     assertPrint("with(x) { x + 3; }", "with(x)x+3");
+     assertPrint("\"aa'a\"", "\"aa'a\"");
+     assertPrint("\"aa\\\"a\"", "'aa\"a'");
+     assertPrint("function foo()\n{return 10;}", "function foo(){return 10}");
+     assertPrint("a instanceof b", "a instanceof b");
+     assertPrint("typeof(a)", "typeof a");
+     assertPrint(
+         "var foo = x ? { a : 1 } : {a: 3, b:4, \"default\": 5, \"foo-bar\": 6}",
+         "var foo=x?{a:1}:{a:3,b:4,\"default\":5,\"foo-bar\":6}");
+ 
+     // Safari: needs ';' at the end of a throw statement
+     assertPrint("function foo(){throw 'error';}",
+         "function foo(){throw\"error\";}");
+     // Safari 3 needs a "{" around a single function
+     assertPrint("if (true) function foo(){return}",
+         "if(true){function foo(){return}}");
+ 
+     assertPrint("var x = 10; { var y = 20; }", "var x=10;var y=20");
+ 
+     assertPrint("while (x-- > 0);", "while(x-- >0);");
+     assertPrint("x-- >> 1", "x-- >>1");
+ 
+     assertPrint("(function () {})(); ",
+         "(function(){})()");
+ 
+     // Associativity
+     assertPrint("var a,b,c,d;a || (b&& c) && (a || d)",
+         "var a,b,c,d;a||b&&c&&(a||d)");
+     assertPrint("var a,b,c; a || (b || c); a * (b * c); a | (b | c)",
+         "var a,b,c;a||b||c;a*b*c;a|b|c");
+     assertPrint("var a,b,c; a / b / c;a / (b / c); a - (b - c);",
+         "var a,b,c;a/b/c;a/(b/c);a-(b-c)");
+     assertPrint("var a,b; a = b = 3;",
+         "var a,b;a=b=3");
+     assertPrint("var a,b,c,d; a = (b = c = (d = 3));",
+         "var a,b,c,d;a=b=c=d=3");
+     assertPrint("var a,b,c; a += (b = c += 3);",
+         "var a,b,c;a+=b=c+=3");
+     assertPrint("var a,b,c; a *= (b -= c);",
+         "var a,b,c;a*=b-=c");
+ 
+     // Break scripts
+     assertPrint("'<script>'", "\"<script>\"");
+     assertPrint("'</script>'", "\"<\\/script>\"");
+     assertPrint("\"</script> </SCRIPT>\"", "\"<\\/script> <\\/SCRIPT>\"");
+ 
+     assertPrint("'-->'", "\"--\\>\"");
+     assertPrint("']]>'", "\"]]\\>\"");
+     assertPrint("' --></script>'", "\" --\\><\\/script>\"");
+ 
+     assertPrint("/--> <\\/script>/g", "/--\\> <\\/script>/g");
+ 
++    // Break HTML start comments. Certain versions of Webkit
++    // begin an HTML comment when they see this.
++    assertPrint("'<!-- I am a string -->'", "\"<\\!-- I am a string --\\>\"");
++
+     // Precedence
+     assertPrint("a ? delete b[0] : 3", "a?delete b[0]:3");
+     assertPrint("(delete a[0])/10", "delete a[0]/10");
+ 
+     // optional '()' for new
+ 
+     // simple new
+     assertPrint("new A", "new A");
+     assertPrint("new A()", "new A");
+     assertPrint("new A('x')", "new A(\"x\")");
+ 
+     // calling instance method directly after new
+     assertPrint("new A().a()", "(new A).a()");
+     assertPrint("(new A).a()", "(new A).a()");
+ 
+     // this case should be fixed
+     assertPrint("new A('y').a()", "(new A(\"y\")).a()");
+ 
+     // internal class
+     assertPrint("new A.B", "new A.B");
+     assertPrint("new A.B()", "new A.B");
+     assertPrint("new A.B('z')", "new A.B(\"z\")");
+ 
+     // calling instance method directly after new internal class
+     assertPrint("(new A.B).a()", "(new A.B).a()");
+     assertPrint("new A.B().a()", "(new A.B).a()");
+     // this case should be fixed
+     assertPrint("new A.B('w').a()", "(new A.B(\"w\")).a()");
+ 
+     // Operators: make sure we don't convert binary + and unary + into ++
+     assertPrint("x + +y", "x+ +y");
+     assertPrint("x - (-y)", "x- -y");
+     assertPrint("x++ +y", "x++ +y");
+     assertPrint("x-- -y", "x-- -y");
+     assertPrint("x++ -y", "x++-y");
+ 
+     // Label
+     assertPrint("foo:for(;;){break foo;}", "foo:for(;;)break foo");
+     assertPrint("foo:while(1){continue foo;}", "foo:while(1)continue foo");
+ 
+     // Object literals.
+     assertPrint("({})", "({})");
+     assertPrint("var x = {};", "var x={}");
+     assertPrint("({}).x", "({}).x");
+     assertPrint("({})['x']", "({})[\"x\"]");
+     assertPrint("({}) instanceof Object", "({})instanceof Object");
+     assertPrint("({}) || 1", "({})||1");
+     assertPrint("1 || ({})", "1||{}");
+     assertPrint("({}) ? 1 : 2", "({})?1:2");
+     assertPrint("0 ? ({}) : 2", "0?{}:2");
+     assertPrint("0 ? 1 : ({})", "0?1:{}");
+     assertPrint("typeof ({})", "typeof{}");
+     assertPrint("f({})", "f({})");
+ 
+     // Anonymous function expressions.
+     assertPrint("(function(){})", "(function(){})");
+     assertPrint("(function(){})()", "(function(){})()");
+     assertPrint("(function(){})instanceof Object",
+         "(function(){})instanceof Object");
+     assertPrint("(function(){}).bind().call()",
+         "(function(){}).bind().call()");
+     assertPrint("var x = function() { };", "var x=function(){}");
+     assertPrint("var x = function() { }();", "var x=function(){}()");
+     assertPrint("(function() {}), 2", "(function(){}),2");
+ 
+     // Name functions expression.
+     assertPrint("(function f(){})", "(function f(){})");
+ 
+     // Function declaration.
+     assertPrint("function f(){}", "function f(){}");
+ 
+     // Make sure we don't treat non-latin character escapes as raw strings.
+     assertPrint("({ 'a': 4, '\\u0100': 4 })", "({a:4,\"\\u0100\":4})");
+ 
+     // Test if statement and for statements with single statements in body.
+     assertPrint("if (true) { alert();}", "if(true)alert()");
+     assertPrint("if (false) {} else {alert(\"a\");}",
+         "if(false);else alert(\"a\")");
+     assertPrint("for(;;) { alert();};", "for(;;)alert()");
+ 
+     assertPrint("do { alert(); } while(true);",
+         "do alert();while(true)");
+     assertPrint("myLabel: { alert();}",
+         "myLabel:alert()");
+     assertPrint("myLabel: for(;;) continue myLabel;",
+         "myLabel:for(;;)continue myLabel");
+ 
+     // Test nested var statement
+     assertPrint("if (true) var x; x = 4;", "if(true)var x;x=4");
+ 
+     // Non-latin identifier. Make sure we keep them escaped.
+     assertPrint("\\u00fb", "\\u00fb");
+     assertPrint("\\u00fa=1", "\\u00fa=1");
+     assertPrint("function \\u00f9(){}", "function \\u00f9(){}");
+     assertPrint("x.\\u00f8", "x.\\u00f8");
+     assertPrint("x.\\u00f8", "x.\\u00f8");
+     assertPrint("abc\\u4e00\\u4e01jkl", "abc\\u4e00\\u4e01jkl");
+ 
+     // Test the right-associative unary operators for spurious parens
+     assertPrint("! ! true", "!!true");
+     assertPrint("!(!(true))", "!!true");
+     assertPrint("typeof(void(0))", "typeof void 0");
+     assertPrint("typeof(void(!0))", "typeof void!0");
+     assertPrint("+ - + + - + 3", "+-+ +-+3"); // chained unary plus/minus
+     assertPrint("+(--x)", "+--x");
+     assertPrint("-(++x)", "-++x");
+ 
+     // needs a space to prevent an ambiguous parse
+     assertPrint("-(--x)", "- --x");
+     assertPrint("!(~~5)", "!~~5");
+     assertPrint("~(a/b)", "~(a/b)");
+ 
+     // Preserve parens to overcome greedy binding of NEW
+     assertPrint("new (foo.bar()).factory(baz)", "new (foo.bar().factory)(baz)");
+     assertPrint("new (bar()).factory(baz)", "new (bar().factory)(baz)");
+     assertPrint("new (new foobar(x)).factory(baz)",
+         "new (new foobar(x)).factory(baz)");
+ 
+     // Make sure that HOOK is right associative
+     assertPrint("a ? b : (c ? d : e)", "a?b:c?d:e");
+     assertPrint("a ? (b ? c : d) : e", "a?b?c:d:e");
+     assertPrint("(a ? b : c) ? d : e", "(a?b:c)?d:e");
+ 
+     // Test nested ifs
+     assertPrint("if (x) if (y); else;", "if(x)if(y);else;");
+ 
+     // Test comma.
+     assertPrint("a,b,c", "a,b,c");
+     assertPrint("(a,b),c", "a,b,c");
+     assertPrint("a,(b,c)", "a,b,c");
+     assertPrint("x=a,b,c", "x=a,b,c");
+     assertPrint("x=(a,b),c", "x=(a,b),c");
+     assertPrint("x=a,(b,c)", "x=a,b,c");
+     assertPrint("x=a,y=b,z=c", "x=a,y=b,z=c");
+     assertPrint("x=(a,y=b,z=c)", "x=(a,y=b,z=c)");
+     assertPrint("x=[a,b,c,d]", "x=[a,b,c,d]");
+     assertPrint("x=[(a,b,c),d]", "x=[(a,b,c),d]");
+     assertPrint("x=[(a,(b,c)),d]", "x=[(a,b,c),d]");
+     assertPrint("x=[a,(b,c,d)]", "x=[a,(b,c,d)]");
+     assertPrint("var x=(a,b)", "var x=(a,b)");
+     assertPrint("var x=a,b,c", "var x=a,b,c");
+     assertPrint("var x=(a,b),c", "var x=(a,b),c");
+     assertPrint("var x=a,b=(c,d)", "var x=a,b=(c,d)");
+     assertPrint("foo(a,b,c,d)", "foo(a,b,c,d)");
+     assertPrint("foo((a,b,c),d)", "foo((a,b,c),d)");
+     assertPrint("foo((a,(b,c)),d)", "foo((a,b,c),d)");
+     assertPrint("f(a+b,(c,d,(e,f,g)))", "f(a+b,(c,d,e,f,g))");
+     assertPrint("({}) , 1 , 2", "({}),1,2");
+     assertPrint("({}) , {} , {}", "({}),{},{}");
+ 
+     // EMPTY nodes
+     assertPrint("if (x){}", "if(x);");
+     assertPrint("if(x);", "if(x);");
+     assertPrint("if(x)if(y);", "if(x)if(y);");
+     assertPrint("if(x){if(y);}", "if(x)if(y);");
+     assertPrint("if(x){if(y){};;;}", "if(x)if(y);");
+     assertPrint("if(x){;;function y(){};;}", "if(x){function y(){}}");
+   }
+ 
+
+commit dff6e0114f19c20aeb63393d67aa0880ff5745b5
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Jun 25 19:56:52 2010
+
+    Change on 2010/06/25 by johnlenz
+    
+            Preserve blocks around problematic labelled statements.
+            Fixes issue 190
+    
+            R=nicksantos
+            DELTA=95  (86 added, 2 deleted, 7 changed)
+    
+    Change on 2010/06/25 by nicksantos
+    
+            more descriptive error messaging for CheckReturns.
+    
+    
+            R=acleung
+            DELTA=59  (21 added, 2 deleted, 36 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=42001
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@255 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -75,214 +75,214 @@
+   public void testPrint() {
+     assertPrint("10 + a + b", "10+a+b");
+     assertPrint("10 + (30*50)", "10+30*50");
+     assertPrint("with(x) { x + 3; }", "with(x)x+3");
+     assertPrint("\"aa'a\"", "\"aa'a\"");
+     assertPrint("\"aa\\\"a\"", "'aa\"a'");
+     assertPrint("function foo()\n{return 10;}", "function foo(){return 10}");
+     assertPrint("a instanceof b", "a instanceof b");
+     assertPrint("typeof(a)", "typeof a");
+     assertPrint(
+         "var foo = x ? { a : 1 } : {a: 3, b:4, \"default\": 5, \"foo-bar\": 6}",
+         "var foo=x?{a:1}:{a:3,b:4,\"default\":5,\"foo-bar\":6}");
+ 
+     // Safari: needs ';' at the end of a throw statement
+     assertPrint("function foo(){throw 'error';}",
+         "function foo(){throw\"error\";}");
+     // Safari 3 needs a "{" around a single function
+     assertPrint("if (true) function foo(){return}",
+         "if(true){function foo(){return}}");
+ 
+     assertPrint("var x = 10; { var y = 20; }", "var x=10;var y=20");
+ 
+     assertPrint("while (x-- > 0);", "while(x-- >0);");
+     assertPrint("x-- >> 1", "x-- >>1");
+ 
+     assertPrint("(function () {})(); ",
+         "(function(){})()");
+ 
+     // Associativity
+     assertPrint("var a,b,c,d;a || (b&& c) && (a || d)",
+         "var a,b,c,d;a||b&&c&&(a||d)");
+     assertPrint("var a,b,c; a || (b || c); a * (b * c); a | (b | c)",
+         "var a,b,c;a||b||c;a*b*c;a|b|c");
+     assertPrint("var a,b,c; a / b / c;a / (b / c); a - (b - c);",
+         "var a,b,c;a/b/c;a/(b/c);a-(b-c)");
+     assertPrint("var a,b; a = b = 3;",
+         "var a,b;a=b=3");
+     assertPrint("var a,b,c,d; a = (b = c = (d = 3));",
+         "var a,b,c,d;a=b=c=d=3");
+     assertPrint("var a,b,c; a += (b = c += 3);",
+         "var a,b,c;a+=b=c+=3");
+     assertPrint("var a,b,c; a *= (b -= c);",
+         "var a,b,c;a*=b-=c");
+ 
+     // Break scripts
+     assertPrint("'<script>'", "\"<script>\"");
+     assertPrint("'</script>'", "\"<\\/script>\"");
+     assertPrint("\"</script> </SCRIPT>\"", "\"<\\/script> <\\/SCRIPT>\"");
+ 
+     assertPrint("'-->'", "\"--\\>\"");
+     assertPrint("']]>'", "\"]]\\>\"");
+     assertPrint("' --></script>'", "\" --\\><\\/script>\"");
+ 
+     assertPrint("/--> <\\/script>/g", "/--\\> <\\/script>/g");
+ 
+     // Precedence
+     assertPrint("a ? delete b[0] : 3", "a?delete b[0]:3");
+     assertPrint("(delete a[0])/10", "delete a[0]/10");
+ 
+     // optional '()' for new
+ 
+     // simple new
+     assertPrint("new A", "new A");
+     assertPrint("new A()", "new A");
+     assertPrint("new A('x')", "new A(\"x\")");
+ 
+     // calling instance method directly after new
+     assertPrint("new A().a()", "(new A).a()");
+     assertPrint("(new A).a()", "(new A).a()");
+ 
+     // this case should be fixed
+     assertPrint("new A('y').a()", "(new A(\"y\")).a()");
+ 
+     // internal class
+     assertPrint("new A.B", "new A.B");
+     assertPrint("new A.B()", "new A.B");
+     assertPrint("new A.B('z')", "new A.B(\"z\")");
+ 
+     // calling instance method directly after new internal class
+     assertPrint("(new A.B).a()", "(new A.B).a()");
+     assertPrint("new A.B().a()", "(new A.B).a()");
+     // this case should be fixed
+     assertPrint("new A.B('w').a()", "(new A.B(\"w\")).a()");
+ 
+     // Operators: make sure we don't convert binary + and unary + into ++
+     assertPrint("x + +y", "x+ +y");
+     assertPrint("x - (-y)", "x- -y");
+     assertPrint("x++ +y", "x++ +y");
+     assertPrint("x-- -y", "x-- -y");
+     assertPrint("x++ -y", "x++-y");
+ 
+     // Label
+     assertPrint("foo:for(;;){break foo;}", "foo:for(;;)break foo");
+     assertPrint("foo:while(1){continue foo;}", "foo:while(1)continue foo");
+ 
+     // Object literals.
+     assertPrint("({})", "({})");
+     assertPrint("var x = {};", "var x={}");
+     assertPrint("({}).x", "({}).x");
+     assertPrint("({})['x']", "({})[\"x\"]");
+     assertPrint("({}) instanceof Object", "({})instanceof Object");
+     assertPrint("({}) || 1", "({})||1");
+     assertPrint("1 || ({})", "1||{}");
+     assertPrint("({}) ? 1 : 2", "({})?1:2");
+     assertPrint("0 ? ({}) : 2", "0?{}:2");
+     assertPrint("0 ? 1 : ({})", "0?1:{}");
+     assertPrint("typeof ({})", "typeof{}");
+     assertPrint("f({})", "f({})");
+ 
+     // Anonymous function expressions.
+     assertPrint("(function(){})", "(function(){})");
+     assertPrint("(function(){})()", "(function(){})()");
+     assertPrint("(function(){})instanceof Object",
+         "(function(){})instanceof Object");
+     assertPrint("(function(){}).bind().call()",
+         "(function(){}).bind().call()");
+     assertPrint("var x = function() { };", "var x=function(){}");
+     assertPrint("var x = function() { }();", "var x=function(){}()");
+     assertPrint("(function() {}), 2", "(function(){}),2");
+ 
+     // Name functions expression.
+     assertPrint("(function f(){})", "(function f(){})");
+-    
++
+     // Function declaration.
+     assertPrint("function f(){}", "function f(){}");
+ 
+     // Make sure we don't treat non-latin character escapes as raw strings.
+     assertPrint("({ 'a': 4, '\\u0100': 4 })", "({a:4,\"\\u0100\":4})");
+ 
+     // Test if statement and for statements with single statements in body.
+     assertPrint("if (true) { alert();}", "if(true)alert()");
+     assertPrint("if (false) {} else {alert(\"a\");}",
+         "if(false);else alert(\"a\")");
+     assertPrint("for(;;) { alert();};", "for(;;)alert()");
+ 
+     assertPrint("do { alert(); } while(true);",
+         "do alert();while(true)");
+     assertPrint("myLabel: { alert();}",
+         "myLabel:alert()");
+     assertPrint("myLabel: for(;;) continue myLabel;",
+         "myLabel:for(;;)continue myLabel");
+ 
+     // Test nested var statement
+     assertPrint("if (true) var x; x = 4;", "if(true)var x;x=4");
+ 
+     // Non-latin identifier. Make sure we keep them escaped.
+     assertPrint("\\u00fb", "\\u00fb");
+     assertPrint("\\u00fa=1", "\\u00fa=1");
+     assertPrint("function \\u00f9(){}", "function \\u00f9(){}");
+     assertPrint("x.\\u00f8", "x.\\u00f8");
+     assertPrint("x.\\u00f8", "x.\\u00f8");
+     assertPrint("abc\\u4e00\\u4e01jkl", "abc\\u4e00\\u4e01jkl");
+ 
+     // Test the right-associative unary operators for spurious parens
+     assertPrint("! ! true", "!!true");
+     assertPrint("!(!(true))", "!!true");
+     assertPrint("typeof(void(0))", "typeof void 0");
+     assertPrint("typeof(void(!0))", "typeof void!0");
+     assertPrint("+ - + + - + 3", "+-+ +-+3"); // chained unary plus/minus
+     assertPrint("+(--x)", "+--x");
+     assertPrint("-(++x)", "-++x");
+ 
+     // needs a space to prevent an ambiguous parse
+     assertPrint("-(--x)", "- --x");
+     assertPrint("!(~~5)", "!~~5");
+     assertPrint("~(a/b)", "~(a/b)");
+ 
+     // Preserve parens to overcome greedy binding of NEW
+     assertPrint("new (foo.bar()).factory(baz)", "new (foo.bar().factory)(baz)");
+     assertPrint("new (bar()).factory(baz)", "new (bar().factory)(baz)");
+     assertPrint("new (new foobar(x)).factory(baz)",
+         "new (new foobar(x)).factory(baz)");
+ 
+     // Make sure that HOOK is right associative
+     assertPrint("a ? b : (c ? d : e)", "a?b:c?d:e");
+     assertPrint("a ? (b ? c : d) : e", "a?b?c:d:e");
+     assertPrint("(a ? b : c) ? d : e", "(a?b:c)?d:e");
+ 
+     // Test nested ifs
+     assertPrint("if (x) if (y); else;", "if(x)if(y);else;");
+ 
+     // Test comma.
+     assertPrint("a,b,c", "a,b,c");
+     assertPrint("(a,b),c", "a,b,c");
+     assertPrint("a,(b,c)", "a,b,c");
+     assertPrint("x=a,b,c", "x=a,b,c");
+     assertPrint("x=(a,b),c", "x=(a,b),c");
+     assertPrint("x=a,(b,c)", "x=a,b,c");
+     assertPrint("x=a,y=b,z=c", "x=a,y=b,z=c");
+     assertPrint("x=(a,y=b,z=c)", "x=(a,y=b,z=c)");
+     assertPrint("x=[a,b,c,d]", "x=[a,b,c,d]");
+     assertPrint("x=[(a,b,c),d]", "x=[(a,b,c),d]");
+     assertPrint("x=[(a,(b,c)),d]", "x=[(a,b,c),d]");
+     assertPrint("x=[a,(b,c,d)]", "x=[a,(b,c,d)]");
+     assertPrint("var x=(a,b)", "var x=(a,b)");
+     assertPrint("var x=a,b,c", "var x=a,b,c");
+     assertPrint("var x=(a,b),c", "var x=(a,b),c");
+     assertPrint("var x=a,b=(c,d)", "var x=a,b=(c,d)");
+     assertPrint("foo(a,b,c,d)", "foo(a,b,c,d)");
+     assertPrint("foo((a,b,c),d)", "foo((a,b,c),d)");
+     assertPrint("foo((a,(b,c)),d)", "foo((a,b,c),d)");
+     assertPrint("f(a+b,(c,d,(e,f,g)))", "f(a+b,(c,d,e,f,g))");
+     assertPrint("({}) , 1 , 2", "({}),1,2");
+     assertPrint("({}) , {} , {}", "({}),{},{}");
+ 
+     // EMPTY nodes
+     assertPrint("if (x){}", "if(x);");
+     assertPrint("if(x);", "if(x);");
+     assertPrint("if(x)if(y);", "if(x)if(y);");
+     assertPrint("if(x){if(y);}", "if(x)if(y);");
+     assertPrint("if(x){if(y){};;;}", "if(x)if(y);");
+     assertPrint("if(x){;;function y(){};;}", "if(x){function y(){}}");
+   }
+ 
+
+commit ebb59a97610015bc41bda7f458dd1428a3a3e335
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Apr 23 14:31:48 2010
+
+    Change on 2010/04/22 by nick
+    
+            fix the extern definition of Window.prototype.stop
+    
+            R=siggy
+            DELTA=1  (0 added, 0 deleted, 1 changed)
+    
+    Change on 2010/04/22 by john
+    
+            "Anonymous function" is a confusing term for functions with names.
+            Properly we are usually distinguishing between functions statements
+            (function declarations) and function expressions.
+    
+            R=alan
+            DELTA=172  (7 added, 14 deleted, 151 changed)
+    
+    Change on 2010/04/22 by john
+    
+            Standardize the definition of setTimeout/setInterval.
+            Fix for Issue 137
+    
+            R=nick
+            DELTA=6  (2 added, 2 deleted, 2 changed)
+    
+    Change on 2010/04/22 by mark
+    
+            Various delegate fixes.
+    
+            Give the delegate proxy a name unique from the delegate base so that
+            InstanceObjectType#equals distinguishes them. This is necessary for
+            AmbiguateProperties to work.
+    
+            Fix the prototype of the delegate proxy. This makes
+            DisambiguateProperties continue to work.
+    
+            Add superclass methods of the delegate base to the delegate proxy.
+    
+    
+            R=andrew,nada
+            DELTA=526  (383 added, 104 deleted, 39 changed)
+    
+    Change on 2010/04/23 by john
+    
+            Allow variable inlining of function statements. For simplicity  limited to functions defined before first use.
+    
+            R=nick
+            DELTA=79  (49 added, 3 deleted, 27 changed)
+    
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=hakjvx
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@197 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -78,212 +78,214 @@
+   public void testPrint() {
+     assertPrint("10 + a + b", "10+a+b");
+     assertPrint("10 + (30*50)", "10+30*50");
+     assertPrint("with(x) { x + 3; }", "with(x)x+3");
+     assertPrint("\"aa'a\"", "\"aa'a\"");
+     assertPrint("\"aa\\\"a\"", "'aa\"a'");
+     assertPrint("function foo()\n{return 10;}", "function foo(){return 10}");
+     assertPrint("a instanceof b", "a instanceof b");
+     assertPrint("typeof(a)", "typeof a");
+     assertPrint(
+         "var foo = x ? { a : 1 } : {a: 3, b:4, \"default\": 5, \"foo-bar\": 6}",
+         "var foo=x?{a:1}:{a:3,b:4,\"default\":5,\"foo-bar\":6}");
+ 
+     // Safari: needs ';' at the end of a throw statement
+     assertPrint("function foo(){throw 'error';}",
+         "function foo(){throw\"error\";}");
+     // Safari 3 needs a "{" around a single function
+     assertPrint("if (true) function foo(){return}",
+         "if(true){function foo(){return}}");
+ 
+     assertPrint("var x = 10; { var y = 20; }", "var x=10;var y=20");
+ 
+     assertPrint("while (x-- > 0);", "while(x-- >0);");
+     assertPrint("x-- >> 1", "x-- >>1");
+ 
+     assertPrint("(function () {})(); ",
+         "(function(){})()");
+ 
+     // Associativity
+     assertPrint("var a,b,c,d;a || (b&& c) && (a || d)",
+         "var a,b,c,d;a||b&&c&&(a||d)");
+     assertPrint("var a,b,c; a || (b || c); a * (b * c); a | (b | c)",
+         "var a,b,c;a||b||c;a*b*c;a|b|c");
+     assertPrint("var a,b,c; a / b / c;a / (b / c); a - (b - c);",
+         "var a,b,c;a/b/c;a/(b/c);a-(b-c)");
+     assertPrint("var a,b; a = b = 3;",
+         "var a,b;a=b=3");
+     assertPrint("var a,b,c,d; a = (b = c = (d = 3));",
+         "var a,b,c,d;a=b=c=d=3");
+     assertPrint("var a,b,c; a += (b = c += 3);",
+         "var a,b,c;a+=b=c+=3");
+     assertPrint("var a,b,c; a *= (b -= c);",
+         "var a,b,c;a*=b-=c");
+ 
+     // Break scripts
+     assertPrint("'<script>'", "\"<script>\"");
+     assertPrint("'</script>'", "\"<\\/script>\"");
+     assertPrint("\"</script> </SCRIPT>\"", "\"<\\/script> <\\/SCRIPT>\"");
+ 
+     assertPrint("'-->'", "\"--\\>\"");
+     assertPrint("']]>'", "\"]]\\>\"");
+     assertPrint("' --></script>'", "\" --\\><\\/script>\"");
+ 
+     assertPrint("/--> <\\/script>/g", "/--\\> <\\/script>/g");
+ 
+     // Precedence
+     assertPrint("a ? delete b[0] : 3", "a?delete b[0]:3");
+     assertPrint("(delete a[0])/10", "delete a[0]/10");
+ 
+     // optional '()' for new
+ 
+     // simple new
+     assertPrint("new A", "new A");
+     assertPrint("new A()", "new A");
+     assertPrint("new A('x')", "new A(\"x\")");
+ 
+     // calling instance method directly after new
+     assertPrint("new A().a()", "(new A).a()");
+     assertPrint("(new A).a()", "(new A).a()");
+ 
+     // this case should be fixed
+     assertPrint("new A('y').a()", "(new A(\"y\")).a()");
+ 
+     // internal class
+     assertPrint("new A.B", "new A.B");
+     assertPrint("new A.B()", "new A.B");
+     assertPrint("new A.B('z')", "new A.B(\"z\")");
+ 
+     // calling instance method directly after new internal class
+     assertPrint("(new A.B).a()", "(new A.B).a()");
+     assertPrint("new A.B().a()", "(new A.B).a()");
+     // this case should be fixed
+     assertPrint("new A.B('w').a()", "(new A.B(\"w\")).a()");
+ 
+     // Operators: make sure we don't convert binary + and unary + into ++
+     assertPrint("x + +y", "x+ +y");
+     assertPrint("x - (-y)", "x- -y");
+     assertPrint("x++ +y", "x++ +y");
+     assertPrint("x-- -y", "x-- -y");
+     assertPrint("x++ -y", "x++-y");
+ 
+     // Label
+     assertPrint("foo:for(;;){break foo;}", "foo:for(;;)break foo");
+     assertPrint("foo:while(1){continue foo;}", "foo:while(1)continue foo");
+ 
+     // Object literals.
+     assertPrint("({})", "({})");
+     assertPrint("var x = {};", "var x={}");
+     assertPrint("({}).x", "({}).x");
+     assertPrint("({})['x']", "({})[\"x\"]");
+     assertPrint("({}) instanceof Object", "({})instanceof Object");
+     assertPrint("({}) || 1", "({})||1");
+     assertPrint("1 || ({})", "1||{}");
+     assertPrint("({}) ? 1 : 2", "({})?1:2");
+     assertPrint("0 ? ({}) : 2", "0?{}:2");
+     assertPrint("0 ? 1 : ({})", "0?1:{}");
+     assertPrint("typeof ({})", "typeof{}");
+     assertPrint("f({})", "f({})");
+ 
+-    // Anonymous functions.
++    // Anonymous function expressions.
+     assertPrint("(function(){})", "(function(){})");
+     assertPrint("(function(){})()", "(function(){})()");
+     assertPrint("(function(){})instanceof Object",
+         "(function(){})instanceof Object");
+     assertPrint("(function(){}).bind().call()",
+         "(function(){}).bind().call()");
+     assertPrint("var x = function() { };", "var x=function(){}");
+     assertPrint("var x = function() { }();", "var x=function(){}()");
+     assertPrint("(function() {}), 2", "(function(){}),2");
+ 
+-    // Named functions
++    // Name functions expression.
+     assertPrint("(function f(){})", "(function f(){})");
++    
++    // Function declaration.
+     assertPrint("function f(){}", "function f(){}");
+ 
+     // Make sure we don't treat non-latin character escapes as raw strings.
+     assertPrint("({ 'a': 4, '\\u0100': 4 })", "({a:4,\"\\u0100\":4})");
+ 
+     // Test if statement and for statements with single statements in body.
+     assertPrint("if (true) { alert();}", "if(true)alert()");
+     assertPrint("if (false) {} else {alert(\"a\");}",
+         "if(false);else alert(\"a\")");
+     assertPrint("for(;;) { alert();};", "for(;;)alert()");
+ 
+     assertPrint("do { alert(); } while(true);",
+         "do alert();while(true)");
+     assertPrint("myLabel: { alert();}",
+         "myLabel:alert()");
+     assertPrint("myLabel: for(;;) continue myLabel;",
+         "myLabel:for(;;)continue myLabel");
+ 
+     // Test nested var statement
+     assertPrint("if (true) var x; x = 4;", "if(true)var x;x=4");
+ 
+     // Non-latin identifier. Make sure we keep them escaped.
+     assertPrint("\\u00fb", "\\u00fb");
+     assertPrint("\\u00fa=1", "\\u00fa=1");
+     assertPrint("function \\u00f9(){}", "function \\u00f9(){}");
+     assertPrint("x.\\u00f8", "x.\\u00f8");
+     assertPrint("x.\\u00f8", "x.\\u00f8");
+     assertPrint("abc\\u4e00\\u4e01jkl", "abc\\u4e00\\u4e01jkl");
+ 
+     // Test the right-associative unary operators for spurious parens
+     assertPrint("! ! true", "!!true");
+     assertPrint("!(!(true))", "!!true");
+     assertPrint("typeof(void(0))", "typeof void 0");
+     assertPrint("typeof(void(!0))", "typeof void!0");
+     assertPrint("+ - + + - + 3", "+-+ +-+3"); // chained unary plus/minus
+     assertPrint("+(--x)", "+--x");
+     assertPrint("-(++x)", "-++x");
+ 
+     // needs a space to prevent an ambiguous parse
+     assertPrint("-(--x)", "- --x");
+     assertPrint("!(~~5)", "!~~5");
+     assertPrint("~(a/b)", "~(a/b)");
+ 
+     // Preserve parens to overcome greedy binding of NEW
+     assertPrint("new (foo.bar()).factory(baz)", "new (foo.bar().factory)(baz)");
+     assertPrint("new (bar()).factory(baz)", "new (bar().factory)(baz)");
+     assertPrint("new (new foobar(x)).factory(baz)",
+         "new (new foobar(x)).factory(baz)");
+ 
+     // Make sure that HOOK is right associative
+     assertPrint("a ? b : (c ? d : e)", "a?b:c?d:e");
+     assertPrint("a ? (b ? c : d) : e", "a?b?c:d:e");
+     assertPrint("(a ? b : c) ? d : e", "(a?b:c)?d:e");
+ 
+     // Test nested ifs
+     assertPrint("if (x) if (y); else;", "if(x)if(y);else;");
+ 
+     // Test comma.
+     assertPrint("a,b,c", "a,b,c");
+     assertPrint("(a,b),c", "a,b,c");
+     assertPrint("a,(b,c)", "a,b,c");
+     assertPrint("x=a,b,c", "x=a,b,c");
+     assertPrint("x=(a,b),c", "x=(a,b),c");
+     assertPrint("x=a,(b,c)", "x=a,b,c");
+     assertPrint("x=a,y=b,z=c", "x=a,y=b,z=c");
+     assertPrint("x=(a,y=b,z=c)", "x=(a,y=b,z=c)");
+     assertPrint("x=[a,b,c,d]", "x=[a,b,c,d]");
+     assertPrint("x=[(a,b,c),d]", "x=[(a,b,c),d]");
+     assertPrint("x=[(a,(b,c)),d]", "x=[(a,b,c),d]");
+     assertPrint("x=[a,(b,c,d)]", "x=[a,(b,c,d)]");
+     assertPrint("var x=(a,b)", "var x=(a,b)");
+     assertPrint("var x=a,b,c", "var x=a,b,c");
+     assertPrint("var x=(a,b),c", "var x=(a,b),c");
+     assertPrint("var x=a,b=(c,d)", "var x=a,b=(c,d)");
+     assertPrint("foo(a,b,c,d)", "foo(a,b,c,d)");
+     assertPrint("foo((a,b,c),d)", "foo((a,b,c),d)");
+     assertPrint("foo((a,(b,c)),d)", "foo((a,b,c),d)");
+     assertPrint("f(a+b,(c,d,(e,f,g)))", "f(a+b,(c,d,e,f,g))");
+     assertPrint("({}) , 1 , 2", "({}),1,2");
+     assertPrint("({}) , {} , {}", "({}),{},{}");
+ 
+     // EMPTY nodes
+     assertPrint("if (x){}", "if(x);");
+     assertPrint("if(x);", "if(x);");
+     assertPrint("if(x)if(y);", "if(x)if(y);");
+     assertPrint("if(x){if(y);}", "if(x)if(y);");
+     assertPrint("if(x){if(y){};;;}", "if(x)if(y);");
+     assertPrint("if(x){;;function y(){};;}", "if(x){function y(){}}");
+   }
+ 
+
+commit fe722ddeb545b6b3103369dea073ad3e6becde28
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Mar 15 19:23:52 2010
+
+    Add an alias for the --define flag to ensure the api is backwards
+    compatible.
+    (Nick)
+    R=robert
+    DELTA=9  (6 added, 0 deleted, 3 changed)
+    
+    Change the default pretty printer so that then clauses of if
+    statements and bodies of for statements get printed in blocks
+    and on separate lines even if the the body is a single statement:
+    if (a) {
+    b
+    }
+    rather than
+    if (a) b;
+    This makes it easier to put breakpoints on the then clause rather
+    than only on the entire if statement. (Robert)
+    R=john
+    DELTA=125  (122 added, 0 deleted, 3 changed)
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@137 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -76,199 +76,212 @@
+   public void testPrint() {
+     assertPrint("10 + a + b", "10+a+b");
+     assertPrint("10 + (30*50)", "10+30*50");
+     assertPrint("with(x) { x + 3; }", "with(x)x+3");
+     assertPrint("\"aa'a\"", "\"aa'a\"");
+     assertPrint("\"aa\\\"a\"", "'aa\"a'");
+     assertPrint("function foo()\n{return 10;}", "function foo(){return 10}");
+     assertPrint("a instanceof b", "a instanceof b");
+     assertPrint("typeof(a)", "typeof a");
+     assertPrint(
+         "var foo = x ? { a : 1 } : {a: 3, b:4, \"default\": 5, \"foo-bar\": 6}",
+         "var foo=x?{a:1}:{a:3,b:4,\"default\":5,\"foo-bar\":6}");
+ 
+     // Safari: needs ';' at the end of a throw statement
+     assertPrint("function foo(){throw 'error';}",
+         "function foo(){throw\"error\";}");
+     // Safari 3 needs a "{" around a single function
+     assertPrint("if (true) function foo(){return}",
+         "if(true){function foo(){return}}");
+ 
+     assertPrint("var x = 10; { var y = 20; }", "var x=10;var y=20");
+ 
+     assertPrint("while (x-- > 0);", "while(x-- >0);");
+     assertPrint("x-- >> 1", "x-- >>1");
+ 
+     assertPrint("(function () {})(); ",
+         "(function(){})()");
+ 
+     // Associativity
+     assertPrint("var a,b,c,d;a || (b&& c) && (a || d)",
+         "var a,b,c,d;a||b&&c&&(a||d)");
+     assertPrint("var a,b,c; a || (b || c); a * (b * c); a | (b | c)",
+         "var a,b,c;a||b||c;a*b*c;a|b|c");
+     assertPrint("var a,b,c; a / b / c;a / (b / c); a - (b - c);",
+         "var a,b,c;a/b/c;a/(b/c);a-(b-c)");
+     assertPrint("var a,b; a = b = 3;",
+         "var a,b;a=b=3");
+     assertPrint("var a,b,c,d; a = (b = c = (d = 3));",
+         "var a,b,c,d;a=b=c=d=3");
+     assertPrint("var a,b,c; a += (b = c += 3);",
+         "var a,b,c;a+=b=c+=3");
+     assertPrint("var a,b,c; a *= (b -= c);",
+         "var a,b,c;a*=b-=c");
+ 
+     // Break scripts
+     assertPrint("'<script>'", "\"<script>\"");
+     assertPrint("'</script>'", "\"<\\/script>\"");
+     assertPrint("\"</script> </SCRIPT>\"", "\"<\\/script> <\\/SCRIPT>\"");
+ 
+     assertPrint("'-->'", "\"--\\>\"");
+     assertPrint("']]>'", "\"]]\\>\"");
+     assertPrint("' --></script>'", "\" --\\><\\/script>\"");
+ 
+     assertPrint("/--> <\\/script>/g", "/--\\> <\\/script>/g");
+ 
+     // Precedence
+     assertPrint("a ? delete b[0] : 3", "a?delete b[0]:3");
+     assertPrint("(delete a[0])/10", "delete a[0]/10");
+ 
+     // optional '()' for new
+ 
+     // simple new
+     assertPrint("new A", "new A");
+     assertPrint("new A()", "new A");
+     assertPrint("new A('x')", "new A(\"x\")");
+ 
+     // calling instance method directly after new
+     assertPrint("new A().a()", "(new A).a()");
+     assertPrint("(new A).a()", "(new A).a()");
+ 
+     // this case should be fixed
+     assertPrint("new A('y').a()", "(new A(\"y\")).a()");
+ 
+     // internal class
+     assertPrint("new A.B", "new A.B");
+     assertPrint("new A.B()", "new A.B");
+     assertPrint("new A.B('z')", "new A.B(\"z\")");
+ 
+     // calling instance method directly after new internal class
+     assertPrint("(new A.B).a()", "(new A.B).a()");
+     assertPrint("new A.B().a()", "(new A.B).a()");
+     // this case should be fixed
+     assertPrint("new A.B('w').a()", "(new A.B(\"w\")).a()");
+ 
+     // Operators: make sure we don't convert binary + and unary + into ++
+     assertPrint("x + +y", "x+ +y");
+     assertPrint("x - (-y)", "x- -y");
+     assertPrint("x++ +y", "x++ +y");
+     assertPrint("x-- -y", "x-- -y");
+     assertPrint("x++ -y", "x++-y");
+ 
+     // Label
+     assertPrint("foo:for(;;){break foo;}", "foo:for(;;)break foo");
+     assertPrint("foo:while(1){continue foo;}", "foo:while(1)continue foo");
+ 
+     // Object literals.
+     assertPrint("({})", "({})");
+     assertPrint("var x = {};", "var x={}");
+     assertPrint("({}).x", "({}).x");
+     assertPrint("({})['x']", "({})[\"x\"]");
+     assertPrint("({}) instanceof Object", "({})instanceof Object");
+     assertPrint("({}) || 1", "({})||1");
+     assertPrint("1 || ({})", "1||{}");
+     assertPrint("({}) ? 1 : 2", "({})?1:2");
+     assertPrint("0 ? ({}) : 2", "0?{}:2");
+     assertPrint("0 ? 1 : ({})", "0?1:{}");
+     assertPrint("typeof ({})", "typeof{}");
+     assertPrint("f({})", "f({})");
+ 
+     // Anonymous functions.
+     assertPrint("(function(){})", "(function(){})");
+     assertPrint("(function(){})()", "(function(){})()");
+     assertPrint("(function(){})instanceof Object",
+         "(function(){})instanceof Object");
+     assertPrint("(function(){}).bind().call()",
+         "(function(){}).bind().call()");
+     assertPrint("var x = function() { };", "var x=function(){}");
+     assertPrint("var x = function() { }();", "var x=function(){}()");
+     assertPrint("(function() {}), 2", "(function(){}),2");
+ 
+     // Named functions
+     assertPrint("(function f(){})", "(function f(){})");
+     assertPrint("function f(){}", "function f(){}");
+ 
+     // Make sure we don't treat non-latin character escapes as raw strings.
+     assertPrint("({ 'a': 4, '\\u0100': 4 })", "({a:4,\"\\u0100\":4})");
+ 
++    // Test if statement and for statements with single statements in body.
++    assertPrint("if (true) { alert();}", "if(true)alert()");
++    assertPrint("if (false) {} else {alert(\"a\");}",
++        "if(false);else alert(\"a\")");
++    assertPrint("for(;;) { alert();};", "for(;;)alert()");
++
++    assertPrint("do { alert(); } while(true);",
++        "do alert();while(true)");
++    assertPrint("myLabel: { alert();}",
++        "myLabel:alert()");
++    assertPrint("myLabel: for(;;) continue myLabel;",
++        "myLabel:for(;;)continue myLabel");
++
+     // Test nested var statement
+     assertPrint("if (true) var x; x = 4;", "if(true)var x;x=4");
+ 
+     // Non-latin identifier. Make sure we keep them escaped.
+     assertPrint("\\u00fb", "\\u00fb");
+     assertPrint("\\u00fa=1", "\\u00fa=1");
+     assertPrint("function \\u00f9(){}", "function \\u00f9(){}");
+     assertPrint("x.\\u00f8", "x.\\u00f8");
+     assertPrint("x.\\u00f8", "x.\\u00f8");
+     assertPrint("abc\\u4e00\\u4e01jkl", "abc\\u4e00\\u4e01jkl");
+ 
+     // Test the right-associative unary operators for spurious parens
+     assertPrint("! ! true", "!!true");
+     assertPrint("!(!(true))", "!!true");
+     assertPrint("typeof(void(0))", "typeof void 0");
+     assertPrint("typeof(void(!0))", "typeof void!0");
+     assertPrint("+ - + + - + 3", "+-+ +-+3"); // chained unary plus/minus
+     assertPrint("+(--x)", "+--x");
+     assertPrint("-(++x)", "-++x");
+ 
+     // needs a space to prevent an ambiguous parse
+     assertPrint("-(--x)", "- --x");
+     assertPrint("!(~~5)", "!~~5");
+     assertPrint("~(a/b)", "~(a/b)");
+ 
+     // Preserve parens to overcome greedy binding of NEW
+     assertPrint("new (foo.bar()).factory(baz)", "new (foo.bar().factory)(baz)");
+     assertPrint("new (bar()).factory(baz)", "new (bar().factory)(baz)");
+     assertPrint("new (new foobar(x)).factory(baz)",
+         "new (new foobar(x)).factory(baz)");
+ 
+     // Make sure that HOOK is right associative
+     assertPrint("a ? b : (c ? d : e)", "a?b:c?d:e");
+     assertPrint("a ? (b ? c : d) : e", "a?b?c:d:e");
+     assertPrint("(a ? b : c) ? d : e", "(a?b:c)?d:e");
+ 
+     // Test nested ifs
+     assertPrint("if (x) if (y); else;", "if(x)if(y);else;");
+ 
+     // Test comma.
+     assertPrint("a,b,c", "a,b,c");
+     assertPrint("(a,b),c", "a,b,c");
+     assertPrint("a,(b,c)", "a,b,c");
+     assertPrint("x=a,b,c", "x=a,b,c");
+     assertPrint("x=(a,b),c", "x=(a,b),c");
+     assertPrint("x=a,(b,c)", "x=a,b,c");
+     assertPrint("x=a,y=b,z=c", "x=a,y=b,z=c");
+     assertPrint("x=(a,y=b,z=c)", "x=(a,y=b,z=c)");
+     assertPrint("x=[a,b,c,d]", "x=[a,b,c,d]");
+     assertPrint("x=[(a,b,c),d]", "x=[(a,b,c),d]");
+     assertPrint("x=[(a,(b,c)),d]", "x=[(a,b,c),d]");
+     assertPrint("x=[a,(b,c,d)]", "x=[a,(b,c,d)]");
+     assertPrint("var x=(a,b)", "var x=(a,b)");
+     assertPrint("var x=a,b,c", "var x=a,b,c");
+     assertPrint("var x=(a,b),c", "var x=(a,b),c");
+     assertPrint("var x=a,b=(c,d)", "var x=a,b=(c,d)");
+     assertPrint("foo(a,b,c,d)", "foo(a,b,c,d)");
+     assertPrint("foo((a,b,c),d)", "foo((a,b,c),d)");
+     assertPrint("foo((a,(b,c)),d)", "foo((a,b,c),d)");
+     assertPrint("f(a+b,(c,d,(e,f,g)))", "f(a+b,(c,d,e,f,g))");
+     assertPrint("({}) , 1 , 2", "({}),1,2");
+     assertPrint("({}) , {} , {}", "({}),{},{}");
+ 
+     // EMPTY nodes
+     assertPrint("if (x){}", "if(x);");
+     assertPrint("if(x);", "if(x);");
+     assertPrint("if(x)if(y);", "if(x)if(y);");
+     assertPrint("if(x){if(y);}", "if(x)if(y);");
+     assertPrint("if(x){if(y){};;;}", "if(x)if(y);");
+     assertPrint("if(x){;;function y(){};;}", "if(x){function y(){}}");
+   }
+ 
+
+commit 83e4a9768aadbdfb0481a0aa44157b4dc80189d2
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Feb 1 12:35:41 2010
+
+    Fix a null pointer exception in TypedScopeCreator
+    
+    Add AST annotations for @javadispatch
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@82 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -76,199 +76,199 @@
+   public void testPrint() {
+     assertPrint("10 + a + b", "10+a+b");
+     assertPrint("10 + (30*50)", "10+30*50");
+     assertPrint("with(x) { x + 3; }", "with(x)x+3");
+     assertPrint("\"aa'a\"", "\"aa'a\"");
+     assertPrint("\"aa\\\"a\"", "'aa\"a'");
+     assertPrint("function foo()\n{return 10;}", "function foo(){return 10}");
+     assertPrint("a instanceof b", "a instanceof b");
+     assertPrint("typeof(a)", "typeof a");
+     assertPrint(
+         "var foo = x ? { a : 1 } : {a: 3, b:4, \"default\": 5, \"foo-bar\": 6}",
+         "var foo=x?{a:1}:{a:3,b:4,\"default\":5,\"foo-bar\":6}");
+ 
+     // Safari: needs ';' at the end of a throw statement
+     assertPrint("function foo(){throw 'error';}",
+         "function foo(){throw\"error\";}");
+     // Safari 3 needs a "{" around a single function
+     assertPrint("if (true) function foo(){return}",
+         "if(true){function foo(){return}}");
+ 
+     assertPrint("var x = 10; { var y = 20; }", "var x=10;var y=20");
+ 
+     assertPrint("while (x-- > 0);", "while(x-- >0);");
+     assertPrint("x-- >> 1", "x-- >>1");
+ 
+     assertPrint("(function () {})(); ",
+         "(function(){})()");
+ 
+     // Associativity
+     assertPrint("var a,b,c,d;a || (b&& c) && (a || d)",
+         "var a,b,c,d;a||b&&c&&(a||d)");
+     assertPrint("var a,b,c; a || (b || c); a * (b * c); a | (b | c)",
+         "var a,b,c;a||b||c;a*b*c;a|b|c");
+     assertPrint("var a,b,c; a / b / c;a / (b / c); a - (b - c);",
+         "var a,b,c;a/b/c;a/(b/c);a-(b-c)");
+     assertPrint("var a,b; a = b = 3;",
+         "var a,b;a=b=3");
+     assertPrint("var a,b,c,d; a = (b = c = (d = 3));",
+         "var a,b,c,d;a=b=c=d=3");
+     assertPrint("var a,b,c; a += (b = c += 3);",
+         "var a,b,c;a+=b=c+=3");
+     assertPrint("var a,b,c; a *= (b -= c);",
+         "var a,b,c;a*=b-=c");
+ 
+     // Break scripts
+     assertPrint("'<script>'", "\"<script>\"");
+     assertPrint("'</script>'", "\"<\\/script>\"");
+     assertPrint("\"</script> </SCRIPT>\"", "\"<\\/script> <\\/SCRIPT>\"");
+ 
+     assertPrint("'-->'", "\"--\\>\"");
+     assertPrint("']]>'", "\"]]\\>\"");
+     assertPrint("' --></script>'", "\" --\\><\\/script>\"");
+ 
+     assertPrint("/--> <\\/script>/g", "/--\\> <\\/script>/g");
+ 
+     // Precedence
+     assertPrint("a ? delete b[0] : 3", "a?delete b[0]:3");
+     assertPrint("(delete a[0])/10", "delete a[0]/10");
+ 
+     // optional '()' for new
+ 
+     // simple new
+     assertPrint("new A", "new A");
+     assertPrint("new A()", "new A");
+     assertPrint("new A('x')", "new A(\"x\")");
+ 
+     // calling instance method directly after new
+     assertPrint("new A().a()", "(new A).a()");
+     assertPrint("(new A).a()", "(new A).a()");
+ 
+     // this case should be fixed
+     assertPrint("new A('y').a()", "(new A(\"y\")).a()");
+ 
+     // internal class
+     assertPrint("new A.B", "new A.B");
+     assertPrint("new A.B()", "new A.B");
+     assertPrint("new A.B('z')", "new A.B(\"z\")");
+ 
+     // calling instance method directly after new internal class
+     assertPrint("(new A.B).a()", "(new A.B).a()");
+     assertPrint("new A.B().a()", "(new A.B).a()");
+     // this case should be fixed
+     assertPrint("new A.B('w').a()", "(new A.B(\"w\")).a()");
+ 
+     // Operators: make sure we don't convert binary + and unary + into ++
+     assertPrint("x + +y", "x+ +y");
+     assertPrint("x - (-y)", "x- -y");
+     assertPrint("x++ +y", "x++ +y");
+     assertPrint("x-- -y", "x-- -y");
+     assertPrint("x++ -y", "x++-y");
+ 
+     // Label
+     assertPrint("foo:for(;;){break foo;}", "foo:for(;;)break foo");
+     assertPrint("foo:while(1){continue foo;}", "foo:while(1)continue foo");
+ 
+     // Object literals.
+     assertPrint("({})", "({})");
+     assertPrint("var x = {};", "var x={}");
+     assertPrint("({}).x", "({}).x");
+     assertPrint("({})['x']", "({})[\"x\"]");
+     assertPrint("({}) instanceof Object", "({})instanceof Object");
+     assertPrint("({}) || 1", "({})||1");
+     assertPrint("1 || ({})", "1||{}");
+     assertPrint("({}) ? 1 : 2", "({})?1:2");
+     assertPrint("0 ? ({}) : 2", "0?{}:2");
+-    assertPrint("0 ? 1 : ({})", "0?1:{}");    
++    assertPrint("0 ? 1 : ({})", "0?1:{}");
+     assertPrint("typeof ({})", "typeof{}");
+     assertPrint("f({})", "f({})");
+ 
+     // Anonymous functions.
+     assertPrint("(function(){})", "(function(){})");
+     assertPrint("(function(){})()", "(function(){})()");
+     assertPrint("(function(){})instanceof Object",
+         "(function(){})instanceof Object");
+     assertPrint("(function(){}).bind().call()",
+         "(function(){}).bind().call()");
+     assertPrint("var x = function() { };", "var x=function(){}");
+     assertPrint("var x = function() { }();", "var x=function(){}()");
+     assertPrint("(function() {}), 2", "(function(){}),2");
+ 
+     // Named functions
+     assertPrint("(function f(){})", "(function f(){})");
+     assertPrint("function f(){}", "function f(){}");
+ 
+     // Make sure we don't treat non-latin character escapes as raw strings.
+     assertPrint("({ 'a': 4, '\\u0100': 4 })", "({a:4,\"\\u0100\":4})");
+ 
+     // Test nested var statement
+     assertPrint("if (true) var x; x = 4;", "if(true)var x;x=4");
+ 
+     // Non-latin identifier. Make sure we keep them escaped.
+     assertPrint("\\u00fb", "\\u00fb");
+     assertPrint("\\u00fa=1", "\\u00fa=1");
+     assertPrint("function \\u00f9(){}", "function \\u00f9(){}");
+     assertPrint("x.\\u00f8", "x.\\u00f8");
+     assertPrint("x.\\u00f8", "x.\\u00f8");
+     assertPrint("abc\\u4e00\\u4e01jkl", "abc\\u4e00\\u4e01jkl");
+ 
+     // Test the right-associative unary operators for spurious parens
+     assertPrint("! ! true", "!!true");
+     assertPrint("!(!(true))", "!!true");
+     assertPrint("typeof(void(0))", "typeof void 0");
+     assertPrint("typeof(void(!0))", "typeof void!0");
+     assertPrint("+ - + + - + 3", "+-+ +-+3"); // chained unary plus/minus
+     assertPrint("+(--x)", "+--x");
+     assertPrint("-(++x)", "-++x");
+-    
++
+     // needs a space to prevent an ambiguous parse
+     assertPrint("-(--x)", "- --x");
+     assertPrint("!(~~5)", "!~~5");
+     assertPrint("~(a/b)", "~(a/b)");
+ 
+     // Preserve parens to overcome greedy binding of NEW
+     assertPrint("new (foo.bar()).factory(baz)", "new (foo.bar().factory)(baz)");
+     assertPrint("new (bar()).factory(baz)", "new (bar().factory)(baz)");
+     assertPrint("new (new foobar(x)).factory(baz)",
+         "new (new foobar(x)).factory(baz)");
+ 
+     // Make sure that HOOK is right associative
+     assertPrint("a ? b : (c ? d : e)", "a?b:c?d:e");
+     assertPrint("a ? (b ? c : d) : e", "a?b?c:d:e");
+     assertPrint("(a ? b : c) ? d : e", "(a?b:c)?d:e");
+ 
+     // Test nested ifs
+     assertPrint("if (x) if (y); else;", "if(x)if(y);else;");
+ 
+     // Test comma.
+     assertPrint("a,b,c", "a,b,c");
+     assertPrint("(a,b),c", "a,b,c");
+     assertPrint("a,(b,c)", "a,b,c");
+     assertPrint("x=a,b,c", "x=a,b,c");
+     assertPrint("x=(a,b),c", "x=(a,b),c");
+     assertPrint("x=a,(b,c)", "x=a,b,c");
+     assertPrint("x=a,y=b,z=c", "x=a,y=b,z=c");
+     assertPrint("x=(a,y=b,z=c)", "x=(a,y=b,z=c)");
+     assertPrint("x=[a,b,c,d]", "x=[a,b,c,d]");
+     assertPrint("x=[(a,b,c),d]", "x=[(a,b,c),d]");
+     assertPrint("x=[(a,(b,c)),d]", "x=[(a,b,c),d]");
+     assertPrint("x=[a,(b,c,d)]", "x=[a,(b,c,d)]");
+     assertPrint("var x=(a,b)", "var x=(a,b)");
+     assertPrint("var x=a,b,c", "var x=a,b,c");
+     assertPrint("var x=(a,b),c", "var x=(a,b),c");
+     assertPrint("var x=a,b=(c,d)", "var x=a,b=(c,d)");
+     assertPrint("foo(a,b,c,d)", "foo(a,b,c,d)");
+     assertPrint("foo((a,b,c),d)", "foo((a,b,c),d)");
+     assertPrint("foo((a,(b,c)),d)", "foo((a,b,c),d)");
+     assertPrint("f(a+b,(c,d,(e,f,g)))", "f(a+b,(c,d,e,f,g))");
+     assertPrint("({}) , 1 , 2", "({}),1,2");
+     assertPrint("({}) , {} , {}", "({}),{},{}");
+ 
+     // EMPTY nodes
+     assertPrint("if (x){}", "if(x);");
+     assertPrint("if(x);", "if(x);");
+     assertPrint("if(x)if(y);", "if(x)if(y);");
+     assertPrint("if(x){if(y);}", "if(x)if(y);");
+     assertPrint("if(x){if(y){};;;}", "if(x)if(y);");
+     assertPrint("if(x){;;function y(){};;}", "if(x){function y(){}}");
+   }
+ 
+
+commit 6b49cfd9022fe111bdad745c78ea877fbc2f7ba3
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 3 18:51:57 2009
+
+    Initial commit.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -0,0 +76,199 @@
++  public void testPrint() {
++    assertPrint("10 + a + b", "10+a+b");
++    assertPrint("10 + (30*50)", "10+30*50");
++    assertPrint("with(x) { x + 3; }", "with(x)x+3");
++    assertPrint("\"aa'a\"", "\"aa'a\"");
++    assertPrint("\"aa\\\"a\"", "'aa\"a'");
++    assertPrint("function foo()\n{return 10;}", "function foo(){return 10}");
++    assertPrint("a instanceof b", "a instanceof b");
++    assertPrint("typeof(a)", "typeof a");
++    assertPrint(
++        "var foo = x ? { a : 1 } : {a: 3, b:4, \"default\": 5, \"foo-bar\": 6}",
++        "var foo=x?{a:1}:{a:3,b:4,\"default\":5,\"foo-bar\":6}");
++
++    // Safari: needs ';' at the end of a throw statement
++    assertPrint("function foo(){throw 'error';}",
++        "function foo(){throw\"error\";}");
++    // Safari 3 needs a "{" around a single function
++    assertPrint("if (true) function foo(){return}",
++        "if(true){function foo(){return}}");
++
++    assertPrint("var x = 10; { var y = 20; }", "var x=10;var y=20");
++
++    assertPrint("while (x-- > 0);", "while(x-- >0);");
++    assertPrint("x-- >> 1", "x-- >>1");
++
++    assertPrint("(function () {})(); ",
++        "(function(){})()");
++
++    // Associativity
++    assertPrint("var a,b,c,d;a || (b&& c) && (a || d)",
++        "var a,b,c,d;a||b&&c&&(a||d)");
++    assertPrint("var a,b,c; a || (b || c); a * (b * c); a | (b | c)",
++        "var a,b,c;a||b||c;a*b*c;a|b|c");
++    assertPrint("var a,b,c; a / b / c;a / (b / c); a - (b - c);",
++        "var a,b,c;a/b/c;a/(b/c);a-(b-c)");
++    assertPrint("var a,b; a = b = 3;",
++        "var a,b;a=b=3");
++    assertPrint("var a,b,c,d; a = (b = c = (d = 3));",
++        "var a,b,c,d;a=b=c=d=3");
++    assertPrint("var a,b,c; a += (b = c += 3);",
++        "var a,b,c;a+=b=c+=3");
++    assertPrint("var a,b,c; a *= (b -= c);",
++        "var a,b,c;a*=b-=c");
++
++    // Break scripts
++    assertPrint("'<script>'", "\"<script>\"");
++    assertPrint("'</script>'", "\"<\\/script>\"");
++    assertPrint("\"</script> </SCRIPT>\"", "\"<\\/script> <\\/SCRIPT>\"");
++
++    assertPrint("'-->'", "\"--\\>\"");
++    assertPrint("']]>'", "\"]]\\>\"");
++    assertPrint("' --></script>'", "\" --\\><\\/script>\"");
++
++    assertPrint("/--> <\\/script>/g", "/--\\> <\\/script>/g");
++
++    // Precedence
++    assertPrint("a ? delete b[0] : 3", "a?delete b[0]:3");
++    assertPrint("(delete a[0])/10", "delete a[0]/10");
++
++    // optional '()' for new
++
++    // simple new
++    assertPrint("new A", "new A");
++    assertPrint("new A()", "new A");
++    assertPrint("new A('x')", "new A(\"x\")");
++
++    // calling instance method directly after new
++    assertPrint("new A().a()", "(new A).a()");
++    assertPrint("(new A).a()", "(new A).a()");
++
++    // this case should be fixed
++    assertPrint("new A('y').a()", "(new A(\"y\")).a()");
++
++    // internal class
++    assertPrint("new A.B", "new A.B");
++    assertPrint("new A.B()", "new A.B");
++    assertPrint("new A.B('z')", "new A.B(\"z\")");
++
++    // calling instance method directly after new internal class
++    assertPrint("(new A.B).a()", "(new A.B).a()");
++    assertPrint("new A.B().a()", "(new A.B).a()");
++    // this case should be fixed
++    assertPrint("new A.B('w').a()", "(new A.B(\"w\")).a()");
++
++    // Operators: make sure we don't convert binary + and unary + into ++
++    assertPrint("x + +y", "x+ +y");
++    assertPrint("x - (-y)", "x- -y");
++    assertPrint("x++ +y", "x++ +y");
++    assertPrint("x-- -y", "x-- -y");
++    assertPrint("x++ -y", "x++-y");
++
++    // Label
++    assertPrint("foo:for(;;){break foo;}", "foo:for(;;)break foo");
++    assertPrint("foo:while(1){continue foo;}", "foo:while(1)continue foo");
++
++    // Object literals.
++    assertPrint("({})", "({})");
++    assertPrint("var x = {};", "var x={}");
++    assertPrint("({}).x", "({}).x");
++    assertPrint("({})['x']", "({})[\"x\"]");
++    assertPrint("({}) instanceof Object", "({})instanceof Object");
++    assertPrint("({}) || 1", "({})||1");
++    assertPrint("1 || ({})", "1||{}");
++    assertPrint("({}) ? 1 : 2", "({})?1:2");
++    assertPrint("0 ? ({}) : 2", "0?{}:2");
++    assertPrint("0 ? 1 : ({})", "0?1:{}");    
++    assertPrint("typeof ({})", "typeof{}");
++    assertPrint("f({})", "f({})");
++
++    // Anonymous functions.
++    assertPrint("(function(){})", "(function(){})");
++    assertPrint("(function(){})()", "(function(){})()");
++    assertPrint("(function(){})instanceof Object",
++        "(function(){})instanceof Object");
++    assertPrint("(function(){}).bind().call()",
++        "(function(){}).bind().call()");
++    assertPrint("var x = function() { };", "var x=function(){}");
++    assertPrint("var x = function() { }();", "var x=function(){}()");
++    assertPrint("(function() {}), 2", "(function(){}),2");
++
++    // Named functions
++    assertPrint("(function f(){})", "(function f(){})");
++    assertPrint("function f(){}", "function f(){}");
++
++    // Make sure we don't treat non-latin character escapes as raw strings.
++    assertPrint("({ 'a': 4, '\\u0100': 4 })", "({a:4,\"\\u0100\":4})");
++
++    // Test nested var statement
++    assertPrint("if (true) var x; x = 4;", "if(true)var x;x=4");
++
++    // Non-latin identifier. Make sure we keep them escaped.
++    assertPrint("\\u00fb", "\\u00fb");
++    assertPrint("\\u00fa=1", "\\u00fa=1");
++    assertPrint("function \\u00f9(){}", "function \\u00f9(){}");
++    assertPrint("x.\\u00f8", "x.\\u00f8");
++    assertPrint("x.\\u00f8", "x.\\u00f8");
++    assertPrint("abc\\u4e00\\u4e01jkl", "abc\\u4e00\\u4e01jkl");
++
++    // Test the right-associative unary operators for spurious parens
++    assertPrint("! ! true", "!!true");
++    assertPrint("!(!(true))", "!!true");
++    assertPrint("typeof(void(0))", "typeof void 0");
++    assertPrint("typeof(void(!0))", "typeof void!0");
++    assertPrint("+ - + + - + 3", "+-+ +-+3"); // chained unary plus/minus
++    assertPrint("+(--x)", "+--x");
++    assertPrint("-(++x)", "-++x");
++    
++    // needs a space to prevent an ambiguous parse
++    assertPrint("-(--x)", "- --x");
++    assertPrint("!(~~5)", "!~~5");
++    assertPrint("~(a/b)", "~(a/b)");
++
++    // Preserve parens to overcome greedy binding of NEW
++    assertPrint("new (foo.bar()).factory(baz)", "new (foo.bar().factory)(baz)");
++    assertPrint("new (bar()).factory(baz)", "new (bar().factory)(baz)");
++    assertPrint("new (new foobar(x)).factory(baz)",
++        "new (new foobar(x)).factory(baz)");
++
++    // Make sure that HOOK is right associative
++    assertPrint("a ? b : (c ? d : e)", "a?b:c?d:e");
++    assertPrint("a ? (b ? c : d) : e", "a?b?c:d:e");
++    assertPrint("(a ? b : c) ? d : e", "(a?b:c)?d:e");
++
++    // Test nested ifs
++    assertPrint("if (x) if (y); else;", "if(x)if(y);else;");
++
++    // Test comma.
++    assertPrint("a,b,c", "a,b,c");
++    assertPrint("(a,b),c", "a,b,c");
++    assertPrint("a,(b,c)", "a,b,c");
++    assertPrint("x=a,b,c", "x=a,b,c");
++    assertPrint("x=(a,b),c", "x=(a,b),c");
++    assertPrint("x=a,(b,c)", "x=a,b,c");
++    assertPrint("x=a,y=b,z=c", "x=a,y=b,z=c");
++    assertPrint("x=(a,y=b,z=c)", "x=(a,y=b,z=c)");
++    assertPrint("x=[a,b,c,d]", "x=[a,b,c,d]");
++    assertPrint("x=[(a,b,c),d]", "x=[(a,b,c),d]");
++    assertPrint("x=[(a,(b,c)),d]", "x=[(a,b,c),d]");
++    assertPrint("x=[a,(b,c,d)]", "x=[a,(b,c,d)]");
++    assertPrint("var x=(a,b)", "var x=(a,b)");
++    assertPrint("var x=a,b,c", "var x=a,b,c");
++    assertPrint("var x=(a,b),c", "var x=(a,b),c");
++    assertPrint("var x=a,b=(c,d)", "var x=a,b=(c,d)");
++    assertPrint("foo(a,b,c,d)", "foo(a,b,c,d)");
++    assertPrint("foo((a,b,c),d)", "foo((a,b,c),d)");
++    assertPrint("foo((a,(b,c)),d)", "foo((a,b,c),d)");
++    assertPrint("f(a+b,(c,d,(e,f,g)))", "f(a+b,(c,d,e,f,g))");
++    assertPrint("({}) , 1 , 2", "({}),1,2");
++    assertPrint("({}) , {} , {}", "({}),{},{}");
++
++    // EMPTY nodes
++    assertPrint("if (x){}", "if(x);");
++    assertPrint("if(x);", "if(x);");
++    assertPrint("if(x)if(y);", "if(x)if(y);");
++    assertPrint("if(x){if(y);}", "if(x)if(y);");
++    assertPrint("if(x){if(y){};;;}", "if(x)if(y);");
++    assertPrint("if(x){;;function y(){};;}", "if(x){function y(){}}");
++  }
++

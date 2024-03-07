@@ -1,0 +1,129 @@
+commit 4e052740436ce42efa1bf4cb49204f90e4796fd7
+Author: jhy <jonathan@hedley.net>
+Date:   Thu Feb 6 01:29:03 2020
+
+    Updata Jetty servlet to current
+    
+    This is used for integ tests, and is not distributed with the jar. Had to update some tests - Jetty won't write past the Content Length size any more. Might add some more tests around this.
+
+diff --git a/src/test/java/org/jsoup/integration/ConnectTest.java b/src/test/java/org/jsoup/integration/ConnectTest.java
+index 59d55098..cb4bf6dd 100644
+--- a/src/test/java/org/jsoup/integration/ConnectTest.java
++++ b/src/test/java/org/jsoup/integration/ConnectTest.java
+@@ -340,36 +340,32 @@ public void supportsDeflate() throws IOException {
+     }
+ 
+     @Test
+-    public void handlesEmptyStreamDuringParseRead() throws IOException {
++    public void handlesLargerContentLengthParseRead() throws IOException {
+         // this handles situations where the remote server sets a content length greater than it actually writes
+ 
+         Connection.Response res = Jsoup.connect(InterruptedServlet.Url)
+-            .timeout(200)
++            .data(InterruptedServlet.Magnitude, InterruptedServlet.Larger)
++            .timeout(400)
+             .execute();
+ 
+-        boolean threw = false;
+-        try {
+-            Document document = res.parse();
+-            assertEquals("Something", document.title());
+-        } catch (IOException e) {
+-            threw = true;
+-        }
+-        assertTrue(threw);
++        Document document = res.parse();
++        assertEquals("Something", document.title());
++        assertEquals(0, document.select("p").size());
++        // current impl, jetty won't write past content length
++        // todo - find way to trick jetty into writing larger than set header. Take over the stream?
+     }
+ 
+     @Test
+-    public void handlesEmtpyStreamDuringBufferedRead() throws IOException {
++    public void handlesWrongContentLengthDuringBufferedRead() throws IOException {
+         Connection.Response res = Jsoup.connect(InterruptedServlet.Url)
+-            .timeout(200)
+-            .execute();
++                .timeout(400)
++                .execute();
++        // this servlet writes max_buffer data, but sets content length to max_buffer/2. So will read up to that.
++        // previous versions of jetty would allow to write less, and would throw except here
+ 
+-        boolean threw = false;
+-        try {
+-            res.bufferUp();
+-        } catch (UncheckedIOException e) {
+-            threw = true;
+-        }
+-        assertTrue(threw);
++        res.bufferUp();
++        Document doc = res.parse();
++        assertEquals(0, doc.select("p").size());
+     }
+ 
+     @Test public void handlesRedirect() throws IOException {
+
+commit 2c4e79b104c0ff32566ce247617d47c0b39cc2c7
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sat Apr 14 16:27:36 2018
+
+    DataUtil should throw IOException on failed reads during parse
+    
+    Fixes #980
+
+diff --git a/src/test/java/org/jsoup/integration/ConnectTest.java b/src/test/java/org/jsoup/integration/ConnectTest.java
+index cdc25363..b6e1a186 100644
+--- a/src/test/java/org/jsoup/integration/ConnectTest.java
++++ b/src/test/java/org/jsoup/integration/ConnectTest.java
+@@ -2,9 +2,11 @@
+ 
+ import org.jsoup.Connection;
+ import org.jsoup.Jsoup;
++import org.jsoup.UncheckedIOException;
+ import org.jsoup.integration.servlets.Deflateservlet;
+ import org.jsoup.integration.servlets.EchoServlet;
+ import org.jsoup.integration.servlets.HelloServlet;
++import org.jsoup.integration.servlets.InterruptedServlet;
+ import org.jsoup.integration.servlets.SlowRider;
+ import org.jsoup.nodes.Document;
+ import org.jsoup.nodes.Element;
+@@ -381,4 +383,38 @@ public void supportsDeflate() throws IOException {
+         Document doc = res.parse();
+         assertEquals("Hello, World!", doc.selectFirst("p").text());
+     }
++
++    @Test
++    public void handlesEmptyStreamDuringParseRead() throws IOException {
++        // this handles situations where the remote server sets a content length greater than it actually writes
++
++        Connection.Response res = Jsoup.connect(InterruptedServlet.Url)
++            .timeout(200)
++            .execute();
++
++        boolean threw = false;
++        try {
++            Document document = res.parse();
++            assertEquals("Something", document.title());
++        } catch (IOException e) {
++            threw = true;
++        }
++        assertEquals(true, threw);
++    }
++
++    @Test
++    public void handlesEmtpyStreamDuringBufferdRead() throws IOException {
++        Connection.Response res = Jsoup.connect(InterruptedServlet.Url)
++            .timeout(200)
++            .execute();
++
++        boolean threw = false;
++        try {
++            res.bufferUp();
++        } catch (UncheckedIOException e) {
++            threw = true;
++        }
++        assertEquals(true, threw);
++
++    }
+ }

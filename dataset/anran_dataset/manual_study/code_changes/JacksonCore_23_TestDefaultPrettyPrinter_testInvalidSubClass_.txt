@@ -1,0 +1,36 @@
+commit 157f2c490003c7494af8ecb7d57880cda1fde736
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Wed Dec 12 01:06:44 2018
+
+    Fix #502
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/util/TestDefaultPrettyPrinter.java b/src/test/java/com/fasterxml/jackson/core/util/TestDefaultPrettyPrinter.java
+--- a/src/test/java/com/fasterxml/jackson/core/util/TestDefaultPrettyPrinter.java
++++ b/src/test/java/com/fasterxml/jackson/core/util/TestDefaultPrettyPrinter.java
+@@ -162,1 +164,14 @@
++    public void testInvalidSubClass() throws Exception
++    {
++        DefaultPrettyPrinter pp = new MyPrettyPrinter();
++        try {
++            pp.createInstance();
++            fail("Should not pass");
++        } catch (IllegalStateException e) {
++            verifyException(e, "does not override");
++        }
++    }
++
++    @SuppressWarnings("serial")
++    static class MyPrettyPrinter extends DefaultPrettyPrinter { }
+ }
+
+commit 455face52397dcc6da6de894418fceb80ade6982
+Author: digulla <digulla@hepe.com>
+Date:   Thu Nov 13 16:33:56 2014
+
+    Allow to configure line endings and indentation used in the DefaultPrettyPrinter.
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/util/TestDefaultPrettyPrinter.java b/src/test/java/com/fasterxml/jackson/core/util/TestDefaultPrettyPrinter.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/core/util/TestDefaultPrettyPrinter.java
+@@ -0,0 +78,1 @@
++}

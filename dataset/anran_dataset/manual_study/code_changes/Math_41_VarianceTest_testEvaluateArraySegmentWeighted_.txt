@@ -1,0 +1,103 @@
+commit 882556eabbeb2f62939aee29afdec2a01ce4bbe1
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Wed Nov 30 01:24:04 2011
+
+    Fixed array indexing error in Variance evaluate method for
+    computing the weighted variance of an array segment.
+    
+    JIRA: MATH-704
+    Reported by Leonid Ilyevsky
+    Patched by Thomas Niedhart
+    
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1208291 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/stat/descriptive/UnivariateStatisticAbstractTest.java b/src/test/java/org/apache/commons/math/stat/descriptive/UnivariateStatisticAbstractTest.java
+--- a/src/test/java/org/apache/commons/math/stat/descriptive/UnivariateStatisticAbstractTest.java
++++ b/src/test/java/org/apache/commons/math/stat/descriptive/UnivariateStatisticAbstractTest.java
+@@ -116,2 +118,29 @@
++    public void testEvaluateArraySegmentWeighted() {
++        // See if this statistic computes weighted statistics
++        // If not, skip this test
++        UnivariateStatistic statistic = getUnivariateStatistic();
++        if (!(statistic instanceof WeightedEvaluation)) {
++            return;
++        }
++        final WeightedEvaluation stat = (WeightedEvaluation) getUnivariateStatistic();
++        final double[] arrayZero = new double[5];
++        final double[] weightZero = new double[5];
++        System.arraycopy(testArray, 0, arrayZero, 0, 5);
++        System.arraycopy(testWeightsArray, 0, weightZero, 0, 5);
++        Assert.assertEquals(stat.evaluate(arrayZero, weightZero),
++                stat.evaluate(testArray, testWeightsArray, 0, 5), 0);
++        final double[] arrayOne = new double[5];
++        final double[] weightOne = new double[5];
++        System.arraycopy(testArray, 5, arrayOne, 0, 5);
++        System.arraycopy(testWeightsArray, 5, weightOne, 0, 5);
++        Assert.assertEquals(stat.evaluate(arrayOne, weightOne),
++                stat.evaluate(testArray, testWeightsArray, 5, 5), 0);
++        final double[] arrayEnd = new double[5];
++        final double[] weightEnd = new double[5];
++        System.arraycopy(testArray, testArray.length - 5, arrayEnd, 0, 5);
++        System.arraycopy(testWeightsArray, testArray.length - 5, weightEnd, 0, 5);
++        Assert.assertEquals(stat.evaluate(arrayEnd, weightEnd),
++                stat.evaluate(testArray, testWeightsArray, testArray.length - 5, 5), 0);
++    }
+ 
+     @Test
+
+commit a4bbdaf426a92d6351796b1d57407776f09f0a3d
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sun Mar 20 13:24:14 2011
+
+    Converted tests to Junit4.
+    
+    There is one thing remaining: the retry feature in RetryTestCase has been disabled temporarily. We need to find some way to implement it using Junit 4 API.
+    
+    JIRA: MATH-423
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1083514 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/stat/descriptive/UnivariateStatisticAbstractTest.java b/src/test/java/org/apache/commons/math/stat/descriptive/UnivariateStatisticAbstractTest.java
+--- a/src/test/java/org/apache/commons/math/stat/descriptive/UnivariateStatisticAbstractTest.java
++++ b/src/test/java/org/apache/commons/math/stat/descriptive/UnivariateStatisticAbstractTest.java
+@@ -105,1 +102,2 @@
+ 
++    @Test
+
+commit 900592f22b9a1c0b12334b1a78902699d7a75c8b
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sun Aug 30 21:56:09 2009
+
+    Added first batch of weighted statistics
+      * mean
+      * sum
+      * product
+      * variance
+    JIRA: MATH-287
+    Thanks to Matthew Rowles
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@809448 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/stat/descriptive/UnivariateStatisticAbstractTest.java b/src/test/java/org/apache/commons/math/stat/descriptive/UnivariateStatisticAbstractTest.java
+--- a/src/test/java/org/apache/commons/math/stat/descriptive/UnivariateStatisticAbstractTest.java
++++ b/src/test/java/org/apache/commons/math/stat/descriptive/UnivariateStatisticAbstractTest.java
+@@ -74,1 +105,1 @@
+-    
++
+
+commit 0a904461932f2c0455611e77ec6a8d8aced2980b
+Author: Mark R. Diggory <mdiggory@apache.org>
+Date:   Fri Nov 14 17:25:28 2003
+
+    Attempting to recover last revision.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@141013 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/stat/univariate/UnivariateStatisticAbstractTest.java b/src/test/org/apache/commons/math/stat/univariate/UnivariateStatisticAbstractTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/math/stat/univariate/UnivariateStatisticAbstractTest.java
+@@ -0,0 +128,1 @@
++    

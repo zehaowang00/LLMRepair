@@ -1,0 +1,143 @@
+commit a1bac127067c912b4a9f7a2957c427853a36c730
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Wed Jan 9 00:16:00 2008
+
+    Added check and rescaling of expected counts to sum to sum of expected
+    counts if necessary in ChiSquare test.
+    JIRA: MATH-175
+    Reported and patched by Carl Anderson.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@610274 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/stat/inference/ChiSquareTestTest.java b/src/test/org/apache/commons/math/stat/inference/ChiSquareTestTest.java
+--- a/src/test/org/apache/commons/math/stat/inference/ChiSquareTestTest.java
++++ b/src/test/org/apache/commons/math/stat/inference/ChiSquareTestTest.java
+@@ -170,18 +170,18 @@
+     public void testChiSquareLargeTestStatistic() throws Exception {
+         double[] exp = new double[] {
+             3389119.5, 649136.6, 285745.4, 25357364.76, 11291189.78, 543628.0, 
+             232921.0, 437665.75
+         };
+ 
+         long[] obs = new long[] {
+             2372383, 584222, 257170, 17750155, 7903832, 489265, 209628, 393899
+         };
+         org.apache.commons.math.stat.inference.ChiSquareTestImpl csti =
+             new org.apache.commons.math.stat.inference.ChiSquareTestImpl(); 
+         double cst = csti.chiSquareTest(exp, obs); 
+         assertEquals("chi-square p-value", 0.0, cst, 1E-3);
+         assertEquals( "chi-square test statistic", 
+-                3624883.342907764, testStatistic.chiSquare(exp, obs), 1E-9);
++                114875.90421929007, testStatistic.chiSquare(exp, obs), 1E-9);
+     }
+     
+     /** Contingency table containing zeros - PR # 32531 */
+
+commit 152880ce8f296e126b439425e349dbc1df1ae646
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Fri Dec 10 00:18:16 2004
+
+    Increased precision of target values used in tests.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@141519 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/stat/inference/ChiSquareTestTest.java b/src/test/org/apache/commons/math/stat/inference/ChiSquareTestTest.java
+--- a/src/test/org/apache/commons/math/stat/inference/ChiSquareTestTest.java
++++ b/src/test/org/apache/commons/math/stat/inference/ChiSquareTestTest.java
+@@ -169,16 +169,18 @@
+     public void testChiSquareLargeTestStatistic() throws Exception {
+         double[] exp = new double[] {
+             3389119.5, 649136.6, 285745.4, 25357364.76, 11291189.78, 543628.0, 
+             232921.0, 437665.75
+         };
+ 
+         long[] obs = new long[] {
+             2372383, 584222, 257170, 17750155, 7903832, 489265, 209628, 393899
+         };
+         org.apache.commons.math.stat.inference.ChiSquareTestImpl csti =
+             new org.apache.commons.math.stat.inference.ChiSquareTestImpl(); 
+         double cst = csti.chiSquareTest(exp, obs); 
+         assertEquals("chi-square p-value", 0.0, cst, 1E-3);
++        assertEquals( "chi-square test statistic", 
++                3624883.342907764, testStatistic.chiSquare(exp, obs), 1E-9);
+     }
+     
+     /** Contingency table containing zeros - PR # 32531 */
+
+commit f84062a7108e473824d89d57bfb77a4b9f9056ea
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sat Dec 4 15:52:43 2004
+
+    Added test case using 2-way table containing zeros (illustrates PR #32531).
+    Increased accuracy of target values in one test case.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@141505 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/stat/inference/ChiSquareTestTest.java b/src/test/org/apache/commons/math/stat/inference/ChiSquareTestTest.java
+--- a/src/test/org/apache/commons/math/stat/inference/ChiSquareTestTest.java
++++ b/src/test/org/apache/commons/math/stat/inference/ChiSquareTestTest.java
+@@ -169,14 +169,16 @@
+     public void testChiSquareLargeTestStatistic() throws Exception {
+         double[] exp = new double[] {
+             3389119.5, 649136.6, 285745.4, 25357364.76, 11291189.78, 543628.0, 
+             232921.0, 437665.75
+         };
+ 
+         long[] obs = new long[] {
+             2372383, 584222, 257170, 17750155, 7903832, 489265, 209628, 393899
+         };
+         org.apache.commons.math.stat.inference.ChiSquareTestImpl csti =
+             new org.apache.commons.math.stat.inference.ChiSquareTestImpl(); 
+         double cst = csti.chiSquareTest(exp, obs); 
+         assertEquals("chi-square p-value", 0.0, cst, 1E-3);
+     }
++    
++    /** Contingency table containing zeros - PR # 32531 */
+
+commit a25f1e4515b215f4510088cd1787725479390b14
+Author: Brent Worden <brentworden@apache.org>
+Date:   Mon Jun 7 16:30:16 2004
+
+    PR: 29419
+    Added an implementation of regularized gamma function, Q(a, x) = 1 - P(a,x), based on a continued fraction.  This converges much faster for the large x case.  I added the example submitted by Scott as a test case and ran all the test cases with everything passing.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@141286 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/stat/inference/ChiSquareTestTest.java b/src/test/org/apache/commons/math/stat/inference/ChiSquareTestTest.java
+--- a/src/test/org/apache/commons/math/stat/inference/ChiSquareTestTest.java
++++ b/src/test/org/apache/commons/math/stat/inference/ChiSquareTestTest.java
+@@ -129,1 +131,14 @@
+-    }    
++    public void testChiSquareLargeTestStatistic() throws Exception {
++        double[] exp = new double[] {
++            3389119.5, 649136.6, 285745.4, 25357364.76, 11291189.78, 543628.0, 
++            232921.0, 437665.75
++        };
++
++        long[] obs = new long[] {
++            2372383, 584222, 257170, 17750155, 7903832, 489265, 209628, 393899
++        };
++        org.apache.commons.math.stat.inference.ChiSquareTestImpl csti =
++            new org.apache.commons.math.stat.inference.ChiSquareTestImpl(); 
++        double cst = csti.chiSquareTest(exp, obs); 
++        assertEquals("chi-square p-value", 0.0, cst, 1E-3);
++    }
+
+commit e7d299124f59c1cb6aa61274e24c47544ead40ef
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sun May 2 23:04:54 2004
+
+    Initial commit of tests replacing TestStatisticTest.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@141208 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/stat/inference/ChiSquareTestTest.java b/src/test/org/apache/commons/math/stat/inference/ChiSquareTestTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/math/stat/inference/ChiSquareTestTest.java
+@@ -0,0 +129,1 @@
++    }    

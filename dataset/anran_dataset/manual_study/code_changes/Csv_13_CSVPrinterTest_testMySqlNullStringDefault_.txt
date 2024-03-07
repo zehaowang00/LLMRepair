@@ -1,0 +1,18 @@
+commit f8b80e83417c3c7eeed1282118f64fa0e85c4787
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Mon Jan 18 21:34:19 2016
+
+    [CSV-168] CsvFormat.nullString should not be escaped. [CSV-170]
+    CSVFormat.MYSQL nullString should be "\N".
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/csv/trunk@1725407 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVPrinterTest.java b/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVPrinterTest.java
+@@ -305,0 +318,5 @@
++    public void testMySqlNullStringDefault() throws IOException {
++        assertEquals("\\N", CSVFormat.MYSQL.getNullString());
++    }
++
++    @Test

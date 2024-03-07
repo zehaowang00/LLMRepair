@@ -1,0 +1,193 @@
+commit 615ca9a000c253575e6f62bed87db6110b750834
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sat May 29 14:15:50 2010
+
+    Fixed Levenberg-Marquardt optimizer that did not use the vectorial convergence checker.
+    Now this optimizer can use either the general vectorial convergence checker or its own specialized convergence settings.
+    Minor changes had to be introduced in the test data, they have been validated
+    JIRA: MATH-362
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@949433 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/general/MinpackTest.java b/src/test/java/org/apache/commons/math/optimization/general/MinpackTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/general/MinpackTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/general/MinpackTest.java
+@@ -145,21 +145,21 @@
+   public void testMinpackFreudensteinRoth() {
+     minpackTest(new FreudensteinRothFunction(new double[] { 0.5, -2.0 },
+                                              20.0124960961895, 6.99887517584575,
+                                              new double[] {
+                                                11.4124844654993,
+                                                -0.896827913731509
+                                              }), false);
+     minpackTest(new FreudensteinRothFunction(new double[] { 5.0, -20.0 },
+                                              12432.833948863, 6.9988751744895,
+                                              new double[] {
+-                                               11.4130046614746,
+-                                               -0.896796038685958
++                                               11.4121122022341,
++                                               -0.8968550851268697
+                                              }), false);
+     minpackTest(new FreudensteinRothFunction(new double[] { 50.0, -200.0 },
+                                              11426454.595762, 6.99887517242903,
+                                              new double[] {
+-                                               11.4127817857886,
+-                                               -0.89680510749204
++                                               11.412069435091231,
++                                               -0.8968582807605691
+                                              }), false);
+   }
+ 
+
+commit 26dac5a0e7fc9c6be9571b3e71a15d8502480d96
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sat Sep 5 13:36:48 2009
+
+    Removed trailing spaces.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@811685 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/general/MinpackTest.java b/src/test/java/org/apache/commons/math/optimization/general/MinpackTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/general/MinpackTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/general/MinpackTest.java
+@@ -147,21 +147,21 @@
+   public void testMinpackFreudensteinRoth() {
+     minpackTest(new FreudensteinRothFunction(new double[] { 0.5, -2.0 },
+                                              20.0124960961895, 6.99887517584575,
+                                              new double[] {
+                                                11.4124844654993,
+                                                -0.896827913731509
+                                              }), false);
+     minpackTest(new FreudensteinRothFunction(new double[] { 5.0, -20.0 },
+                                              12432.833948863, 6.9988751744895,
+                                              new double[] {
+                                                11.4130046614746,
+                                                -0.896796038685958
+                                              }), false);
+     minpackTest(new FreudensteinRothFunction(new double[] { 50.0, -200.0 },
+                                              11426454.595762, 6.99887517242903,
+                                              new double[] {
+                                                11.4127817857886,
+                                                -0.89680510749204
+                                              }), false);
+   }
+-    
++
+
+commit cdd62a0f07e3d715f72243aa7e881ca53b59afe3
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Tue Apr 14 09:13:54 2009
+
+    Remove non-thrown throws clauses
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@764769 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/optimization/general/MinpackTest.java b/src/test/org/apache/commons/math/optimization/general/MinpackTest.java
+--- a/src/test/org/apache/commons/math/optimization/general/MinpackTest.java
++++ b/src/test/org/apache/commons/math/optimization/general/MinpackTest.java
+@@ -153,22 +147,21 @@
+-  public void testMinpackFreudensteinRoth()
+-    throws OptimizationException {
++  public void testMinpackFreudensteinRoth() {
+     minpackTest(new FreudensteinRothFunction(new double[] { 0.5, -2.0 },
+                                              20.0124960961895, 6.99887517584575,
+                                              new double[] {
+                                                11.4124844654993,
+                                                -0.896827913731509
+                                              }), false);
+     minpackTest(new FreudensteinRothFunction(new double[] { 5.0, -20.0 },
+                                              12432.833948863, 6.9988751744895,
+                                              new double[] {
+                                                11.4130046614746,
+                                                -0.896796038685958
+                                              }), false);
+     minpackTest(new FreudensteinRothFunction(new double[] { 50.0, -200.0 },
+                                              11426454.595762, 6.99887517242903,
+                                              new double[] {
+                                                11.4127817857886,
+                                                -0.89680510749204
+                                              }), false);
+   }
+     
+
+commit fbe565694aa2721d4a8538eb053171cc8ecfde47
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Thu Feb 26 14:17:39 2009
+
+    started refactoring of optimization framework:
+     - created subpackages optimization.direct, optimization.general,
+       optimization.linear (currently empty) and optimization.univariate
+     - removed packages analysis.minimization and estimation
+     - renamed all Cost-related interfaces/classes into Objective
+       (this allows both minimization and maximization)
+     - added a few new general interfaces
+    
+    This work is not complete yet. The direct and general packages classes
+    are very close to the former design, they have almost not been changed
+    structurally.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@748274 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/estimation/MinpackTest.java b/src/test/org/apache/commons/math/optimization/general/MinpackTest.java
+--- a/src/test/org/apache/commons/math/estimation/MinpackTest.java
++++ b/src/test/org/apache/commons/math/optimization/general/MinpackTest.java
+@@ -151,22 +148,22 @@
+   public void testMinpackFreudensteinRoth()
+-    throws EstimationException {
++    throws OptimizationException {
+     minpackTest(new FreudensteinRothFunction(new double[] { 0.5, -2.0 },
+                                              20.0124960961895, 6.99887517584575,
+                                              new double[] {
+                                                11.4124844654993,
+                                                -0.896827913731509
+                                              }), false);
+     minpackTest(new FreudensteinRothFunction(new double[] { 5.0, -20.0 },
+                                              12432.833948863, 6.9988751744895,
+                                              new double[] {
+                                                11.4130046614746,
+                                                -0.896796038685958
+                                              }), false);
+     minpackTest(new FreudensteinRothFunction(new double[] { 50.0, -200.0 },
+                                              11426454.595762, 6.99887517242903,
+                                              new double[] {
+                                                11.4127817857886,
+                                                -0.89680510749204
+                                              }), false);
+   }
+     
+
+commit 8ac52f78d23e8d0a0e8d72c89f7f88491b2706ca
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Mon Jan 15 15:58:51 2007
+
+    added missing files from previous patches (JIRA:MATH-161 and JIRA:MATH-162)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@496489 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/mantissa/tests-src/org/spaceroots/mantissa/estimation/MinpackTest.java b/src/mantissa/tests-src/org/spaceroots/mantissa/estimation/MinpackTest.java
+--- /dev/null
++++ b/src/mantissa/tests-src/org/spaceroots/mantissa/estimation/MinpackTest.java
+@@ -0,0 +128,22 @@
++  public void testMinpackFreudensteinRoth()
++    throws EstimationException {
++    minpackTest(new FreudensteinRothFunction(new double[] { 0.5, -2.0 },
++                                             20.0124960961895, 6.99887517584575,
++                                             new double[] {
++                                               11.4124844654993,
++                                               -0.896827913731509
++                                             }), false);
++    minpackTest(new FreudensteinRothFunction(new double[] { 5.0, -20.0 },
++                                             12432.833948863, 6.9988751744895,
++                                             new double[] {
++                                               11.4130046614746,
++                                               -0.896796038685958
++                                             }), false);
++    minpackTest(new FreudensteinRothFunction(new double[] { 50.0, -200.0 },
++                                             11426454.595762, 6.99887517242903,
++                                             new double[] {
++                                               11.4127817857886,
++                                               -0.89680510749204
++                                             }), false);
++  }
++    

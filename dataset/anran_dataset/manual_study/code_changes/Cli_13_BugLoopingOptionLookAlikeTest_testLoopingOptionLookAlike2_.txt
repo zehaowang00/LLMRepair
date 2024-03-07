@@ -1,0 +1,628 @@
+commit 538fb6889f0387a40b821cfb315685e929110736
+Author: Henri Yandell <bayard@apache.org>
+Date:   Mon Jun 9 03:37:19 2008
+
+    Applying Andrew's fix to CLI-61 and rolling back the getMessageKey addition to OptionException that was applied from CLI-145
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/trunk@664646 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java b/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java
+--- a/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java
++++ b/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java
+@@ -64,17 +63,17 @@
+     public void testLoopingOptionLookAlike2() {
+         final ArgumentBuilder abuilder = new ArgumentBuilder();
+         final GroupBuilder gbuilder = new GroupBuilder();
+         final Argument inputfile_opt = abuilder.withName("input").withMinimum(1).withMaximum(1).create();
+         final Argument outputfile_opt = abuilder.withName("output").withMinimum(1).withMaximum(1).create();
+         final Argument targets = new SourceDestArgument(inputfile_opt, outputfile_opt);
+         final Group options = gbuilder.withOption(targets).create();
+         final Parser parser = new Parser();
+         parser.setGroup(options);
+         try {
+             parser.parse(new String[] { "testfile.txt", "testfile.txt", "testfile.txt", "testfile.txt" });
+             fail("OptionException");
+         } catch (OptionException e) {
+-            assertEquals(ResourceConstants.ARGUMENT_UNEXPECTED_VALUE, e.getMessageKey());
++            assertEquals("Unexpected testfile.txt while processing ", e.getMessage());
+         }
+     }    
+ }
+
+commit e2ba946ea0e01c36c84f97f483e1d22cfd64b917
+Author: Henri Yandell <bayard@apache.org>
+Date:   Mon Jun 9 03:27:02 2008
+
+    Applying Brian Egge's patch to CLI-145, fixing things so the withMinimum/withMaximum works correctly
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/trunk@664644 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java b/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java
+--- a/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java
++++ b/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java
+@@ -63,17 +64,17 @@
+     public void testLoopingOptionLookAlike2() {
+         final ArgumentBuilder abuilder = new ArgumentBuilder();
+         final GroupBuilder gbuilder = new GroupBuilder();
+         final Argument inputfile_opt = abuilder.withName("input").withMinimum(1).withMaximum(1).create();
+         final Argument outputfile_opt = abuilder.withName("output").withMinimum(1).withMaximum(1).create();
+         final Argument targets = new SourceDestArgument(inputfile_opt, outputfile_opt);
+         final Group options = gbuilder.withOption(targets).create();
+         final Parser parser = new Parser();
+         parser.setGroup(options);
+         try {
+             parser.parse(new String[] { "testfile.txt", "testfile.txt", "testfile.txt", "testfile.txt" });
+             fail("OptionException");
+         } catch (OptionException e) {
+-            assertEquals("Unexpected testfile.txt while processing ", e.getMessage());
++            assertEquals(ResourceConstants.ARGUMENT_UNEXPECTED_VALUE, e.getMessageKey());
+         }
+     }    
+ }
+
+commit 47b2fa57db0f54d71ea4822fdb44b10656002890
+Author: Niall Kegan Pemberton <niallp@apache.org>
+Date:   Sat Mar 22 07:08:56 2008
+
+    Add missing svn:eol-style and svn:keywords properties
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/trunk@639976 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java b/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java
+--- a/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java
++++ b/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java
+@@ -1,79 +63,17 @@
+-/*
+- * Licensed to the Apache Software Foundation (ASF) under one
+- * or more contributor license agreements.  See the NOTICE file
+- * distributed with this work for additional information
+- * regarding copyright ownership.  The ASF licenses this file
+- * to you under the Apache License, Version 2.0 (the
+- * "License"); you may not use this file except in compliance
+- * with the License.  You may obtain a copy of the License at
+- *
+- * http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing,
+- * software distributed under the License is distributed on an
+- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+- * KIND, either express or implied.  See the License for the
+- * specific language governing permissions and limitations
+- * under the License.
+- */
+-package org.apache.commons.cli2.bug;
+-
+-import junit.framework.TestCase;
+-
+-import org.apache.commons.cli2.Argument;
+-import org.apache.commons.cli2.Group;
+-import org.apache.commons.cli2.OptionException;
+-import org.apache.commons.cli2.builder.ArgumentBuilder;
+-import org.apache.commons.cli2.builder.DefaultOptionBuilder;
+-import org.apache.commons.cli2.builder.GroupBuilder;
+-import org.apache.commons.cli2.commandline.Parser;
+-import org.apache.commons.cli2.option.SourceDestArgument;
+-
+-/**
+- * The first is a loop in Parser.parse() if I set a non-declared option. This 
+- * code goes into a loop in Parser.java method parse this while loop runs 
+- * endless
+- * 
+- * @author Steve Alberty
+- */
+-public class BugLoopingOptionLookAlikeTest extends TestCase {
+-
+-    public void testLoopingOptionLookAlike() {
+-        final DefaultOptionBuilder obuilder = new DefaultOptionBuilder();
+-        final ArgumentBuilder abuilder = new ArgumentBuilder();
+-        final GroupBuilder gbuilder = new GroupBuilder();
+-        final Group options = gbuilder
+-            .withName("ant")
+-            .withOption(obuilder.withShortName("help").withDescription("print this message").create())
+-            .withOption(obuilder.withShortName("projecthelp").withDescription("print project help information").create())
+-            .withOption(abuilder.withName("target").create())
+-            .create();
+-        
+-        final Parser parser = new Parser();
+-        parser.setGroup(options);
+-        try {
+-            parser.parse(new String[] { "-abcdef",
+-                    "testfile.txt ", });
+-            fail("OptionException");
+-        } catch (OptionException e) {
+-            assertEquals("Unexpected -abcdef while processing ant",e.getMessage());
+-        }
+-    }
+-    
+-    public void testLoopingOptionLookAlike2() {
+-        final ArgumentBuilder abuilder = new ArgumentBuilder();
+-        final GroupBuilder gbuilder = new GroupBuilder();
+-        final Argument inputfile_opt = abuilder.withName("input").withMinimum(1).withMaximum(1).create();
+-        final Argument outputfile_opt = abuilder.withName("output").withMinimum(1).withMaximum(1).create();
+-        final Argument targets = new SourceDestArgument(inputfile_opt, outputfile_opt);
+-        final Group options = gbuilder.withOption(targets).create();
+-        final Parser parser = new Parser();
+-        parser.setGroup(options);
+-        try {
+-            parser.parse(new String[] { "testfile.txt", "testfile.txt", "testfile.txt", "testfile.txt" });
+-            fail("OptionException");
+-        } catch (OptionException e) {
+-            assertEquals("Unexpected testfile.txt while processing ", e.getMessage());
+-        }
+-    }    
+-}
++    public void testLoopingOptionLookAlike2() {
++        final ArgumentBuilder abuilder = new ArgumentBuilder();
++        final GroupBuilder gbuilder = new GroupBuilder();
++        final Argument inputfile_opt = abuilder.withName("input").withMinimum(1).withMaximum(1).create();
++        final Argument outputfile_opt = abuilder.withName("output").withMinimum(1).withMaximum(1).create();
++        final Argument targets = new SourceDestArgument(inputfile_opt, outputfile_opt);
++        final Group options = gbuilder.withOption(targets).create();
++        final Parser parser = new Parser();
++        parser.setGroup(options);
++        try {
++            parser.parse(new String[] { "testfile.txt", "testfile.txt", "testfile.txt", "testfile.txt" });
++            fail("OptionException");
++        } catch (OptionException e) {
++            assertEquals("Unexpected testfile.txt while processing ", e.getMessage());
++        }
++    }    
++}
+
+commit ca1e681ac7ce142befe950df5506e81c1935252d
+Author: Henri Yandell <bayard@apache.org>
+Date:   Fri Mar 21 23:08:23 2008
+
+    Removing all new lines in every source file - priceless. Arse. Reverting by exporting the old version on top and committing
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/trunk@639943 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java b/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java
+--- a/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java
++++ b/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java
+@@ -1,1 +1,79 @@
+-/* * Licensed to the Apache Software Foundation (ASF) under one * or more contributor license agreements.  See the NOTICE file * distributed with this work for additional information * regarding copyright ownership.  The ASF licenses this file * to you under the Apache License, Version 2.0 (the * "License"); you may not use this file except in compliance * with the License.  You may obtain a copy of the License at * * http://www.apache.org/licenses/LICENSE-2.0 * * Unless required by applicable law or agreed to in writing, * software distributed under the License is distributed on an * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or implied.  See the License for the * specific language governing permissions and limitations * under the License. */package org.apache.commons.cli2.bug;import junit.framework.TestCase;import org.apache.commons.cli2.Argument;import org.apache.commons.cli2.Group;import org.apache.commons.cli2.OptionException;import org.apache.commons.cli2.builder.ArgumentBuilder;import org.apache.commons.cli2.builder.DefaultOptionBuilder;import org.apache.commons.cli2.builder.GroupBuilder;import org.apache.commons.cli2.commandline.Parser;import org.apache.commons.cli2.option.SourceDestArgument;/** * The first is a loop in Parser.parse() if I set a non-declared option. This * code goes into a loop in Parser.java method parse this while loop runs * endless * * @author Steve Alberty */public class BugLoopingOptionLookAlikeTest extends TestCase {    public void testLoopingOptionLookAlike() {        final DefaultOptionBuilder obuilder = new DefaultOptionBuilder();        final ArgumentBuilder abuilder = new ArgumentBuilder();        final GroupBuilder gbuilder = new GroupBuilder();        final Group options = gbuilder            .withName("ant")            .withOption(obuilder.withShortName("help").withDescription("print this message").create())            .withOption(obuilder.withShortName("projecthelp").withDescription("print project help information").create())            .withOption(abuilder.withName("target").create())            .create();        final Parser parser = new Parser();        parser.setGroup(options);        try {            parser.parse(new String[] { "-abcdef",                    "testfile.txt ", });            fail("OptionException");        } catch (OptionException e) {            assertEquals("Unexpected -abcdef while processing ant",e.getMessage());        }    }    public void testLoopingOptionLookAlike2() {        final ArgumentBuilder abuilder = new ArgumentBuilder();        final GroupBuilder gbuilder = new GroupBuilder();        final Argument inputfile_opt = abuilder.withName("input").withMinimum(1).withMaximum(1).create();        final Argument outputfile_opt = abuilder.withName("output").withMinimum(1).withMaximum(1).create();        final Argument targets = new SourceDestArgument(inputfile_opt, outputfile_opt);        final Group options = gbuilder.withOption(targets).create();        final Parser parser = new Parser();        parser.setGroup(options);        try {            parser.parse(new String[] { "testfile.txt", "testfile.txt", "testfile.txt", "testfile.txt" });            fail("OptionException");        } catch (OptionException e) {            assertEquals("Unexpected testfile.txt while processing ", e.getMessage());        }    }}
+\ No newline at end of file
++/*
++ * Licensed to the Apache Software Foundation (ASF) under one
++ * or more contributor license agreements.  See the NOTICE file
++ * distributed with this work for additional information
++ * regarding copyright ownership.  The ASF licenses this file
++ * to you under the Apache License, Version 2.0 (the
++ * "License"); you may not use this file except in compliance
++ * with the License.  You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing,
++ * software distributed under the License is distributed on an
++ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
++ * KIND, either express or implied.  See the License for the
++ * specific language governing permissions and limitations
++ * under the License.
++ */
++package org.apache.commons.cli2.bug;
++
++import junit.framework.TestCase;
++
++import org.apache.commons.cli2.Argument;
++import org.apache.commons.cli2.Group;
++import org.apache.commons.cli2.OptionException;
++import org.apache.commons.cli2.builder.ArgumentBuilder;
++import org.apache.commons.cli2.builder.DefaultOptionBuilder;
++import org.apache.commons.cli2.builder.GroupBuilder;
++import org.apache.commons.cli2.commandline.Parser;
++import org.apache.commons.cli2.option.SourceDestArgument;
++
++/**
++ * The first is a loop in Parser.parse() if I set a non-declared option. This 
++ * code goes into a loop in Parser.java method parse this while loop runs 
++ * endless
++ * 
++ * @author Steve Alberty
++ */
++public class BugLoopingOptionLookAlikeTest extends TestCase {
++
++    public void testLoopingOptionLookAlike() {
++        final DefaultOptionBuilder obuilder = new DefaultOptionBuilder();
++        final ArgumentBuilder abuilder = new ArgumentBuilder();
++        final GroupBuilder gbuilder = new GroupBuilder();
++        final Group options = gbuilder
++            .withName("ant")
++            .withOption(obuilder.withShortName("help").withDescription("print this message").create())
++            .withOption(obuilder.withShortName("projecthelp").withDescription("print project help information").create())
++            .withOption(abuilder.withName("target").create())
++            .create();
++        
++        final Parser parser = new Parser();
++        parser.setGroup(options);
++        try {
++            parser.parse(new String[] { "-abcdef",
++                    "testfile.txt ", });
++            fail("OptionException");
++        } catch (OptionException e) {
++            assertEquals("Unexpected -abcdef while processing ant",e.getMessage());
++        }
++    }
++    
++    public void testLoopingOptionLookAlike2() {
++        final ArgumentBuilder abuilder = new ArgumentBuilder();
++        final GroupBuilder gbuilder = new GroupBuilder();
++        final Argument inputfile_opt = abuilder.withName("input").withMinimum(1).withMaximum(1).create();
++        final Argument outputfile_opt = abuilder.withName("output").withMinimum(1).withMaximum(1).create();
++        final Argument targets = new SourceDestArgument(inputfile_opt, outputfile_opt);
++        final Group options = gbuilder.withOption(targets).create();
++        final Parser parser = new Parser();
++        parser.setGroup(options);
++        try {
++            parser.parse(new String[] { "testfile.txt", "testfile.txt", "testfile.txt", "testfile.txt" });
++            fail("OptionException");
++        } catch (OptionException e) {
++            assertEquals("Unexpected testfile.txt while processing ", e.getMessage());
++        }
++    }    
++}
+
+commit 4729315c88e18a531c151162f42544d525e36752
+Author: Henri Yandell <bayard@apache.org>
+Date:   Fri Mar 21 22:49:41 2008
+
+    Removing trailing spaces
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/trunk@639941 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java b/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java
+--- a/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java
++++ b/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java
+@@ -1,79 +1,1 @@
+-/*
+- * Licensed to the Apache Software Foundation (ASF) under one
+- * or more contributor license agreements.  See the NOTICE file
+- * distributed with this work for additional information
+- * regarding copyright ownership.  The ASF licenses this file
+- * to you under the Apache License, Version 2.0 (the
+- * "License"); you may not use this file except in compliance
+- * with the License.  You may obtain a copy of the License at
+- *
+- * http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing,
+- * software distributed under the License is distributed on an
+- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+- * KIND, either express or implied.  See the License for the
+- * specific language governing permissions and limitations
+- * under the License.
+- */
+-package org.apache.commons.cli2.bug;
+-
+-import junit.framework.TestCase;
+-
+-import org.apache.commons.cli2.Argument;
+-import org.apache.commons.cli2.Group;
+-import org.apache.commons.cli2.OptionException;
+-import org.apache.commons.cli2.builder.ArgumentBuilder;
+-import org.apache.commons.cli2.builder.DefaultOptionBuilder;
+-import org.apache.commons.cli2.builder.GroupBuilder;
+-import org.apache.commons.cli2.commandline.Parser;
+-import org.apache.commons.cli2.option.SourceDestArgument;
+-
+-/**
+- * The first is a loop in Parser.parse() if I set a non-declared option. This 
+- * code goes into a loop in Parser.java method parse this while loop runs 
+- * endless
+- * 
+- * @author Steve Alberty
+- */
+-public class BugLoopingOptionLookAlikeTest extends TestCase {
+-
+-    public void testLoopingOptionLookAlike() {
+-        final DefaultOptionBuilder obuilder = new DefaultOptionBuilder();
+-        final ArgumentBuilder abuilder = new ArgumentBuilder();
+-        final GroupBuilder gbuilder = new GroupBuilder();
+-        final Group options = gbuilder
+-            .withName("ant")
+-            .withOption(obuilder.withShortName("help").withDescription("print this message").create())
+-            .withOption(obuilder.withShortName("projecthelp").withDescription("print project help information").create())
+-            .withOption(abuilder.withName("target").create())
+-            .create();
+-        
+-        final Parser parser = new Parser();
+-        parser.setGroup(options);
+-        try {
+-            parser.parse(new String[] { "-abcdef",
+-                    "testfile.txt ", });
+-            fail("OptionException");
+-        } catch (OptionException e) {
+-            assertEquals("Unexpected -abcdef while processing ant",e.getMessage());
+-        }
+-    }
+-    
+-    public void testLoopingOptionLookAlike2() {
+-        final ArgumentBuilder abuilder = new ArgumentBuilder();
+-        final GroupBuilder gbuilder = new GroupBuilder();
+-        final Argument inputfile_opt = abuilder.withName("input").withMinimum(1).withMaximum(1).create();
+-        final Argument outputfile_opt = abuilder.withName("output").withMinimum(1).withMaximum(1).create();
+-        final Argument targets = new SourceDestArgument(inputfile_opt, outputfile_opt);
+-        final Group options = gbuilder.withOption(targets).create();
+-        final Parser parser = new Parser();
+-        parser.setGroup(options);
+-        try {
+-            parser.parse(new String[] { "testfile.txt", "testfile.txt", "testfile.txt", "testfile.txt" });
+-            fail("OptionException");
+-        } catch (OptionException e) {
+-            assertEquals("Unexpected testfile.txt while processing ", e.getMessage());
+-        }
+-    }    
+-}
++/* * Licensed to the Apache Software Foundation (ASF) under one * or more contributor license agreements.  See the NOTICE file * distributed with this work for additional information * regarding copyright ownership.  The ASF licenses this file * to you under the Apache License, Version 2.0 (the * "License"); you may not use this file except in compliance * with the License.  You may obtain a copy of the License at * * http://www.apache.org/licenses/LICENSE-2.0 * * Unless required by applicable law or agreed to in writing, * software distributed under the License is distributed on an * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY * KIND, either express or implied.  See the License for the * specific language governing permissions and limitations * under the License. */package org.apache.commons.cli2.bug;import junit.framework.TestCase;import org.apache.commons.cli2.Argument;import org.apache.commons.cli2.Group;import org.apache.commons.cli2.OptionException;import org.apache.commons.cli2.builder.ArgumentBuilder;import org.apache.commons.cli2.builder.DefaultOptionBuilder;import org.apache.commons.cli2.builder.GroupBuilder;import org.apache.commons.cli2.commandline.Parser;import org.apache.commons.cli2.option.SourceDestArgument;/** * The first is a loop in Parser.parse() if I set a non-declared option. This * code goes into a loop in Parser.java method parse this while loop runs * endless * * @author Steve Alberty */public class BugLoopingOptionLookAlikeTest extends TestCase {    public void testLoopingOptionLookAlike() {        final DefaultOptionBuilder obuilder = new DefaultOptionBuilder();        final ArgumentBuilder abuilder = new ArgumentBuilder();        final GroupBuilder gbuilder = new GroupBuilder();        final Group options = gbuilder            .withName("ant")            .withOption(obuilder.withShortName("help").withDescription("print this message").create())            .withOption(obuilder.withShortName("projecthelp").withDescription("print project help information").create())            .withOption(abuilder.withName("target").create())            .create();        final Parser parser = new Parser();        parser.setGroup(options);        try {            parser.parse(new String[] { "-abcdef",                    "testfile.txt ", });            fail("OptionException");        } catch (OptionException e) {            assertEquals("Unexpected -abcdef while processing ant",e.getMessage());        }    }    public void testLoopingOptionLookAlike2() {        final ArgumentBuilder abuilder = new ArgumentBuilder();        final GroupBuilder gbuilder = new GroupBuilder();        final Argument inputfile_opt = abuilder.withName("input").withMinimum(1).withMaximum(1).create();        final Argument outputfile_opt = abuilder.withName("output").withMinimum(1).withMaximum(1).create();        final Argument targets = new SourceDestArgument(inputfile_opt, outputfile_opt);        final Group options = gbuilder.withOption(targets).create();        final Parser parser = new Parser();        parser.setGroup(options);        try {            parser.parse(new String[] { "testfile.txt", "testfile.txt", "testfile.txt", "testfile.txt" });            fail("OptionException");        } catch (OptionException e) {            assertEquals("Unexpected testfile.txt while processing ", e.getMessage());        }    }}
+\ No newline at end of file
+
+commit 37ead87cdd8de8ddb6cbb2f8f091eb572565080c
+Author: Henri Yandell <bayard@apache.org>
+Date:   Mon Aug 28 02:33:05 2006
+
+    Fixing the ASF copyright and placing it in the NOTICE file
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@437564 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java b/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java
+--- a/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java
++++ b/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java
+@@ -1,76 +1,79 @@
+-/**
+- * Copyright 2005 The Apache Software Foundation
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
++/*
++ * Licensed to the Apache Software Foundation (ASF) under one
++ * or more contributor license agreements.  See the NOTICE file
++ * distributed with this work for additional information
++ * regarding copyright ownership.  The ASF licenses this file
++ * to you under the Apache License, Version 2.0 (the
++ * "License"); you may not use this file except in compliance
++ * with the License.  You may obtain a copy of the License at
+  *
+- *     http://www.apache.org/licenses/LICENSE-2.0
++ * http://www.apache.org/licenses/LICENSE-2.0
+  *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
++ * Unless required by applicable law or agreed to in writing,
++ * software distributed under the License is distributed on an
++ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
++ * KIND, either express or implied.  See the License for the
++ * specific language governing permissions and limitations
++ * under the License.
+  */
+ package org.apache.commons.cli2.bug;
+ 
+ import junit.framework.TestCase;
+ 
+ import org.apache.commons.cli2.Argument;
+ import org.apache.commons.cli2.Group;
+ import org.apache.commons.cli2.OptionException;
+ import org.apache.commons.cli2.builder.ArgumentBuilder;
+ import org.apache.commons.cli2.builder.DefaultOptionBuilder;
+ import org.apache.commons.cli2.builder.GroupBuilder;
+ import org.apache.commons.cli2.commandline.Parser;
+ import org.apache.commons.cli2.option.SourceDestArgument;
+ 
+ /**
+  * The first is a loop in Parser.parse() if I set a non-declared option. This 
+  * code goes into a loop in Parser.java method parse this while loop runs 
+  * endless
+  * 
+  * @author Steve Alberty
+  */
+ public class BugLoopingOptionLookAlikeTest extends TestCase {
+ 
+     public void testLoopingOptionLookAlike() {
+         final DefaultOptionBuilder obuilder = new DefaultOptionBuilder();
+         final ArgumentBuilder abuilder = new ArgumentBuilder();
+         final GroupBuilder gbuilder = new GroupBuilder();
+         final Group options = gbuilder
+             .withName("ant")
+             .withOption(obuilder.withShortName("help").withDescription("print this message").create())
+             .withOption(obuilder.withShortName("projecthelp").withDescription("print project help information").create())
+             .withOption(abuilder.withName("target").create())
+             .create();
+         
+         final Parser parser = new Parser();
+         parser.setGroup(options);
+         try {
+             parser.parse(new String[] { "-abcdef",
+                     "testfile.txt ", });
+             fail("OptionException");
+         } catch (OptionException e) {
+             assertEquals("Unexpected -abcdef while processing ant",e.getMessage());
+         }
+     }
+     
+     public void testLoopingOptionLookAlike2() {
+         final ArgumentBuilder abuilder = new ArgumentBuilder();
+         final GroupBuilder gbuilder = new GroupBuilder();
+         final Argument inputfile_opt = abuilder.withName("input").withMinimum(1).withMaximum(1).create();
+         final Argument outputfile_opt = abuilder.withName("output").withMinimum(1).withMaximum(1).create();
+         final Argument targets = new SourceDestArgument(inputfile_opt, outputfile_opt);
+         final Group options = gbuilder.withOption(targets).create();
+         final Parser parser = new Parser();
+         parser.setGroup(options);
+         try {
+             parser.parse(new String[] { "testfile.txt", "testfile.txt", "testfile.txt", "testfile.txt" });
+             fail("OptionException");
+         } catch (OptionException e) {
+             assertEquals("Unexpected testfile.txt while processing ", e.getMessage());
+         }
+     }    
+ }
+
+commit b92abb2404801d931c42d55f25749ad862947ea3
+Author: Robert James Oxspring <roxspring@apache.org>
+Date:   Wed Jun 15 18:13:56 2005
+
+    Fixed second bug where infinite loops could occur.  This
+    time it was over eager processing of anonymous arguments in
+    a group.  Test case included.
+    
+    Reported by Steve Alberty
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@190821 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java b/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java
+--- a/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java
++++ b/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java
+@@ -1,57 +1,76 @@
+ /**
+  * Copyright 2005 The Apache Software Foundation
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+  *
+  *     http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
+ package org.apache.commons.cli2.bug;
+ 
+ import junit.framework.TestCase;
+ 
++import org.apache.commons.cli2.Argument;
+ import org.apache.commons.cli2.Group;
+ import org.apache.commons.cli2.OptionException;
+ import org.apache.commons.cli2.builder.ArgumentBuilder;
+ import org.apache.commons.cli2.builder.DefaultOptionBuilder;
+ import org.apache.commons.cli2.builder.GroupBuilder;
+ import org.apache.commons.cli2.commandline.Parser;
++import org.apache.commons.cli2.option.SourceDestArgument;
+ 
+ /**
+  * The first is a loop in Parser.parse() if I set a non-declared option. This 
+  * code goes into a loop in Parser.java method parse this while loop runs 
+  * endless
+  * 
+  * @author Steve Alberty
+  */
+ public class BugLoopingOptionLookAlikeTest extends TestCase {
+ 
+     public void testLoopingOptionLookAlike() {
+         final DefaultOptionBuilder obuilder = new DefaultOptionBuilder();
+         final ArgumentBuilder abuilder = new ArgumentBuilder();
+         final GroupBuilder gbuilder = new GroupBuilder();
+         final Group options = gbuilder
+             .withName("ant")
+             .withOption(obuilder.withShortName("help").withDescription("print this message").create())
+             .withOption(obuilder.withShortName("projecthelp").withDescription("print project help information").create())
+             .withOption(abuilder.withName("target").create())
+             .create();
+         
+         final Parser parser = new Parser();
+         parser.setGroup(options);
+         try {
+             parser.parse(new String[] { "-abcdef",
+                     "testfile.txt ", });
+             fail("OptionException");
+         } catch (OptionException e) {
+             assertEquals("Unexpected -abcdef while processing ant",e.getMessage());
+         }
+     }
++    
++    public void testLoopingOptionLookAlike2() {
++        final ArgumentBuilder abuilder = new ArgumentBuilder();
++        final GroupBuilder gbuilder = new GroupBuilder();
++        final Argument inputfile_opt = abuilder.withName("input").withMinimum(1).withMaximum(1).create();
++        final Argument outputfile_opt = abuilder.withName("output").withMinimum(1).withMaximum(1).create();
++        final Argument targets = new SourceDestArgument(inputfile_opt, outputfile_opt);
++        final Group options = gbuilder.withOption(targets).create();
++        final Parser parser = new Parser();
++        parser.setGroup(options);
++        try {
++            parser.parse(new String[] { "testfile.txt", "testfile.txt", "testfile.txt", "testfile.txt" });
++            fail("OptionException");
++        } catch (OptionException e) {
++            assertEquals("Unexpected testfile.txt while processing ", e.getMessage());
++        }
++    }    
+ }
+
+commit 1f984e2b4fd36b1619c4c99983a8344a29d74f00
+Author: Robert James Oxspring <roxspring@apache.org>
+Date:   Fri Jun 3 17:15:13 2005
+
+    GroupImpl.canProcess() was returning true when the argument looked like an option but wasn't accepted by the children.
+    Option.canProcess() now takes a WriteableCommandLine to provide the looksLikeOption() method.
+    Bug discovered by Steve Alberty
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@179892 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java b/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/cli2/bug/BugLoopingOptionLookAlikeTest.java
+@@ -0,0 +1,57 @@
++/**
++ * Copyright 2005 The Apache Software Foundation
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package org.apache.commons.cli2.bug;
++
++import junit.framework.TestCase;
++
++import org.apache.commons.cli2.Group;
++import org.apache.commons.cli2.OptionException;
++import org.apache.commons.cli2.builder.ArgumentBuilder;
++import org.apache.commons.cli2.builder.DefaultOptionBuilder;
++import org.apache.commons.cli2.builder.GroupBuilder;
++import org.apache.commons.cli2.commandline.Parser;
++
++/**
++ * The first is a loop in Parser.parse() if I set a non-declared option. This 
++ * code goes into a loop in Parser.java method parse this while loop runs 
++ * endless
++ * 
++ * @author Steve Alberty
++ */
++public class BugLoopingOptionLookAlikeTest extends TestCase {
++
++    public void testLoopingOptionLookAlike() {
++        final DefaultOptionBuilder obuilder = new DefaultOptionBuilder();
++        final ArgumentBuilder abuilder = new ArgumentBuilder();
++        final GroupBuilder gbuilder = new GroupBuilder();
++        final Group options = gbuilder
++            .withName("ant")
++            .withOption(obuilder.withShortName("help").withDescription("print this message").create())
++            .withOption(obuilder.withShortName("projecthelp").withDescription("print project help information").create())
++            .withOption(abuilder.withName("target").create())
++            .create();
++        
++        final Parser parser = new Parser();
++        parser.setGroup(options);
++        try {
++            parser.parse(new String[] { "-abcdef",
++                    "testfile.txt ", });
++            fail("OptionException");
++        } catch (OptionException e) {
++            assertEquals("Unexpected -abcdef while processing ant",e.getMessage());
++        }
++    }
++}

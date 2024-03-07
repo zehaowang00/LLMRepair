@@ -1,0 +1,40 @@
+commit 3ce4716848eb71b6e78a4545a2cc0c27e74a29b3
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Mar 25 11:58:20 2010
+
+    Tweak to allow chained initialization:
+    new Node(Token.EXPR_RESULT, a).copyInformationFrom(a); (John)
+    R=alan
+    DELTA=10  (6 added, 0 deleted, 4 changed)
+    
+    
+    Teach PureFunctionnIdentifier about (f || g)() calls (antonio)
+    Fixes issue 116
+    R=john
+    DELTA=105  (84 added, 0 deleted, 21 changed)
+    
+    Fix decomposition issue
+    Anonymous function declaration can not be side-effected and are
+    side-effect free. (John)
+    R=alan
+    DELTA=115  (101 added, 8 deleted, 6 changed)
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@154 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PureFunctionIdentifierTest.java b/test/com/google/javascript/jscomp/PureFunctionIdentifierTest.java
+--- a/test/com/google/javascript/jscomp/PureFunctionIdentifierTest.java
++++ b/test/com/google/javascript/jscomp/PureFunctionIdentifierTest.java
+@@ -603,0 +603,9 @@
++  public void testCallFunctionFOrG() throws Exception {
++    String source = "function f(){}\n" +
++        "function g(){}\n" +
++        "function h(){ (f || g)() }\n" +
++        "h()";
++
++    checkMarkedCalls(source, ImmutableList.<String>of("(f || g)", "h"));
++  }
++

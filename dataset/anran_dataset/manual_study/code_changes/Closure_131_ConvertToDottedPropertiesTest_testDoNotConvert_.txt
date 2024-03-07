@@ -1,0 +1,127 @@
+commit 7f6700e2b54af3af409f3e8851a0d98a72beef4b
+Author: Ben Lickly <blickly@google.com>
+Date:   Tue Feb 26 20:10:03 2013
+
+    Add patch from issue 921 as well as accompanying unit test.
+    
+    Fixes issue 921.
+    -------------
+    Created by MOE: http://code.google.com/p/moe-java
+    MOE_MIGRATED_REVID=43087590
+
+diff --git a/test/com/google/javascript/jscomp/ConvertToDottedPropertiesTest.java b/test/com/google/javascript/jscomp/ConvertToDottedPropertiesTest.java
+--- a/test/com/google/javascript/jscomp/ConvertToDottedPropertiesTest.java
++++ b/test/com/google/javascript/jscomp/ConvertToDottedPropertiesTest.java
+@@ -41,25 +41,27 @@
+   public void testDoNotConvert() {
+     testSame("a[0]");
+     testSame("a['']");
+     testSame("a[' ']");
+     testSame("a[',']");
+     testSame("a[';']");
+     testSame("a[':']");
+     testSame("a['.']");
+     testSame("a['0']");
+     testSame("a['p ']");
+     testSame("a['p' + '']");
+     testSame("a[p]");
+     testSame("a[P]");
+     testSame("a[$]");
+     testSame("a[p()]");
+     testSame("a['default']");
++    // Ignorable control characters are ok in Java identifiers, but not in JS.
++    testSame("a['A\u0004']");
+     // upper case lower half of o from phonetic extensions set.
+     // valid in Safari, not in Firefox, IE.
+     test("a['\u1d17A']", "a['\u1d17A']");
+     // Latin capital N with tilde - nice if we handled it, but for now let's
+     // only allow simple Latin (aka ASCII) to be converted.
+     test("a['\u00d1StuffAfter']", "a['\u00d1StuffAfter']");
+   }
+ 
+ 
+
+commit 5811ff459cf6847fcb30650fa82564abe2742b2f
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Wed Apr 13 19:43:52 2011
+
+    Only remove the "quoted" attribute from those object literal keys where
+    it is valid to have them removed.
+    
+    R=acleung
+    DELTA=9  (8 added, 0 deleted, 1 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=1457
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1006 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/ConvertToDottedPropertiesTest.java b/test/com/google/javascript/jscomp/ConvertToDottedPropertiesTest.java
+--- a/test/com/google/javascript/jscomp/ConvertToDottedPropertiesTest.java
++++ b/test/com/google/javascript/jscomp/ConvertToDottedPropertiesTest.java
+@@ -41,23 +41,25 @@
+   public void testDoNotConvert() {
+     testSame("a[0]");
+     testSame("a['']");
+     testSame("a[' ']");
+     testSame("a[',']");
+     testSame("a[';']");
+     testSame("a[':']");
+     testSame("a['.']");
+     testSame("a['0']");
+     testSame("a['p ']");
+     testSame("a['p' + '']");
+     testSame("a[p]");
+     testSame("a[P]");
+     testSame("a[$]");
+     testSame("a[p()]");
+     testSame("a['default']");
+     // upper case lower half of o from phonetic extensions set.
+     // valid in Safari, not in Firefox, IE.
+     test("a['\u1d17A']", "a['\u1d17A']");
+     // Latin capital N with tilde - nice if we handled it, but for now let's
+     // only allow simple Latin (aka ASCII) to be converted.
+     test("a['\u00d1StuffAfter']", "a['\u00d1StuffAfter']");
+   }
++
++
+
+commit 6b49cfd9022fe111bdad745c78ea877fbc2f7ba3
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 3 18:51:57 2009
+
+    Initial commit.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/ConvertToDottedPropertiesTest.java b/test/com/google/javascript/jscomp/ConvertToDottedPropertiesTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/ConvertToDottedPropertiesTest.java
+@@ -0,0 +42,23 @@
++  public void testDoNotConvert() {
++    testSame("a[0]");
++    testSame("a['']");
++    testSame("a[' ']");
++    testSame("a[',']");
++    testSame("a[';']");
++    testSame("a[':']");
++    testSame("a['.']");
++    testSame("a['0']");
++    testSame("a['p ']");
++    testSame("a['p' + '']");
++    testSame("a[p]");
++    testSame("a[P]");
++    testSame("a[$]");
++    testSame("a[p()]");
++    testSame("a['default']");
++    // upper case lower half of o from phonetic extensions set.
++    // valid in Safari, not in Firefox, IE.
++    test("a['\u1d17A']", "a['\u1d17A']");
++    // Latin capital N with tilde - nice if we handled it, but for now let's
++    // only allow simple Latin (aka ASCII) to be converted.
++    test("a['\u00d1StuffAfter']", "a['\u00d1StuffAfter']");
++  }

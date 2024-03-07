@@ -1,0 +1,135 @@
+commit f08213cc4c35fd71e98aa5233fcb2db3333793a2
+Author: Henri Yandell <bayard@apache.org>
+Date:   Sun Jul 3 03:04:38 2011
+
+    Applying Ilya's patch from LANG-703 fixing an NPE when toString returns null
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@1142381 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/StringUtilsTest.java b/src/test/java/org/apache/commons/lang3/StringUtilsTest.java
+--- a/src/test/java/org/apache/commons/lang3/StringUtilsTest.java
++++ b/src/test/java/org/apache/commons/lang3/StringUtilsTest.java
+@@ -176,15 +184,16 @@
+     public void testJoin_Objectarray() {
+ //        assertEquals(null, StringUtils.join(null)); // generates warning
+         assertEquals(null, StringUtils.join((Object[]) null)); // equivalent explicit cast
+         // test additional varargs calls
+         assertEquals("", StringUtils.join()); // empty array
+         assertEquals("", StringUtils.join((Object) null)); // => new Object[]{null}
+ 
+         assertEquals("", StringUtils.join(EMPTY_ARRAY_LIST));
+         assertEquals("", StringUtils.join(NULL_ARRAY_LIST));
++        assertEquals("null", StringUtils.join(NULL_TO_STRING_LIST));
+         assertEquals("abc", StringUtils.join(new String[] {"a", "b", "c"}));
+         assertEquals("a", StringUtils.join(new String[] {null, "a", ""}));
+         assertEquals("foo", StringUtils.join(MIXED_ARRAY_LIST));
+         assertEquals("foo2", StringUtils.join(MIXED_TYPE_LIST));
+     }
+         
+
+commit 934bfda1de1319419ed77a546b7430909da224f5
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Mon Jun 6 20:50:50 2011
+
+    Additional varargs tests
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@1132845 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/StringUtilsTest.java b/src/test/java/org/apache/commons/lang3/StringUtilsTest.java
+--- a/src/test/java/org/apache/commons/lang3/StringUtilsTest.java
++++ b/src/test/java/org/apache/commons/lang3/StringUtilsTest.java
+@@ -176,11 +176,15 @@
+     public void testJoin_Objectarray() {
+-//        assertEquals(null, StringUtils.join(null));
+-        assertEquals(null, StringUtils.join((Object[]) null)); // explicit cast
++//        assertEquals(null, StringUtils.join(null)); // generates warning
++        assertEquals(null, StringUtils.join((Object[]) null)); // equivalent explicit cast
++        // test additional varargs calls
++        assertEquals("", StringUtils.join()); // empty array
++        assertEquals("", StringUtils.join((Object) null)); // => new Object[]{null}
++
+         assertEquals("", StringUtils.join(EMPTY_ARRAY_LIST));
+         assertEquals("", StringUtils.join(NULL_ARRAY_LIST));
+         assertEquals("abc", StringUtils.join(new String[] {"a", "b", "c"}));
+         assertEquals("a", StringUtils.join(new String[] {null, "a", ""}));
+         assertEquals("foo", StringUtils.join(MIXED_ARRAY_LIST));
+         assertEquals("foo2", StringUtils.join(MIXED_TYPE_LIST));
+     }
+         
+
+commit 68ee605f122b1f993bb2d69b6aee60ab1a0269f4
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Mon Jun 6 10:24:21 2011
+
+    Revert r113289 - varargs invocation does not work with null
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@1132658 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/StringUtilsTest.java b/src/test/java/org/apache/commons/lang3/StringUtilsTest.java
+--- a/src/test/java/org/apache/commons/lang3/StringUtilsTest.java
++++ b/src/test/java/org/apache/commons/lang3/StringUtilsTest.java
+@@ -176,12 +176,11 @@
+     public void testJoin_Objectarray() {
+-        // Test both types of varargs invocation
+-        assertEquals(null, StringUtils.join((Object[]) null));
+-        assertEquals(null, StringUtils.join((Object) null));
++//        assertEquals(null, StringUtils.join(null));
++        assertEquals(null, StringUtils.join((Object[]) null)); // explicit cast
+         assertEquals("", StringUtils.join(EMPTY_ARRAY_LIST));
+         assertEquals("", StringUtils.join(NULL_ARRAY_LIST));
+         assertEquals("abc", StringUtils.join(new String[] {"a", "b", "c"}));
+         assertEquals("a", StringUtils.join(new String[] {null, "a", ""}));
+         assertEquals("foo", StringUtils.join(MIXED_ARRAY_LIST));
+         assertEquals("foo2", StringUtils.join(MIXED_TYPE_LIST));
+     }
+         
+
+commit cb2147f57149b05220a7392eb532713e2fd14035
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Sun Jun 5 08:44:41 2011
+
+    Eliminate varargs warnings
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@1132389 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/StringUtilsTest.java b/src/test/java/org/apache/commons/lang3/StringUtilsTest.java
+--- a/src/test/java/org/apache/commons/lang3/StringUtilsTest.java
++++ b/src/test/java/org/apache/commons/lang3/StringUtilsTest.java
+@@ -176,10 +176,12 @@
+     public void testJoin_Objectarray() {
+-        assertEquals(null, StringUtils.join(null));
++        // Test both types of varargs invocation
++        assertEquals(null, StringUtils.join((Object[]) null));
++        assertEquals(null, StringUtils.join((Object) null));
+         assertEquals("", StringUtils.join(EMPTY_ARRAY_LIST));
+         assertEquals("", StringUtils.join(NULL_ARRAY_LIST));
+         assertEquals("abc", StringUtils.join(new String[] {"a", "b", "c"}));
+         assertEquals("a", StringUtils.join(new String[] {null, "a", ""}));
+         assertEquals("foo", StringUtils.join(MIXED_ARRAY_LIST));
+         assertEquals("foo2", StringUtils.join(MIXED_TYPE_LIST));
+     }
+         
+
+commit 1e9618c34ea60cc214761a6618024c28aa712a51
+Author: Stephen Colebourne <scolebourne@apache.org>
+Date:   Fri Aug 1 17:02:16 2003
+
+    Add  join(Object[])  as a replacement for concatenate
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137549 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/StringUtilsTest.java b/src/test/org/apache/commons/lang/StringUtilsTest.java
+--- a/src/test/org/apache/commons/lang/StringUtilsTest.java
++++ b/src/test/org/apache/commons/lang/StringUtilsTest.java
+@@ -208,0 +208,10 @@
++    public void testJoin_Objectarray() {
++        assertEquals(null, StringUtils.join(null));
++        assertEquals("", StringUtils.join(EMPTY_ARRAY_LIST));
++        assertEquals("", StringUtils.join(NULL_ARRAY_LIST));
++        assertEquals("abc", StringUtils.join(new String[] {"a", "b", "c"}));
++        assertEquals("a", StringUtils.join(new String[] {null, "a", ""}));
++        assertEquals("foo", StringUtils.join(MIXED_ARRAY_LIST));
++        assertEquals("foo2", StringUtils.join(MIXED_TYPE_LIST));
++    }
++        

@@ -1,0 +1,23 @@
+commit 3ba9ba799b3261b7332a467a88be142c83b298fd
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Wed Nov 27 07:23:24 2013
+
+    Prevent creation of invalid partials via Partial.with(DateTimeFieldType,int)
+    
+    Validation in this method was not as thorough as that in the constructor
+    This allowed invalid partials to be created
+    Fixes #88
+
+diff --git a/src/test/java/org/joda/time/TestPartial_Basics.java b/src/test/java/org/joda/time/TestPartial_Basics.java
+--- a/src/test/java/org/joda/time/TestPartial_Basics.java
++++ b/src/test/java/org/joda/time/TestPartial_Basics.java
+@@ -360,0 +360,9 @@
++    public void testWith3() {
++        Partial test = createHourMinPartial();
++        try {
++            test.with(DateTimeFieldType.clockhourOfDay(), 6);
++            fail();
++        } catch (IllegalArgumentException ex) {}
++        check(test, 10, 20);
++    }
++

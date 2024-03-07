@@ -1,0 +1,44 @@
+commit 6feec20c842586056aa5b19c402b26be08c88ca3
+Author: Rafal Foltynski <r.foltynski@gmail.com>
+Date:   Sat Jun 3 23:32:03 2017
+
+    Fix #208: FilteringParserDelegate match count support
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java b/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
+--- a/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
++++ b/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
+@@ -108,5 +124,15 @@
+-    public void testAllowMultipleMatches() throws Exception
++    public void testNotAllowMultipleMatchesWithoutPath2() throws Exception
+     {
+-    	String jsonString = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'value':4,'b':true}");
++        String jsonString = aposToQuotes("{'a':123,'array':[1,2],'array':[3,4],'ob':{'value0':2,'value':3,'value2':4,'value':{'value0':2}},'value':\"val\",'b':true}");
+         JsonParser p0 = JSON_F.createParser(jsonString);
+-        JsonParser p = new FilteringParserDelegate(p0,
++        FilteringParserDelegate p = new FilteringParserDelegate(p0,
++                new IndexMatchFilter(1),
++                false, // includePath
++                false // multipleMatches -false
++        );
++        String result = readAndWrite(JSON_F, p);
++        assertEquals(aposToQuotes("2"), result);
++        assertEquals(1, p.getMatchCount());
++    }
++
++    @SuppressWarnings("resource")
+
+commit fd32772bb402f6cc2ffea5f58c162f86a8aa81e3
+Author: LokeshN <ln@vmware.com>
+Date:   Sun Mar 20 07:58:25 2016
+
+    Fix for issue 209 - make use of _allowMultipleMatches FilterParsingDelegate
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java b/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
+--- a/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
++++ b/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
+@@ -106,0 +122,5 @@
++    public void testAllowMultipleMatches() throws Exception
++    {
++    	String jsonString = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'value':4,'b':true}");
++        JsonParser p0 = JSON_F.createParser(jsonString);
++        JsonParser p = new FilteringParserDelegate(p0,

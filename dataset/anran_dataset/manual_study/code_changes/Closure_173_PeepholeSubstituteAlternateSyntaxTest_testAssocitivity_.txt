@@ -1,0 +1,77 @@
+commit e96ce395944edfe9ba8e9de6b475cb64a7f8d626
+Author: Ben Lickly <blickly@google.com>
+Date:   Tue Aug 20 14:15:56 2013
+
+    Fix 8-year old bug in CodeGenerator.
+    
+    Rather than try to optimize the AST as it is being printed,
+    simply print the AST as-is. Additionally, create an optimization
+    in PeepholeSubstituteAlternateSyntax that rotates associative
+    operators to the left to get rid of unnecessary parens at the
+    AST level.
+    
+    Fixes issue 1062
+    -------------
+    Created by MOE: http://code.google.com/p/moe-java
+    MOE_MIGRATED_REVID=51094530
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java b/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
+--- a/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
++++ b/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
+@@ -459,7 +458,13 @@
++  public void testAssocitivity() {
++    test("var a,b,c; a || (b || c); a * (b * c); a | (b | c)",
++        "var a,b,c; (a || b) || c; (a * b) * c; (a | b) | c");
++    testSame("var a,b,c; a % (b % c); a / (b / c); a - (b - c);");
++  }
++
+   private static class StringCompareTestCase extends CompilerTestCase {
+ 
+     StringCompareTestCase() {
+       super("", false);
+     }
+ 
+     @Override
+
+commit 26dfe37d9ace5bf791ff4ab8cec7bf1e2eb1b3f5
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Jun 24 13:58:50 2011
+
+    Automated g4 rollback.
+    
+    *** Reason for rollback ***
+    
+    Fix bind/call folding by taking care to maintain the FREE_CALL
+    attribute.
+    
+    *** Original change description ***
+    
+    Automated g4 rollback.
+    
+    *** Reason for rollback ***
+    This breaks gmail
+    
+    
+    ... description truncated by g4 rollback ...
+    
+    R=moedinger
+    DELTA=151  (150 added, 0 deleted, 1 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=2406
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1209 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java b/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
+--- a/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
++++ b/test/com/google/javascript/jscomp/PeepholeSubstituteAlternateSyntaxTest.java
+@@ -859,0 +926,7 @@
++  private static class StringCompareTestCase extends CompilerTestCase {
++
++    StringCompareTestCase() {
++      super("", false);
++    }
++
++    @Override

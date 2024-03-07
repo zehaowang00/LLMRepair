@@ -1,0 +1,171 @@
+commit 7e9b8336568ea7f05c33e1b58eb67fa6d4eee756
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Wed Aug 31 22:30:59 2011
+
+    Support chrome-team's style of defining prototypes.
+    Fixes issue 537
+    
+    R=acleung
+    DELTA=149  (127 added, 19 deleted, 3 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3173
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1401 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java b/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
+--- a/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
++++ b/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
+@@ -365,15 +365,16 @@
+   public void testPropertyOnUnknownSuperClass2() {
+     testSame(
+         "var goog = this.foo();" +
+         "/** @constructor \n * @extends {goog.Unknown} */" +
+         "function Foo() {}" +
+         "Foo.prototype = {bar: 1};" +
+         "var x = new Foo();",
+         RhinoErrorReporter.TYPE_PARSE_ERROR);
+     ObjectType x = (ObjectType) findNameType("x", globalScope);
+     assertEquals("Foo", x.toString());
++    assertEquals("Foo.prototype", x.getImplicitPrototype().toString());
+     assertTrue(x.getImplicitPrototype().hasOwnProperty("bar"));
+-    assertEquals("number", x.getPropertyType("bar").toString());
++    assertEquals("?", x.getPropertyType("bar").toString());
+     assertTrue(x.isPropertyTypeInferred("bar"));
+   }
+ 
+
+commit 5fa514bee8f76534232e4653eaf16cd416e08012
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Aug 25 11:10:53 2011
+
+    Change how Function prototypes are represented in the type
+    system.  This fixes lots of bugs when an anonymous object is
+    the prototype, and will make life a lot easier for IDEs.
+    
+    R=johnlenz
+    DELTA=370  (129 added, 177 deleted, 64 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3135
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1389 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java b/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
+--- a/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
++++ b/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
+@@ -365,16 +365,15 @@
+   public void testPropertyOnUnknownSuperClass2() {
+     testSame(
+         "var goog = this.foo();" +
+         "/** @constructor \n * @extends {goog.Unknown} */" +
+         "function Foo() {}" +
+         "Foo.prototype = {bar: 1};" +
+         "var x = new Foo();",
+         RhinoErrorReporter.TYPE_PARSE_ERROR);
+     ObjectType x = (ObjectType) findNameType("x", globalScope);
+     assertEquals("Foo", x.toString());
+-    // Should be true
+-    assertFalse(x.getImplicitPrototype().hasOwnProperty("bar"));
++    assertTrue(x.getImplicitPrototype().hasOwnProperty("bar"));
+     assertEquals("number", x.getPropertyType("bar").toString());
+     assertTrue(x.isPropertyTypeInferred("bar"));
+   }
+ 
+
+commit 5709ec1d0bbe5b7726a14d06f7eab9c35150e314
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Mar 7 15:59:36 2011
+
+    Put bad type annotations behind a diagnostic group, so that they
+    aren't reported if type-checking isn't on.
+    
+    R=acleung
+    DELTA=300  (110 added, 11 deleted, 179 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=780
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@857 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java b/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
+--- a/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
++++ b/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
+@@ -363,16 +363,16 @@
+   public void testPropertyOnUnknownSuperClass2() {
+     testSame(
+         "var goog = this.foo();" +
+         "/** @constructor \n * @extends {goog.Unknown} */" +
+         "function Foo() {}" +
+         "Foo.prototype = {bar: 1};" +
+         "var x = new Foo();",
+-        RhinoErrorReporter.PARSE_ERROR);
++        RhinoErrorReporter.TYPE_PARSE_ERROR);
+     ObjectType x = (ObjectType) findNameType("x", globalScope);
+     assertEquals("Foo", x.toString());
+     // Should be true
+     assertFalse(x.getImplicitPrototype().hasOwnProperty("bar"));
+     assertEquals("number", x.getPropertyType("bar").toString());
+     assertTrue(x.isPropertyTypeInferred("bar"));
+   }
+ 
+
+commit 70f817ae4f80ac11dd2dfe97babf5896c690fb48
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Jan 27 13:33:55 2011
+
+    Add basic getters and setters support to TypeInference.
+    
+    R=nicksantos
+    DELTA=573  (533 added, 15 deleted, 25 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=366
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@735 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java b/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
+--- a/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
++++ b/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
+@@ -289,1 +363,16 @@
+-  public void testMethodBeforeFunction() throws Exception {
++  public void testPropertyOnUnknownSuperClass2() {
++    testSame(
++        "var goog = this.foo();" +
++        "/** @constructor \n * @extends {goog.Unknown} */" +
++        "function Foo() {}" +
++        "Foo.prototype = {bar: 1};" +
++        "var x = new Foo();",
++        RhinoErrorReporter.PARSE_ERROR);
++    ObjectType x = (ObjectType) findNameType("x", globalScope);
++    assertEquals("Foo", x.toString());
++    // Should be true
++    assertFalse(x.getImplicitPrototype().hasOwnProperty("bar"));
++    assertEquals("number", x.getPropertyType("bar").toString());
++    assertTrue(x.isPropertyTypeInferred("bar"));
++  }
++
+
+commit 6b49cfd9022fe111bdad745c78ea877fbc2f7ba3
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 3 18:51:57 2009
+
+    Initial commit.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java b/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
+@@ -0,0 +257,1 @@
++  public void testMethodBeforeFunction() throws Exception {

@@ -1,0 +1,23 @@
+commit 896c61e3fd5581432760ab7dce2a5d20eed6ac7e
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Wed Feb 17 15:13:28 2010
+
+    Fixed issue 166
+    Added @Captor annotation that makes easier to create ArgumentCaptors
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401855
+
+diff --git a/test/org/mockitousage/basicapi/CaptorAnnotationTest.java b/test/org/mockitousage/basicapi/CaptorAnnotationTest.java
+--- /dev/null
++++ b/test/org/mockitousage/basicapi/CaptorAnnotationTest.java
+@@ -0,0 +117,9 @@
++    public void shouldScreamWhenInitializingCaptorsForNullClass() throws Exception {
++        try {
++            MockitoAnnotations.initMocks(null);
++            fail();
++        } catch (MockitoException e) {
++        }
++    }
++
++    @Test

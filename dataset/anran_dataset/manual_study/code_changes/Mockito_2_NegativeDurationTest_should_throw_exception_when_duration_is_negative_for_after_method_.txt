@@ -1,0 +1,19 @@
+commit 80452c7a42777513c35fd30c4e12bcd7ee438fb9
+Author: Lukasz Szewc <lukasz-szewc@users.noreply.github.com>
+Date:   Fri May 8 15:08:46 2015
+
+    Fixes #197 : Blocks ability to use negative value for timeout() and after() method.
+
+diff --git a/test/org/mockito/verification/NegativeDurationTest.java b/test/org/mockito/verification/NegativeDurationTest.java
+--- /dev/null
++++ b/test/org/mockito/verification/NegativeDurationTest.java
+@@ -0,0 +21,9 @@
++    public void should_throw_exception_when_duration_is_negative_for_after_method() {
++        try {
++            Mockito.after(-1);
++            Assert.fail("It is forbidden to invoke Mockito.after() with negative value.");
++        } catch (FriendlyReminderException e) {
++            Assert.assertTrue(true);
++        }
++    }
++}

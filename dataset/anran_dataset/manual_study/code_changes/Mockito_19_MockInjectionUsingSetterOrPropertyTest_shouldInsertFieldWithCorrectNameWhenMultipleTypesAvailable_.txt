@@ -1,0 +1,22 @@
+commit 110ffa80070bf54ab8efabdaaa27b193a93d6128
+Author: Tim van der Lippe <timlinks@hotmail.com>
+Date:   Tue Jun 2 18:52:12 2015
+
+    Fixes #205.
+    
+    Fix to @InjectMocks which injected incorrectly when multiple fields
+    of the same type could be injected into, but only supplying 1 mock.
+    This makes sure that whenever there are multiple type candidates,
+    it will hold off injecting if it finds a different field which has the correct matching name.
+
+diff --git a/test/org/mockitousage/annotation/MockInjectionUsingSetterOrPropertyTest.java b/test/org/mockitousage/annotation/MockInjectionUsingSetterOrPropertyTest.java
+--- a/test/org/mockitousage/annotation/MockInjectionUsingSetterOrPropertyTest.java
++++ b/test/org/mockitousage/annotation/MockInjectionUsingSetterOrPropertyTest.java
+@@ -107,0 +113,7 @@
++	public void shouldInsertFieldWithCorrectNameWhenMultipleTypesAvailable() {
++		MockitoAnnotations.initMocks(this);
++		assertNull(otherSuperUnderTesting.candidate1);
++		assertNotNull(otherSuperUnderTesting.candidate2);
++	}
++    
++    @Test

@@ -1,0 +1,61 @@
+commit a31ec08e102fd3832f3ff4449e9163440f0afb2c
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sun Sep 23 15:15:53 2012
+
+    Refactored entity decoding.
+    
+    Modified the heuristic entity decoder to be less greedy; does not
+    repeatedly chomp down the string until a match is found, and requires a
+    semicolon terminator for extended entities.
+    
+    Updated Entities to use the entity decoder in Tokeniser, vs the legacy
+    decoder.
+    
+    Fixes #224.
+
+diff --git a/src/test/java/org/jsoup/nodes/EntitiesTest.java b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+index 392a9ef5..e88b41c0 100644
+--- a/src/test/java/org/jsoup/nodes/EntitiesTest.java
++++ b/src/test/java/org/jsoup/nodes/EntitiesTest.java
+@@ -4,7 +4,6 @@
+ import org.junit.Test;
+ 
+ import static org.junit.Assert.*;
+-import org.jsoup.nodes.Entities;
+ 
+ import java.nio.charset.Charset;
+ 
+@@ -24,17 +23,17 @@
+     }
+ 
+     @Test public void unescape() {
+-        String text = "Hello &amp;&LT&gt; &angst &#960; &#960 &#x65B0; there &! &frac34; &copy; &COPY;";
+-        assertEquals("Hello &<> Ã Ï Ï æ° there &! Â¾ Â© Â©", Entities.unescape(text));
++        String text = "Hello &amp;&LT&gt; &reg &angst; &angst &#960; &#960 &#x65B0; there &! &frac34; &copy; &COPY;";
++        assertEquals("Hello &<> Â® Ã &angst Ï Ï æ° there &! Â¾ Â© Â©", Entities.unescape(text));
+ 
+         assertEquals("&0987654321; &unknown", Entities.unescape("&0987654321; &unknown"));
+     }
+ 
+     @Test public void strictUnescape() { // for attributes, enforce strict unescaping (must look like &xxx; , not just &xxx)
+-        String text = "Hello &mid &amp;";
+-        assertEquals("Hello &mid &", Entities.unescape(text, true));
+-        assertEquals("Hello â£ &", Entities.unescape(text));
+-        assertEquals("Hello â£ &", Entities.unescape(text, false));
++        String text = "Hello &amp= &amp;";
++        assertEquals("Hello &amp= &", Entities.unescape(text, true));
++        assertEquals("Hello &= &", Entities.unescape(text));
++        assertEquals("Hello &= &", Entities.unescape(text, false));
+     }
+ 
+     
+@@ -60,4 +59,9 @@
+         assertEquals("&sup1;&sup2;&sup3;&frac14;&frac12;&frac34;", p.html());
+         assertEquals("Â¹Â²Â³Â¼Â½Â¾", p.text());
+     }
++
++    @Test public void noSpuriousDecodes() {
++        String string = "http://www.foo.com?a=1&num_rooms=1&children=0&int=VA&b=2";
++        assertEquals(string, Entities.unescape(string));
++    }
+ }

@@ -1,0 +1,21 @@
+commit c7a581e55fc988bd90fa4bb1b0acece5181b7c5f
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Sun Dec 5 16:27:36 2010
+
+    DateTimeZone.convertLocalToUTC [bugs 3102760,2182444,2553453]
+    New method now retains the offset wherever possible during calculations
+    This affects higher methods like withHourOfDay/withMinuteOfHour/withSecondOfMinute/withMillisOfSecond which now do not change offset when called within a DST overlap
+    
+    git-svn-id: https://joda-time.svn.sourceforge.net/svnroot/joda-time/trunk@1595 1e1cfbb7-5c0e-0410-a2f0-f98d92ec03a1
+
+diff --git a/JodaTime/src/test/java/org/joda/time/TestDateTimeZoneCutover.java b/JodaTime/src/test/java/org/joda/time/TestDateTimeZoneCutover.java
+--- a/JodaTime/src/test/java/org/joda/time/TestDateTimeZoneCutover.java
++++ b/JodaTime/src/test/java/org/joda/time/TestDateTimeZoneCutover.java
+@@ -1061,0 +1125,7 @@
++    public void testWithMillisOfSecondInDstChange_NewYork_winter() {
++        DateTime dateTime = new DateTime("2007-11-04T01:30:00.123-05:00", ZONE_NEW_YORK);
++        assertEquals("2007-11-04T01:30:00.123-05:00", dateTime.toString());
++        DateTime test = dateTime.withMillisOfSecond(0);
++        assertEquals("2007-11-04T01:30:00.000-05:00", test.toString());
++    }
++

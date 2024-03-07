@@ -1,0 +1,34 @@
+commit caf61a4a0778a72ab713f72e9ef749bf373c98ac
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sat Sep 29 15:58:35 2012
+
+    When parsing in XML mode, preserve XML declarations (<?xml ... ?>).
+    
+    Fixes #242
+
+diff --git a/src/test/java/org/jsoup/parser/XmlTreeBuilderTest.java b/src/test/java/org/jsoup/parser/XmlTreeBuilderTest.java
+index 4fd2676a..babbf6c3 100644
+--- a/src/test/java/org/jsoup/parser/XmlTreeBuilderTest.java
++++ b/src/test/java/org/jsoup/parser/XmlTreeBuilderTest.java
+@@ -2,6 +2,7 @@
+ 
+ import org.jsoup.Jsoup;
+ import org.jsoup.TextUtil;
++import org.jsoup.helper.StringUtil;
+ import org.jsoup.nodes.Document;
+ import org.junit.Ignore;
+ import org.junit.Test;
+@@ -92,4 +93,13 @@ public void testDoesNotForceSelfClosingKnownTags() {
+         Document xmlDoc = Jsoup.parse("<br>one</br>", "", Parser.xmlParser());
+         assertEquals("<br>one</br>", xmlDoc.html());
+     }
++
++    @Test public void handlesXmlDeclarationAsDeclaration() {
++        String html = "<?xml encoding='UTF-8' ?><body>One</body><!-- comment -->";
++        Document doc = Jsoup.parse(html, "", Parser.xmlParser());
++        assertEquals("<?xml encoding='UTF-8' ?> <body> One </body> <!-- comment -->",
++                StringUtil.normaliseWhitespace(doc.outerHtml()));
++        assertEquals("#declaration", doc.childNode(0).nodeName());
++        assertEquals("#comment", doc.childNode(2).nodeName());
++    }
+ }

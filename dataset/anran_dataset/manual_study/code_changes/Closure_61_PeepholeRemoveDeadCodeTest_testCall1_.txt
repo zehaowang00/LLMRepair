@@ -1,0 +1,24 @@
+commit 8f8b3c307e05b9cb8071bd4cb4dad0036f9e4623
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Sep 9 12:55:05 2010
+
+    Move unit tests over from RemoveConstantExpressions.
+    
+    R=avd
+    DELTA=306  (300 added, 0 deleted, 6 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=209767
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@414 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeRemoveDeadCodeTest.java b/test/com/google/javascript/jscomp/PeepholeRemoveDeadCodeTest.java
+--- a/test/com/google/javascript/jscomp/PeepholeRemoveDeadCodeTest.java
++++ b/test/com/google/javascript/jscomp/PeepholeRemoveDeadCodeTest.java
+@@ -321,0 +576,4 @@
++  public void testCall1() {
++    test("Math.sin(0);", "");
++  }
++

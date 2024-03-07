@@ -1,0 +1,36 @@
+commit efefb736fccc2039b5fb079710b3f2ac82b8c6e4
+Author: peterhal@google.com <peterhal@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Dec 14 15:20:30 2012
+
+    Fix issue 873
+    Converting from an interface type to a constructor which @implements itself causes stack overflow.
+    
+    R=johnlenz,nicksantos,dimvar
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=5982
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2399 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- a/test/com/google/javascript/jscomp/TypeCheckTest.java
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -9222,0 +9252,16 @@
++  public void testConversionFromInterfaceToRecursiveConstructor()
++      throws Exception {
++    testClosureTypesMultipleWarnings(
++        suppressMissingProperty("foo") +
++            "/** @interface */ var OtherType = function() {}\n" +
++            "/** @implements {MyType} \n * @constructor */\n" +
++            "var MyType = function() {}\n" +
++            "/** @type {MyType} */\n" +
++            "var x = /** @type {!OtherType} */ (new Object());",
++        Lists.newArrayList(
++            "Parse error. Cycle detected in inheritance chain of type MyType",
++            "initializing variable\n" +
++            "found   : OtherType\n" +
++            "required: (MyType|null)"));
++  }
++

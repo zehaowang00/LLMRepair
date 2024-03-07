@@ -1,0 +1,39 @@
+commit bd2803b6d9ab600906b262ae51cb3591160b5f3c
+Author: Ben Lickly <blickly@google.com>
+Date:   Fri Mar 22 20:28:36 2013
+
+    Fix bug in MinimizeExitPoints with removing breaks inside finally blocks.
+    
+    According to the ECMAScript standard, a finally should only resume an
+    exception if it exits without a break, continue, return, or another throw.
+    
+    This change does unfortunately not yet fix issue 936 because the
+    same bug exists in UnreachableCodeElimination.
+    -------------
+    Created by MOE: http://code.google.com/p/moe-java
+    MOE_MIGRATED_REVID=44335812
+
+diff --git a/test/com/google/javascript/jscomp/MinimizeExitPointsTest.java b/test/com/google/javascript/jscomp/MinimizeExitPointsTest.java
+--- a/test/com/google/javascript/jscomp/MinimizeExitPointsTest.java
++++ b/test/com/google/javascript/jscomp/MinimizeExitPointsTest.java
+@@ -274,1 +275,4 @@
++  public void testDontRemoveBreakInTryFinally() throws Exception {
++    foldSame("function f() {b:try{throw 9} finally {break b} return 1;}");
++  }
+ }
+
+commit 6b49cfd9022fe111bdad745c78ea877fbc2f7ba3
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 3 18:51:57 2009
+
+    Initial commit.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/MinimizeExitPointsTest.java b/test/com/google/javascript/jscomp/MinimizeExitPointsTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/MinimizeExitPointsTest.java
+@@ -0,0 +264,1 @@
++}

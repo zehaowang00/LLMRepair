@@ -1,0 +1,40 @@
+commit 2d846db3aec18dd081e680be05f6e0faad1cb186
+Author: Thomas Neidhart <tn@apache.org>
+Date:   Mon May 21 15:55:30 2012
+
+    [MATH-718] Use modified Lentz-Thompson algorithm for continued fraction evaluation.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1341171 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math3/distribution/BinomialDistributionTest.java b/src/test/java/org/apache/commons/math3/distribution/BinomialDistributionTest.java
+--- a/src/test/java/org/apache/commons/math3/distribution/BinomialDistributionTest.java
++++ b/src/test/java/org/apache/commons/math3/distribution/BinomialDistributionTest.java
+@@ -132,1 +133,13 @@
++    public void testMath718() {
++        // for large trials the evaluation of ContinuedFraction was inaccurate
++        // do a sweep over several large trials to test if the current implementation is
++        // numerically stable.
++
++        for (int trials = 500000; trials < 20000000; trials += 100000) {
++            BinomialDistribution dist = new BinomialDistribution(trials, 0.5);
++            int p = dist.inverseCumulativeProbability(0.5);
++            Assert.assertEquals(trials / 2, p);
++        }
++
++    }
+ }
+
+commit 0a904461932f2c0455611e77ec6a8d8aced2980b
+Author: Mark R. Diggory <mdiggory@apache.org>
+Date:   Fri Nov 14 17:25:28 2003
+
+    Attempting to recover last revision.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@141013 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/distribution/BinomialDistributionTest.java b/src/test/org/apache/commons/math/distribution/BinomialDistributionTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/math/distribution/BinomialDistributionTest.java
+@@ -0,0 +163,1 @@
++}

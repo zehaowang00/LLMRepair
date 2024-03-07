@@ -1,0 +1,219 @@
+commit 1dfad5043a207e032a78ef50c3cba50488bcd300
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Jan 4 20:20:43 2013
+
+    In simple mode, do not remove unreferenced function arguments.
+    Fixes issue 253
+    
+    R=johnlenz
+    DELTA=30 (21 added, 0 deleted, 9 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=6078
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2441 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+--- a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
++++ b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+@@ -463,7 +473,7 @@
+   public void testDebugFlag1() {
+     args.add("--compilation_level=SIMPLE_OPTIMIZATIONS");
+     args.add("--debug=false");
+     test("function foo(a) {}",
+-         "function foo() {}");
++         "function foo(a) {}");
+   }
+ 
+
+commit 279196b617c5de1ade21110979b6b13d8eda6342
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Wed May 5 19:36:49 2010
+
+    Change on 2010/05/04 by nick
+    
+            Pipe everything through the module code path.
+            This teases out a bunch of edge-case bugs that worked in the non-module
+            code path, but not the module code path (and vice-versa)
+    
+            R=alan
+            DELTA=136  (67 added, 19 deleted, 50 changed)
+    
+    Change on 2010/05/04 by nick
+    
+            fiddle with the check_global_this_level decision tree
+            This should be off by default if collapse_properties is off,
+            and on by default if collapse_properties is on.
+    
+            R=alan
+            DELTA=47  (32 added, 4 deleted, 11 changed)
+    
+    Change on 2010/05/04 by andrew
+    
+            -Infer that arguments to goog.asserts.assert() are non-nullable after the
+            call.
+            -Infer the types of arguments to goog.asserts.assert{String,Number,...} after
+            the call.
+    
+            Tested:
+              -Added new unit tests.
+    
+            R=nick
+            DELTA=277  (266 added, 4 deleted, 7 changed)
+    
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=qdhuno
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@203 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+--- a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
++++ b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+@@ -201,7 +201,7 @@
+   public void testDebugFlag1() {
+     args.add("--compilation_level=SIMPLE_OPTIMIZATIONS");
+     args.add("--debug=false");
+-    test("function foo(a) {}", 
++    test("function foo(a) {}",
+          "function foo() {}");
+   }
+ 
+
+commit eb5eae4438f49ffddd3c8be1413eeb9e7ecfb311
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Apr 27 15:02:29 2010
+
+    Change on 2010/04/26 by nick
+    
+            forbid getters and setters. fixes closure-compiler issue 154.
+    
+            R=robert
+            DELTA=57  (55 added, 0 deleted, 2 changed)
+    
+    Change on 2010/04/26 by nick
+    
+            create a helper method for getting the transitive closure of a
+            number of roots.
+    
+            R=alan
+            DELTA=172  (168 added, 2 deleted, 2 changed)
+    
+    Change on 2010/04/26 by nick
+    
+            create a new mechanism for type name resolution.
+    
+            R=john
+            DELTA=222  (210 added, 5 deleted, 7 changed)
+    
+    Change on 2010/04/27 by john
+    
+            Remove unused variables in uncalled global functions when not removing
+            unused global names. Fixes issue 155.
+    
+            R=nick
+            DELTA=42  (34 added, 3 deleted, 5 changed)
+    
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=aepekd
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@199 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+--- a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
++++ b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+@@ -201,6 +201,7 @@
+   public void testDebugFlag1() {
+     args.add("--compilation_level=SIMPLE_OPTIMIZATIONS");
+     args.add("--debug=false");
+-    testSame("function foo(a) {}");
++    test("function foo(a) {}", 
++         "function foo() {}");
+   }
+ 
+
+commit e5d3e5e012871b87d2f2a59985bc6522bb571ee2
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Mar 5 20:33:39 2010
+
+    switch over to args4j (Nick)
+    Fixes issue 11.
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@128 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+--- a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
++++ b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+@@ -190,7 +177,6 @@
+   public void testDebugFlag1() {
+-    CommandLineRunner.FLAG_compilation_level.setForTest(
+-        CompilationLevel.SIMPLE_OPTIMIZATIONS);
+-    CommandLineRunner.FLAG_debug.setForTest(false);
++    args.add("--compilation_level=SIMPLE_OPTIMIZATIONS");
++    args.add("--debug=false");
+     testSame("function foo(a) {}");
+   }
+ 
+
+commit 848ace840362a1f5558bec065cb40548ff66587a
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Feb 26 21:04:18 2010
+
+    Rename CompilerRunner -> CommandLineRunner.
+    I'll also do this for JSCompilerRunner, but it will be a much
+    bigger change. (Nick)
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@119 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CompilerRunnerTest.java b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+--- a/test/com/google/javascript/jscomp/CompilerRunnerTest.java
++++ b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+@@ -190,7 +190,7 @@
+   public void testDebugFlag1() {
+-    CompilerRunner.FLAG_compilation_level.setForTest(
++    CommandLineRunner.FLAG_compilation_level.setForTest(
+         CompilationLevel.SIMPLE_OPTIMIZATIONS);
+-    CompilerRunner.FLAG_debug.setForTest(false);
++    CommandLineRunner.FLAG_debug.setForTest(false);
+     testSame("function foo(a) {}");
+   }
+ 
+
+commit 31193006e16b909a3115f998789057fb05d76b18
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Dec 14 19:18:26 2009
+
+    Add a --debug flag for easier debugging.
+    
+    Turn off autoboxing from number -> Number, string -> String, etc.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@32 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CompilerRunnerTest.java b/test/com/google/javascript/jscomp/CompilerRunnerTest.java
+--- a/test/com/google/javascript/jscomp/CompilerRunnerTest.java
++++ b/test/com/google/javascript/jscomp/CompilerRunnerTest.java
+@@ -126,0 +127,7 @@
++  public void testDebugFlag1() {
++    CompilerRunner.FLAG_compilation_level.setForTest(
++        CompilationLevel.SIMPLE_OPTIMIZATIONS);
++    CompilerRunner.FLAG_debug.setForTest(false);
++    testSame("function foo(a) {}");
++  }
++

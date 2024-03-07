@@ -1,0 +1,336 @@
+commit 58b5609fe8f99aabc990d885bf6c4d85631b7c79
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sat Feb 21 08:54:25 2009
+
+    Fixed an error in computing gcd and lcm for some extreme values at integer range boundaries.
+    JIRA: MATH-243
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@746511 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/util/MathUtilsTest.java b/src/test/org/apache/commons/math/util/MathUtilsTest.java
+--- a/src/test/org/apache/commons/math/util/MathUtilsTest.java
++++ b/src/test/org/apache/commons/math/util/MathUtilsTest.java
+@@ -549,22 +565,46 @@
+     public void testLcm() {
+         int a = 30;
+         int b = 50;
+         int c = 77;
+ 
+         assertEquals(0, MathUtils.lcm(0, b));
+         assertEquals(0, MathUtils.lcm(a, 0));
+         assertEquals(b, MathUtils.lcm(1, b));
+         assertEquals(a, MathUtils.lcm(a, 1));
+         assertEquals(150, MathUtils.lcm(a, b));
+         assertEquals(150, MathUtils.lcm(-a, b));
+         assertEquals(150, MathUtils.lcm(a, -b));
++        assertEquals(150, MathUtils.lcm(-a, -b));
+         assertEquals(2310, MathUtils.lcm(a, c));
+ 
++        // Assert that no intermediate value overflows:
++        // The naive implementation of lcm(a,b) would be (a*b)/gcd(a,b)
++        assertEquals((1<<20)*15, MathUtils.lcm((1<<20)*3, (1<<20)*5));
++
++        // Special case
++        assertEquals(0, MathUtils.lcm(0, 0));
++
++        try {
++            // lcm == abs(MIN_VALUE) cannot be represented as a nonnegative int
++            MathUtils.lcm(Integer.MIN_VALUE, 1);
++            fail("Expecting ArithmeticException");
++        } catch (ArithmeticException ex) {
++            // expected
++        }
++        
++        try {
++            // lcm == abs(MIN_VALUE) cannot be represented as a nonnegative int
++            MathUtils.lcm(Integer.MIN_VALUE, 1<<20);
++            fail("Expecting ArithmeticException");
++        } catch (ArithmeticException ex) {
++            // expected
++        }
++
+         try {
+             MathUtils.lcm(Integer.MAX_VALUE, Integer.MAX_VALUE - 1);
+             fail("Expecting ArithmeticException");
+         } catch (ArithmeticException ex) {
+             // expected
+         }
+     }
+ 
+
+commit 430f487ebc550a07ed2f06a758cd2dd480669fc9
+Author: Brent Worden <brentworden@apache.org>
+Date:   Wed Oct 31 03:23:01 2007
+
+    MATH-154. Added addAndCheck, mulAndCheck, and subAndCheck MathUtils methods for long integer arguments.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@590577 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/util/MathUtilsTest.java b/src/test/org/apache/commons/math/util/MathUtilsTest.java
+--- a/src/test/org/apache/commons/math/util/MathUtilsTest.java
++++ b/src/test/org/apache/commons/math/util/MathUtilsTest.java
+@@ -479,43 +336,22 @@
+     public void testLcm() {
+         int a = 30;
+         int b = 50;
+         int c = 77;
+-        
++
+         assertEquals(0, MathUtils.lcm(0, b));
+         assertEquals(0, MathUtils.lcm(a, 0));
+         assertEquals(b, MathUtils.lcm(1, b));
+         assertEquals(a, MathUtils.lcm(a, 1));
+         assertEquals(150, MathUtils.lcm(a, b));
+         assertEquals(150, MathUtils.lcm(-a, b));
+         assertEquals(150, MathUtils.lcm(a, -b));
+         assertEquals(2310, MathUtils.lcm(a, c));
+-        
++
+         try {
+             MathUtils.lcm(Integer.MAX_VALUE, Integer.MAX_VALUE - 1);
+             fail("Expecting ArithmeticException");
+         } catch (ArithmeticException ex) {
+             // expected
+         }
+     }
+-    public void testRoundFloat() {
+-        float x = 1.234567890f;
+-        assertEquals(1.23f, MathUtils.round(x, 2), 0.0);
+-        assertEquals(1.235f, MathUtils.round(x, 3), 0.0);
+-        assertEquals(1.2346f, MathUtils.round(x, 4), 0.0);
+-        
+-        // BZ 35904
+-        assertEquals(30.1f, MathUtils.round(30.095f, 2), 0.0f);
+-        assertEquals(30.1f, MathUtils.round(30.095f, 1), 0.0f);
+-        assertEquals(50.09f,  MathUtils.round(50.085f, 2), 0.0f);
+-        assertEquals(50.19f,  MathUtils.round(50.185f, 2), 0.0f);
+-        assertEquals(50.01f,  MathUtils.round(50.005f, 2), 0.0f);
+-        assertEquals(30.01f,  MathUtils.round(30.005f, 2), 0.0f);
+-        assertEquals(30.65f,  MathUtils.round(30.645f, 2), 0.0f);
+-        
+-        assertEquals(1.24f, MathUtils.round(x, 2, BigDecimal.ROUND_CEILING), 0.0);
+-        assertEquals(1.235f, MathUtils.round(x, 3, BigDecimal.ROUND_CEILING), 0.0);
+-        assertEquals(1.2346f, MathUtils.round(x, 4, BigDecimal.ROUND_CEILING), 0.0);
+-        assertEquals(-1.23f, MathUtils.round(-x, 2, BigDecimal.ROUND_CEILING), 0.0);
+-        assertEquals(-1.234f, MathUtils.round(-x, 3, BigDecimal.ROUND_CEILING), 0.0);
+-        assertEquals(-1.2345f, MathUtils.round(-x, 4, BigDecimal.ROUND_CEILING), 0.0);
+ 
+
+commit b1ade04fc274a2030fcf1df2c760755eeb83bf1b
+Author: Brent Worden <brentworden@apache.org>
+Date:   Tue Aug 9 09:10:26 2005
+
+    PR: 35904
+    Changed rounding methods to not rely on BigDecimal conversions which was causing numerical error.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@231029 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/util/MathUtilsTest.java b/src/test/org/apache/commons/math/util/MathUtilsTest.java
+--- a/src/test/org/apache/commons/math/util/MathUtilsTest.java
++++ b/src/test/org/apache/commons/math/util/MathUtilsTest.java
+@@ -453,38 +450,43 @@
+     public void testLcm() {
+         int a = 30;
+         int b = 50;
+         int c = 77;
+         
+         assertEquals(0, MathUtils.lcm(0, b));
+         assertEquals(0, MathUtils.lcm(a, 0));
+         assertEquals(b, MathUtils.lcm(1, b));
+         assertEquals(a, MathUtils.lcm(a, 1));
+         assertEquals(150, MathUtils.lcm(a, b));
+         assertEquals(150, MathUtils.lcm(-a, b));
+         assertEquals(150, MathUtils.lcm(a, -b));
+         assertEquals(2310, MathUtils.lcm(a, c));
+         
+         try {
+             MathUtils.lcm(Integer.MAX_VALUE, Integer.MAX_VALUE - 1);
+             fail("Expecting ArithmeticException");
+         } catch (ArithmeticException ex) {
+             // expected
+         }
+     }
+-    
+     public void testRoundFloat() {
+         float x = 1.234567890f;
+-        assertEquals(1.23f, MathUtils.round(x, 2), 0.0f);
+-        assertEquals(1.235f, MathUtils.round(x, 3), 0.0f);
+-        assertEquals(1.2346f, MathUtils.round(x, 4), 0.0f);
+-        
++        assertEquals(1.23f, MathUtils.round(x, 2), 0.0);
++        assertEquals(1.235f, MathUtils.round(x, 3), 0.0);
++        assertEquals(1.2346f, MathUtils.round(x, 4), 0.0);
+         
+         // BZ 35904
+         assertEquals(30.1f, MathUtils.round(30.095f, 2), 0.0f);
+         assertEquals(30.1f, MathUtils.round(30.095f, 1), 0.0f);
+         assertEquals(50.09f,  MathUtils.round(50.085f, 2), 0.0f);
+         assertEquals(50.19f,  MathUtils.round(50.185f, 2), 0.0f);
+         assertEquals(50.01f,  MathUtils.round(50.005f, 2), 0.0f);
+         assertEquals(30.01f,  MathUtils.round(30.005f, 2), 0.0f);
+         assertEquals(30.65f,  MathUtils.round(30.645f, 2), 0.0f);
++        
++        assertEquals(1.24f, MathUtils.round(x, 2, BigDecimal.ROUND_CEILING), 0.0);
++        assertEquals(1.235f, MathUtils.round(x, 3, BigDecimal.ROUND_CEILING), 0.0);
++        assertEquals(1.2346f, MathUtils.round(x, 4, BigDecimal.ROUND_CEILING), 0.0);
++        assertEquals(-1.23f, MathUtils.round(-x, 2, BigDecimal.ROUND_CEILING), 0.0);
++        assertEquals(-1.234f, MathUtils.round(-x, 3, BigDecimal.ROUND_CEILING), 0.0);
++        assertEquals(-1.2345f, MathUtils.round(-x, 4, BigDecimal.ROUND_CEILING), 0.0);
+ 
+
+commit 7153fa9be229ee078c7026dba8c9b2be3d791ed2
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sat Jul 30 03:25:26 2005
+
+    Test cases and (temporary?) fix for BZ 35904.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@226479 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/util/MathUtilsTest.java b/src/test/org/apache/commons/math/util/MathUtilsTest.java
+--- a/src/test/org/apache/commons/math/util/MathUtilsTest.java
++++ b/src/test/org/apache/commons/math/util/MathUtilsTest.java
+@@ -453,28 +453,38 @@
+     public void testLcm() {
+         int a = 30;
+         int b = 50;
+         int c = 77;
+         
+         assertEquals(0, MathUtils.lcm(0, b));
+         assertEquals(0, MathUtils.lcm(a, 0));
+         assertEquals(b, MathUtils.lcm(1, b));
+         assertEquals(a, MathUtils.lcm(a, 1));
+         assertEquals(150, MathUtils.lcm(a, b));
+         assertEquals(150, MathUtils.lcm(-a, b));
+         assertEquals(150, MathUtils.lcm(a, -b));
+         assertEquals(2310, MathUtils.lcm(a, c));
+         
+         try {
+             MathUtils.lcm(Integer.MAX_VALUE, Integer.MAX_VALUE - 1);
+             fail("Expecting ArithmeticException");
+         } catch (ArithmeticException ex) {
+             // expected
+         }
+     }
+     
+     public void testRoundFloat() {
+         float x = 1.234567890f;
+         assertEquals(1.23f, MathUtils.round(x, 2), 0.0f);
+         assertEquals(1.235f, MathUtils.round(x, 3), 0.0f);
+         assertEquals(1.2346f, MathUtils.round(x, 4), 0.0f);
++        
++        
++        // BZ 35904
++        assertEquals(30.1f, MathUtils.round(30.095f, 2), 0.0f);
++        assertEquals(30.1f, MathUtils.round(30.095f, 1), 0.0f);
++        assertEquals(50.09f,  MathUtils.round(50.085f, 2), 0.0f);
++        assertEquals(50.19f,  MathUtils.round(50.185f, 2), 0.0f);
++        assertEquals(50.01f,  MathUtils.round(50.005f, 2), 0.0f);
++        assertEquals(30.01f,  MathUtils.round(30.005f, 2), 0.0f);
++        assertEquals(30.65f,  MathUtils.round(30.645f, 2), 0.0f);
+ 
+
+commit 8d6b7da38dcf9d9bb68ee7e16d4d30de2ff8f8d6
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sat Jun 25 21:19:16 2005
+
+    Changed lcm to throw ArithmeticException (instead of returning bogus
+    value) if the result is too large to store as an integer.
+    PR # 35431
+    Submitted by: JÃ¶rg Weimar
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@201810 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/util/MathUtilsTest.java b/src/test/org/apache/commons/math/util/MathUtilsTest.java
+--- a/src/test/org/apache/commons/math/util/MathUtilsTest.java
++++ b/src/test/org/apache/commons/math/util/MathUtilsTest.java
+@@ -453,21 +453,28 @@
+     public void testLcm() {
+         int a = 30;
+         int b = 50;
+         int c = 77;
+         
+         assertEquals(0, MathUtils.lcm(0, b));
+         assertEquals(0, MathUtils.lcm(a, 0));
+         assertEquals(b, MathUtils.lcm(1, b));
+         assertEquals(a, MathUtils.lcm(a, 1));
+         assertEquals(150, MathUtils.lcm(a, b));
+         assertEquals(150, MathUtils.lcm(-a, b));
+         assertEquals(150, MathUtils.lcm(a, -b));
+         assertEquals(2310, MathUtils.lcm(a, c));
++        
++        try {
++            MathUtils.lcm(Integer.MAX_VALUE, Integer.MAX_VALUE - 1);
++            fail("Expecting ArithmeticException");
++        } catch (ArithmeticException ex) {
++            // expected
++        }
+     }
+     
+     public void testRoundFloat() {
+         float x = 1.234567890f;
+         assertEquals(1.23f, MathUtils.round(x, 2), 0.0f);
+         assertEquals(1.235f, MathUtils.round(x, 3), 0.0f);
+         assertEquals(1.2346f, MathUtils.round(x, 4), 0.0f);
+ 
+
+commit d06298e3f96736c5ff91bf812e1233b7c35aec4c
+Author: Brent Worden <brentworden@apache.org>
+Date:   Sat Feb 5 01:24:20 2005
+
+    added rounding methods.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@151480 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/util/MathUtilsTest.java b/src/test/org/apache/commons/math/util/MathUtilsTest.java
+--- a/src/test/org/apache/commons/math/util/MathUtilsTest.java
++++ b/src/test/org/apache/commons/math/util/MathUtilsTest.java
+@@ -415,14 +419,21 @@
+     public void testLcm() {
+         int a = 30;
+         int b = 50;
+         int c = 77;
+         
+         assertEquals(0, MathUtils.lcm(0, b));
+         assertEquals(0, MathUtils.lcm(a, 0));
+         assertEquals(b, MathUtils.lcm(1, b));
+         assertEquals(a, MathUtils.lcm(a, 1));
+         assertEquals(150, MathUtils.lcm(a, b));
+         assertEquals(150, MathUtils.lcm(-a, b));
+         assertEquals(150, MathUtils.lcm(a, -b));
+         assertEquals(2310, MathUtils.lcm(a, c));
+     }
++    
++    public void testRoundFloat() {
++        float x = 1.234567890f;
++        assertEquals(1.23f, MathUtils.round(x, 2), 0.0f);
++        assertEquals(1.235f, MathUtils.round(x, 3), 0.0f);
++        assertEquals(1.2346f, MathUtils.round(x, 4), 0.0f);
++
+
+commit 41598b038509e9cdb7f6dbeefdb2a2876d2708a6
+Author: Brent Worden <brentworden@apache.org>
+Date:   Sat Feb 5 00:49:45 2005
+
+    added fraction class and fraction formatting classes.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@151479 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/util/MathUtilsTest.java b/src/test/org/apache/commons/math/util/MathUtilsTest.java
+--- a/src/test/org/apache/commons/math/util/MathUtilsTest.java
++++ b/src/test/org/apache/commons/math/util/MathUtilsTest.java
+@@ -392,0 +415,14 @@
++    public void testLcm() {
++        int a = 30;
++        int b = 50;
++        int c = 77;
++        
++        assertEquals(0, MathUtils.lcm(0, b));
++        assertEquals(0, MathUtils.lcm(a, 0));
++        assertEquals(b, MathUtils.lcm(1, b));
++        assertEquals(a, MathUtils.lcm(a, 1));
++        assertEquals(150, MathUtils.lcm(a, b));
++        assertEquals(150, MathUtils.lcm(-a, b));
++        assertEquals(150, MathUtils.lcm(a, -b));
++        assertEquals(2310, MathUtils.lcm(a, c));
++    }

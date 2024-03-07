@@ -1,0 +1,93 @@
+commit 65ed08e15af15617e967d3ea9d635dc55a0ef866
+Author: Sebastien Brisard <celestin@apache.org>
+Date:   Fri Jan 27 02:00:19 2012
+
+    Introduced tests to guard against overflow (MATH-722). Corrected Javadoc and updated unit tests accordingly.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1236548 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/complex/ComplexTest.java b/src/test/java/org/apache/commons/math/complex/ComplexTest.java
+--- a/src/test/java/org/apache/commons/math/complex/ComplexTest.java
++++ b/src/test/java/org/apache/commons/math/complex/ComplexTest.java
+@@ -995,7 +995,14 @@
+     public void testTan() {
+         Complex z = new Complex(3, 4);
+         Complex expected = new Complex(-0.000187346, 0.999356);
+         TestUtils.assertEquals(expected, z.tan(), 1.0e-5);
++        /* Check that no overflow occurs (MATH-722) */
++        Complex actual = new Complex(3.0, 1E10).tan();
++        expected = new Complex(0, 1);
++        TestUtils.assertEquals(expected, actual, 1.0e-5);
++        actual = new Complex(3.0, -1E10).tan();
++        expected = new Complex(0, -1);
++        TestUtils.assertEquals(expected, actual, 1.0e-5);
+     }
+ 
+     @Test
+
+commit a4bbdaf426a92d6351796b1d57407776f09f0a3d
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sun Mar 20 13:24:14 2011
+
+    Converted tests to Junit4.
+    
+    There is one thing remaining: the retry feature in RetryTestCase has been disabled temporarily. We need to find some way to implement it using Junit 4 API.
+    
+    JIRA: MATH-423
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1083514 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/complex/ComplexTest.java b/src/test/java/org/apache/commons/math/complex/ComplexTest.java
+--- a/src/test/java/org/apache/commons/math/complex/ComplexTest.java
++++ b/src/test/java/org/apache/commons/math/complex/ComplexTest.java
+@@ -691,6 +773,7 @@
+     public void testTan() {
+         Complex z = new Complex(3, 4);
+         Complex expected = new Complex(-0.000187346, 0.999356);
+         TestUtils.assertEquals(expected, z.tan(), 1.0e-5);
+     }
+ 
++    @Test
+
+commit 26dac5a0e7fc9c6be9571b3e71a15d8502480d96
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sat Sep 5 13:36:48 2009
+
+    Removed trailing spaces.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@811685 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/complex/ComplexTest.java b/src/test/java/org/apache/commons/math/complex/ComplexTest.java
+--- a/src/test/java/org/apache/commons/math/complex/ComplexTest.java
++++ b/src/test/java/org/apache/commons/math/complex/ComplexTest.java
+@@ -671,6 +671,6 @@
+     public void testTan() {
+         Complex z = new Complex(3, 4);
+         Complex expected = new Complex(-0.000187346, 0.999356);
+         TestUtils.assertEquals(expected, z.tan(), 1.0e-5);
+     }
+-    
++
+
+commit 912d9beb43edb26caf87a32f08664ea634136c73
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sun Nov 18 18:38:05 2007
+
+    Merged most functions from ComplexUtils into Complex class, added
+    static factory method to Complex.
+    JIRA: MATH-171
+    Reported and patched by Niall Pemberton
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@596159 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/complex/ComplexTest.java b/src/test/org/apache/commons/math/complex/ComplexTest.java
+--- a/src/test/org/apache/commons/math/complex/ComplexTest.java
++++ b/src/test/org/apache/commons/math/complex/ComplexTest.java
+@@ -278,0 +638,6 @@
++    public void testTan() {
++        Complex z = new Complex(3, 4);
++        Complex expected = new Complex(-0.000187346, 0.999356);
++        TestUtils.assertEquals(expected, z.tan(), 1.0e-5);
++    }
++    

@@ -1,0 +1,1028 @@
+commit 4882e4423ae7bfb80c65da4aa547ef5aed16a007
+Author: Matthew Jason Benson <mbenson@apache.org>
+Date:   Sat Feb 2 22:36:01 2008
+
+    [JXPATH-115] enable attribute::node()
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/jxpath/trunk@617942 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+--- a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
++++ b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+@@ -478,110 +478,117 @@
+     public void testAxisAttribute() {
+         // attribute::
+         assertXPathValue(context, "vendor/location/@id", "100");
+ 
+         // attribute:: produces the correct pointer
+         assertXPathPointer(
+             context,
+             "vendor/location/@id",
+             "/vendor[1]/location[1]/@id");
+ 
+         // iterate over attributes
+         assertXPathValueIterator(
+             context,
+             "vendor/location/@id",
+             list("100", "101"));
+ 
+         // Using different prefixes for the same namespace
+         assertXPathValue(
+             context,
+             "vendor/product/price:amount/@price:discount",
+             "10%");
+         
+         // namespace uri for an attribute
+         assertXPathValue(
+             context,
+             "namespace-uri(vendor/product/price:amount/@price:discount)",
+             "priceNS");
+ 
+         // local name of an attribute
+         assertXPathValue(
+             context,
+             "local-name(vendor/product/price:amount/@price:discount)",
+             "discount");
+ 
+         // name for an attribute
+         assertXPathValue(
+             context,
+             "name(vendor/product/price:amount/@price:discount)",
+             "price:discount");
+ 
+         // attribute:: with the default namespace
+         assertXPathValue(
+             context,
+             "vendor/product/price:amount/@discount",
+             "20%");
+ 
+         // namespace uri of an attribute with the default namespace
+         assertXPathValue(
+             context,
+             "namespace-uri(vendor/product/price:amount/@discount)",
+             "");
+ 
+         // local name of an attribute with the default namespace
+         assertXPathValue(
+             context,
+             "local-name(vendor/product/price:amount/@discount)",
+             "discount");
+ 
+         // name of an attribute with the default namespace
+         assertXPathValue(
+             context,
+             "name(vendor/product/price:amount/@discount)",
+             "discount");
+ 
+         // attribute:: with a namespace and wildcard
+         assertXPathValueIterator(
+             context,
+             "vendor/product/price:amount/@price:*",
+             list("10%"));
+ 
+         // attribute:: with a wildcard
+         assertXPathValueIterator(
+             context,
+             "vendor/location[1]/@*",
+             set("100", "", "local"));
+ 
+         // attribute:: with default namespace and wildcard
+         assertXPathValueIterator(
+                 context,
+                 "vendor/product/price:amount/@*",
+                 //use a set because DOM returns attrs sorted by name, JDOM by occurrence order:
+                 set("10%", "20%"));
+ 
++        // attribute::node()
++        assertXPathValueIterator(
++                context,
++                "vendor/product/price:amount/attribute::node()",
++                //use a set because DOM returns attrs sorted by name, JDOM by occurrence order:
++                set("10%", "20%"));
++        
+         // attribute:: select non-ns'd attributes only
+         assertXPathValueIterator(
+             context,
+             "vendor/product/price:amount/@*[namespace-uri() = '']",
+             list("20%"));
+ 
+         // Empty attribute
+         assertXPathValue(context, "vendor/location/@manager", "");
+ 
+         // Missing attribute
+         assertXPathValueLenient(context, "vendor/location/@missing", null);
+ 
+         // Missing attribute with namespace
+         assertXPathValueLenient(context, "vendor/location/@miss:missing", null);
+ 
+         // Using attribute in a predicate
+         assertXPathValue(
+             context,
+             "vendor/location[@id='101']//street",
+             "Tangerine Drive");
+         
+         assertXPathValueIterator(
+             context,
+             "/vendor/location[1]/@*[name()!= 'manager']", list("100",
+             "local"));
+     }
+ 
+
+commit a1bc20f2af31730caa12faa116e14a964354f28d
+Author: Matthew Jason Benson <mbenson@apache.org>
+Date:   Sat Feb 2 21:13:59 2008
+
+    [JXPATH-109] attribute::* should select attrs regardless of whether they have a namespace
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/jxpath/trunk@617940 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+--- a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
++++ b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+@@ -478,103 +478,110 @@
+     public void testAxisAttribute() {
+         // attribute::
+         assertXPathValue(context, "vendor/location/@id", "100");
+ 
+         // attribute:: produces the correct pointer
+         assertXPathPointer(
+             context,
+             "vendor/location/@id",
+             "/vendor[1]/location[1]/@id");
+ 
+         // iterate over attributes
+         assertXPathValueIterator(
+             context,
+             "vendor/location/@id",
+             list("100", "101"));
+ 
+         // Using different prefixes for the same namespace
+         assertXPathValue(
+             context,
+             "vendor/product/price:amount/@price:discount",
+             "10%");
+         
+         // namespace uri for an attribute
+         assertXPathValue(
+             context,
+             "namespace-uri(vendor/product/price:amount/@price:discount)",
+             "priceNS");
+ 
+         // local name of an attribute
+         assertXPathValue(
+             context,
+             "local-name(vendor/product/price:amount/@price:discount)",
+             "discount");
+ 
+         // name for an attribute
+         assertXPathValue(
+             context,
+             "name(vendor/product/price:amount/@price:discount)",
+             "price:discount");
+ 
+         // attribute:: with the default namespace
+         assertXPathValue(
+             context,
+             "vendor/product/price:amount/@discount",
+             "20%");
+ 
+         // namespace uri of an attribute with the default namespace
+         assertXPathValue(
+             context,
+             "namespace-uri(vendor/product/price:amount/@discount)",
+             "");
+ 
+         // local name of an attribute with the default namespace
+         assertXPathValue(
+             context,
+             "local-name(vendor/product/price:amount/@discount)",
+             "discount");
+ 
+         // name of an attribute with the default namespace
+         assertXPathValue(
+             context,
+             "name(vendor/product/price:amount/@discount)",
+             "discount");
+ 
+         // attribute:: with a namespace and wildcard
+         assertXPathValueIterator(
+             context,
+             "vendor/product/price:amount/@price:*",
+             list("10%"));
+ 
+         // attribute:: with a wildcard
+         assertXPathValueIterator(
+             context,
+             "vendor/location[1]/@*",
+             set("100", "", "local"));
+ 
+         // attribute:: with default namespace and wildcard
+         assertXPathValueIterator(
++                context,
++                "vendor/product/price:amount/@*",
++                //use a set because DOM returns attrs sorted by name, JDOM by occurrence order:
++                set("10%", "20%"));
++
++        // attribute:: select non-ns'd attributes only
++        assertXPathValueIterator(
+             context,
+-            "vendor/product/price:amount/@*",
++            "vendor/product/price:amount/@*[namespace-uri() = '']",
+             list("20%"));
+ 
+         // Empty attribute
+         assertXPathValue(context, "vendor/location/@manager", "");
+ 
+         // Missing attribute
+         assertXPathValueLenient(context, "vendor/location/@missing", null);
+ 
+         // Missing attribute with namespace
+         assertXPathValueLenient(context, "vendor/location/@miss:missing", null);
+ 
+         // Using attribute in a predicate
+         assertXPathValue(
+             context,
+             "vendor/location[@id='101']//street",
+             "Tangerine Drive");
+         
+         assertXPathValueIterator(
+             context,
+             "/vendor/location[1]/@*[name()!= 'manager']", list("100",
+             "local"));
+     }
+ 
+
+commit 5dd281e9639a3e59607610ea7f84f7f63a239a18
+Author: Dmitri Plotnikov <dmitri@apache.org>
+Date:   Tue Jun 29 20:29:13 2004
+
+    Verified name() in a predicate
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/jxpath/trunk@136916 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+--- a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
++++ b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+@@ -462,98 +462,103 @@
+     public void testAxisAttribute() {
+         // attribute::
+         assertXPathValue(context, "vendor/location/@id", "100");
+ 
+         // attribute:: produces the correct pointer
+         assertXPathPointer(
+             context,
+             "vendor/location/@id",
+             "/vendor[1]/location[1]/@id");
+ 
+         // iterate over attributes
+         assertXPathValueIterator(
+             context,
+             "vendor/location/@id",
+             list("100", "101"));
+ 
+         // Using different prefixes for the same namespace
+         assertXPathValue(
+             context,
+             "vendor/product/price:amount/@price:discount",
+             "10%");
+         
+         // namespace uri for an attribute
+         assertXPathValue(
+             context,
+             "namespace-uri(vendor/product/price:amount/@price:discount)",
+             "priceNS");
+ 
+         // local name of an attribute
+         assertXPathValue(
+             context,
+             "local-name(vendor/product/price:amount/@price:discount)",
+             "discount");
+ 
+         // name for an attribute
+         assertXPathValue(
+             context,
+             "name(vendor/product/price:amount/@price:discount)",
+             "price:discount");
+ 
+         // attribute:: with the default namespace
+         assertXPathValue(
+             context,
+             "vendor/product/price:amount/@discount",
+             "20%");
+ 
+         // namespace uri of an attribute with the default namespace
+         assertXPathValue(
+             context,
+             "namespace-uri(vendor/product/price:amount/@discount)",
+             "");
+ 
+         // local name of an attribute with the default namespace
+         assertXPathValue(
+             context,
+             "local-name(vendor/product/price:amount/@discount)",
+             "discount");
+ 
+         // name of an attribute with the default namespace
+         assertXPathValue(
+             context,
+             "name(vendor/product/price:amount/@discount)",
+             "discount");
+ 
+         // attribute:: with a namespace and wildcard
+         assertXPathValueIterator(
+             context,
+             "vendor/product/price:amount/@price:*",
+             list("10%"));
+ 
+         // attribute:: with a wildcard
+         assertXPathValueIterator(
+             context,
+             "vendor/location[1]/@*",
+             set("100", "", "local"));
+ 
+         // attribute:: with default namespace and wildcard
+         assertXPathValueIterator(
+             context,
+             "vendor/product/price:amount/@*",
+             list("20%"));
+ 
+         // Empty attribute
+         assertXPathValue(context, "vendor/location/@manager", "");
+ 
+         // Missing attribute
+         assertXPathValueLenient(context, "vendor/location/@missing", null);
+ 
+         // Missing attribute with namespace
+         assertXPathValueLenient(context, "vendor/location/@miss:missing", null);
+ 
+         // Using attribute in a predicate
+         assertXPathValue(
+             context,
+             "vendor/location[@id='101']//street",
+             "Tangerine Drive");
++        
++        assertXPathValueIterator(
++            context,
++            "/vendor/location[1]/@*[name()!= 'manager']", list("100",
++            "local"));
+     }
+ 
+
+commit b1e1383fd8c33fc246ee253e6a9f7a047d3da38a
+Author: Dmitri Plotnikov <dmitri@apache.org>
+Date:   Wed Mar 31 21:55:32 2004
+
+    Introduced prefix registration with JXPathContext
+    Fixed a number or problems with namespace matching
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/jxpath/trunk@136904 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+--- a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
++++ b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+@@ -449,102 +444,98 @@
+     public void testAxisAttribute() {
+         // attribute::
+         assertXPathValue(context, "vendor/location/@id", "100");
+ 
+         // attribute:: produces the correct pointer
+         assertXPathPointer(
+             context,
+             "vendor/location/@id",
+             "/vendor[1]/location[1]/@id");
+ 
+         // iterate over attributes
+         assertXPathValueIterator(
+             context,
+             "vendor/location/@id",
+             list("100", "101"));
+ 
+         // Using different prefixes for the same namespace
+         assertXPathValue(
+             context,
+             "vendor/product/price:amount/@price:discount",
+             "10%");
+-        assertXPathValue(
+-            context,
+-            "vendor/product/value:amount/@value:discount",
+-            "10%");
+-
++        
+         // namespace uri for an attribute
+         assertXPathValue(
+             context,
+             "namespace-uri(vendor/product/price:amount/@price:discount)",
+             "priceNS");
+ 
+         // local name of an attribute
+         assertXPathValue(
+             context,
+             "local-name(vendor/product/price:amount/@price:discount)",
+             "discount");
+ 
+         // name for an attribute
+         assertXPathValue(
+             context,
+             "name(vendor/product/price:amount/@price:discount)",
+-            "priceNS:discount");
++            "price:discount");
+ 
+         // attribute:: with the default namespace
+         assertXPathValue(
+             context,
+             "vendor/product/price:amount/@discount",
+             "20%");
+ 
+         // namespace uri of an attribute with the default namespace
+         assertXPathValue(
+             context,
+             "namespace-uri(vendor/product/price:amount/@discount)",
+             "");
+ 
+         // local name of an attribute with the default namespace
+         assertXPathValue(
+             context,
+             "local-name(vendor/product/price:amount/@discount)",
+             "discount");
+ 
+         // name of an attribute with the default namespace
+         assertXPathValue(
+             context,
+             "name(vendor/product/price:amount/@discount)",
+             "discount");
+ 
+         // attribute:: with a namespace and wildcard
+         assertXPathValueIterator(
+             context,
+             "vendor/product/price:amount/@price:*",
+             list("10%"));
+ 
+         // attribute:: with a wildcard
+         assertXPathValueIterator(
+             context,
+             "vendor/location[1]/@*",
+             set("100", "", "local"));
+ 
+         // attribute:: with default namespace and wildcard
+         assertXPathValueIterator(
+             context,
+             "vendor/product/price:amount/@*",
+             list("20%"));
+ 
+         // Empty attribute
+         assertXPathValue(context, "vendor/location/@manager", "");
+ 
+         // Missing attribute
+         assertXPathValueLenient(context, "vendor/location/@missing", null);
+ 
+         // Missing attribute with namespace
+         assertXPathValueLenient(context, "vendor/location/@miss:missing", null);
+ 
+         // Using attribute in a predicate
+         assertXPathValue(
+             context,
+             "vendor/location[@id='101']//street",
+             "Tangerine Drive");
+     }
+ 
+
+commit 02d8160f14dd155a86bb1022cd6fdd5dbee7421c
+Author: Dmitri Plotnikov <dmitri@apache.org>
+Date:   Sun Jan 19 19:00:29 2003
+
+    Placated stylecheck
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/jxpath/trunk@136841 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+--- a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
++++ b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+@@ -413,96 +449,102 @@
+     public void testAxisAttribute() {
+         // attribute::
+-        assertXPathValue(context,
+-                "vendor/location/@id",
+-                "100");
++        assertXPathValue(context, "vendor/location/@id", "100");
+ 
+         // attribute:: produces the correct pointer
+-        assertXPathPointer(context,
+-                "vendor/location/@id",
+-                "/vendor[1]/location[1]/@id");
++        assertXPathPointer(
++            context,
++            "vendor/location/@id",
++            "/vendor[1]/location[1]/@id");
+ 
+         // iterate over attributes
+-        assertXPathValueIterator(context,
+-                "vendor/location/@id",
+-                list("100", "101"));
++        assertXPathValueIterator(
++            context,
++            "vendor/location/@id",
++            list("100", "101"));
+ 
+         // Using different prefixes for the same namespace
+-        assertXPathValue(context,
+-                "vendor/product/price:amount/@price:discount",
+-                "10%");
+-        assertXPathValue(context,
+-                "vendor/product/value:amount/@value:discount",
+-                "10%");
++        assertXPathValue(
++            context,
++            "vendor/product/price:amount/@price:discount",
++            "10%");
++        assertXPathValue(
++            context,
++            "vendor/product/value:amount/@value:discount",
++            "10%");
+ 
+         // namespace uri for an attribute
+-        assertXPathValue(context,
+-                "namespace-uri(vendor/product/price:amount/@price:discount)",
+-                "priceNS");
++        assertXPathValue(
++            context,
++            "namespace-uri(vendor/product/price:amount/@price:discount)",
++            "priceNS");
+ 
+         // local name of an attribute
+-        assertXPathValue(context,
+-                "local-name(vendor/product/price:amount/@price:discount)",
+-                "discount");
++        assertXPathValue(
++            context,
++            "local-name(vendor/product/price:amount/@price:discount)",
++            "discount");
+ 
+         // name for an attribute
+-        assertXPathValue(context,
+-                "name(vendor/product/price:amount/@price:discount)",
+-                "priceNS:discount");
++        assertXPathValue(
++            context,
++            "name(vendor/product/price:amount/@price:discount)",
++            "priceNS:discount");
+ 
+         // attribute:: with the default namespace
+-        assertXPathValue(context,
+-                "vendor/product/price:amount/@discount",
+-                "20%");
++        assertXPathValue(
++            context,
++            "vendor/product/price:amount/@discount",
++            "20%");
+ 
+         // namespace uri of an attribute with the default namespace
+-        assertXPathValue(context,
+-                "namespace-uri(vendor/product/price:amount/@discount)",
+-                "");
++        assertXPathValue(
++            context,
++            "namespace-uri(vendor/product/price:amount/@discount)",
++            "");
+ 
+         // local name of an attribute with the default namespace
+-        assertXPathValue(context,
+-                "local-name(vendor/product/price:amount/@discount)",
+-                "discount");
++        assertXPathValue(
++            context,
++            "local-name(vendor/product/price:amount/@discount)",
++            "discount");
+ 
+         // name of an attribute with the default namespace
+-        assertXPathValue(context,
+-                "name(vendor/product/price:amount/@discount)",
+-                "discount");
++        assertXPathValue(
++            context,
++            "name(vendor/product/price:amount/@discount)",
++            "discount");
+ 
+         // attribute:: with a namespace and wildcard
+-        assertXPathValueIterator(context,
+-                "vendor/product/price:amount/@price:*",
+-                list("10%"));
++        assertXPathValueIterator(
++            context,
++            "vendor/product/price:amount/@price:*",
++            list("10%"));
+ 
+         // attribute:: with a wildcard
+-        assertXPathValueIterator(context,
+-                "vendor/location[1]/@*",
+-                set("100", "", "local"));
++        assertXPathValueIterator(
++            context,
++            "vendor/location[1]/@*",
++            set("100", "", "local"));
+ 
+         // attribute:: with default namespace and wildcard
+-        assertXPathValueIterator(context,
+-                "vendor/product/price:amount/@*",
+-                list("20%"));
+-
++        assertXPathValueIterator(
++            context,
++            "vendor/product/price:amount/@*",
++            list("20%"));
+ 
+         // Empty attribute
+-        assertXPathValue(context,
+-                "vendor/location/@manager",
+-                "");
++        assertXPathValue(context, "vendor/location/@manager", "");
+ 
+         // Missing attribute
+-        assertXPathValueLenient(context,
+-                "vendor/location/@missing",
+-                null);
++        assertXPathValueLenient(context, "vendor/location/@missing", null);
+ 
+         // Missing attribute with namespace
+-        assertXPathValueLenient(context,
+-                "vendor/location/@miss:missing",
+-                null);
+-                
++        assertXPathValueLenient(context, "vendor/location/@miss:missing", null);
++
+         // Using attribute in a predicate
+-        assertXPathValue(context,
+-                "vendor/location[@id='101']//street",
+-                "Tangerine Drive");
++        assertXPathValue(
++            context,
++            "vendor/location[@id='101']//street",
++            "Tangerine Drive");
+     }
+-    
++
+
+commit bd5a8a717f62fbe602c59f92ff18766da392b15a
+Author: Dmitri Plotnikov <dmitri@apache.org>
+Date:   Sun Dec 1 20:12:20 2002
+
+    Applied patch submitted by Ulrich Nicolas Lissï¿½
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/jxpath/trunk@136832 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+--- a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
++++ b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+@@ -413,91 +413,96 @@
+     public void testAxisAttribute() {
+         // attribute::
+         assertXPathValue(context,
+                 "vendor/location/@id",
+                 "100");
+ 
+         // attribute:: produces the correct pointer
+         assertXPathPointer(context,
+                 "vendor/location/@id",
+                 "/vendor[1]/location[1]/@id");
+ 
+         // iterate over attributes
+         assertXPathValueIterator(context,
+                 "vendor/location/@id",
+                 list("100", "101"));
+ 
+         // Using different prefixes for the same namespace
+         assertXPathValue(context,
+                 "vendor/product/price:amount/@price:discount",
+                 "10%");
+         assertXPathValue(context,
+                 "vendor/product/value:amount/@value:discount",
+                 "10%");
+ 
+         // namespace uri for an attribute
+         assertXPathValue(context,
+                 "namespace-uri(vendor/product/price:amount/@price:discount)",
+                 "priceNS");
+ 
+         // local name of an attribute
+         assertXPathValue(context,
+                 "local-name(vendor/product/price:amount/@price:discount)",
+                 "discount");
+ 
+         // name for an attribute
+         assertXPathValue(context,
+                 "name(vendor/product/price:amount/@price:discount)",
+                 "priceNS:discount");
+ 
+         // attribute:: with the default namespace
+         assertXPathValue(context,
+                 "vendor/product/price:amount/@discount",
+                 "20%");
+ 
+         // namespace uri of an attribute with the default namespace
+         assertXPathValue(context,
+                 "namespace-uri(vendor/product/price:amount/@discount)",
+                 "");
+ 
+         // local name of an attribute with the default namespace
+         assertXPathValue(context,
+                 "local-name(vendor/product/price:amount/@discount)",
+                 "discount");
+ 
+         // name of an attribute with the default namespace
+         assertXPathValue(context,
+                 "name(vendor/product/price:amount/@discount)",
+                 "discount");
+ 
+         // attribute:: with a namespace and wildcard
+         assertXPathValueIterator(context,
+                 "vendor/product/price:amount/@price:*",
+                 list("10%"));
+ 
+         // attribute:: with a wildcard
+         assertXPathValueIterator(context,
+                 "vendor/location[1]/@*",
+                 set("100", "", "local"));
+ 
+         // attribute:: with default namespace and wildcard
+         assertXPathValueIterator(context,
+                 "vendor/product/price:amount/@*",
+                 list("20%"));
+ 
+ 
+         // Empty attribute
+         assertXPathValue(context,
+                 "vendor/location/@manager",
+                 "");
+ 
+         // Missing attribute
+         assertXPathValueLenient(context,
+                 "vendor/location/@missing",
+                 null);
+ 
++        // Missing attribute with namespace
++        assertXPathValueLenient(context,
++                "vendor/location/@miss:missing",
++                null);
++                
+         // Using attribute in a predicate
+         assertXPathValue(context,
+                 "vendor/location[@id='101']//street",
+                 "Tangerine Drive");
+     }
+     
+
+commit a723ec0c1ab4b6d29b1b00868fe281a227b09551
+Author: Dmitri Plotnikov <dmitri@apache.org>
+Date:   Fri Nov 29 01:44:16 2002
+
+    Fixed the implementation of the "*" name test
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/jxpath/trunk@136830 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+--- a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
++++ b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+@@ -397,91 +413,91 @@
+     public void testAxisAttribute() {
+         // attribute::
+         assertXPathValue(context,
+                 "vendor/location/@id",
+                 "100");
+ 
+         // attribute:: produces the correct pointer
+         assertXPathPointer(context,
+                 "vendor/location/@id",
+                 "/vendor[1]/location[1]/@id");
+ 
+         // iterate over attributes
+         assertXPathValueIterator(context,
+                 "vendor/location/@id",
+                 list("100", "101"));
+ 
+         // Using different prefixes for the same namespace
+         assertXPathValue(context,
+                 "vendor/product/price:amount/@price:discount",
+                 "10%");
+         assertXPathValue(context,
+                 "vendor/product/value:amount/@value:discount",
+                 "10%");
+ 
+         // namespace uri for an attribute
+         assertXPathValue(context,
+                 "namespace-uri(vendor/product/price:amount/@price:discount)",
+                 "priceNS");
+ 
+         // local name of an attribute
+         assertXPathValue(context,
+                 "local-name(vendor/product/price:amount/@price:discount)",
+                 "discount");
+ 
+         // name for an attribute
+         assertXPathValue(context,
+                 "name(vendor/product/price:amount/@price:discount)",
+                 "priceNS:discount");
+ 
+         // attribute:: with the default namespace
+         assertXPathValue(context,
+                 "vendor/product/price:amount/@discount",
+                 "20%");
+ 
+         // namespace uri of an attribute with the default namespace
+         assertXPathValue(context,
+                 "namespace-uri(vendor/product/price:amount/@discount)",
+                 "");
+ 
+         // local name of an attribute with the default namespace
+         assertXPathValue(context,
+                 "local-name(vendor/product/price:amount/@discount)",
+                 "discount");
+ 
+         // name of an attribute with the default namespace
+         assertXPathValue(context,
+                 "name(vendor/product/price:amount/@discount)",
+                 "discount");
+ 
+         // attribute:: with a namespace and wildcard
+         assertXPathValueIterator(context,
+                 "vendor/product/price:amount/@price:*",
+                 list("10%"));
+ 
+         // attribute:: with a wildcard
+         assertXPathValueIterator(context,
+                 "vendor/location[1]/@*",
+                 set("100", "", "local"));
+ 
+         // attribute:: with default namespace and wildcard
+         assertXPathValueIterator(context,
+                 "vendor/product/price:amount/@*",
+                 list("20%"));
+ 
+ 
+         // Empty attribute
+         assertXPathValue(context,
+                 "vendor/location/@manager",
+                 "");
+ 
+         // Missing attribute
+         assertXPathValueLenient(context,
+                 "vendor/location/@missing",
+                 null);
+ 
+         // Using attribute in a predicate
+         assertXPathValue(context,
+                 "vendor/location[@id='101']//street",
+                 "Tangerine Drive");
+     }
+-
++    
+
+commit a966d3b853aa757fd5556191c6ea18ffa6591ce1
+Author: Dmitri Plotnikov <dmitri@apache.org>
+Date:   Sat Oct 19 23:48:23 2002
+
+    Complete overhaul of the test suites
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/jxpath/trunk@136823 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+--- a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
++++ b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTestCase.java
+@@ -359,14 +395,91 @@
+-    private static class XP {
+-        public String xpath;
+-        public Object expected;
+-        public boolean eval;
+-        public boolean path;
+-        public boolean lenient;
+-
+-        public XP(String xpath,  Object expected, boolean eval, boolean path, boolean lenient){
+-            this.xpath = xpath;
+-            this.expected = expected;
+-            this.eval = eval;
+-            this.path = path;
+-            this.lenient = lenient;
+-        }
++    public void testAxisAttribute() {
++        // attribute::
++        assertXPathValue(context,
++                "vendor/location/@id",
++                "100");
++
++        // attribute:: produces the correct pointer
++        assertXPathPointer(context,
++                "vendor/location/@id",
++                "/vendor[1]/location[1]/@id");
++
++        // iterate over attributes
++        assertXPathValueIterator(context,
++                "vendor/location/@id",
++                list("100", "101"));
++
++        // Using different prefixes for the same namespace
++        assertXPathValue(context,
++                "vendor/product/price:amount/@price:discount",
++                "10%");
++        assertXPathValue(context,
++                "vendor/product/value:amount/@value:discount",
++                "10%");
++
++        // namespace uri for an attribute
++        assertXPathValue(context,
++                "namespace-uri(vendor/product/price:amount/@price:discount)",
++                "priceNS");
++
++        // local name of an attribute
++        assertXPathValue(context,
++                "local-name(vendor/product/price:amount/@price:discount)",
++                "discount");
++
++        // name for an attribute
++        assertXPathValue(context,
++                "name(vendor/product/price:amount/@price:discount)",
++                "priceNS:discount");
++
++        // attribute:: with the default namespace
++        assertXPathValue(context,
++                "vendor/product/price:amount/@discount",
++                "20%");
++
++        // namespace uri of an attribute with the default namespace
++        assertXPathValue(context,
++                "namespace-uri(vendor/product/price:amount/@discount)",
++                "");
++
++        // local name of an attribute with the default namespace
++        assertXPathValue(context,
++                "local-name(vendor/product/price:amount/@discount)",
++                "discount");
++
++        // name of an attribute with the default namespace
++        assertXPathValue(context,
++                "name(vendor/product/price:amount/@discount)",
++                "discount");
++
++        // attribute:: with a namespace and wildcard
++        assertXPathValueIterator(context,
++                "vendor/product/price:amount/@price:*",
++                list("10%"));
++
++        // attribute:: with a wildcard
++        assertXPathValueIterator(context,
++                "vendor/location[1]/@*",
++                set("100", "", "local"));
++
++        // attribute:: with default namespace and wildcard
++        assertXPathValueIterator(context,
++                "vendor/product/price:amount/@*",
++                list("20%"));
++
++
++        // Empty attribute
++        assertXPathValue(context,
++                "vendor/location/@manager",
++                "");
++
++        // Missing attribute
++        assertXPathValueLenient(context,
++                "vendor/location/@missing",
++                null);
++
++        // Using attribute in a predicate
++        assertXPathValue(context,
++                "vendor/location[@id='101']//street",
++                "Tangerine Drive");
++    }
++
+
+commit bdbe018e7dea67afe7f52643c88a76e7cc8c74d6
+Author: Dmitri Plotnikov <dmitri@apache.org>
+Date:   Mon Aug 26 18:33:20 2002
+
+    Added testing for JDOM support, broke out DOM testing too
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/jxpath/trunk@136804 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/jxpath/ri/model/XMLModelTest.java b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/jxpath/ri/model/XMLModelTest.java
+@@ -0,0 +350,14 @@
++    private static class XP {
++        public String xpath;
++        public Object expected;
++        public boolean eval;
++        public boolean path;
++        public boolean lenient;
++
++        public XP(String xpath,  Object expected, boolean eval, boolean path, boolean lenient){
++            this.xpath = xpath;
++            this.expected = expected;
++            this.eval = eval;
++            this.path = path;
++            this.lenient = lenient;
++        }

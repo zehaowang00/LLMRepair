@@ -1,0 +1,31 @@
+commit e89e8d62b911340cc5b293465cdae909f3dfd640
+Author: Henri Yandell <bayard@apache.org>
+Date:   Tue May 1 19:50:01 2007
+
+    Applying unit test/fix for LANG-328
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@534277 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/LocaleUtilsTest.java b/src/test/org/apache/commons/lang/LocaleUtilsTest.java
+--- a/src/test/org/apache/commons/lang/LocaleUtilsTest.java
++++ b/src/test/org/apache/commons/lang/LocaleUtilsTest.java
+@@ -501,1 +504,5 @@
++    public void testLang328() {
++        assertValidToLocale("fr__POSIX", "fr", "", "POSIX");
++    }
++
+ }
+
+commit ddd4f84525178a0722ecbc01229d919d11c526f7
+Author: Stephen Colebourne <scolebourne@apache.org>
+Date:   Fri Sep 23 19:17:31 2005
+
+    Test LocaleUtils
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@291219 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/LocaleUtilsTest.java b/src/test/org/apache/commons/lang/LocaleUtilsTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/lang/LocaleUtilsTest.java
+@@ -0,0 +475,1 @@
++}

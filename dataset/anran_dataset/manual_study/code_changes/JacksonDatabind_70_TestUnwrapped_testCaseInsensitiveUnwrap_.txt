@@ -1,0 +1,133 @@
+commit d7155de6c37db3301b92b755bd0a02388f7dd07f
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Tue Jan 10 00:38:36 2017
+
+    Fix #1493
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java b/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java
+--- a/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java
++++ b/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java
+@@ -210,27 +211,8 @@
+-    static class Issue211Unwrapped {
+-        public String test3;
+-        public String test4;
+-    }
+-
+-    public void testIssue211() throws Exception
++    public void testCaseInsensitiveUnwrap() throws Exception
+     {
+-         Issue211Bean bean = new Issue211Bean();
+-         bean.test1 = "Field 1";
+-         bean.test2 = "Field 2";
+-         Issue211Unwrapped tJackson2 = new Issue211Unwrapped();
+-         tJackson2.test3 = "Field 3";
+-         tJackson2.test4 = "Field 4";
+-         bean.unwrapped = tJackson2;
+- 
+-         final String JSON = "{\"test1\": \"Field 1 merged\", \"test3\": \"Field 3 merged\"}";
+-         ObjectMapper o = new ObjectMapper();
+-         Issue211Bean result = o.readerForUpdating(bean).withType(Issue211Bean.class).readValue(JSON);
+-         assertSame(bean, result);
+-         assertEquals("Field 1 merged", result.test1);
+-         assertEquals("Field 2", result.test2);
+-         assertNotNull(result.unwrapped);
+-         assertEquals("Field 3 merged", result.unwrapped.test3);
+-         assertEquals("Field 4", result.unwrapped.test4);
+-    }
+-    */
++        ObjectMapper mapper = new ObjectMapper();
++        mapper.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
++        Person p = mapper.readValue("{ }", Person.class);
++        assertNotNull(p);
++    }
+ }
+
+commit 2ef09f8c581e3df9e51b695c7d869e17bebd3c04
+Author: Cowtowncoder <tatu.saloranta@iki.fi>
+Date:   Mon Dec 8 20:19:22 2014
+
+    Trying to repro #615
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java b/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java
+--- a/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java
++++ b/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java
+@@ -160,27 +183,27 @@
+     static class Issue211Unwrapped {
+         public String test3;
+         public String test4;
+     }
+-    
++
+     public void testIssue211() throws Exception
+     {
+          Issue211Bean bean = new Issue211Bean();
+          bean.test1 = "Field 1";
+          bean.test2 = "Field 2";
+          Issue211Unwrapped tJackson2 = new Issue211Unwrapped();
+          tJackson2.test3 = "Field 3";
+          tJackson2.test4 = "Field 4";
+          bean.unwrapped = tJackson2;
+  
+          final String JSON = "{\"test1\": \"Field 1 merged\", \"test3\": \"Field 3 merged\"}";
+          ObjectMapper o = new ObjectMapper();
+          Issue211Bean result = o.readerForUpdating(bean).withType(Issue211Bean.class).readValue(JSON);
+          assertSame(bean, result);
+          assertEquals("Field 1 merged", result.test1);
+          assertEquals("Field 2", result.test2);
+          assertNotNull(result.unwrapped);
+          assertEquals("Field 3 merged", result.unwrapped.test3);
+          assertEquals("Field 4", result.unwrapped.test4);
+-    }  
++    }
+     */
+ }
+
+commit 750b06523c141355a399b5c51ac110e9b4f4593e
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Mon Apr 22 18:48:29 2013
+
+    adding test for #211 (commented out)
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java b/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java
+--- a/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java
++++ b/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java
+@@ -145,1 +162,27 @@
++    static class Issue211Unwrapped {
++        public String test3;
++        public String test4;
++    }
++    
++    public void testIssue211() throws Exception
++    {
++         Issue211Bean bean = new Issue211Bean();
++         bean.test1 = "Field 1";
++         bean.test2 = "Field 2";
++         Issue211Unwrapped tJackson2 = new Issue211Unwrapped();
++         tJackson2.test3 = "Field 3";
++         tJackson2.test4 = "Field 4";
++         bean.unwrapped = tJackson2;
++ 
++         final String JSON = "{\"test1\": \"Field 1 merged\", \"test3\": \"Field 3 merged\"}";
++         ObjectMapper o = new ObjectMapper();
++         Issue211Bean result = o.readerForUpdating(bean).withType(Issue211Bean.class).readValue(JSON);
++         assertSame(bean, result);
++         assertEquals("Field 1 merged", result.test1);
++         assertEquals("Field 2", result.test2);
++         assertNotNull(result.unwrapped);
++         assertEquals("Field 3 merged", result.unwrapped.test3);
++         assertEquals("Field 4", result.unwrapped.test4);
++    }  
++    */
+ }
+
+commit a63c2038a03c7090ce4773d6cf54809150e59350
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 03:26:53 2011
+
+    Add unit tests, almost compilable
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapping.java b/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapping.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapping.java
+@@ -0,0 +151,1 @@
++}

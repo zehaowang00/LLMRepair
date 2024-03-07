@@ -1,0 +1,27 @@
+commit 53c8cec5ceb4cd81e3f9b8858814accac83a324e
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Wed Oct 26 05:08:22 2011
+
+    Fixed an event resetting issue in ODE.
+    
+    When several discrete events occur during the same ODE integration step,
+    they are handled chronologically or reverse chronologically depending on
+    the integration direction. If one of the event truncates the step (for
+    example because its eventOccurred method returns RESET or
+    RESET_DERIVATIVES for example), the stepAccepted method of the pending
+    events later in the step were not called. This implied that in the next
+    step, these events were still referring to data from previous step, they
+    had lost synchronization with the integrator.
+    
+    JIRA: MATH-695
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1189086 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/ode/events/EventStateTest.java b/src/test/java/org/apache/commons/math/ode/events/EventStateTest.java
+--- a/src/test/java/org/apache/commons/math/ode/events/EventStateTest.java
++++ b/src/test/java/org/apache/commons/math/ode/events/EventStateTest.java
+@@ -76,0 +80,4 @@
++    public void testIssue695() {
++
++        FirstOrderDifferentialEquations equation = new FirstOrderDifferentialEquations() {
++            

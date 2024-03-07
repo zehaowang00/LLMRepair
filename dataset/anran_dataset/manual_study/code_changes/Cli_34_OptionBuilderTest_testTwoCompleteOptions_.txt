@@ -1,0 +1,140 @@
+commit 62a3b36efc78e53c233c2fb49cc8199c5eabec1d
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Tue Apr 12 11:55:03 2011
+
+    Option type is now set to String by default (Fixes CLI-215)
+    The type is now explicitly a Class instance instead of an unspecified Object
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/trunk@1091485 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/cli/OptionBuilderTest.java b/src/test/java/org/apache/commons/cli/OptionBuilderTest.java
+--- a/src/test/java/org/apache/commons/cli/OptionBuilderTest.java
++++ b/src/test/java/org/apache/commons/cli/OptionBuilderTest.java
+@@ -42,31 +42,31 @@
+     public void testTwoCompleteOptions( ) {
+         Option simple = OptionBuilder.withLongOpt( "simple option")
+                                      .hasArg( )
+                                      .isRequired( )
+                                      .hasArgs( )
+-                                     .withType( new Float( 10 ) )
++                                     .withType( Float.class )
+                                      .withDescription( "this is a simple option" )
+                                      .create( 's' );
+ 
+         assertEquals( "s", simple.getOpt() );
+         assertEquals( "simple option", simple.getLongOpt() );
+         assertEquals( "this is a simple option", simple.getDescription() );
+-        assertEquals( simple.getType().getClass(), Float.class );
++        assertEquals( simple.getType(), Float.class );
+         assertTrue( simple.hasArg() );
+         assertTrue( simple.isRequired() );
+         assertTrue( simple.hasArgs() );
+ 
+         simple = OptionBuilder.withLongOpt( "dimple option")
+                               .hasArg( )
+                               .withDescription( "this is a dimple option" )
+                               .create( 'd' );
+ 
+         assertEquals( "d", simple.getOpt() );
+         assertEquals( "dimple option", simple.getLongOpt() );
+         assertEquals( "this is a dimple option", simple.getDescription() );
+-        assertNull( simple.getType() );
++        assertEquals( String.class, simple.getType() );
+         assertTrue( simple.hasArg() );
+         assertTrue( !simple.isRequired() );
+         assertTrue( !simple.hasArgs() );
+     }
+ 
+
+commit 16b91ad2b9f5f524b2b07ba4515c65479999f7ee
+Author: John Keyes <jkeyes@apache.org>
+Date:   Sat Aug 3 19:45:09 2002
+
+    its now possible to specify the number of argument values an option can have, refactored parsers argument value handling, refactored argument handling in Option, added getOptions method on CommandLine to return an array of the processed Options
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129794 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/OptionBuilderTest.java b/src/test/org/apache/commons/cli/OptionBuilderTest.java
+--- a/src/test/org/apache/commons/cli/OptionBuilderTest.java
++++ b/src/test/org/apache/commons/cli/OptionBuilderTest.java
+@@ -41,31 +41,31 @@
+     public void testTwoCompleteOptions( ) {
+         Option simple = OptionBuilder.withLongOpt( "simple option")
+                                      .hasArg( )
+                                      .isRequired( )
+-                                     .hasMultipleArgs( )
++                                     .hasArgs( )
+                                      .withType( new Float( 10 ) )
+                                      .withDescription( "this is a simple option" )
+                                      .create( 's' );
+ 
+         assertEquals( "s", simple.getOpt() );
+         assertEquals( "simple option", simple.getLongOpt() );
+         assertEquals( "this is a simple option", simple.getDescription() );
+         assertEquals( simple.getType().getClass(), Float.class );
+         assertTrue( simple.hasArg() );
+         assertTrue( simple.isRequired() );
+-        assertTrue( simple.hasMultipleArgs() );
++        assertTrue( simple.hasArgs() );
+ 
+         simple = OptionBuilder.withLongOpt( "dimple option")
+                               .hasArg( )
+                               .withDescription( "this is a dimple option" )
+                               .create( 'd' );
+ 
+         assertEquals( "d", simple.getOpt() );
+         assertEquals( "dimple option", simple.getLongOpt() );
+         assertEquals( "this is a dimple option", simple.getDescription() );
+         assertNull( simple.getType() );
+         assertTrue( simple.hasArg() );
+         assertTrue( !simple.isRequired() );
+-        assertTrue( !simple.hasMultipleArgs() );
++        assertTrue( !simple.hasArgs() );
+     }
+ 
+
+commit 7f90b98c1f77a0c1af9c774a12e8e257d7a0d1ac
+Author: John Keyes <jkeyes@apache.org>
+Date:   Mon Jul 29 18:12:37 2002
+
+    OptionBuilder first cut
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129791 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/OptionBuilderTest.java b/src/test/org/apache/commons/cli/OptionBuilderTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/cli/OptionBuilderTest.java
+@@ -0,0 +41,31 @@
++    public void testTwoCompleteOptions( ) {
++        Option simple = OptionBuilder.withLongOpt( "simple option")
++                                     .hasArg( )
++                                     .isRequired( )
++                                     .hasMultipleArgs( )
++                                     .withType( new Float( 10 ) )
++                                     .withDescription( "this is a simple option" )
++                                     .create( 's' );
++
++        assertEquals( "s", simple.getOpt() );
++        assertEquals( "simple option", simple.getLongOpt() );
++        assertEquals( "this is a simple option", simple.getDescription() );
++        assertEquals( simple.getType().getClass(), Float.class );
++        assertTrue( simple.hasArg() );
++        assertTrue( simple.isRequired() );
++        assertTrue( simple.hasMultipleArgs() );
++
++        simple = OptionBuilder.withLongOpt( "dimple option")
++                              .hasArg( )
++                              .withDescription( "this is a dimple option" )
++                              .create( 'd' );
++
++        assertEquals( "d", simple.getOpt() );
++        assertEquals( "dimple option", simple.getLongOpt() );
++        assertEquals( "this is a dimple option", simple.getDescription() );
++        assertNull( simple.getType() );
++        assertTrue( simple.hasArg() );
++        assertTrue( !simple.isRequired() );
++        assertTrue( !simple.hasMultipleArgs() );
++    }
++

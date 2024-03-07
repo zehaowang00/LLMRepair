@@ -1,0 +1,71 @@
+commit 9c72b9bea1913605eea9969f759afbf8d2b98702
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Tue Dec 2 03:26:45 2014
+
+    Tidied-up the tests and behavior
+    
+    Changed the code so that we don't allow creating spies for interfaces (this is how it worked before recent changes, so it is a change that makes Mockito more backwards compatible). Tidied up tests and test names. Tightened test coverage.
+
+diff --git a/test/org/mockitousage/constructor/CreatingMocksWithConstructorTest.java b/test/org/mockitousage/constructor/CreatingMocksWithConstructorTest.java
+--- a/test/org/mockitousage/constructor/CreatingMocksWithConstructorTest.java
++++ b/test/org/mockitousage/constructor/CreatingMocksWithConstructorTest.java
+@@ -71,13 +71,13 @@
+     public void mocking_inner_classes_with_wrong_outer_instance() {
+         try {
+             //when
+             mock(InnerClass.class, withSettings().useConstructor().outerInstance("foo").defaultAnswer(CALLS_REAL_METHODS));
+             //then
+             fail();
+         } catch (MockitoException e) {
+             assertEquals("Unable to create mock instance of type 'InnerClass'", e.getMessage());
+-            assertContains("Please ensure that the outer instance has correct type and that the target class has parameter-less constructor", e.getCause().getMessage());
++            assertContains("Please ensure that the outer instance has correct type and that the target class has 0-arg constructor.", e.getCause().getMessage());
+         }
+     }
+ 
+     @Test
+
+commit 24bdec918dddef8e7eae4b1c68533c04327ff104
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sun Nov 16 17:45:30 2014
+
+    Improved exception messages.
+    
+    Issue #92
+
+diff --git a/test/org/mockitousage/constructor/CreatingMocksWithConstructorTest.java b/test/org/mockitousage/constructor/CreatingMocksWithConstructorTest.java
+--- a/test/org/mockitousage/constructor/CreatingMocksWithConstructorTest.java
++++ b/test/org/mockitousage/constructor/CreatingMocksWithConstructorTest.java
+@@ -70,5 +69,13 @@
+     public void mocking_inner_classes_with_wrong_outer_instance() {
+-        fail();
++        try {
++            //when
++            mock(InnerClass.class, withSettings().useConstructor().outerInstance("foo").defaultAnswer(CALLS_REAL_METHODS));
++            //then
++            fail();
++        } catch (MockitoException e) {
++            assertEquals("Unable to create mock instance of type 'InnerClass'", e.getMessage());
++            assertContains("Please ensure that the outer instance has correct type and that the target class has parameter-less constructor", e.getCause().getMessage());
++        }
+     }
+ 
+     @Test
+
+commit 016386354024cc9f76a11553ebdbc34afd44df6b
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sun Nov 16 10:18:14 2014
+
+    Basic support for creating mocks of inner classes using constructor
+    
+    Fixed #92
+
+diff --git a/test/org/mockitousage/constructor/CreatingMocksWithConstructor.java b/test/org/mockitousage/constructor/CreatingMocksWithConstructor.java
+--- a/test/org/mockitousage/constructor/CreatingMocksWithConstructor.java
++++ b/test/org/mockitousage/constructor/CreatingMocksWithConstructor.java
+@@ -39,0 +52,5 @@
++    public void mocking_inner_classes_with_wrong_outer_instance() {
++        fail();
++    }
++
++    @Test

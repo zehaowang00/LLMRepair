@@ -1,0 +1,16 @@
+commit 8fd9463dad8d2232c1e947403ead465d6a3e5f73
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Thu Dec 6 01:08:44 2018
+
+    Fix #270
+
+diff --git a/src/test/java/com/fasterxml/jackson/dataformat/xml/ser/TestBinaryStreamToXMLSerialization.java b/src/test/java/com/fasterxml/jackson/dataformat/xml/ser/TestBinaryStreamToXMLSerialization.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/dataformat/xml/ser/TestBinaryStreamToXMLSerialization.java
+@@ -0,0 +34,6 @@
++    public void testWith3Bytes() throws Exception 
++    {
++        String xml = MAPPER.writeValueAsString(createPojo( 'A', 'B', 'C' ));
++        assertEquals("<TestPojo><field>QUJD</field></TestPojo>", xml);
++    }
++

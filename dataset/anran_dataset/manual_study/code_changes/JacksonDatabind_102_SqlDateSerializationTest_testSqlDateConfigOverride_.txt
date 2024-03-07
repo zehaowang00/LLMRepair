@@ -1,0 +1,31 @@
+commit 323cd0b309697021f1883de1e53038d2d09fc160
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Thu Aug 30 22:43:43 2018
+
+    Fix #2064
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/ser/jdk/SqlDateSerializationTest.java b/src/test/java/com/fasterxml/jackson/databind/ser/jdk/SqlDateSerializationTest.java
+--- a/src/test/java/com/fasterxml/jackson/databind/ser/jdk/SqlDateSerializationTest.java
++++ b/src/test/java/com/fasterxml/jackson/databind/ser/jdk/SqlDateSerializationTest.java
+@@ -97,1 +99,9 @@
++    public void testSqlDateConfigOverride() throws Exception
++    {
++        ObjectMapper mapper = newObjectMapper();
++        mapper.configOverride(java.sql.Date.class)
++            .setFormat(JsonFormat.Value.forPattern("yyyy+MM+dd"));        
++        assertEquals("\"1980+04+14\"",
++            mapper.writeValueAsString(java.sql.Date.valueOf("1980-04-14")));
++    }
+ }
+
+commit 1850fab337f7ce25ad1a2742d6c80d2cb96758e4
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Fri Jan 13 17:23:14 2017
+
+    Fix #1407
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/ser/jdk/SqlDateSerializationTest.java b/src/test/java/com/fasterxml/jackson/databind/ser/jdk/SqlDateSerializationTest.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/ser/jdk/SqlDateSerializationTest.java
+@@ -0,0 +92,1 @@
++}

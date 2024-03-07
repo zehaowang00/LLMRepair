@@ -1,0 +1,18 @@
+commit b609d7d66d180f2eb537b27f5d605d0596e096ce
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Sun Dec 4 07:10:35 2011
+
+    Fix GJChronology to allow some leap year dates in JulianChronology to be created [3446915]
+
+diff --git a/src/test/java/org/joda/time/chrono/TestGJChronology.java b/src/test/java/org/joda/time/chrono/TestGJChronology.java
+--- a/src/test/java/org/joda/time/chrono/TestGJChronology.java
++++ b/src/test/java/org/joda/time/chrono/TestGJChronology.java
+@@ -492,0 +494,8 @@
++    public void testLeapYearRulesConstruction() {
++        // 1500 not leap in Gregorian, but is leap in Julian
++        DateMidnight dt = new DateMidnight(1500, 2, 29, GJChronology.getInstanceUTC());
++        assertEquals(dt.getYear(), 1500);
++        assertEquals(dt.getMonthOfYear(), 2);
++        assertEquals(dt.getDayOfMonth(), 29);
++    }
++

@@ -1,0 +1,61 @@
+commit 2abf5a321405a82ed4e0d3a7c876c82bb05188f9
+Author: Cowtowncoder <tatu.saloranta@iki.fi>
+Date:   Thu May 21 18:28:03 2015
+
+    Fix #734 (error recovery for `ObjectReader.readValues()`)
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/seq/ReadRecoveryTest.java b/src/test/java/com/fasterxml/jackson/databind/seq/ReadRecoveryTest.java
+--- a/src/test/java/com/fasterxml/jackson/databind/seq/ReadRecoveryTest.java
++++ b/src/test/java/com/fasterxml/jackson/databind/seq/ReadRecoveryTest.java
+@@ -40,6 +49,29 @@
+-        // 24-Mar-2015, tatu: With 2.5, best we can do is to avoid infinite loop;
+-        //    also, since the next token is END_OBJECT, will produce empty Object
+-        assertTrue(it.hasNextValue());
++    public void testSimpleRootRecovery() throws Exception
++    {
++        final String JSON = aposToQuotes("{'a':3}{'a':27,'foo':[1,2],'b':{'x':3}}  {'a':1,'b':2} ");
++
++        MappingIterator<Bean> it = MAPPER.readerFor(Bean.class).readValues(JSON);
++        Bean bean = it.nextValue();
++
++        assertNotNull(bean);
++        assertEquals(3, bean.a);
++
++        // second one problematic
++        try {
++            it.nextValue();
++        } catch (JsonMappingException e) {
++            verifyException(e, "Unrecognized field \"foo\"");
++        }
++
++        // but should recover nicely
+         bean = it.nextValue();
+-        assertEquals(0, bean.a);
+-        // and we should be done now
++        assertNotNull(bean);
++        assertEquals(1, bean.a);
++        assertEquals(2, bean.b);
++
++        assertFalse(it.hasNextValue());
++        
++        it.close();
++    }
++
++    // Similar to "raw" root-level Object sequence, but in array
+
+commit 436c309b2951b5c65509990f2990c1795305a840
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Wed Mar 25 00:36:43 2015
+
+    Fixed #733
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/seq/ReadRecoveryTest.java b/src/test/java/com/fasterxml/jackson/databind/seq/ReadRecoveryTest.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/seq/ReadRecoveryTest.java
+@@ -0,0 +41,6 @@
++        // 24-Mar-2015, tatu: With 2.5, best we can do is to avoid infinite loop;
++        //    also, since the next token is END_OBJECT, will produce empty Object
++        assertTrue(it.hasNextValue());
++        bean = it.nextValue();
++        assertEquals(0, bean.a);
++        // and we should be done now

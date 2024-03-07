@@ -1,0 +1,24 @@
+commit b221a7342856a2a548f5d9817055defc0ec4dea6
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Mon Nov 26 18:02:29 2012
+
+    MATH-904.
+    Fixed wrong assumption in "pow" method.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1413916 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math3/util/FastMathTest.java b/src/test/java/org/apache/commons/math3/util/FastMathTest.java
+--- a/src/test/java/org/apache/commons/math3/util/FastMathTest.java
++++ b/src/test/java/org/apache/commons/math3/util/FastMathTest.java
+@@ -161,0 +161,10 @@
++    public void testMath904() {
++        final double x = -1;
++        final double y = (5 + 1e-15) * 1e15;
++        Assert.assertEquals(Math.pow(x, y),
++                            FastMath.pow(x, y), 0);
++        Assert.assertEquals(Math.pow(x, -y),
++                            FastMath.pow(x, -y), 0);
++    }
++
++    @Test

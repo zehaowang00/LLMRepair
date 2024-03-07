@@ -1,0 +1,18 @@
+commit d5e12f74d2224574ef1e220decc514073303ac5c
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Fri Jan 15 23:25:14 2016
+
+    Add failing test for #1083
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/objectid/Objecid1083Test.java b/src/test/java/com/fasterxml/jackson/databind/objectid/Objecid1083Test.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/objectid/Objecid1083Test.java
+@@ -0,0 +38,8 @@
++      public void testSimple() throws Exception {
++          final ObjectMapper mapper = new ObjectMapper();
++          final String json = aposToQuotes("{'schemas': [{\n"
++              + "  'name': 'FoodMart'\n"
++              + "}]}\n");
++          mapper.readValue(json, JsonRoot.class);
++      }
++}

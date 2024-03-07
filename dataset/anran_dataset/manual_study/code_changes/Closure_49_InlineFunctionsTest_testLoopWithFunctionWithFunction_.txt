@@ -1,0 +1,121 @@
+commit 1a7ba5cb0111dd3ed9afd9691cab39b3c341e408
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Nov 3 17:10:49 2011
+
+    Modify normalization to distinguish function expression names from
+    parameters and local variables.
+    Fixes issue 539.
+    
+    R=nicksantos
+    DELTA=246  (61 added, 11 deleted, 174 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3615
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1552 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/InlineFunctionsTest.java b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+--- a/test/com/google/javascript/jscomp/InlineFunctionsTest.java
++++ b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+@@ -2199,35 +2199,35 @@
+   public void testLoopWithFunctionWithFunction() {
+     assumeMinimumCapture = true;
+     test("function _testLocalVariableInLoop_() {\n" +
+         "  var result = 0;\n" +
+         "  function foo() {\n" +
+         "    var arr = [1, 2, 3, 4, 5];\n" +
+         "    for (var i = 0, l = arr.length; i < l; i++) {\n" +
+         "      var j = arr[i];\n" +
+         // don't inline this function, because the correct behavior depends
+         // captured values.
+         "      (function() {\n" +
+         "        var k = j;\n" +
+         "        setTimeout(function() { result += k; }, 5 * i);\n" +
+         "      })();\n" +
+         "    }\n" +
+         "  }\n" +
+         "  foo();\n" +
+         "}",
+         "function _testLocalVariableInLoop_(){\n" +
+         "  var result=0;\n" +
+         "  {" +
+-        "  var arr$$inline_4=[1,2,3,4,5];\n" +
+-        "  var i$$inline_5=0;\n" +
+-        "  var l$$inline_6=arr$$inline_4.length;\n" +
+-        "  for(;i$$inline_5<l$$inline_6;i$$inline_5++){\n" +
+-        "    var j$$inline_7=arr$$inline_4[i$$inline_5];\n" +
++        "  var arr$$inline_0=[1,2,3,4,5];\n" +
++        "  var i$$inline_1=0;\n" +
++        "  var l$$inline_2=arr$$inline_0.length;\n" +
++        "  for(;i$$inline_1<l$$inline_2;i$$inline_1++){\n" +
++        "    var j$$inline_3=arr$$inline_0[i$$inline_1];\n" +
+         "    (function(){\n" +
+-        "       var k$$inline_8=j$$inline_7;\n" +
+-        "       setTimeout(function(){result+=k$$inline_8},5*i$$inline_5)\n" +
++        "       var k$$inline_4=j$$inline_3;\n" +
++        "       setTimeout(function(){result+=k$$inline_4},5*i$$inline_1)\n" +
+         "     })()\n" +
+         "  }\n" +
+         "  }\n" +
+         "}");
+   }
+ 
+
+commit de20cf30dfdf0f885c9b97dfb75f8425df0280b9
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Aug 22 20:34:25 2011
+
+    Add an inliner option to inline function without considering whether "capture" of variables. Traditionally, we have avoiding inlining function with closure into scope (because they might capture unintended values) or inline functions that require temporaries into scopes that contain closures (because the temps might leak into the closure scopes).
+    This CL does not include a means of enabling the option.
+    
+    R=acleung
+    DELTA=332  (313 added, 0 deleted, 19 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3089
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1378 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/InlineFunctionsTest.java b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+--- a/test/com/google/javascript/jscomp/InlineFunctionsTest.java
++++ b/test/com/google/javascript/jscomp/InlineFunctionsTest.java
+@@ -1962,0 +2199,35 @@
++  public void testLoopWithFunctionWithFunction() {
++    assumeMinimumCapture = true;
++    test("function _testLocalVariableInLoop_() {\n" +
++        "  var result = 0;\n" +
++        "  function foo() {\n" +
++        "    var arr = [1, 2, 3, 4, 5];\n" +
++        "    for (var i = 0, l = arr.length; i < l; i++) {\n" +
++        "      var j = arr[i];\n" +
++        // don't inline this function, because the correct behavior depends
++        // captured values.
++        "      (function() {\n" +
++        "        var k = j;\n" +
++        "        setTimeout(function() { result += k; }, 5 * i);\n" +
++        "      })();\n" +
++        "    }\n" +
++        "  }\n" +
++        "  foo();\n" +
++        "}",
++        "function _testLocalVariableInLoop_(){\n" +
++        "  var result=0;\n" +
++        "  {" +
++        "  var arr$$inline_4=[1,2,3,4,5];\n" +
++        "  var i$$inline_5=0;\n" +
++        "  var l$$inline_6=arr$$inline_4.length;\n" +
++        "  for(;i$$inline_5<l$$inline_6;i$$inline_5++){\n" +
++        "    var j$$inline_7=arr$$inline_4[i$$inline_5];\n" +
++        "    (function(){\n" +
++        "       var k$$inline_8=j$$inline_7;\n" +
++        "       setTimeout(function(){result+=k$$inline_8},5*i$$inline_5)\n" +
++        "     })()\n" +
++        "  }\n" +
++        "  }\n" +
++        "}");
++  }
++

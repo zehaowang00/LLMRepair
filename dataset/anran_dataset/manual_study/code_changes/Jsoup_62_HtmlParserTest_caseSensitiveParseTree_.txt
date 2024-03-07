@@ -1,0 +1,26 @@
+commit b934c5d3e30917de86796c89fcb7cd000f642a80
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sat Jun 10 18:51:45 2017
+
+    Make sure unkown tags close correctly when in insensitive case mode
+    
+    Fixes #819
+
+diff --git a/src/test/java/org/jsoup/parser/HtmlParserTest.java b/src/test/java/org/jsoup/parser/HtmlParserTest.java
+index 4ab93591..933810e1 100644
+--- a/src/test/java/org/jsoup/parser/HtmlParserTest.java
++++ b/src/test/java/org/jsoup/parser/HtmlParserTest.java
+@@ -946,4 +946,13 @@ public void testInvalidTableContents() throws IOException {
+         Document doc = Jsoup.parse("<p><a \06=foo>One</a><a/\06=bar><a foo\06=bar>Two</a></p>");
+         assertEquals("<p><a>One</a><a></a><a foo=\"bar\">Two</a></p>", doc.body().html());
+     }
++
++    @Test public void caseSensitiveParseTree() {
++        String html = "<r><X>A</X><y>B</y></r>";
++        Parser parser = Parser.htmlParser();
++        parser.settings(ParseSettings.preserveCase);
++        Document doc = parser.parseInput(html, "");
++        assertEquals("<r> <X> A </X> <y> B </y> </r>", StringUtil.normaliseWhitespace(doc.body().html()));
++
++    }
+ }

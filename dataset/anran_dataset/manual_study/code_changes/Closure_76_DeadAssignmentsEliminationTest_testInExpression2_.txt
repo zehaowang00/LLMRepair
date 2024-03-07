@@ -1,0 +1,55 @@
+commit 78b01c3a435cd175ce3ee70f97b2f8faac342cdc
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Mar 18 17:59:28 2011
+
+    Correct handling of conditional branches within expressions when doing dead assignment elminination.
+    Fixes issue 384.
+    
+    R=acleung
+    DELTA=166  (143 added, 0 deleted, 23 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=951
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@913 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/DeadAssignmentsEliminationTest.java b/test/com/google/javascript/jscomp/DeadAssignmentsEliminationTest.java
+--- a/test/com/google/javascript/jscomp/DeadAssignmentsEliminationTest.java
++++ b/test/com/google/javascript/jscomp/DeadAssignmentsEliminationTest.java
+@@ -455,0 +456,34 @@
++  public void testInExpression2() {
++    // This can be improved.  "a = 1" is dead but "a" is read in the following
++    // expression.
++    inFunction(
++        "var a; a = 1; if ((a = 2) || (a = 3) || (a)) {}",
++        "var a; a = 1; if ((    2) || (a = 3) || (a)) {}");
++
++    inFunction(
++        "var a; (a = 1) || (a = 2)",
++        "var a; 1 || 2");
++
++    inFunction("var a; (a = 1) || (a = 2); return a");
++
++    inFunction(
++        "var a; a = 1; a ? a = 2 : a;",
++        "var a; a = 1; a ?     2 : a;");
++
++    inFunction("var a; a = 1; a ? a = 2 : a; return a");
++
++    inFunction(
++        "var a; a = 1; a ? a : a = 2;",
++        "var a; a = 1; a ? a : 2;");
++
++    inFunction("var a; a = 1; a ? a : a =2; return a");
++
++    inFunction(
++        "var a; (a = 1) ? a = 2 : a = 3;",
++        "var a;      1  ?     2 :     3;");
++
++    // This can be improved.  "a = 1" is dead but "a" is read in the following
++    // expression.
++    inFunction("var a; (a = 1) ? a = 2 : a = 3; return a");
++  }
++

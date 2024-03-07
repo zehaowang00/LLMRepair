@@ -1,0 +1,68 @@
+commit bacb37f41b4b8db75d6f1731e8c9afd56c6247dd
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Sat Mar 12 17:24:47 2016
+
+    Fix #1155 fix in 2.7 branch
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/ser/DateSerializationTest.java b/src/test/java/com/fasterxml/jackson/databind/ser/DateSerializationTest.java
+--- a/src/test/java/com/fasterxml/jackson/databind/ser/DateSerializationTest.java
++++ b/src/test/java/com/fasterxml/jackson/databind/ser/DateSerializationTest.java
+@@ -232,2 +266,45 @@
++    public void testDateDefaultShape() throws Exception
++    {
++        ObjectMapper mapper = new ObjectMapper();
++        // No @JsonFormat => default to user config
++        mapper.enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
++        String json = mapper.writeValueAsString(new DateAsDefaultBean(0L));
++        assertEquals(aposToQuotes("{'date':0}"), json);
++        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
++        json = mapper.writeValueAsString(new DateAsDefaultBean(0L));
++        assertEquals(aposToQuotes("{'date':'1970-01-01T00:00:00.000+0000'}"), json);
++
++        // Empty @JsonFormat => default to user config
++        mapper.enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
++        json = mapper.writeValueAsString(new DateAsDefaultBeanWithEmptyJsonFormat(0L));
++        assertEquals(aposToQuotes("{'date':0}"), json);
++        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
++        json = mapper.writeValueAsString(new DateAsDefaultBeanWithEmptyJsonFormat(0L));
++        assertEquals(aposToQuotes("{'date':'1970-01-01T00:00:00.000+0000'}"), json);
++
++        // @JsonFormat with Shape.ANY and pattern => STRING shape, regardless of user config
++        mapper.enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
++        json = mapper.writeValueAsString(new DateAsDefaultBeanWithPattern(0L));
++        assertEquals(aposToQuotes("{'date':'1970-01-01'}"), json);
++        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
++        json = mapper.writeValueAsString(new DateAsDefaultBeanWithPattern(0L));
++        assertEquals(aposToQuotes("{'date':'1970-01-01'}"), json);
++
++        // @JsonFormat with Shape.ANY and locale => STRING shape, regardless of user config
++        mapper.enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
++        json = mapper.writeValueAsString(new DateAsDefaultBeanWithLocale(0L));
++        assertEquals(aposToQuotes("{'date':'1970-01-01T00:00:00.000+0000'}"), json);
++        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
++        json = mapper.writeValueAsString(new DateAsDefaultBeanWithLocale(0L));
++        assertEquals(aposToQuotes("{'date':'1970-01-01T00:00:00.000+0000'}"), json);
++
++        // @JsonFormat with Shape.ANY and timezone => STRING shape, regardless of user config
++        mapper.enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
++        json = mapper.writeValueAsString(new DateAsDefaultBeanWithTimezone(0L));
++        assertEquals(aposToQuotes("{'date':'1970-01-01T01:00:00.000+0100'}"), json);
++        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
++        json = mapper.writeValueAsString(new DateAsDefaultBeanWithTimezone(0L));
++        assertEquals(aposToQuotes("{'date':'1970-01-01T01:00:00.000+0100'}"), json);
++    }
+ }
+ 
+
+commit a63c2038a03c7090ce4773d6cf54809150e59350
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 03:26:53 2011
+
+    Add unit tests, almost compilable
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/ser/TestDateSerialization.java b/src/test/java/com/fasterxml/jackson/databind/ser/TestDateSerialization.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/ser/TestDateSerialization.java
+@@ -0,0 +116,2 @@
++}
++

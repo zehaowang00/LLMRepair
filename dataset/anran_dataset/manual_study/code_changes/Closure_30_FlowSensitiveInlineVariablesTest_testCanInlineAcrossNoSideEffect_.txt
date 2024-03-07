@@ -1,0 +1,76 @@
+commit 38e2b8f247423734adec3dbd76fa22da1a3561a8
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Apr 16 18:28:43 2012
+
+    fixes issue 698
+    
+    R=acleung
+    DELTA=60  (50 added, 0 deleted, 10 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=4545
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1902 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/FlowSensitiveInlineVariablesTest.java b/test/com/google/javascript/jscomp/FlowSensitiveInlineVariablesTest.java
+--- a/test/com/google/javascript/jscomp/FlowSensitiveInlineVariablesTest.java
++++ b/test/com/google/javascript/jscomp/FlowSensitiveInlineVariablesTest.java
+@@ -347,5 +359,11 @@
+   public void testCanInlineAcrossNoSideEffect() {
+-    inline("var y; var x = noSFX(Y), z = noSFX(); noSFX(); noSFX(), print(x)",
+-           "var y; var x, z = noSFX(); noSFX(); noSFX(), print(noSFX(Y))");
++    // This can't be inlined because print() has side-effects and might change
++    // the definition of noSFX. We should be able to mark noSFX as const
++    // in some way.
++    noInline(
++        "var y; var x = noSFX(y), z = noSFX(); noSFX(); noSFX(), print(x)");
++    //inline(
++    //    "var y; var x = noSFX(y), z = noSFX(); noSFX(); noSFX(), print(x)",
++    //    "var y; var x, z = noSFX(); noSFX(); noSFX(), print(noSFX(y))");
+   }
+ 
+
+commit 74a817bbf5256d671036356c58096f612535e4a2
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Apr 9 10:21:53 2010
+
+    Change on 2010/04/08 by john
+    
+            Part I: Add a pass that checks for references to the global RegExp object.
+    
+            R=alan
+            DELTA=192  (185 added, 1 deleted, 6 changed)
+    
+    Change on 2010/04/08 by nick
+    
+            type annotation fixit. Fixes issue 140.
+    
+            R=alan
+            DELTA=69  (41 added, 0 deleted, 28 changed)
+    
+    Change on 2010/04/08 by alan
+    
+            Fix the flow sensitive inlining case that breaks code.
+    
+            R=john
+            DELTA=163  (158 added, 0 deleted, 5 changed)
+    
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=jfazwv
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@178 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/FlowSensitiveInlineVariablesTest.java b/test/com/google/javascript/jscomp/FlowSensitiveInlineVariablesTest.java
+--- a/test/com/google/javascript/jscomp/FlowSensitiveInlineVariablesTest.java
++++ b/test/com/google/javascript/jscomp/FlowSensitiveInlineVariablesTest.java
+@@ -288,0 +337,5 @@
++  public void testCanInlineAcrossNoSideEffect() {
++    inline("var y; var x = noSFX(Y), z = noSFX(); noSFX(); noSFX(), print(x)",
++           "var y; var x, z = noSFX(); noSFX(); noSFX(), print(noSFX(Y))");
++  }
++

@@ -1,0 +1,54 @@
+commit de98c0f0a566060ac143c39036f06a03f141dc52
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Wed Mar 6 03:53:28 2013
+
+    Fixed accuracy of 3D Line.revert().
+    
+    JIRA: MATH-938
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1453218 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math3/geometry/euclidean/threed/LineTest.java b/src/test/java/org/apache/commons/math3/geometry/euclidean/threed/LineTest.java
+--- a/src/test/java/org/apache/commons/math3/geometry/euclidean/threed/LineTest.java
++++ b/src/test/java/org/apache/commons/math3/geometry/euclidean/threed/LineTest.java
+@@ -132,1 +133,16 @@
++    public void testRevert() {
++        
++        // setup
++        Line line = new Line(new Vector3D(1653345.6696423641, 6170370.041579291, 90000),
++                             new Vector3D(1650757.5050732433, 6160710.879908984, 0.9));
++        Vector3D expected = line.getDirection().negate();
++
++        // action
++        Line reverted = line.revert();
++
++        // verify
++        Assert.assertArrayEquals(expected.toArray(), reverted.getDirection().toArray(), 0);
++
++    }
++
+ }
+
+commit da58a6460a83ce78df0832a5481c6d0a50a7675d
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sun May 15 12:02:05 2011
+
+    A complete generic implementation of Binary Space Partitioning Trees (BSP trees)
+    has been added. A few specializations of this implementation are also provided
+    for 1D, 2D and 3D Euclidean geometry. This allows support for arbitrary
+    intervals sets (1D), polygons sets (2D) and polyhedrons sets (3D) with all
+    sets operations (union, intersection, symmetric difference, difference, complement),
+    with predicates (point inside/outside/on boundary, emptiness, other region contained),
+    with geometrical computation (barycenter, size, boundary size) and with conversions
+    from and to boundary representation.
+    
+    JIRA: MATH-576
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1103438 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/geometry/euclidean/threeD/LineTest.java b/src/test/java/org/apache/commons/math/geometry/euclidean/threeD/LineTest.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/math/geometry/euclidean/threeD/LineTest.java
+@@ -0,0 +75,1 @@
++}

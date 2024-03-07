@@ -1,0 +1,21 @@
+commit 1cd68eed57febf806c385bf04a596b922f4c1964
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Tue Mar 19 10:09:08 2013
+
+    Fixed missing update in ODE event handlers.
+    
+    When a RESET_STATE was triggered, event states for events not triggered
+    in the same step were not updated properly.
+    
+    JIRA: MATH-950
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1458294 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math3/ode/nonstiff/DormandPrince853IntegratorTest.java b/src/test/java/org/apache/commons/math3/ode/nonstiff/DormandPrince853IntegratorTest.java
+--- a/src/test/java/org/apache/commons/math3/ode/nonstiff/DormandPrince853IntegratorTest.java
++++ b/src/test/java/org/apache/commons/math3/ode/nonstiff/DormandPrince853IntegratorTest.java
+@@ -336,0 +337,4 @@
++  public void testEventsScheduling() {
++
++      FirstOrderDifferentialEquations sincos = new FirstOrderDifferentialEquations() {
++

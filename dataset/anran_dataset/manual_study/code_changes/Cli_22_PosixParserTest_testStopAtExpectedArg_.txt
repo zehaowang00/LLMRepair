@@ -1,0 +1,24 @@
+commit 67289747fc56e79ee9092a47cd2ff5bd0c688a29
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Mon Sep 15 06:25:38 2008
+
+    Merged the common parser tests into ParserTestCase
+    Fixed the integration test for Groovy, highlighting a regression in CLI 1.2
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/branches/cli-1.x@695410 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/ParserTestCase.java b/src/test/org/apache/commons/cli/ParserTestCase.java
+--- /dev/null
++++ b/src/test/org/apache/commons/cli/ParserTestCase.java
+@@ -0,0 +187,11 @@
++   public void testStopAtExpectedArg() throws Exception
++    {
++        String[] args = new String[]{"-b", "foo"};
++
++        CommandLine cl = parser.parse(options, args, true);
++
++        assertTrue("Confirm -b is set", cl.hasOption('b'));
++        assertEquals("Confirm -b is set", "foo", cl.getOptionValue('b'));
++        assertTrue("Confirm no extra args: " + cl.getArgList().size(), cl.getArgList().size() == 0);
++    }
++

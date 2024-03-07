@@ -1,0 +1,66 @@
+commit 00fea9d8078d487e31cec8292dbd9bd69bc9c216
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Tue Mar 15 08:15:02 2011
+
+    MATH-546
+    Wrong  variable type ("int" instead of "double").
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1081744 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/stat/clustering/KMeansPlusPlusClustererTest.java b/src/test/java/org/apache/commons/math/stat/clustering/KMeansPlusPlusClustererTest.java
+--- a/src/test/java/org/apache/commons/math/stat/clustering/KMeansPlusPlusClustererTest.java
++++ b/src/test/java/org/apache/commons/math/stat/clustering/KMeansPlusPlusClustererTest.java
+@@ -169,1 +215,37 @@
++    public void testSmallDistances() {
++        // Create a bunch of CloseIntegerPoints. Most are identical, but one is different by a
++        // small distance.
++        int[] repeatedArray = { 0 };
++        int[] uniqueArray = { 1 };
++        CloseIntegerPoint repeatedPoint =
++            new CloseIntegerPoint(new EuclideanIntegerPoint(repeatedArray));
++        CloseIntegerPoint uniquePoint =
++            new CloseIntegerPoint(new EuclideanIntegerPoint(uniqueArray));
++
++        Collection<CloseIntegerPoint> points = new ArrayList<CloseIntegerPoint>();
++        final int NUM_REPEATED_POINTS = 10 * 1000;
++        for (int i = 0; i < NUM_REPEATED_POINTS; ++i) {
++            points.add(repeatedPoint);
++        }
++        points.add(uniquePoint);
++
++        // Ask a KMeansPlusPlusClusterer to run zero iterations (i.e., to simply choose initial
++        // cluster centers).
++        final long RANDOM_SEED = 0;
++        final int NUM_CLUSTERS = 2;
++        final int NUM_ITERATIONS = 0;
++        KMeansPlusPlusClusterer<CloseIntegerPoint> clusterer =
++            new KMeansPlusPlusClusterer<CloseIntegerPoint>(new Random(RANDOM_SEED));
++        List<Cluster<CloseIntegerPoint>> clusters =
++            clusterer.cluster(points, NUM_CLUSTERS, NUM_ITERATIONS);
++
++        // Check that one of the chosen centers is the unique point.
++        boolean uniquePointIsCenter = false;
++        for (Cluster<CloseIntegerPoint> cluster : clusters) {
++            if (cluster.getCenter().equals(uniquePoint)) {
++                uniquePointIsCenter = true;
++            }
++        }
++        assertTrue(uniquePointIsCenter);
++    }
+ }
+
+commit 189717fd10f468e2d0a40bc94369fca5b3d1ec41
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sat May 2 15:34:51 2009
+
+    added a clustering package with an implementation of k-means++
+    JIRA: MATH-266
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@770979 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/stat/clustering/KMeansPlusPlusClustererTest.java b/src/test/org/apache/commons/math/stat/clustering/KMeansPlusPlusClustererTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/math/stat/clustering/KMeansPlusPlusClustererTest.java
+@@ -0,0 +97,1 @@
++}

@@ -1,0 +1,30 @@
+commit 24a6a2692e942969f5c39bd88d3d12ac0f0bf0d9
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Tue Jun 2 15:37:30 2009
+
+    Fixed a problem when setting some variables (several variables were set instead of only one)
+    JIRA: MATH-272
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@781135 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/optimization/linear/SimplexSolverTest.java b/src/test/org/apache/commons/math/optimization/linear/SimplexSolverTest.java
+--- a/src/test/org/apache/commons/math/optimization/linear/SimplexSolverTest.java
++++ b/src/test/org/apache/commons/math/optimization/linear/SimplexSolverTest.java
+@@ -33,0 +35,17 @@
++    public void testMath272() throws OptimizationException {
++        LinearObjectiveFunction f = new LinearObjectiveFunction(new double[] { 2, 2, 1 }, 0);
++        Collection<LinearConstraint> constraints = new ArrayList<LinearConstraint>();
++        constraints.add(new LinearConstraint(new double[] { 1, 1, 0 }, Relationship.GEQ,  1));
++        constraints.add(new LinearConstraint(new double[] { 1, 0, 1 }, Relationship.GEQ,  1));
++        constraints.add(new LinearConstraint(new double[] { 0, 1, 0 }, Relationship.GEQ,  1));
++
++        SimplexSolver solver = new SimplexSolver();
++        RealPointValuePair solution = solver.optimize(f, constraints, GoalType.MINIMIZE, true);
++        
++        assertEquals(0.0, solution.getPoint()[0], .0000001);
++        assertEquals(1.0, solution.getPoint()[1], .0000001);
++        assertEquals(1.0, solution.getPoint()[2], .0000001);
++        assertEquals(3.0, solution.getValue(), .0000001);
++      }
++
++    @Test

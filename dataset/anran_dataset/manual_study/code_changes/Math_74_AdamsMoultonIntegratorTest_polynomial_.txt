@@ -1,0 +1,452 @@
+commit d06e7b7c8e646ff489a5dfba47dfcb283a194e9b
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Thu Jan 28 10:01:55 2010
+
+    Fixed automatic step initialization in embedded Runge-Kutta integrators.
+    The relative tolerance setting was never used, only the absolute tolerance was used.
+    JIRA: MATH-338
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@904112 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java b/src/test/java/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java
+--- a/src/test/java/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java
++++ b/src/test/java/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java
+@@ -136,21 +136,21 @@
+     public void polynomial() throws DerivativeException, IntegratorException {
+         TestProblem6 pb = new TestProblem6();
+         double range = Math.abs(pb.getFinalTime() - pb.getInitialTime());
+ 
+         for (int nSteps = 1; nSteps < 7; ++nSteps) {
+             AdamsMoultonIntegrator integ =
+                 new AdamsMoultonIntegrator(nSteps, 1.0e-6 * range, 0.1 * range, 1.0e-9, 1.0e-9);
+             TestProblemHandler handler = new TestProblemHandler(pb, integ);
+             integ.addStepHandler(handler);
+             integ.integrate(pb, pb.getInitialTime(), pb.getInitialState(),
+                             pb.getFinalTime(), new double[pb.getDimension()]);
+             if (nSteps < 4) {
+-                assertTrue(integ.getEvaluations() > 150);
++                assertTrue(integ.getEvaluations() > 140);
+             } else {
+-                assertTrue(integ.getEvaluations() < 100);
++                assertTrue(integ.getEvaluations() < 90);
+             }
+         }
+ 
+     }
+ 
+ }
+
+commit 4c13fdf4d517925195024e2cd52a6ff1f89a96a5
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sat Jul 18 14:21:36 2009
+
+    Changed the default max growth factor for multistep methods using Nordsieck representation.
+    The previous value (10.0) was far too big and lead to numerical instability at high orders
+    because the last component of the Nordsieck vector, which has a low accuracy, could be
+    multiplied by 10^k which was ... huge.
+    
+    These integrators are at least usable now!
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@795407 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java b/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java
+--- a/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java
++++ b/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java
+@@ -136,21 +136,21 @@
+     public void polynomial() throws DerivativeException, IntegratorException {
+         TestProblem6 pb = new TestProblem6();
+         double range = Math.abs(pb.getFinalTime() - pb.getInitialTime());
+ 
+         for (int nSteps = 1; nSteps < 7; ++nSteps) {
+             AdamsMoultonIntegrator integ =
+                 new AdamsMoultonIntegrator(nSteps, 1.0e-6 * range, 0.1 * range, 1.0e-9, 1.0e-9);
+             TestProblemHandler handler = new TestProblemHandler(pb, integ);
+             integ.addStepHandler(handler);
+             integ.integrate(pb, pb.getInitialTime(), pb.getInitialState(),
+                             pb.getFinalTime(), new double[pb.getDimension()]);
+             if (nSteps < 4) {
+                 assertTrue(integ.getEvaluations() > 150);
+             } else {
+-                assertTrue(integ.getEvaluations() < 90);
++                assertTrue(integ.getEvaluations() < 100);
+             }
+         }
+ 
+     }
+ 
+ }
+
+commit 3cd913075c0f07077da16a71b57572281b8fd104
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sun Jun 21 13:01:03 2009
+
+    removed the current point from count in multistep integrators
+    updated documentation since now Adams-Bashforth and Adams-Moulton
+    are adaptive stepsize integrators
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@787050 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java b/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java
+--- a/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java
++++ b/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java
+@@ -132,21 +132,21 @@
+     public void polynomial() throws DerivativeException, IntegratorException {
+         TestProblem6 pb = new TestProblem6();
+         double range = Math.abs(pb.getFinalTime() - pb.getInitialTime());
+ 
+-        for (int order = 2; order < 8; ++order) {
++        for (int nSteps = 1; nSteps < 7; ++nSteps) {
+             AdamsMoultonIntegrator integ =
+-                new AdamsMoultonIntegrator(order, 1.0e-6 * range, 0.1 * range, 1.0e-9, 1.0e-9);
++                new AdamsMoultonIntegrator(nSteps, 1.0e-6 * range, 0.1 * range, 1.0e-9, 1.0e-9);
+             TestProblemHandler handler = new TestProblemHandler(pb, integ);
+             integ.addStepHandler(handler);
+             integ.integrate(pb, pb.getInitialTime(), pb.getInitialState(),
+                             pb.getFinalTime(), new double[pb.getDimension()]);
+-            if (order < 5) {
++            if (nSteps < 4) {
+                 assertTrue(integ.getEvaluations() > 150);
+             } else {
+                 assertTrue(integ.getEvaluations() < 90);
+             }
+         }
+ 
+     }
+ 
+ }
+
+commit 37fb4b50920133ce8f60b239713af64df48554fd
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sat Jun 20 14:53:08 2009
+
+    removed lots of serialization in ODE
+    the only classes/interfaces for which serialization is really important in this package are the step interpolators. The reason for that is that the ContinuousOutputModel is explicitly serializable and contains step interpolators. This allows users to perform integration of any complex model and to save the result of the integration for all integration range by serializing a ContinuousOutputModel instance. This feature is a major one.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@786881 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java b/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java
+--- a/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java
++++ b/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java
+@@ -138,47 +132,21 @@
+     public void polynomial() throws DerivativeException, IntegratorException {
+         TestProblem6 pb = new TestProblem6();
+         double range = Math.abs(pb.getFinalTime() - pb.getInitialTime());
+ 
+         for (int order = 2; order < 8; ++order) {
+             AdamsMoultonIntegrator integ =
+                 new AdamsMoultonIntegrator(order, 1.0e-6 * range, 0.1 * range, 1.0e-9, 1.0e-9);
+             TestProblemHandler handler = new TestProblemHandler(pb, integ);
+             integ.addStepHandler(handler);
+             integ.integrate(pb, pb.getInitialTime(), pb.getInitialState(),
+                             pb.getFinalTime(), new double[pb.getDimension()]);
+             if (order < 5) {
+                 assertTrue(integ.getEvaluations() > 150);
+             } else {
+                 assertTrue(integ.getEvaluations() < 90);
+             }
+         }
+ 
+     }
+ 
+-    @Test
+-    public void serialization()
+-        throws IntegratorException, DerivativeException,
+-               IOException, ClassNotFoundException {
+-
+-        TestProblem6 pb = new TestProblem6();
+-        double range = Math.abs(pb.getFinalTime() - pb.getInitialTime());
+-
+-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+-        ObjectOutputStream    oos = new ObjectOutputStream(bos);
+-        oos.writeObject(new AdamsMoultonIntegrator(5, 0, range, 1.0e-12, 1.0e-12));
+-        assertTrue(bos.size() > 2800);
+-        assertTrue(bos.size() < 3000);
+-
+-        ByteArrayInputStream  bis = new ByteArrayInputStream(bos.toByteArray());
+-        ObjectInputStream     ois = new ObjectInputStream(bis);
+-        FirstOrderIntegrator integ  = (AdamsMoultonIntegrator) ois.readObject();
+-        assertEquals("Adams-Moulton", integ.getName());
+-        TestProblemHandler handler = new TestProblemHandler(pb, integ);
+-        integ.addStepHandler(handler);
+-        integ.integrate(pb, pb.getInitialTime(), pb.getInitialState(),
+-                        pb.getFinalTime(), new double[pb.getDimension()]);
+-        assertTrue(handler.getMaximalValueError() < 8.0e-11);
+-
+-    }
+-
+ }
+
+commit a04a035c49bf2bcb34c41a5a7a16195084e4b852
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sat Jun 20 14:15:54 2009
+
+    changed the Adams-Bashforth and Adams-Moulton multistep integrators to adaptive stepsize.
+    this was made possible thanks to the Nordsieck representation of integration state
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@786877 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java b/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java
+--- a/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java
++++ b/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java
+@@ -146,47 +138,47 @@
+-    public void polynomial()
+-        throws DerivativeException, IntegratorException {
+-        final TestProblem6 pb = new TestProblem6();
+-        double step = Math.abs(pb.getFinalTime() - pb.getInitialTime()) * 0.02;
+-
+-        for (int order = 2; order < 9; ++order) {
+-            AdamsMoultonIntegrator integ = new AdamsMoultonIntegrator(order, step);
+-            integ.setStarterIntegrator(new DormandPrince853Integrator(1.0e-3 * step, 1.0e3 * step,
+-                                                                      1.0e-5, 1.0e-5));
+-            final TestProblemHandler handler = new TestProblemHandler(pb, integ);
++    public void polynomial() throws DerivativeException, IntegratorException {
++        TestProblem6 pb = new TestProblem6();
++        double range = Math.abs(pb.getFinalTime() - pb.getInitialTime());
++
++        for (int order = 2; order < 8; ++order) {
++            AdamsMoultonIntegrator integ =
++                new AdamsMoultonIntegrator(order, 1.0e-6 * range, 0.1 * range, 1.0e-9, 1.0e-9);
++            TestProblemHandler handler = new TestProblemHandler(pb, integ);
+             integ.addStepHandler(handler);
+             integ.integrate(pb, pb.getInitialTime(), pb.getInitialState(),
+                             pb.getFinalTime(), new double[pb.getDimension()]);
+             if (order < 5) {
+-                assertTrue(handler.getMaximalValueError() > 1.0e-6);
++                assertTrue(integ.getEvaluations() > 150);
+             } else {
+-                assertTrue(handler.getMaximalValueError() < 4.0e-13);
++                assertTrue(integ.getEvaluations() < 90);
+             }
+         }
+ 
+     }
+ 
+     @Test
+     public void serialization()
+         throws IntegratorException, DerivativeException,
+                IOException, ClassNotFoundException {
+ 
+         TestProblem6 pb = new TestProblem6();
+-        double step = Math.abs(pb.getFinalTime() - pb.getInitialTime()) * 0.01;
++        double range = Math.abs(pb.getFinalTime() - pb.getInitialTime());
+ 
+         ByteArrayOutputStream bos = new ByteArrayOutputStream();
+         ObjectOutputStream    oos = new ObjectOutputStream(bos);
+-        oos.writeObject(new AdamsMoultonIntegrator(8, step));
+-        
++        oos.writeObject(new AdamsMoultonIntegrator(5, 0, range, 1.0e-12, 1.0e-12));
++        assertTrue(bos.size() > 2800);
++        assertTrue(bos.size() < 3000);
++
+         ByteArrayInputStream  bis = new ByteArrayInputStream(bos.toByteArray());
+         ObjectInputStream     ois = new ObjectInputStream(bis);
+         FirstOrderIntegrator integ  = (AdamsMoultonIntegrator) ois.readObject();
+         assertEquals("Adams-Moulton", integ.getName());
+         TestProblemHandler handler = new TestProblemHandler(pb, integ);
+         integ.addStepHandler(handler);
+         integ.integrate(pb, pb.getInitialTime(), pb.getInitialState(),
+                         pb.getFinalTime(), new double[pb.getDimension()]);
+-        assertTrue(handler.getMaximalValueError() < 2.0e-13);
++        assertTrue(handler.getMaximalValueError() < 8.0e-11);
+ 
+     }
+ 
+ }
+
+commit 7695a8c9162520d0d8770bbab6d6088c9a4cd657
+Author: William Barker <billbarker@apache.org>
+Date:   Wed Jun 17 00:02:35 2009
+
+    More Serialization changes, mostly for ode and friends.
+    
+    Unfortunately, had to leave some abstract base classes as Serializable, since they had no senible default construters.  But left them with meaningless UIDs, to break anyone that doesn't override it.
+    
+    Of course, if anyone has a better patch, I'm happy to implement it.  At this point, the serialization changes for [math] should be almost done.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@785473 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java b/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java
+--- a/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java
++++ b/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java
+@@ -146,49 +146,47 @@
+     public void polynomial()
+         throws DerivativeException, IntegratorException {
+         final TestProblem6 pb = new TestProblem6();
+         double step = Math.abs(pb.getFinalTime() - pb.getInitialTime()) * 0.02;
+ 
+         for (int order = 2; order < 9; ++order) {
+             AdamsMoultonIntegrator integ = new AdamsMoultonIntegrator(order, step);
+             integ.setStarterIntegrator(new DormandPrince853Integrator(1.0e-3 * step, 1.0e3 * step,
+                                                                       1.0e-5, 1.0e-5));
+             final TestProblemHandler handler = new TestProblemHandler(pb, integ);
+             integ.addStepHandler(handler);
+             integ.integrate(pb, pb.getInitialTime(), pb.getInitialState(),
+                             pb.getFinalTime(), new double[pb.getDimension()]);
+             if (order < 5) {
+                 assertTrue(handler.getMaximalValueError() > 1.0e-6);
+             } else {
+                 assertTrue(handler.getMaximalValueError() < 4.0e-13);
+             }
+         }
+ 
+     }
+ 
+     @Test
+     public void serialization()
+         throws IntegratorException, DerivativeException,
+                IOException, ClassNotFoundException {
+ 
+         TestProblem6 pb = new TestProblem6();
+         double step = Math.abs(pb.getFinalTime() - pb.getInitialTime()) * 0.01;
+ 
+         ByteArrayOutputStream bos = new ByteArrayOutputStream();
+         ObjectOutputStream    oos = new ObjectOutputStream(bos);
+         oos.writeObject(new AdamsMoultonIntegrator(8, step));
+-        assertTrue(bos.size() > 2900);
+-        assertTrue(bos.size() < 3000);
+-
++        
+         ByteArrayInputStream  bis = new ByteArrayInputStream(bos.toByteArray());
+         ObjectInputStream     ois = new ObjectInputStream(bis);
+         FirstOrderIntegrator integ  = (AdamsMoultonIntegrator) ois.readObject();
+         assertEquals("Adams-Moulton", integ.getName());
+         TestProblemHandler handler = new TestProblemHandler(pb, integ);
+         integ.addStepHandler(handler);
+         integ.integrate(pb, pb.getInitialTime(), pb.getInitialState(),
+                         pb.getFinalTime(), new double[pb.getDimension()]);
+         assertTrue(handler.getMaximalValueError() < 2.0e-13);
+ 
+     }
+ 
+ }
+
+commit b2d25e07988b85fe3dee62ffaa7586144eb44535
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Tue Jun 9 15:33:19 2009
+
+    added support for max number of evaluations to ODE integrators
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@783103 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java b/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java
+--- a/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java
++++ b/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java
+@@ -146,49 +146,49 @@
+     public void polynomial()
+         throws DerivativeException, IntegratorException {
+         final TestProblem6 pb = new TestProblem6();
+         double step = Math.abs(pb.getFinalTime() - pb.getInitialTime()) * 0.02;
+ 
+         for (int order = 2; order < 9; ++order) {
+             AdamsMoultonIntegrator integ = new AdamsMoultonIntegrator(order, step);
+             integ.setStarterIntegrator(new DormandPrince853Integrator(1.0e-3 * step, 1.0e3 * step,
+                                                                       1.0e-5, 1.0e-5));
+             final TestProblemHandler handler = new TestProblemHandler(pb, integ);
+             integ.addStepHandler(handler);
+             integ.integrate(pb, pb.getInitialTime(), pb.getInitialState(),
+                             pb.getFinalTime(), new double[pb.getDimension()]);
+             if (order < 5) {
+                 assertTrue(handler.getMaximalValueError() > 1.0e-6);
+             } else {
+                 assertTrue(handler.getMaximalValueError() < 4.0e-13);
+             }
+         }
+ 
+     }
+ 
+     @Test
+     public void serialization()
+         throws IntegratorException, DerivativeException,
+                IOException, ClassNotFoundException {
+ 
+         TestProblem6 pb = new TestProblem6();
+         double step = Math.abs(pb.getFinalTime() - pb.getInitialTime()) * 0.01;
+ 
+         ByteArrayOutputStream bos = new ByteArrayOutputStream();
+         ObjectOutputStream    oos = new ObjectOutputStream(bos);
+         oos.writeObject(new AdamsMoultonIntegrator(8, step));
+-        assertTrue(bos.size() > 2800);
+-        assertTrue(bos.size() < 2900);
++        assertTrue(bos.size() > 2900);
++        assertTrue(bos.size() < 3000);
+ 
+         ByteArrayInputStream  bis = new ByteArrayInputStream(bos.toByteArray());
+         ObjectInputStream     ois = new ObjectInputStream(bis);
+         FirstOrderIntegrator integ  = (AdamsMoultonIntegrator) ois.readObject();
+         assertEquals("Adams-Moulton", integ.getName());
+         TestProblemHandler handler = new TestProblemHandler(pb, integ);
+         integ.addStepHandler(handler);
+         integ.integrate(pb, pb.getInitialTime(), pb.getInitialState(),
+                         pb.getFinalTime(), new double[pb.getDimension()]);
+         assertTrue(handler.getMaximalValueError() < 2.0e-13);
+ 
+     }
+ 
+ }
+
+commit 0a76fb6b5fa8f56cb4420a48f92e4e2bc7f82cbc
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sun Jun 7 15:19:35 2009
+
+    changed again the Adams-Bashforth and Adams-Moulton integrators
+    they now both use Nordsieck representation
+    this is the first really usable implementation, it still integrates only with fixed stepsize,
+    but thanks to Nordsieck representation they will be improved to adaptive stepsize soon
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@782442 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java b/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/math/ode/nonstiff/AdamsMoultonIntegratorTest.java
+@@ -0,0 +146,49 @@
++    public void polynomial()
++        throws DerivativeException, IntegratorException {
++        final TestProblem6 pb = new TestProblem6();
++        double step = Math.abs(pb.getFinalTime() - pb.getInitialTime()) * 0.02;
++
++        for (int order = 2; order < 9; ++order) {
++            AdamsMoultonIntegrator integ = new AdamsMoultonIntegrator(order, step);
++            integ.setStarterIntegrator(new DormandPrince853Integrator(1.0e-3 * step, 1.0e3 * step,
++                                                                      1.0e-5, 1.0e-5));
++            final TestProblemHandler handler = new TestProblemHandler(pb, integ);
++            integ.addStepHandler(handler);
++            integ.integrate(pb, pb.getInitialTime(), pb.getInitialState(),
++                            pb.getFinalTime(), new double[pb.getDimension()]);
++            if (order < 5) {
++                assertTrue(handler.getMaximalValueError() > 1.0e-6);
++            } else {
++                assertTrue(handler.getMaximalValueError() < 4.0e-13);
++            }
++        }
++
++    }
++
++    @Test
++    public void serialization()
++        throws IntegratorException, DerivativeException,
++               IOException, ClassNotFoundException {
++
++        TestProblem6 pb = new TestProblem6();
++        double step = Math.abs(pb.getFinalTime() - pb.getInitialTime()) * 0.01;
++
++        ByteArrayOutputStream bos = new ByteArrayOutputStream();
++        ObjectOutputStream    oos = new ObjectOutputStream(bos);
++        oos.writeObject(new AdamsMoultonIntegrator(8, step));
++        assertTrue(bos.size() > 2800);
++        assertTrue(bos.size() < 2900);
++
++        ByteArrayInputStream  bis = new ByteArrayInputStream(bos.toByteArray());
++        ObjectInputStream     ois = new ObjectInputStream(bis);
++        FirstOrderIntegrator integ  = (AdamsMoultonIntegrator) ois.readObject();
++        assertEquals("Adams-Moulton", integ.getName());
++        TestProblemHandler handler = new TestProblemHandler(pb, integ);
++        integ.addStepHandler(handler);
++        integ.integrate(pb, pb.getInitialTime(), pb.getInitialState(),
++                        pb.getFinalTime(), new double[pb.getDimension()]);
++        assertTrue(handler.getMaximalValueError() < 2.0e-13);
++
++    }
++
++}

@@ -1,0 +1,40 @@
+commit c00a33b88d00f3b28787da26e3bb65ae2c1f4893
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Mar 18 20:19:08 2011
+
+    Automated g4 rollback.
+    
+    *** Reason for rollback ***
+    
+    Same change. The warnings guard issue has been fixed
+    
+    *** Original change description ***
+    
+    Automated g4 rollback.
+    
+    *** Reason for rollback ***
+    
+    causing problems. not sure why yet.
+    
+    *** Original change description ***
+    
+    Allow the "global this" warning to be suppressed on a per-file basis
+    
+    R=johnlenz
+    DELTA=82  (50 added, 22 deleted, 10 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=953
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@915 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+--- a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
++++ b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+@@ -117,0 +117,4 @@
++  public void testCheckGlobalThisOffByDefault() {
++    testSame("function f() { this.a = 3; }");
++  }
++

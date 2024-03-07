@@ -1,0 +1,36 @@
+commit d1df970451b5a18956448097b3afb43f3a82263d
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Jun 10 16:12:38 2010
+
+    Change on 2010/06/09 by nicksantos
+    
+            be clear that "assigned once" means "assigned once in lifetime"
+            fixes issue 174.
+    
+            R=johnlenz
+            DELTA=125  (113 added, 0 deleted, 12 changed)
+    
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=26002
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@241 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/InlineVariablesTest.java b/test/com/google/javascript/jscomp/InlineVariablesTest.java
+--- a/test/com/google/javascript/jscomp/InlineVariablesTest.java
++++ b/test/com/google/javascript/jscomp/InlineVariablesTest.java
+@@ -596,0 +616,12 @@
++  public void testNoInlineAliasesInLoop() {
++    testSame(
++        "function f() { " +
++        "  for (var i = 0; i < 5; i++) {" +
++        "    var x = extern();" +
++        "    (function() {" +
++        "       var y = x; window.setTimeout(function() { extern(y); }, 0);" +
++        "     })();" +
++        "  }" +
++        "}");
++  }
++

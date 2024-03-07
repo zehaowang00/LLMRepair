@@ -1,0 +1,69 @@
+commit cc82d38aaf6ec24758a0a6df9535b8204e22ef12
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Fri Jan 4 07:28:44 2013
+
+    MATH-927
+    Made "BitsStreamGenerator" class "Serializable" to allow cloning of
+    subclasses. Added cloning test for all "RealDistribution" classes.
+    Thanks to Dennis Hendriks.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1428822 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math3/distribution/RealDistributionAbstractTest.java b/src/test/java/org/apache/commons/math3/distribution/RealDistributionAbstractTest.java
+--- a/src/test/java/org/apache/commons/math3/distribution/RealDistributionAbstractTest.java
++++ b/src/test/java/org/apache/commons/math3/distribution/RealDistributionAbstractTest.java
+@@ -374,11 +380,28 @@
++    public void testDistributionClone()
++        throws IOException,
++               ClassNotFoundException {
++        // Construct a distribution and initialize its internal random
++        // generator, using a fixed seed for deterministic results.
++        distribution.reseedRandomGenerator(123);
++        distribution.sample();
++
++        // Clone the distribution.
++        final RealDistribution cloned = deepClone();
++
++        // Make sure they still produce the same samples.
++        final double s1 = distribution.sample();
++        final double s2 = cloned.sample();
++        Assert.assertEquals(s1, s2, 0d);
++    }
++
+     //------------------ Getters / Setters for test instance data -----------
+     /**
+      * @return Returns the cumulativeTestPoints.
+      */
+     protected double[] getCumulativeTestPoints() {
+         return cumulativeTestPoints;
+     }
+ 
+     /**
+      * @param cumulativeTestPoints The cumulativeTestPoints to set.
+      */
+
+commit dd45e40550aeb34d2ce3eb4098b9cc540e6b0ea3
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sat May 29 18:51:32 2004
+
+    Initial commit.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@141246 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/distribution/ContinuousDistributionAbstractTest.java b/src/test/org/apache/commons/math/distribution/ContinuousDistributionAbstractTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/math/distribution/ContinuousDistributionAbstractTest.java
+@@ -0,0 +215,11 @@
++    //------------------ Getters / Setters for test instance data -----------
++    /**
++     * @return Returns the cumulativeTestPoints.
++     */
++    protected double[] getCumulativeTestPoints() {
++        return cumulativeTestPoints;
++    }
++
++    /**
++     * @param cumulativeTestPoints The cumulativeTestPoints to set.
++     */

@@ -1,0 +1,27 @@
+commit 0fc3d6728ae270fb38f9778ad7fa2663060b50c7
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Thu Jul 4 18:26:11 2019
+
+    On duplicate attributes, retain first not last instance
+    
+    Fixes #1219
+
+diff --git a/src/test/java/org/jsoup/parser/XmlTreeBuilderTest.java b/src/test/java/org/jsoup/parser/XmlTreeBuilderTest.java
+index 7ce70b3f..683e16bc 100644
+--- a/src/test/java/org/jsoup/parser/XmlTreeBuilderTest.java
++++ b/src/test/java/org/jsoup/parser/XmlTreeBuilderTest.java
+@@ -245,4 +245,14 @@ public void handlesLTinScript() {
+         Document doc = Jsoup.parse(html, "", Parser.xmlParser());
+         assertEquals("<script> var a=\"\n <!--?\"; var b=\"?-->\"; </script>", doc.html()); // converted from pseudo xmldecl to comment
+     }
++
++    @Test public void dropsDuplicateAttributes() {
++        // case sensitive, so should drop Four and Five
++        String html = "<p One=One ONE=Two one=Three One=Four ONE=Five two=Six two=Seven Two=Eight>Text</p>";
++        Parser parser = Parser.xmlParser().setTrackErrors(10);
++        Document doc = parser.parseInput(html, "");
++
++        assertEquals("<p One=\"One\" ONE=\"Two\" one=\"Three\" two=\"Six\" Two=\"Eight\">Text</p>", doc.selectFirst("p").outerHtml());
++    }
++
+ }

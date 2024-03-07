@@ -1,0 +1,60 @@
+commit a857aec27d79fc234fddd4a72c1215af0251b2d8
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Feb 8 12:40:11 2011
+
+    Treat the bottom function type as empty.
+    Fixes issue 301.
+    
+    R=johnlenz
+    DELTA=16  (15 added, 0 deleted, 1 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=474
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@765 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- a/test/com/google/javascript/jscomp/TypeCheckTest.java
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -4954,5 +4954,13 @@
++  public void testIssue301() throws Exception {
++    testTypes(
++        "Array.indexOf = function() {};" +
++        "var s = 'hello';" +
++        "alert(s.toLowerCase.indexOf('1'));",
++        "Property indexOf never defined on String.prototype.toLowerCase");
++  }
++
+   /**
+    * Tests that the || operator is type checked correctly, that is of
+    * the type of the first argument or of the second argument. See
+    * bugid 592170 for more details.
+    */
+
+commit 77b7c78d4aeeb6471f2f668a06c0f61a68f95ccd
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Jan 4 15:18:21 2010
+
+    Add more unit tests for type checking.
+    
+    Add phase optimization.
+    
+    Fix a type inference bug.
+    
+    String.prototype.split may not return null.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@55 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -0,0 +3907,5 @@
++  /**
++   * Tests that the || operator is type checked correctly, that is of
++   * the type of the first argument or of the second argument. See
++   * bugid 592170 for more details.
++   */

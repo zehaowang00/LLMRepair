@@ -1,0 +1,17 @@
+commit 085a1538fa20d8e48faad49eaffd697f024bf1af
+Author: Benedikt Ritter <britter@apache.org>
+Date:   Tue Jun 9 01:18:22 2015
+
+    CLI-252: LongOpt falsely detected as ambiguous. This closes #2 from github. Thanks to Simon Harrer.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/trunk@1684315 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/cli/bug/BugCLI252Test.java b/src/test/java/org/apache/commons/cli/bug/BugCLI252Test.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/cli/bug/BugCLI252Test.java
+@@ -0,0 +9,5 @@
++    public void testExactOptionNameMatch() throws ParseException {
++        new DefaultParser().parse(getOptions(), new String[]{"--prefix"});
++    }
++
++    @Test(expected = AmbiguousOptionException.class)

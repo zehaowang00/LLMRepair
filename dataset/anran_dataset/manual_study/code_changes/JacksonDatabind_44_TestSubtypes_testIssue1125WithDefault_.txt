@@ -1,0 +1,47 @@
+commit ad53425b8173476fa7f6d87ef640e8138241cdbf
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Mon Mar 7 11:33:04 2016
+
+    Add failing test
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestSubtypes.java b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestSubtypes.java
+--- a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestSubtypes.java
++++ b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestSubtypes.java
+@@ -300,2 +317,12 @@
++    public void testIssue1125WithDefault() throws Exception
++    {
++        Issue1125Wrapper result = MAPPER.readValue(aposToQuotes("{'value':{'a':3,'def':9,'b':5}}"),
++        		Issue1125Wrapper.class);
++        assertNotNull(result.value);
++        assertEquals(Default1125.class, result.value.getClass());
++        Default1125 impl = (Default1125) result.value;
++        assertEquals(3, impl.a);
++        assertEquals(5, impl.b);
++        assertEquals(9, impl.def);
+     }
+ }
+
+commit 0b449ffcebe4b932ffc3416cf8ef5b8e98328c46
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Tue Mar 1 16:28:20 2016
+
+    further attempts to make test for #1125, still no luck.
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestSubtypes.java b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestSubtypes.java
+--- a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestSubtypes.java
++++ b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestSubtypes.java
+@@ -260,1 +300,2 @@
++    }
+ }
+
+commit 7fc3238c33c78460c890a782b18b6352eafccb03
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Fri Dec 26 20:19:09 2014
+
+    Improve error message for unresolved subtype ids.
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestSubtypes.java b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestSubtypes.java
+--- a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestSubtypes.java
++++ b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestSubtypes.java
+@@ -216,0 +240,1 @@
++}

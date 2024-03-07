@@ -1,0 +1,20 @@
+commit fef43b2aaa4fd7cb8f0dff395980c69f614635af
+Author: Inderjeet Singh <inder@peel.com>
+Date:   Thu Nov 5 00:25:15 2015
+
+    Added support to serialize/deserialize ConcurrentMap and ConcurrentNavigableMap.
+
+diff --git a/gson/src/test/java/com/google/gson/functional/MapTest.java b/gson/src/test/java/com/google/gson/functional/MapTest.java
+--- a/gson/src/test/java/com/google/gson/functional/MapTest.java
++++ b/gson/src/test/java/com/google/gson/functional/MapTest.java
+@@ -182,0 +186,10 @@
++  public void testConcurrentMap() throws Exception {
++    Type typeOfMap = new TypeToken<ConcurrentMap<Integer, String>>() {}.getType();
++    ConcurrentMap<Integer, String> map = gson.fromJson("{\"123\":\"456\"}", typeOfMap);
++    assertEquals(1, map.size());
++    assertTrue(map.containsKey(123));
++    assertEquals("456", map.get(123));
++    String json = gson.toJson(map);
++    assertEquals("{\"123\":\"456\"}", json);
++  }
++

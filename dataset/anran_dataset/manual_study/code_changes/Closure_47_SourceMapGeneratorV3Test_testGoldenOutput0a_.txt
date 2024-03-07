@@ -1,0 +1,35 @@
+commit aedce35970673f20696d5721acba13e986cc764c
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Nov 14 18:03:35 2011
+
+    Fix how source line numbers are stored in the source files.
+    Fixes issue 575
+    
+    R=jschorr
+    DELTA=81  (62 added, 3 deleted, 16 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3704
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1596 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/debugging/sourcemap/SourceMapGeneratorV3Test.java b/test/com/google/debugging/sourcemap/SourceMapGeneratorV3Test.java
+--- a/test/com/google/debugging/sourcemap/SourceMapGeneratorV3Test.java
++++ b/test/com/google/debugging/sourcemap/SourceMapGeneratorV3Test.java
+@@ -129,0 +132,14 @@
++  public void testGoldenOutput0a() throws Exception {
++    // Empty source map test
++    checkSourceMap("a;",
++
++                   "{\n" +
++                   "\"version\":3,\n" +
++                   "\"file\":\"testcode\",\n" +
++                   "\"lineCount\":1,\n" +
++                   "\"mappings\":\"AAAAA;\",\n" +
++                   "\"sources\":[\"testcode\"],\n" +
++                   "\"names\":[\"a\"]\n" +
++                   "}\n");
++  }
++

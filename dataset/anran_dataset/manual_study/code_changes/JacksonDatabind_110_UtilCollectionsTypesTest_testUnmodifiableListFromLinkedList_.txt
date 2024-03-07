@@ -1,0 +1,24 @@
+commit 83264a7e377bd3399f0b550460077959aaece16d
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Sat Mar 2 20:39:43 2019
+
+    Fix #2265
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/deser/jdk/TestDefaultForUtilCollections1868.java b/src/test/java/com/fasterxml/jackson/databind/deser/jdk/UtilCollectionsTypesTest.java
+--- a/src/test/java/com/fasterxml/jackson/databind/deser/jdk/TestDefaultForUtilCollections1868.java
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/jdk/UtilCollectionsTypesTest.java
+@@ -63,0 +64,14 @@
++   public void testUnmodifiableListFromLinkedList() throws Exception {
++       final List<String> input = new LinkedList<>();
++       input.add("first");
++       input.add("second");
++
++       // Can't use simple "_verifyCollection" as type may change; instead use
++       // bit more flexible check:
++       Collection<?> act = _writeReadCollection(Collections.unmodifiableList(input));
++       assertEquals(input, act);
++
++       // and this check may be bit fragile (may need to revisit), but is good enough for now:
++       assertEquals(Collections.unmodifiableList(new ArrayList<>(input)).getClass(), act.getClass());
++   }
++

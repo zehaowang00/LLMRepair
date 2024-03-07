@@ -1,0 +1,51 @@
+commit 86929f800ff4e67135859f33b9adfc84484111b1
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sun Oct 18 10:17:22 2009
+
+    Fixed issue 122
+    In order to allow user to use single any() matcher for varargs I introduce anyVararg() matcher
+    Unfortunately, it is not possible to use (Object[]) anyObject() to match any vararg due to the fact that verification picks up extra redundant invocations. Also it would have broken the backwards compatibility.
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401617
+
+diff --git a/test/org/mockitousage/bugs/VarargsAndAnyObjectPicksUpExtraInvocationsTest.java b/test/org/mockitousage/bugs/varargs/VarargsAndAnyObjectPicksUpExtraInvocationsTest.java
+--- a/test/org/mockitousage/bugs/VarargsAndAnyObjectPicksUpExtraInvocationsTest.java
++++ b/test/org/mockitousage/bugs/varargs/VarargsAndAnyObjectPicksUpExtraInvocationsTest.java
+@@ -26,10 +23,10 @@
+-    public void shouldVerifyCorrectlyWithAnyObjectSubstitutingVarargs() {
++    public void shouldVerifyCorrectlyWithAnyVarargs() {
+         //when
+         table.newRow("qux", "foo", "bar", "baz");
+         table.newRow("abc", "def");
+         
+         //then
+-        verify(table, times(2)).newRow(anyString(), (String[]) anyObject());
++        verify(table, times(2)).newRow(anyString(), (String[]) anyVararg());
+     }
+ 
+     @Test
+
+commit 244bf2d3ec0d516f0f215603a0aa9c8c93e2ece0
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Wed Jun 17 08:19:21 2009
+
+    In order to avoid regression reverted the fix for issue 62 (making anyObject() more convenient with varargs).
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401521
+
+diff --git a/test/org/mockitousage/bugs/VarargsAndAnyObjectPicksUpExtraInvocationsTest.java b/test/org/mockitousage/bugs/VarargsAndAnyObjectPicksUpExtraInvocationsTest.java
+--- a/test/org/mockitousage/bugs/VarargsAndAnyObjectPicksUpExtraInvocationsTest.java
++++ b/test/org/mockitousage/bugs/VarargsAndAnyObjectPicksUpExtraInvocationsTest.java
+@@ -26,0 +26,10 @@
++    public void shouldVerifyCorrectlyWithAnyObjectSubstitutingVarargs() {
++        //when
++        table.newRow("qux", "foo", "bar", "baz");
++        table.newRow("abc", "def");
++        
++        //then
++        verify(table, times(2)).newRow(anyString(), (String[]) anyObject());
++    }
++
++    @Test

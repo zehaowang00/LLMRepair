@@ -1,0 +1,30 @@
+commit c1f2c4e6b5bab4cfc004f22999e11e8ac140d377
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Thu Jul 9 07:23:58 2009
+
+    In order to fixed issue 79 (NPE) added null handling code
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401549
+
+diff --git a/test/org/mockitousage/bugs/ActualInvocationHasNullArgumentNPEBugTest.java b/test/org/mockitousage/bugs/ActualInvocationHasNullArgumentNPEBugTest.java
+--- /dev/null
++++ b/test/org/mockitousage/bugs/ActualInvocationHasNullArgumentNPEBugTest.java
+@@ -0,0 +20,16 @@
++    public void shouldAllowPassingNullArgument() {
++        //given
++        Fun mockFun = mock(Fun.class);
++        when(mockFun.doFun((String) anyObject())).thenReturn("value");
++
++        //when
++        mockFun.doFun(null);
++
++        //then
++        try {
++            verify(mockFun).doFun("hello");
++        } catch(AssertionError r) {
++            //it's ok, we just want to reproduce the bug
++        }
++    }
++}
+\ No newline at end of file

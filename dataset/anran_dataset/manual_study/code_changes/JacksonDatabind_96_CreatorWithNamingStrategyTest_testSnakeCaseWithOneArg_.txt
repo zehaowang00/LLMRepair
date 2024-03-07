@@ -1,0 +1,40 @@
+commit dd57a2dd576a77423553c197df109a5b60c1c669
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Fri May 25 18:46:15 2018
+
+    Fix #2051
+
+diff --git a/src/test/java/com/fasterxml/jackson/failing/CreatorWithNamingStrategy2008Test.java b/src/test/java/com/fasterxml/jackson/databind/deser/creators/CreatorWithNamingStrategyTest.java
+--- a/src/test/java/com/fasterxml/jackson/failing/CreatorWithNamingStrategy2008Test.java
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/creators/CreatorWithNamingStrategyTest.java
+@@ -47,9 +46,9 @@
+     public void testSnakeCaseWithOneArg() throws Exception
+     {
+         final String MSG = "1st";
+         OneProperty actual = MAPPER.readValue(
+-                "{\"first_property\":\""+MSG+"\"}",
++                "{\"param_name0\":\""+MSG+"\"}",
+                 OneProperty.class);
+         assertEquals("CTOR:"+MSG, actual.paramName0);
+     }
+ }
+
+commit 31153568b58a29979dd0c416d14833886f9216a9
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Thu May 24 15:59:44 2018
+
+    Test refactoring
+
+diff --git a/src/test/java/com/fasterxml/jackson/failing/CreatorWithNamingStrategy2008Test.java b/src/test/java/com/fasterxml/jackson/failing/CreatorWithNamingStrategy2008Test.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/failing/CreatorWithNamingStrategy2008Test.java
+@@ -0,0 +47,9 @@
++    public void testSnakeCaseWithOneArg() throws Exception
++    {
++        final String MSG = "1st";
++        OneProperty actual = MAPPER.readValue(
++                "{\"first_property\":\""+MSG+"\"}",
++                OneProperty.class);
++        assertEquals("CTOR:"+MSG, actual.paramName0);
++    }
++}

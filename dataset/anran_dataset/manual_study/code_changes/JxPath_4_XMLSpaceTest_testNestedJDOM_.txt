@@ -1,0 +1,16 @@
+commit 9f912437a14392f8d4c98aa811e9134fbf7b5a52
+Author: Matthew Jason Benson <mbenson@apache.org>
+Date:   Wed May 16 15:47:47 2007
+
+    [JXPATH-83] respect xml:space='preserve'
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/jxpath/trunk@538698 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/jxpath/ri/model/XMLSpaceTest.java b/src/test/org/apache/commons/jxpath/ri/model/XMLSpaceTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/jxpath/ri/model/XMLSpaceTest.java
+@@ -0,0 +90,4 @@
++    public void testNestedJDOM() {
++        doTest("nested", DocumentContainer.MODEL_JDOM, "foo;bar; baz ");
++    }
++

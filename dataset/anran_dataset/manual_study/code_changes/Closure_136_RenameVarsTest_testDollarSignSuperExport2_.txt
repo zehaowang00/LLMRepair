@@ -1,0 +1,51 @@
+commit 938f48a60c544f6b7bdb5d49006f654a51ca9a22
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Mar 16 18:53:04 2010
+
+    The MethodCompilerPass was being a little too smart for itself, leading
+    to incorrect behavior by the InlineGetter pass (inlining extern
+    definitions of functions which it thought were empty functions). This
+    results in slight worse behavior by the depreciated "MethodCheck" pass,
+    but most projects have moved on to "check_types" which is on by default. (John)
+    R=Alan
+    DELTA=77  (44 added, 28 deleted, 5 changed)
+    
+    Issue 103: Fix inappropriate renaming of local "$super" when the coding
+    convention declares it to be "exported". (John)
+    Fixes issue 103.
+    R=Alan
+    DELTA=86  (77 added, 3 deleted, 6 changed)
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@139 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/RenameVarsTest.java b/test/com/google/javascript/jscomp/RenameVarsTest.java
+--- a/test/com/google/javascript/jscomp/RenameVarsTest.java
++++ b/test/com/google/javascript/jscomp/RenameVarsTest.java
+@@ -457,0 +459,23 @@
++  public void testDollarSignSuperExport2() {
++    boolean normalizedExpectedJs = false;
++    super.enableNormalize(false);
++
++    useGoogleCodingConvention = false;
++    // See http://code.google.com/p/closure-compiler/issues/detail?id=32
++    test("var x = function($super,duper,$fantastic){};" +
++            "var y = function($super,duper){};",
++         "var c = function($super,    a,         b){};" +
++            "var d = function($super,    a){};");
++
++    localRenamingOnly = false;
++    test("var $super = 1", "var a = 1");
++
++    useGoogleCodingConvention = true;
++    test("var x = function($super,duper,$fantastic){};" +
++            "var y = function($super,duper){};",
++         "var d = function(a,     b,    c         ){};" +
++            "var e = function(     a,    b){};");
++
++    super.disableNormalize();
++  }
++

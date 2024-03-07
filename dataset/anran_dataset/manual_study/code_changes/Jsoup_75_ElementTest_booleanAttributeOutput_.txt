@@ -1,0 +1,25 @@
+commit f627193ce0950f0d55ed1b4f6a2fe9973447853a
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sun Dec 3 17:38:17 2017
+
+    Collapse boolean attribute empty string values
+    
+    Fixes #985
+
+diff --git a/src/test/java/org/jsoup/nodes/ElementTest.java b/src/test/java/org/jsoup/nodes/ElementTest.java
+index 7c73713a..c5b4f0a3 100644
+--- a/src/test/java/org/jsoup/nodes/ElementTest.java
++++ b/src/test/java/org/jsoup/nodes/ElementTest.java
+@@ -1310,4 +1310,12 @@ public void testRemovingEmptyClassAttributeWhenLastClassRemoved() {
+         assertFalse(doc.body().html().contains("class=\"\""));
+     }
+ 
++    @Test
++    public void booleanAttributeOutput() {
++        Document doc = Jsoup.parse("<img src=foo noshade='' nohref async=async autofocus=false>");
++        Element img = doc.selectFirst("img");
++
++        assertEquals("<img src=\"foo\" noshade nohref async autofocus=\"false\">", img.outerHtml());
++    }
++
+ }

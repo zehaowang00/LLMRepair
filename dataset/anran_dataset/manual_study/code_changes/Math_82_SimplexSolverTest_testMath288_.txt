@@ -1,0 +1,45 @@
+commit 4ece1884cc408e15c8f1db9010fec5cac43937b9
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Tue Aug 25 14:07:13 2009
+
+    fixed an error induced by zero entries in simplex solver
+    JIRA: MATH-288
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@807738 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/linear/SimplexSolverTest.java b/src/test/java/org/apache/commons/math/optimization/linear/SimplexSolverTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/linear/SimplexSolverTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/linear/SimplexSolverTest.java
+@@ -60,2 +62,15 @@
+-    
++    public void testMath288() throws OptimizationException {
++        LinearObjectiveFunction f = new LinearObjectiveFunction(new double[] { 7, 3, 0, 0 }, 0 );
++        Collection<LinearConstraint> constraints = new ArrayList<LinearConstraint>();
++        constraints.add(new LinearConstraint(new double[] { 3, 0, -5, 0 }, Relationship.LEQ, 0.0));
++        constraints.add(new LinearConstraint(new double[] { 2, 0, 0, -5 }, Relationship.LEQ, 0.0));
++        constraints.add(new LinearConstraint(new double[] { 0, 3, 0, -5 }, Relationship.LEQ, 0.0));
++        constraints.add(new LinearConstraint(new double[] { 1, 0, 0, 0 }, Relationship.LEQ, 1.0));
++        constraints.add(new LinearConstraint(new double[] { 0, 1, 0, 0 }, Relationship.LEQ, 1.0));
++
++        SimplexSolver solver = new SimplexSolver();
++        RealPointValuePair solution = solver.optimize(f, constraints, GoalType.MAXIMIZE, true);
++        assertEquals(10.0, solution.getValue(), .0000001);
++    }
++
+     @Test
+
+commit f36be8e8b7371fb8814456b6c095866aa802de78
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Fri Aug 21 19:07:42 2009
+
+    fixed an error leading the simplex solver to compute the right solution but return another one
+    JIRA: MATH-286
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@806753 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/linear/SimplexSolverTest.java b/src/test/java/org/apache/commons/math/optimization/linear/SimplexSolverTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/linear/SimplexSolverTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/linear/SimplexSolverTest.java
+@@ -52,0 +60,2 @@
++    
++    @Test

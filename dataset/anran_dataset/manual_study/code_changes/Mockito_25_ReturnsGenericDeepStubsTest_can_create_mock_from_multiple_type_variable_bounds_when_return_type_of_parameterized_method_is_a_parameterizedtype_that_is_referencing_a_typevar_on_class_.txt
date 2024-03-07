@@ -1,0 +1,100 @@
+commit cf6e59d2d67d9956d9d5331c8dcdd268f2499bf2
+Author: Brice Dutheil <brice.dutheil@gmail.com>
+Date:   Wed Oct 24 19:48:08 2012
+
+    now replacing completely ReturnsDeepStub
+
+diff --git a/test/org/mockito/internal/stubbing/defaultanswers/ReturnsGenericDeepStubsTest.java b/test/org/mockito/internal/stubbing/defaultanswers/ReturnsGenericDeepStubsTest.java
+--- a/test/org/mockito/internal/stubbing/defaultanswers/ReturnsGenericDeepStubsTest.java
++++ b/test/org/mockito/internal/stubbing/defaultanswers/ReturnsGenericDeepStubsTest.java
+@@ -49,10 +50,10 @@
+     public void can_create_mock_from_multiple_type_variable_bounds_when_return_type_of_parameterized_method_is_a_parameterizedtype_that_is_referencing_a_typevar_on_class() throws Exception {
+-        GenericsNest<?> mock = mock(GenericsNest.class, new ReturnsGenericDeepStubs());
++        GenericsNest<?> mock = mock(GenericsNest.class, RETURNS_DEEP_STUBS);
+ 
+         Cloneable cloneable_bound_that_is_declared_on_typevar_K_in_the_class_which_is_referenced_by_typevar_O_declared_on_the_method =
+                 mock.paramTypeWithTypeParams().get(0);
+         Comparable<?> comparable_bound_that_is_declared_on_typevar_K_in_the_class_which_is_referenced_by_typevar_O_declared_on_the_method =
+                 mock.paramTypeWithTypeParams().get(0);
+     }
+ 
+     @Test
+
+commit d7c18327ef8a54cf3ed186bf7b11954f23f3f405
+Author: Brice Dutheil <brice.dutheil@gmail.com>
+Date:   Wed Oct 24 19:33:34 2012
+
+    better test names
+
+diff --git a/test/org/mockito/internal/stubbing/defaultanswers/ReturnsGenericDeepStubsTest.java b/test/org/mockito/internal/stubbing/defaultanswers/ReturnsGenericDeepStubsTest.java
+--- a/test/org/mockito/internal/stubbing/defaultanswers/ReturnsGenericDeepStubsTest.java
++++ b/test/org/mockito/internal/stubbing/defaultanswers/ReturnsGenericDeepStubsTest.java
+@@ -49,11 +49,10 @@
+-    public void returning_deep_stubs_2() throws Exception {
++    public void can_create_mock_from_multiple_type_variable_bounds_when_return_type_of_parameterized_method_is_a_parameterizedtype_that_is_referencing_a_typevar_on_class() throws Exception {
+         GenericsNest<?> mock = mock(GenericsNest.class, new ReturnsGenericDeepStubs());
+ 
+-        Cloneable cloneable1 = mock.paramTypeWithTypeParams().get(0);
+-        Comparable<?> comparable1 = mock.paramTypeWithTypeParams().get(0);
+-        Cloneable cloneable2 = mock.returningK();
+-        Comparable<?> comparable2 = mock.returningK();
+-        Cloneable cloneable3 = (Cloneable) mock.typeVarWithTypeParams();
++        Cloneable cloneable_bound_that_is_declared_on_typevar_K_in_the_class_which_is_referenced_by_typevar_O_declared_on_the_method =
++                mock.paramTypeWithTypeParams().get(0);
++        Comparable<?> comparable_bound_that_is_declared_on_typevar_K_in_the_class_which_is_referenced_by_typevar_O_declared_on_the_method =
++                mock.paramTypeWithTypeParams().get(0);
+     }
+ 
+     @Test
+
+commit 6e97858d79d08b455cb3690b811120965ee1975a
+Author: Brice Dutheil <brice.dutheil@gmail.com>
+Date:   Wed Aug 1 11:07:21 2012
+
+    For now keep the old ReturnsDeepStubs and created a specific ReturnsGenericDeepStubs
+    
+    --HG--
+    branch : issue230
+    rename : test/org/mockito/internal/stubbing/defaultanswers/ReturnsDeepStubsTest.java => test/org/mockito/internal/stubbing/defaultanswers/ReturnsGenericDeepStubsTest.java
+
+diff --git a/test/org/mockito/internal/stubbing/defaultanswers/ReturnsDeepStubsTest.java b/test/org/mockito/internal/stubbing/defaultanswers/ReturnsGenericDeepStubsTest.java
+--- a/test/org/mockito/internal/stubbing/defaultanswers/ReturnsDeepStubsTest.java
++++ b/test/org/mockito/internal/stubbing/defaultanswers/ReturnsGenericDeepStubsTest.java
+@@ -49,11 +49,11 @@
+     public void returning_deep_stubs_2() throws Exception {
+-        GenericsNest<?> mock = mock(GenericsNest.class, RETURNS_DEEP_STUBS);
++        GenericsNest<?> mock = mock(GenericsNest.class, new ReturnsGenericDeepStubs());
+ 
+         Cloneable cloneable1 = mock.paramTypeWithTypeParams().get(0);
+         Comparable<?> comparable1 = mock.paramTypeWithTypeParams().get(0);
+         Cloneable cloneable2 = mock.returningK();
+         Comparable<?> comparable2 = mock.returningK();
+         Cloneable cloneable3 = (Cloneable) mock.typeVarWithTypeParams();
+     }
+ 
+     @Test
+
+commit 52f6a9388d376d292918422296d82d77d5f6c921
+Author: Brice Dutheil <brice.dutheil@gmail.com>
+Date:   Tue Jul 24 12:52:01 2012
+
+    Generic deep stubs now operational! Wildcard types are not yet in the party.
+    
+    --HG--
+    branch : issue230
+
+diff --git a/test/org/mockito/internal/stubbing/defaultanswers/ReturnsDeepStubsTest.java b/test/org/mockito/internal/stubbing/defaultanswers/ReturnsDeepStubsTest.java
+--- a/test/org/mockito/internal/stubbing/defaultanswers/ReturnsDeepStubsTest.java
++++ b/test/org/mockito/internal/stubbing/defaultanswers/ReturnsDeepStubsTest.java
+@@ -33,0 +51,11 @@
++    public void returning_deep_stubs_2() throws Exception {
++        GenericsNest<?> mock = mock(GenericsNest.class, RETURNS_DEEP_STUBS);
++
++        Cloneable cloneable1 = mock.paramTypeWithTypeParams().get(0);
++        Comparable<?> comparable1 = mock.paramTypeWithTypeParams().get(0);
++        Cloneable cloneable2 = mock.returningK();
++        Comparable<?> comparable2 = mock.returningK();
++        Cloneable cloneable3 = (Cloneable) mock.typeVarWithTypeParams();
++    }
++
++    @Test

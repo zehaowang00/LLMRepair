@@ -1,0 +1,92 @@
+commit 113a08f59e8116fb11a7d4ceb11d5bb09b74ac3c
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Feb 9 16:33:10 2010
+
+    Fix an edge case in how Array.prototype.join is collapsed.
+    Fixes issue 106.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@99 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/FoldConstantsTest.java b/test/com/google/javascript/jscomp/FoldConstantsTest.java
+--- a/test/com/google/javascript/jscomp/FoldConstantsTest.java
++++ b/test/com/google/javascript/jscomp/FoldConstantsTest.java
+@@ -623,23 +623,37 @@
+   public void testStringJoinAdd() {
+     fold("x = ['a', 'b', 'c'].join('')", "x = \"abc\"");
+     fold("x = [].join(',')", "x = \"\"");
+     fold("x = ['a'].join(',')", "x = \"a\"");
+     fold("x = ['a', 'b', 'c'].join(',')", "x = \"a,b,c\"");
+     fold("x = ['a', foo, 'b', 'c'].join(',')", "x = [\"a\",foo,\"b,c\"].join(\",\")");
+     fold("x = [foo, 'a', 'b', 'c'].join(',')", "x = [foo,\"a,b,c\"].join(\",\")");
+     fold("x = ['a', 'b', 'c', foo].join(',')", "x = [\"a,b,c\",foo].join(\",\")");
+ 
+     // Works with numbers
+     fold("x = ['a=', 5].join('')", "x = \"a=5\"");
+     fold("x = ['a', '5'].join(7)", "x = \"a75\"");
+ 
+     // Works on boolean
+     fold("x = ['a=', false].join('')", "x = \"a=false\"");
+     fold("x = ['a', '5'].join(true)", "x = \"atrue5\"");
+     fold("x = ['a', '5'].join(false)", "x = \"afalse5\"");
+ 
+     // Only optimize if it's a size win.
+     fold("x = ['a', '5', 'c'].join('a very very very long chain')",
+          "x = [\"a\",\"5\",\"c\"].join(\"a very very very long chain\")");
+-  }
+-
++    
++    // TODO(user): Its possible to fold this better.
++    foldSame("x = ['', foo].join(',')");
++    foldSame("x = ['', foo, ''].join(',')");
++    
++    fold("x = ['', '', foo, ''].join(',')", "x = [',', foo, ''].join(',')");
++    fold("x = ['', '', foo, '', ''].join(',')",
++         "x = [',', foo, ','].join(',')");
++    
++    fold("x = ['', '', foo, '', '', bar].join(',')",
++         "x = [',', foo, ',', bar].join(',')");
++    
++    fold("x = [1,2,3].join('abcdef')",
++         "x = '1abcdef2abcdef3'");
++  }
++  
+
+commit 6b49cfd9022fe111bdad745c78ea877fbc2f7ba3
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 3 18:51:57 2009
+
+    Initial commit.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/FoldConstantsTest.java b/test/com/google/javascript/jscomp/FoldConstantsTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/FoldConstantsTest.java
+@@ -0,0 +623,23 @@
++  public void testStringJoinAdd() {
++    fold("x = ['a', 'b', 'c'].join('')", "x = \"abc\"");
++    fold("x = [].join(',')", "x = \"\"");
++    fold("x = ['a'].join(',')", "x = \"a\"");
++    fold("x = ['a', 'b', 'c'].join(',')", "x = \"a,b,c\"");
++    fold("x = ['a', foo, 'b', 'c'].join(',')", "x = [\"a\",foo,\"b,c\"].join(\",\")");
++    fold("x = [foo, 'a', 'b', 'c'].join(',')", "x = [foo,\"a,b,c\"].join(\",\")");
++    fold("x = ['a', 'b', 'c', foo].join(',')", "x = [\"a,b,c\",foo].join(\",\")");
++
++    // Works with numbers
++    fold("x = ['a=', 5].join('')", "x = \"a=5\"");
++    fold("x = ['a', '5'].join(7)", "x = \"a75\"");
++
++    // Works on boolean
++    fold("x = ['a=', false].join('')", "x = \"a=false\"");
++    fold("x = ['a', '5'].join(true)", "x = \"atrue5\"");
++    fold("x = ['a', '5'].join(false)", "x = \"afalse5\"");
++
++    // Only optimize if it's a size win.
++    fold("x = ['a', '5', 'c'].join('a very very very long chain')",
++         "x = [\"a\",\"5\",\"c\"].join(\"a very very very long chain\")");
++  }
++

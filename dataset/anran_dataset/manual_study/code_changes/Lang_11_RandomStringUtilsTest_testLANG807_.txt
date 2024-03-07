@@ -1,0 +1,24 @@
+commit c821fafce06adefc040e8983fb12d49399a48627
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Sun Jun 10 08:40:48 2012
+
+    LANG-807 RandomStringUtils throws confusing IAE when end <= start
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@1348583 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/RandomStringUtilsTest.java b/src/test/java/org/apache/commons/lang3/RandomStringUtilsTest.java
+--- a/src/test/java/org/apache/commons/lang3/RandomStringUtilsTest.java
++++ b/src/test/java/org/apache/commons/lang3/RandomStringUtilsTest.java
+@@ -133,0 +133,11 @@
++    public void testLANG807() {
++        try {
++            RandomStringUtils.random(3,5,5,false,false);
++            fail("Expected IllegalArgumentException");
++        } catch (IllegalArgumentException ex) { // distinguish from Random#nextInt message
++            final String msg = ex.getMessage();
++            assertTrue("Message (" + msg + ") must contain 'start'", msg.contains("start"));
++            assertTrue("Message (" + msg + ") must contain 'end'", msg.contains("end"));
++        }
++    }
++

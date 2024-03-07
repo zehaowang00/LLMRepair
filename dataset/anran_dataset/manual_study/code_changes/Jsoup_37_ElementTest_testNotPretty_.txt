@@ -1,0 +1,84 @@
+commit 3a9bf46eeb36196d841c3fa05597e40a13f51f43
+Author: Tamas Kovacs <kovacstamasx@gmail.com>
+Date:   Sun Jan 26 12:20:00 2020
+
+    Not add line break when pretty printing inline tags
+    
+    This is a fix for issue #1305.
+
+diff --git a/src/test/java/org/jsoup/nodes/ElementTest.java b/src/test/java/org/jsoup/nodes/ElementTest.java
+index 5f851db2..492a0334 100644
+--- a/src/test/java/org/jsoup/nodes/ElementTest.java
++++ b/src/test/java/org/jsoup/nodes/ElementTest.java
+@@ -347,6 +347,29 @@
+         Element div = doc.select("div").first();
+         assertEquals("   \n<p>Hello\n there\n</p>", div.html());
+     }
++
++    @Test public void testNotPrettyWithEnDashBody() {
++        String html = "<div><span>1:15</span>&ndash;<span>2:15</span>&nbsp;p.m.</div>";
++        Document document = Jsoup.parse(html);
++        document.outputSettings().prettyPrint(false);
++
++        assertEquals("<div><span>1:15</span>â<span>2:15</span>&nbsp;p.m.</div>", document.body().html());
++    }
++
++    @Test public void testPrettyWithEnDashBody() {
++        String html = "<div><span>1:15</span>&ndash;<span>2:15</span>&nbsp;p.m.</div>";
++        Document document = Jsoup.parse(html);
++
++        assertEquals("<div>\n <span>1:15</span>â<span>2:15</span>&nbsp;p.m.\n</div>", document.body().html());
++    }
++
++    @Test public void testPrettyAndOutlineWithEnDashBody() {
++        String html = "<div><span>1:15</span>&ndash;<span>2:15</span>&nbsp;p.m.</div>";
++        Document document = Jsoup.parse(html);
++        document.outputSettings().outline(true);
++
++        assertEquals("<div>\n <span>1:15</span>\n â\n <span>2:15</span>\n &nbsp;p.m.\n</div>", document.body().html());
++    }
+     
+     @Test public void testEmptyElementFormatHtml() {
+         // don't put newlines into empty blocks
+@@ -1136,8 +1159,7 @@ public void testIs() {
+         assertEquals("Another", els3.get(2).text());
+ 
+         assertEquals("<p><a>One</a></p>\n" +
+-            "<p>P3</p>\n" +
+-            "<span>Another</span>\n" +
++            "<p>P3</p><span>Another</span>\n" +
+             "<p><a>Two</a></p>\n" +
+             "<p>P4</p>Three", div.html());
+     }
+
+commit e256bb7fc5979de256371bb324f1ca1330e38112
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sun Aug 22 03:52:48 2010
+
+    Added support for non-pretty-printed HTML output, to more closely mirror the input HTML.
+    
+    Fixes #8
+
+diff --git a/src/test/java/org/jsoup/nodes/ElementTest.java b/src/test/java/org/jsoup/nodes/ElementTest.java
+index c38657ae..ddc1d424 100644
+--- a/src/test/java/org/jsoup/nodes/ElementTest.java
++++ b/src/test/java/org/jsoup/nodes/ElementTest.java
+@@ -206,6 +206,18 @@
+         Document doc = Jsoup.parse("<div><p>Hello</p></div>");
+         assertEquals("<html>\n <head></head>\n <body>\n  <div>\n   <p>Hello</p>\n  </div>\n </body>\n</html>", doc.html());
+     }
++
++    @Test public void testSetIndent() {
++        Document doc = Jsoup.parse("<div><p>Hello\nthere</p></div>");
++        doc.outputSettings().indentAmount(0);
++        assertEquals("<html>\n<head></head>\n<body>\n<div>\n<p>Hello there</p>\n</div>\n</body>\n</html>", doc.html());
++    }
++
++    @Test public void testNotPretty() {
++        Document doc = Jsoup.parse("<div>   \n<p>Hello\n there</p></div>");
++        doc.outputSettings().prettyPrint(false);
++        assertEquals("<html><head></head><body><div>   \n<p>Hello\n there</p></div></body></html>", doc.html());
++    }
+     
+     @Test public void testEmptyElementFormatHtml() {
+         // don't put newlines into empty blocks

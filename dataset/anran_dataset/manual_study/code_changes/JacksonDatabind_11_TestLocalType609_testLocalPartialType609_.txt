@@ -1,0 +1,22 @@
+commit 2657ff38ffec21d3566283c69e2767165a71015b
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Sun Nov 9 19:40:49 2014
+
+    Add test for #609
+
+diff --git a/src/test/java/com/fasterxml/jackson/failing/TestLocalType609.java b/src/test/java/com/fasterxml/jackson/failing/TestLocalType609.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/failing/TestLocalType609.java
+@@ -0,0 +25,12 @@
++    public void testLocalPartialType609() throws Exception {
++        ObjectMapper mapper = new ObjectMapper();
++        
++        EntityContainer input = new EntityContainer(); 
++        input.entity = new RuleForm(12);
++        String json = mapper.writeValueAsString(input);
++        
++        EntityContainer output = mapper.readValue(json, EntityContainer.class);
++        assertEquals(12, output.getEntity().value);
++    }
++}
++

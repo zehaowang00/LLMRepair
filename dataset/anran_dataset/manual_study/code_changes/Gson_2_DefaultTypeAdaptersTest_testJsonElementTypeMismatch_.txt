@@ -1,0 +1,122 @@
+commit 7d1973e6c5e270c0c94eaf6a3e81f4f2c5b2a699
+Author: jwilson <jwilson@squareup.com>
+Date:   Wed Oct 21 11:40:24 2015
+
+    Fix type hierarchy adapters to do a runtime check.
+    
+    Otherwise if we have a type hierarchy adapter for Vehicle, and we
+    attempt to decode a JSON string as a Car, we get the right exception
+    if the JSON string is actually decoded as a Truck.
+
+diff --git a/gson/src/test/java/com/google/gson/functional/DefaultTypeAdaptersTest.java b/gson/src/test/java/com/google/gson/functional/DefaultTypeAdaptersTest.java
+--- a/gson/src/test/java/com/google/gson/functional/DefaultTypeAdaptersTest.java
++++ b/gson/src/test/java/com/google/gson/functional/DefaultTypeAdaptersTest.java
+@@ -621,5 +621,15 @@
++  public void testJsonElementTypeMismatch() {
++    try {
++      gson.fromJson("\"abc\"", JsonObject.class);
++      fail();
++    } catch (JsonSyntaxException expected) {
++      assertEquals("Expected a com.google.gson.JsonObject but was com.google.gson.JsonPrimitive",
++          expected.getMessage());
++    }
++  }
++
+   private static class ClassWithBigDecimal {
+     BigDecimal value;
+     ClassWithBigDecimal(String value) {
+       this.value = new BigDecimal(value);
+     }
+
+commit 005c93e3832e8f83aa5602d83ffb6d181ec0f1a1
+Author: Inderjeet Singh <inder123@gmail.com>
+Date:   Wed Mar 23 14:48:03 2011
+
+    removed unused no-args constructors
+
+diff --git a/gson/src/test/java/com/google/gson/functional/DefaultTypeAdaptersTest.java b/gson/src/test/java/com/google/gson/functional/DefaultTypeAdaptersTest.java
+--- a/gson/src/test/java/com/google/gson/functional/DefaultTypeAdaptersTest.java
++++ b/gson/src/test/java/com/google/gson/functional/DefaultTypeAdaptersTest.java
+@@ -398,8 +398,5 @@
+   private static class ClassWithBigDecimal {
+     BigDecimal value;
+-    // For use by Gson
+-    @SuppressWarnings("unused")
+-    private ClassWithBigDecimal() { }
+     ClassWithBigDecimal(String value) {
+       this.value = new BigDecimal(value);
+     }
+
+commit 3b0f8f4340c68d8fde0840befbc1b89afa14933f
+Author: Inderjeet Singh <inder123@gmail.com>
+Date:   Wed Sep 23 13:45:16 2009
+
+    Removed all the JDK warnings about unused fields in test classes or unused constructors for use by Gson or instanceof calls on parameterized types.
+
+diff --git a/gson/src/test/java/com/google/gson/functional/DefaultTypeAdaptersTest.java b/gson/src/test/java/com/google/gson/functional/DefaultTypeAdaptersTest.java
+--- a/gson/src/test/java/com/google/gson/functional/DefaultTypeAdaptersTest.java
++++ b/gson/src/test/java/com/google/gson/functional/DefaultTypeAdaptersTest.java
+@@ -290,6 +290,8 @@
+   private static class ClassWithBigDecimal {
+     BigDecimal value;
+-    ClassWithBigDecimal() { }
++    // For use by Gson
++    @SuppressWarnings("unused")
++    private ClassWithBigDecimal() { }
+     ClassWithBigDecimal(String value) {
+       this.value = new BigDecimal(value);
+     }
+
+commit 18b301dfeb91ca4468e0955d4cafcb32186efe1e
+Author: Joel Leitch <joel.leitch@gmail.com>
+Date:   Tue Sep 22 15:04:27 2009
+
+    - Serializing of Object arrays.
+    - Fixed incorrect warning
+
+diff --git a/gson/src/test/java/com/google/gson/functional/DefaultTypeAdaptersTest.java b/gson/src/test/java/com/google/gson/functional/DefaultTypeAdaptersTest.java
+--- a/gson/src/test/java/com/google/gson/functional/DefaultTypeAdaptersTest.java
++++ b/gson/src/test/java/com/google/gson/functional/DefaultTypeAdaptersTest.java
+@@ -290,7 +290,6 @@
+   private static class ClassWithBigDecimal {
+     BigDecimal value;
+-    @SuppressWarnings("unused")
+     ClassWithBigDecimal() { }
+     ClassWithBigDecimal(String value) {
+       this.value = new BigDecimal(value);
+     }
+
+commit 82771f006cad2047df9b30cdc35338599c31da45
+Author: Inderjeet Singh <inder123@gmail.com>
+Date:   Mon Aug 31 13:51:47 2009
+
+    removed Java 1.5 warnings
+
+diff --git a/gson/src/test/java/com/google/gson/functional/DefaultTypeAdaptersTest.java b/gson/src/test/java/com/google/gson/functional/DefaultTypeAdaptersTest.java
+--- a/gson/src/test/java/com/google/gson/functional/DefaultTypeAdaptersTest.java
++++ b/gson/src/test/java/com/google/gson/functional/DefaultTypeAdaptersTest.java
+@@ -290,6 +290,7 @@
+   private static class ClassWithBigDecimal {
+     BigDecimal value;
++    @SuppressWarnings("unused")
+     ClassWithBigDecimal() { }
+     ClassWithBigDecimal(String value) {
+       this.value = new BigDecimal(value);
+     }
+
+commit 57d1f32de5bf3a7dd54613384cc7e979fba2660b
+Author: Inderjeet Singh <inder123@gmail.com>
+Date:   Sun Aug 31 23:13:32 2008
+
+    moved gson as a project under trunk
+
+diff --git a/gson/src/test/java/com/google/gson/functional/DefaultTypeAdaptersTest.java b/gson/src/test/java/com/google/gson/functional/DefaultTypeAdaptersTest.java
+--- /dev/null
++++ b/gson/src/test/java/com/google/gson/functional/DefaultTypeAdaptersTest.java
+@@ -0,0 +209,6 @@
++  private static class ClassWithBigDecimal {
++    BigDecimal value;
++    ClassWithBigDecimal() { }
++    ClassWithBigDecimal(String value) {
++      this.value = new BigDecimal(value);
++    }

@@ -1,0 +1,100 @@
+commit 5dcca48038fb6274cc155251d09db12746ccce71
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Mon Jan 17 14:55:01 2011
+
+    MATH-482 FastMath.max(50.0f, -50.0f) => -50.0f; should be +50.0f
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1060060 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/util/FastMathTest.java b/src/test/java/org/apache/commons/math/util/FastMathTest.java
+--- a/src/test/java/org/apache/commons/math/util/FastMathTest.java
++++ b/src/test/java/org/apache/commons/math/util/FastMathTest.java
+@@ -78,33 +78,33 @@
+     public void testMinMaxFloat() {
+-        double[][] pairs = {
+-            { -50.0, 50.0 },
+-            {  Float.POSITIVE_INFINITY, 1.0 },
+-            {  Float.NEGATIVE_INFINITY, 1.0 },
+-            {  Float.NaN, 1.0 },
+-            {  Float.POSITIVE_INFINITY, 0.0 },
+-            {  Float.NEGATIVE_INFINITY, 0.0 },
+-            {  Float.NaN, 0.0 },
++        float[][] pairs = {
++            { -50.0f, 50.0f },
++            {  Float.POSITIVE_INFINITY, 1.0f },
++            {  Float.NEGATIVE_INFINITY, 1.0f },
++            {  Float.NaN, 1.0f },
++            {  Float.POSITIVE_INFINITY, 0.0f },
++            {  Float.NEGATIVE_INFINITY, 0.0f },
++            {  Float.NaN, 0.0f },
+             {  Float.NaN, Float.NEGATIVE_INFINITY },
+             {  Float.NaN, Float.POSITIVE_INFINITY }
+         };
+-        for (double[] pair : pairs) {
++        for (float[] pair : pairs) {
+             Assert.assertEquals("min(" + pair[0] + ", " + pair[1] + ")",
+                                 Math.min(pair[0], pair[1]),
+                                 FastMath.min(pair[0], pair[1]),
+                                 MathUtils.EPSILON);
+             Assert.assertEquals("min(" + pair[1] + ", " + pair[0] + ")",
+                                 Math.min(pair[1], pair[0]),
+                                 FastMath.min(pair[1], pair[0]),
+                                 MathUtils.EPSILON);
+             Assert.assertEquals("max(" + pair[0] + ", " + pair[1] + ")",
+                                 Math.max(pair[0], pair[1]),
+                                 FastMath.max(pair[0], pair[1]),
+                                 MathUtils.EPSILON);
+             Assert.assertEquals("max(" + pair[1] + ", " + pair[0] + ")",
+                                 Math.max(pair[1], pair[0]),
+                                 FastMath.max(pair[1], pair[0]),
+                                 MathUtils.EPSILON);
+         }
+     }
+ 
+     @Test
+
+commit 4201963b54b697b76b30569d94059b972150a687
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sun Sep 5 15:28:12 2010
+
+    added tests based on dfp library (now a package in commons-math)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@992871 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/util/FastMathTest.java b/src/test/java/org/apache/commons/math/util/FastMathTest.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/math/util/FastMathTest.java
+@@ -0,0 +77,33 @@
++    public void testMinMaxFloat() {
++        double[][] pairs = {
++            { -50.0, 50.0 },
++            {  Float.POSITIVE_INFINITY, 1.0 },
++            {  Float.NEGATIVE_INFINITY, 1.0 },
++            {  Float.NaN, 1.0 },
++            {  Float.POSITIVE_INFINITY, 0.0 },
++            {  Float.NEGATIVE_INFINITY, 0.0 },
++            {  Float.NaN, 0.0 },
++            {  Float.NaN, Float.NEGATIVE_INFINITY },
++            {  Float.NaN, Float.POSITIVE_INFINITY }
++        };
++        for (double[] pair : pairs) {
++            Assert.assertEquals("min(" + pair[0] + ", " + pair[1] + ")",
++                                Math.min(pair[0], pair[1]),
++                                FastMath.min(pair[0], pair[1]),
++                                MathUtils.EPSILON);
++            Assert.assertEquals("min(" + pair[1] + ", " + pair[0] + ")",
++                                Math.min(pair[1], pair[0]),
++                                FastMath.min(pair[1], pair[0]),
++                                MathUtils.EPSILON);
++            Assert.assertEquals("max(" + pair[0] + ", " + pair[1] + ")",
++                                Math.max(pair[0], pair[1]),
++                                FastMath.max(pair[0], pair[1]),
++                                MathUtils.EPSILON);
++            Assert.assertEquals("max(" + pair[1] + ", " + pair[0] + ")",
++                                Math.max(pair[1], pair[0]),
++                                FastMath.max(pair[1], pair[0]),
++                                MathUtils.EPSILON);
++        }
++    }
++
++    @Test

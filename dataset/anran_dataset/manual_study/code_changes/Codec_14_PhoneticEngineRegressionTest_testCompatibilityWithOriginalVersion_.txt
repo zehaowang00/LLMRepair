@@ -1,0 +1,190 @@
+commit 39d5df29fb768fd257f9d328b99f00bc69ec864a
+Author: Thomas Neidhart <tn@apache.org>
+Date:   Sat Jul 5 15:58:38 2014
+
+    [CODEC-187] Apply patch to make BeiderMorse phonetic engine compatible with v3.3 of the reference implementation.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/codec/trunk@1608115 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/codec/language/bm/PhoneticEngineRegressionTest.java b/src/test/java/org/apache/commons/codec/language/bm/PhoneticEngineRegressionTest.java
+--- a/src/test/java/org/apache/commons/codec/language/bm/PhoneticEngineRegressionTest.java
++++ b/src/test/java/org/apache/commons/codec/language/bm/PhoneticEngineRegressionTest.java
+@@ -181,21 +181,26 @@
+     public void testCompatibilityWithOriginalVersion() {
+         // see CODEC-187
+         // comparison: http://stevemorse.org/census/soundex.html
+ 
+         Map<String, String> args = new TreeMap<String, String>();
+         args.put("nameType", "GENERIC");
+         args.put("ruleType", "APPROX");
++
+         assertEquals(encode(args, true, "abram"), "Ybram|Ybrom|abram|abran|abrom|abron|avram|avrom|obram|obran|obrom|obron|ovram|ovrom");
++        assertEquals(encode(args, true, "Bendzin"), "bndzn|bntsn|bnzn|vndzn|vntsn");
+ 
+         args.put("nameType", "ASHKENAZI");
+         args.put("ruleType", "APPROX");
++
+         assertEquals(encode(args, true, "abram"), "Ybram|Ybrom|abram|abrom|avram|avrom|imbram|imbrom|obram|obrom|ombram|ombrom|ovram|ovrom");
++        assertEquals(encode(args, true, "Halpern"), "YlpYrn|Ylpirn|alpYrn|alpirn|olpYrn|olpirn|xalpirn|xolpirn");
++
+     }
+ 
+     /**
+      * This code is similar in style to code found in Solr:
+      * solr/core/src/java/org/apache/solr/analysis/BeiderMorseFilterFactory.java
+      *
+      * Making a JUnit test out of it to protect Solr from possible future
+      * regressions in Commons-Codec.
+      */
+
+commit 711c2e1aff80dc3205e7a3608a2ac391894d6711
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Wed Jun 18 20:41:39 2014
+
+    [CODEC-187] Beider Morse Phonetic Matching producing incorrect tokens. Apply patch https://issues.apache.org/jira/secure/attachment/12651251/CODEC-187_ashkenazi_approx_any_v2.patch
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/codec/trunk@1603689 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/codec/language/bm/PhoneticEngineRegressionTest.java b/src/test/java/org/apache/commons/codec/language/bm/PhoneticEngineRegressionTest.java
+--- a/src/test/java/org/apache/commons/codec/language/bm/PhoneticEngineRegressionTest.java
++++ b/src/test/java/org/apache/commons/codec/language/bm/PhoneticEngineRegressionTest.java
+@@ -181,17 +181,21 @@
+     public void testCompatibilityWithOriginalVersion() {
+         // see CODEC-187
+         // comparison: http://stevemorse.org/census/soundex.html
+ 
+         Map<String, String> args = new TreeMap<String, String>();
+         args.put("nameType", "GENERIC");
+         args.put("ruleType", "APPROX");
+         assertEquals(encode(args, true, "abram"), "Ybram|Ybrom|abram|abran|abrom|abron|avram|avrom|obram|obran|obrom|obron|ovram|ovrom");
++
++        args.put("nameType", "ASHKENAZI");
++        args.put("ruleType", "APPROX");
++        assertEquals(encode(args, true, "abram"), "Ybram|Ybrom|abram|abrom|avram|avrom|imbram|imbrom|obram|obrom|ombram|ombrom|ovram|ovrom");
+     }
+ 
+     /**
+      * This code is similar in style to code found in Solr:
+      * solr/core/src/java/org/apache/solr/analysis/BeiderMorseFilterFactory.java
+      *
+      * Making a JUnit test out of it to protect Solr from possible future
+      * regressions in Commons-Codec.
+      */
+
+commit 1189e1b201e0234b54df551804098df18bd9f445
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Wed Jun 18 15:57:30 2014
+
+    [CODEC-187] Beider Morse Phonetic Matching producing incorrect tokens. Revert changes from r1603573.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/codec/trunk@1603614 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/codec/language/bm/PhoneticEngineRegressionTest.java b/src/test/java/org/apache/commons/codec/language/bm/PhoneticEngineRegressionTest.java
+--- a/src/test/java/org/apache/commons/codec/language/bm/PhoneticEngineRegressionTest.java
++++ b/src/test/java/org/apache/commons/codec/language/bm/PhoneticEngineRegressionTest.java
+@@ -181,21 +181,17 @@
+     public void testCompatibilityWithOriginalVersion() {
+         // see CODEC-187
+         // comparison: http://stevemorse.org/census/soundex.html
+ 
+         Map<String, String> args = new TreeMap<String, String>();
+         args.put("nameType", "GENERIC");
+         args.put("ruleType", "APPROX");
+         assertEquals(encode(args, true, "abram"), "Ybram|Ybrom|abram|abran|abrom|abron|avram|avrom|obram|obran|obrom|obron|ovram|ovrom");
+-
+-        args.put("nameType", "ASHKENAZI");
+-        args.put("ruleType", "APPROX");
+-        assertEquals(encode(args, true, "abram"), "Ybram|Ybrom|abram|abrom|avram|avrom|imbram|imbrom|obram|obrom|ombram|ombrom|ovram|ovrom");
+     }
+ 
+     /**
+      * This code is similar in style to code found in Solr:
+      * solr/core/src/java/org/apache/solr/analysis/BeiderMorseFilterFactory.java
+      *
+      * Making a JUnit test out of it to protect Solr from possible future
+      * regressions in Commons-Codec.
+      */
+
+commit 570431c8502a6705e749b62ebf5519930946a776
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Wed Jun 18 14:45:32 2014
+
+    [CODEC-187] Beider Morse Phonetic Matching producing incorrect tokens. Apply patch https://issues.apache.org/jira/secure/attachment/12650479/CODEC-187_ashkenazi_approx_any.patch
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/codec/trunk@1603573 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/codec/language/bm/PhoneticEngineRegressionTest.java b/src/test/java/org/apache/commons/codec/language/bm/PhoneticEngineRegressionTest.java
+--- a/src/test/java/org/apache/commons/codec/language/bm/PhoneticEngineRegressionTest.java
++++ b/src/test/java/org/apache/commons/codec/language/bm/PhoneticEngineRegressionTest.java
+@@ -181,17 +181,21 @@
+     public void testCompatibilityWithOriginalVersion() {
+         // see CODEC-187
+         // comparison: http://stevemorse.org/census/soundex.html
+ 
+         Map<String, String> args = new TreeMap<String, String>();
+         args.put("nameType", "GENERIC");
+         args.put("ruleType", "APPROX");
+         assertEquals(encode(args, true, "abram"), "Ybram|Ybrom|abram|abran|abrom|abron|avram|avrom|obram|obran|obrom|obron|ovram|ovrom");
++
++        args.put("nameType", "ASHKENAZI");
++        args.put("ruleType", "APPROX");
++        assertEquals(encode(args, true, "abram"), "Ybram|Ybrom|abram|abrom|avram|avrom|imbram|imbrom|obram|obrom|ombram|ombrom|ovram|ovrom");
+     }
+ 
+     /**
+      * This code is similar in style to code found in Solr:
+      * solr/core/src/java/org/apache/solr/analysis/BeiderMorseFilterFactory.java
+      *
+      * Making a JUnit test out of it to protect Solr from possible future
+      * regressions in Commons-Codec.
+      */
+
+commit 5dd9e60cb226c571e13832023489e8bc366ce69c
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Wed Jun 11 18:45:54 2014
+
+    <action dev="ggregory" type="fix" issue="CODEC-187" due-to="Michael Tobias, Thomas Neidhart">Beider Morse Phonetic Matching producing incorrect tokens</action>
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/codec/trunk@1602044 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/codec/language/bm/PhoneticEngineRegressionTest.java b/src/test/java/org/apache/commons/codec/language/bm/PhoneticEngineRegressionTest.java
+--- a/src/test/java/org/apache/commons/codec/language/bm/PhoneticEngineRegressionTest.java
++++ b/src/test/java/org/apache/commons/codec/language/bm/PhoneticEngineRegressionTest.java
+@@ -180,7 +181,17 @@
++    public void testCompatibilityWithOriginalVersion() {
++        // see CODEC-187
++        // comparison: http://stevemorse.org/census/soundex.html
++
++        Map<String, String> args = new TreeMap<String, String>();
++        args.put("nameType", "GENERIC");
++        args.put("ruleType", "APPROX");
++        assertEquals(encode(args, true, "abram"), "Ybram|Ybrom|abram|abran|abrom|abron|avram|avrom|obram|obran|obrom|obron|ovram|ovrom");
++    }
++
+     /**
+      * This code is similar in style to code found in Solr:
+      * solr/core/src/java/org/apache/solr/analysis/BeiderMorseFilterFactory.java
+      *
+      * Making a JUnit test out of it to protect Solr from possible future
+      * regressions in Commons-Codec.
+      */
+
+commit 2cb3bbda5a0c09bdb4da5533df4ef7061c1c8125
+Author: Thomas Neidhart <tn@apache.org>
+Date:   Thu Aug 23 16:20:44 2012
+
+    [CODEC-146] Added regression tests for PhoneticEngine. Thanks to Julius Davies.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/codec/trunk@1376676 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/codec/language/bm/PhoneticEngineRegressionTest.java b/src/test/java/org/apache/commons/codec/language/bm/PhoneticEngineRegressionTest.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/codec/language/bm/PhoneticEngineRegressionTest.java
+@@ -0,0 +180,7 @@
++    /**
++     * This code is similar in style to code found in Solr:
++     * solr/core/src/java/org/apache/solr/analysis/BeiderMorseFilterFactory.java
++     *
++     * Making a JUnit test out of it to protect Solr from possible future
++     * regressions in Commons-Codec.
++     */

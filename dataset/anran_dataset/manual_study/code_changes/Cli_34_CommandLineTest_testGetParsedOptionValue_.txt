@@ -1,0 +1,39 @@
+commit 62a3b36efc78e53c233c2fb49cc8199c5eabec1d
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Tue Apr 12 11:55:03 2011
+
+    Option type is now set to String by default (Fixes CLI-215)
+    The type is now explicitly a Class instance instead of an unspecified Object
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/trunk@1091485 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/cli/CommandLineTest.java b/src/test/java/org/apache/commons/cli/CommandLineTest.java
+--- a/src/test/java/org/apache/commons/cli/CommandLineTest.java
++++ b/src/test/java/org/apache/commons/cli/CommandLineTest.java
+@@ -64,1 +65,12 @@
++    public void testGetParsedOptionValue() throws Exception {
++        Options options = new Options();
++        options.addOption(OptionBuilder.hasArg().withType(Number.class).create("i"));
++        options.addOption(OptionBuilder.hasArg().create("f"));
++        
++        CommandLineParser parser = new DefaultParser();
++        CommandLine cmd = parser.parse(options, new String[] { "-i", "123", "-f", "foo" });
++        
++        assertEquals(123, ((Number) cmd.getParsedOptionValue("i")).intValue());
++        assertEquals("foo", cmd.getParsedOptionValue("f"));
++    }
+ }
+
+commit 84d333ab1a80231963280a47711086a6b1a56781
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Fri Jun 13 13:03:31 2008
+
+    Added the method getOptionProperties() in CommandLine to retrieve easily a set of properties specified by an option (-Dparam=value)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/branches/cli-1.x@667595 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/CommandLineTest.java b/src/test/org/apache/commons/cli/CommandLineTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/cli/CommandLineTest.java
+@@ -0,0 +51,1 @@
++}

@@ -1,0 +1,168 @@
+commit aedce35970673f20696d5721acba13e986cc764c
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Nov 14 18:03:35 2011
+
+    Fix how source line numbers are stored in the source files.
+    Fixes issue 575
+    
+    R=jschorr
+    DELTA=81  (62 added, 3 deleted, 16 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3704
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1596 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/debugging/sourcemap/SourceMapGeneratorV3Test.java b/test/com/google/debugging/sourcemap/SourceMapGeneratorV3Test.java
+--- a/test/com/google/debugging/sourcemap/SourceMapGeneratorV3Test.java
++++ b/test/com/google/debugging/sourcemap/SourceMapGeneratorV3Test.java
+@@ -129,32 +146,32 @@
+   public void testGoldenOutput1() throws Exception {
+     detailLevel = SourceMap.DetailLevel.ALL;
+ 
+     checkSourceMap("function f(foo, bar) { foo = foo + bar + 2; return foo; }",
+ 
+                    "{\n" +
+                    "\"version\":3,\n" +
+                    "\"file\":\"testcode\",\n" +
+                    "\"lineCount\":1,\n" +
+-                   "\"mappings\":\"AACAA,QAASA,EAAC,CAACC,GAAD,CAAMC,GAAN," +
++                   "\"mappings\":\"AAAAA,QAASA,EAAC,CAACC,GAAD,CAAMC,GAAN," +
+                        "CAAW,CAAED,GAAA,CAAMA,GAAN,CAAYC,GAAZ,CAAkB,CAAG," +
+                        "OAAOD,IAA9B;\",\n" +
+                    "\"sources\":[\"testcode\"],\n" +
+                    "\"names\":[\"f\",\"foo\",\"bar\"]\n" +
+                    "}\n");
+ 
+     detailLevel = SourceMap.DetailLevel.SYMBOLS;
+ 
+     checkSourceMap("function f(foo, bar) { foo = foo + bar + 2; return foo; }",
+ 
+                    "{\n" +
+                    "\"version\":3,\n" +
+                    "\"file\":\"testcode\",\n" +
+                    "\"lineCount\":1,\n" +
+-                   "\"mappings\":\"AACAA,QAASA,EAATA,CAAWC,GAAXD,CAAgBE," +
++                   "\"mappings\":\"AAAAA,QAASA,EAATA,CAAWC,GAAXD,CAAgBE," +
+                        "GAAhBF,EAAuBC,GAAvBD,CAA6BC,GAA7BD,CAAmCE,GAAnCF," +
+                        "SAAmDC,IAAnDD;\",\n" +
+                    "\"sources\":[\"testcode\"],\n" +
+                    "\"names\":[\"f\",\"foo\",\"bar\"]\n" +
+                    "}\n");
+   }
+ 
+
+commit ffd701db8fd53ccb34c32b954227e65a33b77c84
+Author: jfield@google.com <jfield@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Sep 1 08:21:02 2011
+
+    Make start position and length information consistent for named
+    function nodes by moving start position to beginning of 'function'
+    token, rather than the first position of the function's name
+    token.  tests updated accordingly.
+    
+    R=nicksantos
+    DELTA=44  (3 added, 11 deleted, 30 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3174
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1402 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/debugging/sourcemap/SourceMapGeneratorV3Test.java b/test/com/google/debugging/sourcemap/SourceMapGeneratorV3Test.java
+--- a/test/com/google/debugging/sourcemap/SourceMapGeneratorV3Test.java
++++ b/test/com/google/debugging/sourcemap/SourceMapGeneratorV3Test.java
+@@ -129,32 +129,32 @@
+   public void testGoldenOutput1() throws Exception {
+     detailLevel = SourceMap.DetailLevel.ALL;
+ 
+     checkSourceMap("function f(foo, bar) { foo = foo + bar + 2; return foo; }",
+ 
+                    "{\n" +
+                    "\"version\":3,\n" +
+                    "\"file\":\"testcode\",\n" +
+                    "\"lineCount\":1,\n" +
+-                   "\"mappings\":\"AACSA,QAAAA,EAAC,CAACC,GAAD,CAAMC,GAAN," +
++                   "\"mappings\":\"AACAA,QAASA,EAAC,CAACC,GAAD,CAAMC,GAAN," +
+                        "CAAW,CAAED,GAAA,CAAMA,GAAN,CAAYC,GAAZ,CAAkB,CAAG," +
+                        "OAAOD,IAA9B;\",\n" +
+                    "\"sources\":[\"testcode\"],\n" +
+                    "\"names\":[\"f\",\"foo\",\"bar\"]\n" +
+                    "}\n");
+ 
+     detailLevel = SourceMap.DetailLevel.SYMBOLS;
+ 
+     checkSourceMap("function f(foo, bar) { foo = foo + bar + 2; return foo; }",
+ 
+                    "{\n" +
+                    "\"version\":3,\n" +
+                    "\"file\":\"testcode\",\n" +
+                    "\"lineCount\":1,\n" +
+-                   "\"mappings\":\"AACSA,QAAAA,EAAAA,CAAEC,GAAFD,CAAOE," +
+-                       "GAAPF,EAAcC,GAAdD,CAAoBC,GAApBD,CAA0BE,GAA1BF," +
+-                       "SAA0CC,IAA1CD;\",\n" +
++                   "\"mappings\":\"AACAA,QAASA,EAATA,CAAWC,GAAXD,CAAgBE," +
++                       "GAAhBF,EAAuBC,GAAvBD,CAA6BC,GAA7BD,CAAmCE,GAAnCF," +
++                       "SAAmDC,IAAnDD;\",\n" +
+                    "\"sources\":[\"testcode\"],\n" +
+                    "\"names\":[\"f\",\"foo\",\"bar\"]\n" +
+                    "}\n");
+   }
+ 
+
+commit ef2dd6e0723162aaf56cf58eeede68622caeca37
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Wed Apr 20 14:53:10 2011
+
+    Introduce a V3 source map.  Experimental.
+    
+    R=jschorr
+    DELTA=3054  (2176 added, 853 deleted, 25 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=1509
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1026 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/debugging/sourcemap/SourceMapGeneratorV3Test.java b/test/com/google/debugging/sourcemap/SourceMapGeneratorV3Test.java
+--- /dev/null
++++ b/test/com/google/debugging/sourcemap/SourceMapGeneratorV3Test.java
+@@ -0,0 +122,32 @@
++  public void testGoldenOutput1() throws Exception {
++    detailLevel = SourceMap.DetailLevel.ALL;
++
++    checkSourceMap("function f(foo, bar) { foo = foo + bar + 2; return foo; }",
++
++                   "{\n" +
++                   "\"version\":3,\n" +
++                   "\"file\":\"testcode\",\n" +
++                   "\"lineCount\":1,\n" +
++                   "\"mappings\":\"AACSA,QAAAA,EAAC,CAACC,GAAD,CAAMC,GAAN," +
++                       "CAAW,CAAED,GAAA,CAAMA,GAAN,CAAYC,GAAZ,CAAkB,CAAG," +
++                       "OAAOD,IAA9B;\",\n" +
++                   "\"sources\":[\"testcode\"],\n" +
++                   "\"names\":[\"f\",\"foo\",\"bar\"]\n" +
++                   "}\n");
++
++    detailLevel = SourceMap.DetailLevel.SYMBOLS;
++
++    checkSourceMap("function f(foo, bar) { foo = foo + bar + 2; return foo; }",
++
++                   "{\n" +
++                   "\"version\":3,\n" +
++                   "\"file\":\"testcode\",\n" +
++                   "\"lineCount\":1,\n" +
++                   "\"mappings\":\"AACSA,QAAAA,EAAAA,CAAEC,GAAFD,CAAOE," +
++                       "GAAPF,EAAcC,GAAdD,CAAoBC,GAApBD,CAA0BE,GAA1BF," +
++                       "SAA0CC,IAA1CD;\",\n" +
++                   "\"sources\":[\"testcode\"],\n" +
++                   "\"names\":[\"f\",\"foo\",\"bar\"]\n" +
++                   "}\n");
++  }
++

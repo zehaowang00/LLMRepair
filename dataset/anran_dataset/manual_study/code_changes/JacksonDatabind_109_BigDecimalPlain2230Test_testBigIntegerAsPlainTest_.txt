@@ -1,0 +1,53 @@
+commit e287a62cd32832d5a9611d5b8f3bc06ec1310dc0
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Mon Feb 4 20:51:04 2019
+
+    Fix #2230
+
+diff --git a/src/test/java/com/fasterxml/jackson/failing/BigDecimalPlain2230Test.java b/src/test/java/com/fasterxml/jackson/databind/ser/jdk/BigDecimalPlain2230Test.java
+--- a/src/test/java/com/fasterxml/jackson/failing/BigDecimalPlain2230Test.java
++++ b/src/test/java/com/fasterxml/jackson/databind/ser/jdk/BigDecimalPlain2230Test.java
+@@ -23,15 +23,15 @@
+     public void testBigIntegerAsPlainTest() throws Exception
+     {
+         final String NORM_VALUE = "0.0000000005";
+         final BigDecimal BD_VALUE = new BigDecimal(NORM_VALUE);
+         final BigDecimalAsString INPUT = new BigDecimalAsString(BD_VALUE);
+         // by default, use the default `toString()`
+-        assertEquals("{\"value\":\""+BD_VALUE.toString()+"\"", MAPPER.writeValueAsString(INPUT));
++        assertEquals("{\"value\":\""+BD_VALUE.toString()+"\"}", MAPPER.writeValueAsString(INPUT));
+ 
+         // but can force to "plain" notation
+         final ObjectMapper m = jsonMapperBuilder()
+             .enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)
+             .build();
+-        assertEquals("{\"value\":\""+NORM_VALUE+"\"", m.writeValueAsString(INPUT));
++        assertEquals("{\"value\":\""+NORM_VALUE+"\"}", m.writeValueAsString(INPUT));
+     }
+ }
+
+commit b4dea3c54631dcb9dff6e4e457d91c85797764e3
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Mon Feb 4 18:31:45 2019
+
+    Add (failing) test for 2230
+
+diff --git a/src/test/java/com/fasterxml/jackson/failing/BigDecimalPlain2230Test.java b/src/test/java/com/fasterxml/jackson/failing/BigDecimalPlain2230Test.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/failing/BigDecimalPlain2230Test.java
+@@ -0,0 +23,15 @@
++    public void testBigIntegerAsPlainTest() throws Exception
++    {
++        final String NORM_VALUE = "0.0000000005";
++        final BigDecimal BD_VALUE = new BigDecimal(NORM_VALUE);
++        final BigDecimalAsString INPUT = new BigDecimalAsString(BD_VALUE);
++        // by default, use the default `toString()`
++        assertEquals("{\"value\":\""+BD_VALUE.toString()+"\"", MAPPER.writeValueAsString(INPUT));
++
++        // but can force to "plain" notation
++        final ObjectMapper m = jsonMapperBuilder()
++            .enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)
++            .build();
++        assertEquals("{\"value\":\""+NORM_VALUE+"\"", m.writeValueAsString(INPUT));
++    }
++}

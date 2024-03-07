@@ -1,0 +1,31 @@
+commit 567d6c09a868175626a0b404dc1a8f128f7746f2
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Wed Jun 15 01:14:57 2016
+
+    Fix #1261
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/objectid/ObjectWithCreator1261Test.java b/src/test/java/com/fasterxml/jackson/databind/objectid/ObjectWithCreator1261Test.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/objectid/ObjectWithCreator1261Test.java
+@@ -0,0 +66,21 @@
++    public void testObjectIds1261() throws Exception
++    {
++         ObjectMapper mapper = new ObjectMapper();
++         mapper.enable(SerializationFeature.INDENT_OUTPUT);
++         mapper.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
++
++         Answer initialAnswer = createInitialAnswer();
++         String initialAnswerString = mapper.writeValueAsString(initialAnswer);
++// System.out.println("Initial answer:\n"+initialAnswerString);
++         JsonNode tree = mapper.readTree(initialAnswerString);
++         Answer deserializedAnswer = mapper.readValue(initialAnswerString,
++               Answer.class);
++         String reserializedAnswerString = mapper
++               .writeValueAsString(deserializedAnswer);
++         JsonNode newTree = mapper.readTree(reserializedAnswerString);
++         if (!tree.equals(newTree)) {
++                  fail("Original and recovered Json are different. Recovered = \n"
++                        + reserializedAnswerString + "\n");
++         }
++   }
++

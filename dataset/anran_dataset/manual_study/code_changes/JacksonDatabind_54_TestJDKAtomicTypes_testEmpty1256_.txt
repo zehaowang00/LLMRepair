@@ -1,0 +1,31 @@
+commit f7e476edb42236ad06ab7084ecd5e6c5405bf99a
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Wed Jul 13 01:37:47 2016
+
+    Fix #1256
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/deser/TestJDKAtomicTypes.java b/src/test/java/com/fasterxml/jackson/databind/deser/TestJDKAtomicTypes.java
+--- a/src/test/java/com/fasterxml/jackson/databind/deser/TestJDKAtomicTypes.java
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/TestJDKAtomicTypes.java
+@@ -253,1 +262,9 @@
++    public void testEmpty1256() throws Exception
++    {
++        ObjectMapper mapper = new ObjectMapper();
++        mapper.setSerializationInclusion(JsonInclude.Include.NON_ABSENT);
++
++        String json = mapper.writeValueAsString(new Issue1256Bean());
++        assertEquals("{}", json);
++    }
+ }
+
+commit a63c2038a03c7090ce4773d6cf54809150e59350
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 03:26:53 2011
+
+    Add unit tests, almost compilable
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/deser/TestSimpleAtomicTypes.java b/src/test/java/com/fasterxml/jackson/databind/deser/TestSimpleAtomicTypes.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/TestSimpleAtomicTypes.java
+@@ -0,0 +45,1 @@
++}

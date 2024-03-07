@@ -1,0 +1,24 @@
+commit 330f3fe17d132bd4e2a91ff812ccf489e77f390f
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Fri Sep 2 19:05:01 2011
+
+    MATH-657
+    Complex division by zero:
+     z / 0 = INF if z is not ZERO
+     0 / 0 = NaN
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1164756 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/complex/ComplexTest.java b/src/test/java/org/apache/commons/math/complex/ComplexTest.java
+--- a/src/test/java/org/apache/commons/math/complex/ComplexTest.java
++++ b/src/test/java/org/apache/commons/math/complex/ComplexTest.java
+@@ -568,0 +575,8 @@
++    public void testAtanI() {
++        for (int i = -10; i < 10; i++) {
++            System.out.println(new Complex(0, 1 - 0.1 * i).atan());
++        }
++        Assert.assertTrue(Complex.I.atan().isInfinite());
++    }
++
++    @Test

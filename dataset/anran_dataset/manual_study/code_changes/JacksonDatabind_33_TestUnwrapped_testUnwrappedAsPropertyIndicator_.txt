@@ -1,0 +1,110 @@
+commit 660ec8f8c081646413d14adf41d55bbd4362a5a8
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Fri Nov 20 17:02:01 2015
+
+    Fix #1013
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java b/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java
+--- a/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java
++++ b/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java
+@@ -169,19 +181,34 @@
++    public void testUnwrappedAsPropertyIndicator() throws Exception
++    {
++        Inner inner = new Inner();
++        inner.animal = "Zebra";
++
++        Outer outer = new Outer();
++        outer.inner = inner;
++
++        String actual = MAPPER.writeValueAsString(outer);
++
++        assertTrue(actual.contains("animal"));
++        assertTrue(actual.contains("Zebra"));
++        assertFalse(actual.contains("inner"));
++    }
++    
+     // 22-Apr-2013, tatu: Commented out as it can't be simply fixed; requires implementing
+     //    deep-update/merge. But leaving here to help with that effort, if/when it proceeds.
+ 
+     /*
+-    // [Issue#211]: Actually just variant of #160
++    // [databind#211]: Actually just variant of #160
+ 
+     static class Issue211Bean {
+         public String test1;
+ 
+         public String test2;
+         @JsonUnwrapped
+         public Issue211Unwrapped unwrapped;
+     }
+ 
+     static class Issue211Unwrapped {
+         public String test3;
+         public String test4;
+     }
+ 
+
+commit 2ef09f8c581e3df9e51b695c7d869e17bebd3c04
+Author: Cowtowncoder <tatu.saloranta@iki.fi>
+Date:   Mon Dec 8 20:19:22 2014
+
+    Trying to repro #615
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java b/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java
+--- a/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java
++++ b/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java
+@@ -145,20 +169,19 @@
+     // 22-Apr-2013, tatu: Commented out as it can't be simply fixed; requires implementing
+     //    deep-update/merge. But leaving here to help with that effort, if/when it proceeds.
+-    
++
+     /*
+-    
+     // [Issue#211]: Actually just variant of #160
+-    
++
+     static class Issue211Bean {
+         public String test1;
+ 
+         public String test2;
+         @JsonUnwrapped
+         public Issue211Unwrapped unwrapped;
+     }
+ 
+     static class Issue211Unwrapped {
+         public String test3;
+         public String test4;
+     }
+-    
++
+
+commit 750b06523c141355a399b5c51ac110e9b4f4593e
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Mon Apr 22 18:48:29 2013
+
+    adding test for #211 (commented out)
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java b/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java
+--- a/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java
++++ b/src/test/java/com/fasterxml/jackson/databind/struct/TestUnwrapped.java
+@@ -145,0 +147,20 @@
++    // 22-Apr-2013, tatu: Commented out as it can't be simply fixed; requires implementing
++    //    deep-update/merge. But leaving here to help with that effort, if/when it proceeds.
++    
++    /*
++    
++    // [Issue#211]: Actually just variant of #160
++    
++    static class Issue211Bean {
++        public String test1;
++
++        public String test2;
++        @JsonUnwrapped
++        public Issue211Unwrapped unwrapped;
++    }
++
++    static class Issue211Unwrapped {
++        public String test3;
++        public String test4;
++    }
++    

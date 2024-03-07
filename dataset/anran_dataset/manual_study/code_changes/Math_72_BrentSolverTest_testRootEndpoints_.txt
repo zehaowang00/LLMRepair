@@ -1,0 +1,118 @@
+commit aa09ac7ca6e01a2ba41470ca590f07f2ada8af6f
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Tue Feb 23 16:09:25 2010
+
+    Fixed wrong return values when enpoints are roots in Brent solver with a user provided initial guess
+    JIRA: MATH-344
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@915522 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/analysis/solvers/BrentSolverTest.java b/src/test/java/org/apache/commons/math/analysis/solvers/BrentSolverTest.java
+--- a/src/test/java/org/apache/commons/math/analysis/solvers/BrentSolverTest.java
++++ b/src/test/java/org/apache/commons/math/analysis/solvers/BrentSolverTest.java
+@@ -305,12 +305,19 @@
+     public void testRootEndpoints() throws Exception {
+         UnivariateRealFunction f = new SinFunction();
+         UnivariateRealSolver solver = new BrentSolver();
+ 
+         // endpoint is root
+         double result = solver.solve(f, Math.PI, 4);
+-        assertEquals(result, Math.PI, solver.getAbsoluteAccuracy());
++        assertEquals(Math.PI, result, solver.getAbsoluteAccuracy());
+ 
+         result = solver.solve(f, 3, Math.PI);
+-        assertEquals(result, Math.PI, solver.getAbsoluteAccuracy());
++        assertEquals(Math.PI, result, solver.getAbsoluteAccuracy());
++
++        result = solver.solve(f, Math.PI, 4, 3.5);
++        assertEquals(Math.PI, result, solver.getAbsoluteAccuracy());
++
++        result = solver.solve(f, 3, Math.PI, 3.07);
++        assertEquals(Math.PI, result, solver.getAbsoluteAccuracy());
++
+     }
+ 
+
+commit 26dac5a0e7fc9c6be9571b3e71a15d8502480d96
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sat Sep 5 13:36:48 2009
+
+    Removed trailing spaces.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@811685 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/analysis/solvers/BrentSolverTest.java b/src/test/java/org/apache/commons/math/analysis/solvers/BrentSolverTest.java
+--- a/src/test/java/org/apache/commons/math/analysis/solvers/BrentSolverTest.java
++++ b/src/test/java/org/apache/commons/math/analysis/solvers/BrentSolverTest.java
+@@ -313,12 +313,12 @@
+     public void testRootEndpoints() throws Exception {
+         UnivariateRealFunction f = new SinFunction();
+         UnivariateRealSolver solver = new BrentSolver();
+-        
++
+         // endpoint is root
+         double result = solver.solve(f, Math.PI, 4);
+         assertEquals(result, Math.PI, solver.getAbsoluteAccuracy());
+ 
+         result = solver.solve(f, 3, Math.PI);
+         assertEquals(result, Math.PI, solver.getAbsoluteAccuracy());
+     }
+-    
++
+
+commit 583dffc0ee383e9b5e1e08c574de10db8270fdb7
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sun Dec 7 15:24:10 2008
+
+    The root solvers now take the function to solve as a parameter to
+    the solve methods, thus allowing to reuse the same solver for different
+    functions.
+    
+    JIRA:MATH-218
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@724191 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/analysis/BrentSolverTest.java b/src/test/org/apache/commons/math/analysis/BrentSolverTest.java
+--- a/src/test/org/apache/commons/math/analysis/BrentSolverTest.java
++++ b/src/test/org/apache/commons/math/analysis/BrentSolverTest.java
+@@ -271,12 +309,12 @@
+     public void testRootEndpoints() throws Exception {
+         UnivariateRealFunction f = new SinFunction();
+-        UnivariateRealSolver solver = new BrentSolver(f);
++        UnivariateRealSolver solver = new BrentSolver();
+         
+         // endpoint is root
+-        double result = solver.solve(Math.PI, 4);
++        double result = solver.solve(f, Math.PI, 4);
+         assertEquals(result, Math.PI, solver.getAbsoluteAccuracy());
+ 
+-        result = solver.solve(3, Math.PI);
++        result = solver.solve(f, 3, Math.PI);
+         assertEquals(result, Math.PI, solver.getAbsoluteAccuracy());
+     }
+     
+
+commit 055a88a6a674425296ce4740fc4f8b5365cff16e
+Author: Brent Worden <brentworden@apache.org>
+Date:   Wed May 7 09:36:33 2008
+
+    MATH-204.  added root checks for the endpoints.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@654100 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/analysis/BrentSolverTest.java b/src/test/org/apache/commons/math/analysis/BrentSolverTest.java
+--- a/src/test/org/apache/commons/math/analysis/BrentSolverTest.java
++++ b/src/test/org/apache/commons/math/analysis/BrentSolverTest.java
+@@ -271,0 +271,12 @@
++    public void testRootEndpoints() throws Exception {
++        UnivariateRealFunction f = new SinFunction();
++        UnivariateRealSolver solver = new BrentSolver(f);
++        
++        // endpoint is root
++        double result = solver.solve(Math.PI, 4);
++        assertEquals(result, Math.PI, solver.getAbsoluteAccuracy());
++
++        result = solver.solve(3, Math.PI);
++        assertEquals(result, Math.PI, solver.getAbsoluteAccuracy());
++    }
++    

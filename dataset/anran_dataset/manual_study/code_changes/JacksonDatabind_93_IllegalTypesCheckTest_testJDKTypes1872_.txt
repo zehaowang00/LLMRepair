@@ -1,0 +1,21 @@
+commit 755e3bc0cbea30de0102f6a88519a0c34d571bbd
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Fri Jan 5 15:45:14 2018
+
+    Fix #1872
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/interop/IllegalTypesCheckTest.java b/src/test/java/com/fasterxml/jackson/databind/interop/IllegalTypesCheckTest.java
+--- a/src/test/java/com/fasterxml/jackson/databind/interop/IllegalTypesCheckTest.java
++++ b/src/test/java/com/fasterxml/jackson/databind/interop/IllegalTypesCheckTest.java
+@@ -97,0 +105,11 @@
++    public void testJDKTypes1872() throws Exception
++    {
++        ObjectMapper mapper = new ObjectMapper();
++        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
++    
++        String json = aposToQuotes(String.format("{'@class':'%s','authorities':['java.util.ArrayList',[]]}",
++                Authentication1872.class.getName()));
++        Authentication1872 result = mapper.readValue(json, Authentication1872.class);
++        assertNotNull(result);
++    }
++

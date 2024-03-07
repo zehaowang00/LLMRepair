@@ -1,0 +1,452 @@
+commit 8de3eb542b2be80ba309b2c91ae1dba75bdb5063
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Thu Sep 23 08:11:56 2010
+
+    MATH-413 (point 13)
+    Selecting a random start value (instead of interval bounds).
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1000422 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/univariate/MultiStartUnivariateRealOptimizerTest.java b/src/test/java/org/apache/commons/math/optimization/univariate/MultiStartUnivariateRealOptimizerTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/univariate/MultiStartUnivariateRealOptimizerTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/univariate/MultiStartUnivariateRealOptimizerTest.java
+@@ -58,24 +58,24 @@
+     public void testQuinticMin() throws MathException {
+         // The quintic function has zeros at 0, +-0.5 and +-1.
+         // The function has extrema (first derivative is zero) at 0.27195613 and 0.82221643,
+         UnivariateRealFunction f = new QuinticFunction();
+         UnivariateRealOptimizer underlying = new BrentOptimizer(1e-9, 1e-14);
+         underlying.setMaxEvaluations(300);
+         JDKRandomGenerator g = new JDKRandomGenerator();
+         g.setSeed(4312000053L);
+         MultiStartUnivariateRealOptimizer optimizer =
+             new MultiStartUnivariateRealOptimizer(underlying, 5, g);
+ 
+         UnivariateRealPointValuePair optimum
+             = optimizer.optimize(f, GoalType.MINIMIZE, -0.3, -0.2);
+-        assertEquals(-0.2719561271, optimum.getPoint(), 1e-9);
++        assertEquals(-0.2719561293, optimum.getPoint(), 1e-9);
+         assertEquals(-0.0443342695, optimum.getValue(), 1e-9);
+ 
+         UnivariateRealPointValuePair[] optima = optimizer.getOptima();
+         for (int i = 0; i < optima.length; ++i) {
+             assertEquals(f.value(optima[i].getPoint()), optima[i].getValue(), 1e-9);
+         }
+-        assertTrue(optimizer.getEvaluations() >= 110);
+-        assertTrue(optimizer.getEvaluations() <= 150);
++        assertTrue(optimizer.getEvaluations() >= 50);
++        assertTrue(optimizer.getEvaluations() <= 100);
+     }
+ }
+
+commit 43ed5002e1483019207c5130459ef469c24dab31
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Mon Sep 6 05:06:28 2010
+
+    MATH-413 (points 1, 2 and 10)
+    Reverted to the original version of the convergence checker (using only the
+    previous and current best points).
+    "LevenberMarquardtOptimizer": Removed setters (control parameters must be
+    set at construction). Added a contructor.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@992976 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/univariate/MultiStartUnivariateRealOptimizerTest.java b/src/test/java/org/apache/commons/math/optimization/univariate/MultiStartUnivariateRealOptimizerTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/univariate/MultiStartUnivariateRealOptimizerTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/univariate/MultiStartUnivariateRealOptimizerTest.java
+@@ -59,25 +58,24 @@
+     public void testQuinticMin() throws MathException {
+         // The quintic function has zeros at 0, +-0.5 and +-1.
+         // The function has extrema (first derivative is zero) at 0.27195613 and 0.82221643,
+         UnivariateRealFunction f = new QuinticFunction();
+-        UnivariateRealOptimizer underlying = new BrentOptimizer();
+-        underlying.setConvergenceChecker(new BrentOptimizer.BrentConvergenceChecker(1e-9, 1e-14));
++        UnivariateRealOptimizer underlying = new BrentOptimizer(1e-9, 1e-14);
+         underlying.setMaxEvaluations(300);
+         JDKRandomGenerator g = new JDKRandomGenerator();
+         g.setSeed(4312000053L);
+         MultiStartUnivariateRealOptimizer optimizer =
+             new MultiStartUnivariateRealOptimizer(underlying, 5, g);
+ 
+         UnivariateRealPointValuePair optimum
+             = optimizer.optimize(f, GoalType.MINIMIZE, -0.3, -0.2);
+         assertEquals(-0.2719561271, optimum.getPoint(), 1e-9);
+         assertEquals(-0.0443342695, optimum.getValue(), 1e-9);
+ 
+         UnivariateRealPointValuePair[] optima = optimizer.getOptima();
+         for (int i = 0; i < optima.length; ++i) {
+             assertEquals(f.value(optima[i].getPoint()), optima[i].getValue(), 1e-9);
+         }
+         assertTrue(optimizer.getEvaluations() >= 110);
+         assertTrue(optimizer.getEvaluations() <= 150);
+     }
+ }
+
+commit 9102bea5d82c6f97bf3cfb1d8525c13e58a9d418
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Mon Aug 30 09:06:22 2010
+
+    MATH-394, MATH-397, MATH-404
+    Overhaul of the "optimization" package.
+    Removed lots of duplicate code.
+    Removed methods referring to the concept of "iteration".
+    Removed interface methods to access the number of evaluations of the
+    gradient and Jacobian.
+    Removed all references to "OptimizationException" (replaced by
+    "ConvergenceException").
+    Javadoc comments updated.
+    
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@990792 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java b/src/test/java/org/apache/commons/math/optimization/univariate/MultiStartUnivariateRealOptimizerTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/univariate/MultiStartUnivariateRealOptimizerTest.java
+@@ -57,46 +59,25 @@
+     public void testQuinticMin() throws MathException {
+         // The quintic function has zeros at 0, +-0.5 and +-1.
+         // The function has extrema (first derivative is zero) at 0.27195613 and 0.82221643,
+         UnivariateRealFunction f = new QuinticFunction();
+         UnivariateRealOptimizer underlying = new BrentOptimizer();
+-        underlying.setRelativeAccuracy(1e-15);
++        underlying.setConvergenceChecker(new BrentOptimizer.BrentConvergenceChecker(1e-9, 1e-14));
++        underlying.setMaxEvaluations(300);
+         JDKRandomGenerator g = new JDKRandomGenerator();
+         g.setSeed(4312000053L);
+-        MultiStartUnivariateRealOptimizer minimizer =
++        MultiStartUnivariateRealOptimizer optimizer =
+             new MultiStartUnivariateRealOptimizer(underlying, 5, g);
+-        minimizer.setAbsoluteAccuracy(10 * minimizer.getAbsoluteAccuracy());
+-        minimizer.setRelativeAccuracy(10 * minimizer.getRelativeAccuracy());
+ 
+-        try {
+-            minimizer.getOptima();
+-            fail("an exception should have been thrown");
+-        } catch (IllegalStateException ise) {
+-            // expected
+-        } catch (Exception e) {
+-            fail("wrong exception caught");
+-        }
+-        try {
+-            minimizer.getOptimaValues();
+-            fail("an exception should have been thrown");
+-        } catch (IllegalStateException ise) {
+-            // expected
+-        } catch (Exception e) {
+-            fail("wrong exception caught");
+-        }
+-
+-        double result = minimizer.optimize(f, GoalType.MINIMIZE, -0.3, -0.2);
+-        assertEquals(-0.2719561270319131, result, 1.0e-13);
+-        assertEquals(-0.2719561270319131, minimizer.getResult(), 1.0e-13);
+-        assertEquals(-0.04433426954946637, minimizer.getFunctionValue(), 1.0e-13);
++        UnivariateRealPointValuePair optimum
++            = optimizer.optimize(f, GoalType.MINIMIZE, -0.3, -0.2);
++        assertEquals(-0.2719561271, optimum.getPoint(), 1e-9);
++        assertEquals(-0.0443342695, optimum.getValue(), 1e-9);
+ 
+-        double[] optima = minimizer.getOptima();
+-        double[] optimaValues = minimizer.getOptimaValues();
++        UnivariateRealPointValuePair[] optima = optimizer.getOptima();
+         for (int i = 0; i < optima.length; ++i) {
+-            assertEquals(f.value(optima[i]), optimaValues[i], 1.0e-10);
++            assertEquals(f.value(optima[i].getPoint()), optima[i].getValue(), 1e-9);
+         }
+-        assertTrue(minimizer.getEvaluations()    >= 120);
+-        assertTrue(minimizer.getEvaluations()    <= 170);
+-        assertTrue(minimizer.getIterationCount() >= 120);
+-        assertTrue(minimizer.getIterationCount() <= 170);
++        assertTrue(optimizer.getEvaluations() >= 110);
++        assertTrue(optimizer.getEvaluations() <= 150);
+     }
+ }
+
+commit 76fcbc838c0f27d9b029c1f283390cb4f47f8895
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Wed Jul 28 08:03:41 2010
+
+    MATH-395: Another bug uncovered; all things being equal, the code now behaves
+    like the Puthon implementation.
+    MATH-397: Modified "BrentOptimizer" following the changes in
+    "AbstractUnivariateRealOptimizer".
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@980032 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java b/src/test/java/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
+@@ -56,47 +56,46 @@
+     public void testQuinticMin() throws MathException {
+         // The quintic function has zeros at 0, +-0.5 and +-1.
+         // The function has extrema (first derivative is zero) at 0.27195613 and 0.82221643,
+         UnivariateRealFunction f = new QuinticFunction();
+         UnivariateRealOptimizer underlying = new BrentOptimizer();
+         underlying.setRelativeAccuracy(1e-15);
+         JDKRandomGenerator g = new JDKRandomGenerator();
+         g.setSeed(4312000053L);
+         MultiStartUnivariateRealOptimizer minimizer =
+             new MultiStartUnivariateRealOptimizer(underlying, 5, g);
+         minimizer.setAbsoluteAccuracy(10 * minimizer.getAbsoluteAccuracy());
+         minimizer.setRelativeAccuracy(10 * minimizer.getRelativeAccuracy());
+ 
+         try {
+             minimizer.getOptima();
+             fail("an exception should have been thrown");
+         } catch (IllegalStateException ise) {
+             // expected
+         } catch (Exception e) {
+             fail("wrong exception caught");
+         }
+         try {
+             minimizer.getOptimaValues();
+             fail("an exception should have been thrown");
+         } catch (IllegalStateException ise) {
+             // expected
+         } catch (Exception e) {
+             fail("wrong exception caught");
+         }
+ 
+         double result = minimizer.optimize(f, GoalType.MINIMIZE, -0.3, -0.2);
+-        assertEquals(-0.27195612525275803, result, 1.0e-13);
+-        assertEquals(-0.27195612525275803, minimizer.getResult(), 1.0e-13);
++        assertEquals(-0.2719561270319131, result, 1.0e-13);
++        assertEquals(-0.2719561270319131, minimizer.getResult(), 1.0e-13);
+         assertEquals(-0.04433426954946637, minimizer.getFunctionValue(), 1.0e-13);
+ 
+         double[] optima = minimizer.getOptima();
+         double[] optimaValues = minimizer.getOptimaValues();
+         for (int i = 0; i < optima.length; ++i) {
+             assertEquals(f.value(optima[i]), optimaValues[i], 1.0e-10);
+         }
+-
+-        assertTrue(minimizer.getEvaluations()    >= 300);
+-        assertTrue(minimizer.getEvaluations()    <= 420);
+-        assertTrue(minimizer.getIterationCount() >= 100);
+-        assertTrue(minimizer.getIterationCount() <= 140);
++        assertTrue(minimizer.getEvaluations()    >= 120);
++        assertTrue(minimizer.getEvaluations()    <= 170);
++        assertTrue(minimizer.getIterationCount() >= 120);
++        assertTrue(minimizer.getIterationCount() <= 170);
+     }
+ }
+
+commit 65c7c9697457b326f149555166f0e2aae192a609
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Mon Jul 26 08:17:45 2010
+
+    Fixed bugs in "BrentOptimizer".
+    Renamed "BrentMinimizerTest" to "BrentOptimizerTest".
+    Modified "MultiStartUnivariateRealOptimizerTest" because it uses
+    "BrentOptimizer" as the underlying optimizer, and so was affected
+    by the changes.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@979257 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java b/src/test/java/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
+@@ -56,47 +56,47 @@
+     public void testQuinticMin() throws MathException {
+         // The quintic function has zeros at 0, +-0.5 and +-1.
+         // The function has extrema (first derivative is zero) at 0.27195613 and 0.82221643,
+         UnivariateRealFunction f = new QuinticFunction();
+         UnivariateRealOptimizer underlying = new BrentOptimizer();
++        underlying.setRelativeAccuracy(1e-15);
+         JDKRandomGenerator g = new JDKRandomGenerator();
+-        g.setSeed(4312000053l);
++        g.setSeed(4312000053L);
+         MultiStartUnivariateRealOptimizer minimizer =
+             new MultiStartUnivariateRealOptimizer(underlying, 5, g);
+         minimizer.setAbsoluteAccuracy(10 * minimizer.getAbsoluteAccuracy());
+         minimizer.setRelativeAccuracy(10 * minimizer.getRelativeAccuracy());
+ 
+         try {
+             minimizer.getOptima();
+             fail("an exception should have been thrown");
+         } catch (IllegalStateException ise) {
+             // expected
+         } catch (Exception e) {
+             fail("wrong exception caught");
+         }
+         try {
+             minimizer.getOptimaValues();
+             fail("an exception should have been thrown");
+         } catch (IllegalStateException ise) {
+             // expected
+         } catch (Exception e) {
+             fail("wrong exception caught");
+         }
+ 
+-        assertEquals(-0.27195612846834, minimizer.optimize(f, GoalType.MINIMIZE, -0.3, -0.2), 1.0e-13);
+-        assertEquals(-0.27195612846834, minimizer.getResult(), 1.0e-13);
+-        assertEquals(-0.04433426954946, minimizer.getFunctionValue(), 1.0e-13);
++        double result = minimizer.optimize(f, GoalType.MINIMIZE, -0.3, -0.2);
++        assertEquals(-0.27195612525275803, result, 1.0e-13);
++        assertEquals(-0.27195612525275803, minimizer.getResult(), 1.0e-13);
++        assertEquals(-0.04433426954946637, minimizer.getFunctionValue(), 1.0e-13);
+ 
+         double[] optima = minimizer.getOptima();
+         double[] optimaValues = minimizer.getOptimaValues();
+         for (int i = 0; i < optima.length; ++i) {
+             assertEquals(f.value(optima[i]), optimaValues[i], 1.0e-10);
+         }
+ 
+-        assertTrue(minimizer.getEvaluations()    >= 510);
+-        assertTrue(minimizer.getEvaluations()    <= 530);
+-        assertTrue(minimizer.getIterationCount() >= 150);
+-        assertTrue(minimizer.getIterationCount() <= 170);
+-
++        assertTrue(minimizer.getEvaluations()    >= 300);
++        assertTrue(minimizer.getEvaluations()    <= 420);
++        assertTrue(minimizer.getIterationCount() >= 100);
++        assertTrue(minimizer.getIterationCount() <= 140);
+     }
+-
+ }
+
+commit fc505bba569dede0d29a401798fa9f55df9e27f1
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Sun Jul 25 08:29:43 2010
+
+    MATH-393
+    Fixed inconsistent definition of "getResult". Modified associated test accordingly.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@979032 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java b/src/test/java/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
+@@ -56,47 +56,47 @@
+     public void testQuinticMin() throws MathException {
+         // The quintic function has zeros at 0, +-0.5 and +-1.
+         // The function has extrema (first derivative is zero) at 0.27195613 and 0.82221643,
+         UnivariateRealFunction f = new QuinticFunction();
+         UnivariateRealOptimizer underlying = new BrentOptimizer();
+         JDKRandomGenerator g = new JDKRandomGenerator();
+         g.setSeed(4312000053l);
+         MultiStartUnivariateRealOptimizer minimizer =
+             new MultiStartUnivariateRealOptimizer(underlying, 5, g);
+         minimizer.setAbsoluteAccuracy(10 * minimizer.getAbsoluteAccuracy());
+         minimizer.setRelativeAccuracy(10 * minimizer.getRelativeAccuracy());
+ 
+         try {
+             minimizer.getOptima();
+             fail("an exception should have been thrown");
+         } catch (IllegalStateException ise) {
+             // expected
+         } catch (Exception e) {
+             fail("wrong exception caught");
+         }
+         try {
+             minimizer.getOptimaValues();
+             fail("an exception should have been thrown");
+         } catch (IllegalStateException ise) {
+             // expected
+         } catch (Exception e) {
+             fail("wrong exception caught");
+         }
+ 
+         assertEquals(-0.27195612846834, minimizer.optimize(f, GoalType.MINIMIZE, -0.3, -0.2), 1.0e-13);
+-        assertEquals(-0.27194301946870, minimizer.getResult(), 1.0e-13);
+-        assertEquals(-0.04433426940878, minimizer.getFunctionValue(), 1.0e-13);
++        assertEquals(-0.27195612846834, minimizer.getResult(), 1.0e-13);
++        assertEquals(-0.04433426954946, minimizer.getFunctionValue(), 1.0e-13);
+ 
+         double[] optima = minimizer.getOptima();
+         double[] optimaValues = minimizer.getOptimaValues();
+         for (int i = 0; i < optima.length; ++i) {
+             assertEquals(f.value(optima[i]), optimaValues[i], 1.0e-10);
+         }
+ 
+         assertTrue(minimizer.getEvaluations()    >= 510);
+         assertTrue(minimizer.getEvaluations()    <= 530);
+         assertTrue(minimizer.getIterationCount() >= 150);
+         assertTrue(minimizer.getIterationCount() <= 170);
+ 
+     }
+ 
+ }
+
+commit c01ea628aa6e1c91a7c92aa3280f0f163389c407
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sat Jul 25 12:14:42 2009
+
+    added tests for recent changes
+    improved coverage
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@797787 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java b/src/test/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
+--- a/src/test/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
++++ b/src/test/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
+@@ -49,4 +56,47 @@
++    public void testQuinticMin() throws MathException {
++        // The quintic function has zeros at 0, +-0.5 and +-1.
++        // The function has extrema (first derivative is zero) at 0.27195613 and 0.82221643,
++        UnivariateRealFunction f = new QuinticFunction();
++        UnivariateRealOptimizer underlying = new BrentOptimizer();
++        JDKRandomGenerator g = new JDKRandomGenerator();
++        g.setSeed(4312000053l);
++        MultiStartUnivariateRealOptimizer minimizer =
++            new MultiStartUnivariateRealOptimizer(underlying, 5, g);
++        minimizer.setAbsoluteAccuracy(10 * minimizer.getAbsoluteAccuracy());
++        minimizer.setRelativeAccuracy(10 * minimizer.getRelativeAccuracy());
++
++        try {
++            minimizer.getOptima();
++            fail("an exception should have been thrown");
++        } catch (IllegalStateException ise) {
++            // expected
++        } catch (Exception e) {
++            fail("wrong exception caught");
++        }
++        try {
++            minimizer.getOptimaValues();
++            fail("an exception should have been thrown");
++        } catch (IllegalStateException ise) {
++            // expected
++        } catch (Exception e) {
++            fail("wrong exception caught");
++        }
++
++        assertEquals(-0.27195612846834, minimizer.optimize(f, GoalType.MINIMIZE, -0.3, -0.2), 1.0e-13);
++        assertEquals(-0.27194301946870, minimizer.getResult(), 1.0e-13);
++        assertEquals(-0.04433426940878, minimizer.getFunctionValue(), 1.0e-13);
++
++        double[] optima = minimizer.getOptima();
++        double[] optimaValues = minimizer.getOptimaValues();
++        for (int i = 0; i < optima.length; ++i) {
++            assertEquals(f.value(optima[i]), optimaValues[i], 1.0e-10);
++        }
++
++        assertTrue(minimizer.getEvaluations()    >= 510);
++        assertTrue(minimizer.getEvaluations()    <= 530);
++        assertTrue(minimizer.getIterationCount() >= 150);
++        assertTrue(minimizer.getIterationCount() <= 170);
+ 
+     }
+ 
+ }
+
+commit 9e94c3d8836a01ea93653eb92b1f7a8d2089ab79
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sun Jul 19 16:05:34 2009
+
+    added new tests for multistart optimizers
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@795608 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java b/src/test/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizerTest.java
+@@ -0,0 +49,4 @@
++
++    }
++
++}

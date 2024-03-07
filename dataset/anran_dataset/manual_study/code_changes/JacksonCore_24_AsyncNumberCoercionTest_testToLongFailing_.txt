@@ -1,0 +1,85 @@
+commit c4dd84e4d505baa90d8d1675c1f60f8d6ce90db8
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Wed Jan 16 23:42:31 2019
+
+    Fix #508
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/json/async/AsyncNumberCoercionTest.java b/src/test/java/com/fasterxml/jackson/core/json/async/AsyncNumberCoercionTest.java
+--- a/src/test/java/com/fasterxml/jackson/core/json/async/AsyncNumberCoercionTest.java
++++ b/src/test/java/com/fasterxml/jackson/core/json/async/AsyncNumberCoercionTest.java
+@@ -165,29 +177,33 @@
+     public void testToLongFailing() throws Exception
+     {
+         AsyncReaderWrapper p;
+ 
+         // BigInteger -> error
+         BigInteger big = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.TEN);
+         p = createParser(String.valueOf(big));
+         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+         assertEquals(NumberType.BIG_INTEGER, p.getNumberType());
+         assertEquals(big, p.getBigIntegerValue());
+         assertEquals(big, p.getNumberValue());
+         try {
+             p.getLongValue();
+             fail("Should not pass");
+-        } catch (JsonParseException e) {
++        } catch (InputCoercionException e) {
+             verifyException(e, "out of range of long");
++            assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
++            assertEquals(Long.TYPE, e.getTargetType());
+         }
+         BigInteger small = BigInteger.valueOf(Long.MIN_VALUE).subtract(BigInteger.TEN);
+         p = createParser(String.valueOf(small));
+         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+         assertEquals(small, p.getBigIntegerValue());
+         try {
+             p.getLongValue();
+             fail("Should not pass");
+-        } catch (JsonParseException e) {
++        } catch (InputCoercionException e) {
+             verifyException(e, "out of range of long");
++            assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
++            assertEquals(Long.TYPE, e.getTargetType());
+         }
+     }
+     
+
+commit 89986a820dcc9ee491a826833e0cc158d01453c8
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Thu Jun 1 03:01:38 2017
+
+    More testing for non-blocking parser
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/async/AsyncNumberCoercionTest.java b/src/test/java/com/fasterxml/jackson/core/async/AsyncNumberCoercionTest.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/core/async/AsyncNumberCoercionTest.java
+@@ -0,0 +158,29 @@
++    public void testToLongFailing() throws Exception
++    {
++        AsyncReaderWrapper p;
++
++        // BigInteger -> error
++        BigInteger big = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.TEN);
++        p = createParser(String.valueOf(big));
++        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
++        assertEquals(NumberType.BIG_INTEGER, p.getNumberType());
++        assertEquals(big, p.getBigIntegerValue());
++        assertEquals(big, p.getNumberValue());
++        try {
++            p.getLongValue();
++            fail("Should not pass");
++        } catch (JsonParseException e) {
++            verifyException(e, "out of range of long");
++        }
++        BigInteger small = BigInteger.valueOf(Long.MIN_VALUE).subtract(BigInteger.TEN);
++        p = createParser(String.valueOf(small));
++        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
++        assertEquals(small, p.getBigIntegerValue());
++        try {
++            p.getLongValue();
++            fail("Should not pass");
++        } catch (JsonParseException e) {
++            verifyException(e, "out of range of long");
++        }
++    }
++    

@@ -1,0 +1,36 @@
+commit 4d34006e4d8a566c6c64a3a0e04c17e50d63bb82
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Thu Jan 26 22:12:29 2017
+
+    Fix #935
+
+diff --git a/src/test/java/com/fasterxml/jackson/failing/ReadWriteOnlyProp935Test.java b/src/test/java/com/fasterxml/jackson/databind/deser/ReadOrWriteOnlyTest.java
+--- a/src/test/java/com/fasterxml/jackson/failing/ReadWriteOnlyProp935Test.java
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/ReadOrWriteOnlyTest.java
+@@ -72,7 +72,7 @@
+-    public void testReadOnl935() throws Exception
++    public void testReadOnly935() throws Exception
+     {
+         String json = MAPPER.writeValueAsString(new Pojo935());
+         Pojo935 result = MAPPER.readValue(json, Pojo935.class);
+         assertNotNull(result);
+     }
+ }
+
+commit c73b0721024d4fa3ad59841f4e9b3b8c6e72c13b
+Author: Cowtowncoder <tatu.saloranta@iki.fi>
+Date:   Tue Sep 15 20:15:10 2015
+
+    Add a (failing) test for #935
+
+diff --git a/src/test/java/com/fasterxml/jackson/failing/ReadWriteOnlyProp935Test.java b/src/test/java/com/fasterxml/jackson/failing/ReadWriteOnlyProp935Test.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/failing/ReadWriteOnlyProp935Test.java
+@@ -0,0 +72,7 @@
++    public void testReadOnl935() throws Exception
++    {
++        String json = MAPPER.writeValueAsString(new Pojo935());
++        Pojo935 result = MAPPER.readValue(json, Pojo935.class);
++        assertNotNull(result);
++    }
++}

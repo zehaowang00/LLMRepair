@@ -1,0 +1,20 @@
+commit b3ed2415fc58b34667d99f077bae6c8e38b7aced
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sun Dec 6 18:04:55 2009
+
+    Fixed an error in handling of very close events during ODE integration
+    JIRA: MATH-322
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@887794 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/ode/events/EventStateTest.java b/src/test/java/org/apache/commons/math/ode/events/EventStateTest.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/math/ode/events/EventStateTest.java
+@@ -0,0 +32,7 @@
++    public void closeEvents()
++        throws EventException, ConvergenceException, DerivativeException {
++
++        final double r1  = 90.0;
++        final double r2  = 135.0;
++        final double gap = r2 - r1;
++        EventHandler closeEventsGenerator = new EventHandler() {

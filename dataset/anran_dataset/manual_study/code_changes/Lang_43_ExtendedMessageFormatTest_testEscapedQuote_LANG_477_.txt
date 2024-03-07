@@ -1,0 +1,36 @@
+commit eb3e2ae1f3734986a9f0225c661888baac3cb13b
+Author: Niall Kegan Pemberton <niallp@apache.org>
+Date:   Fri Jan 9 17:05:14 2009
+
+    Fix for LANG-477 OutOfMemory with custom format registry and a pattern containing single quotes - thanks to Duncan Eley
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@733169 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/text/ExtendedMessageFormatTest.java b/src/test/org/apache/commons/lang/text/ExtendedMessageFormatTest.java
+--- a/src/test/org/apache/commons/lang/text/ExtendedMessageFormatTest.java
++++ b/src/test/org/apache/commons/lang/text/ExtendedMessageFormatTest.java
+@@ -96,2 +98,9 @@
++    public void testEscapedQuote_LANG_477() {
++        String pattern = "it''s a {0,lower} 'test'!";
++        ExtendedMessageFormat emf = new ExtendedMessageFormat(pattern, registry);
++        assertEquals("it's a dummy test!", emf.format(new Object[] {"DUMMY"}));
++    }
++
++    /**
+      * Test extended and built in formats.
+      */
+
+commit 33ebcc370048d0034bcc21a7175815e35d6ec6c2
+Author: Niall Kegan Pemberton <niallp@apache.org>
+Date:   Wed Feb 27 11:44:17 2008
+
+    Add new test case for ExtendedMessageFormat
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@631639 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/text/ExtendedMessageFormatTest.java b/src/test/org/apache/commons/lang/text/ExtendedMessageFormatTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/lang/text/ExtendedMessageFormatTest.java
+@@ -0,0 +82,2 @@
++     * Test extended and built in formats.
++     */

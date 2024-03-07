@@ -1,0 +1,320 @@
+commit 868f6976aea222e96259843f56df9aed8e48584b
+Author: Henri Yandell <bayard@apache.org>
+Date:   Fri Oct 26 02:08:54 2007
+
+    Applying Scott Bassin's fix and test from LANG-363
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@588534 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java b/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java
+--- a/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java
++++ b/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java
+@@ -169,39 +169,41 @@
+     public void testEscapeJavaScript() {
+         assertEquals(null, StringEscapeUtils.escapeJavaScript(null));
+         try {
+             StringEscapeUtils.escapeJavaScript(null, null);
+             fail();
+         } catch (IOException ex) {
+             fail();
+         } catch (IllegalArgumentException ex) {
+         }
+         try {
+             StringEscapeUtils.escapeJavaScript(null, "");
+             fail();
+         } catch (IOException ex) {
+             fail();
+         } catch (IllegalArgumentException ex) {
+         }
+         
+         assertEquals("He didn\\'t say, \\\"stop!\\\"", StringEscapeUtils.escapeJavaScript("He didn't say, \"stop!\""));
++        assertEquals("document.getElementById(\\\"test\\\").value = \\'<script>alert(\\'aaa\\');<\\/script>\\';", 
++                StringEscapeUtils.escapeJavaScript("document.getElementById(\"test\").value = '<script>alert('aaa');</script>';"));
+     }
+ 
+ 
+     // HTML and XML
+     //--------------------------------------------------------------
+ 
+     String[][] htmlEscapes = {
+         {"no escaping", "plain text", "plain text"},
+         {"no escaping", "plain text", "plain text"},
+         {"empty string", "", ""},
+         {"null", null, null},
+         {"ampersand", "bread &amp; butter", "bread & butter"},
+         {"quotes", "&quot;bread&quot; &amp; butter", "\"bread\" & butter"},
+         {"final character only", "greater than &gt;", "greater than >"},
+         {"first character only", "&lt; less than", "< less than"},
+         {"apostrophe", "Huntington's chorea", "Huntington's chorea"},
+         {"languages", "English,Fran&ccedil;ais,&#26085;&#26412;&#35486; (nihongo)", "English,Fran\u00E7ais,\u65E5\u672C\u8A9E (nihongo)"},
+         {"8-bit ascii doesn't number-escape", "~\u007F", "\u007E\u007F"},
+         {"8-bit ascii does number-escape", "&#128;&#159;", "\u0080\u009F"},
+     };
+ 
+
+commit c21496975943dc9cfd65d7f6dd6e2aeb4d42d147
+Author: Stephen Colebourne <scolebourne@apache.org>
+Date:   Tue Jul 29 20:08:38 2003
+
+    Javadoc fixes and improved tests
+    bug 21952, from Phil Steitz
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137524 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java b/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java
+--- a/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java
++++ b/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java
+@@ -188,38 +195,39 @@
+     public void testEscapeJavaScript() {
+         assertEquals(null, StringEscapeUtils.escapeJavaScript(null));
+         try {
+             StringEscapeUtils.escapeJavaScript(null, null);
+             fail();
+         } catch (IOException ex) {
+             fail();
+         } catch (IllegalArgumentException ex) {
+         }
+         try {
+             StringEscapeUtils.escapeJavaScript(null, "");
+             fail();
+         } catch (IOException ex) {
+             fail();
+         } catch (IllegalArgumentException ex) {
+         }
+         
+         assertEquals("He didn\\'t say, \\\"stop!\\\"", StringEscapeUtils.escapeJavaScript("He didn't say, \"stop!\""));
+     }
+ 
+ 
+     // HTML and XML
+     //--------------------------------------------------------------
+ 
+     String[][] htmlEscapes = {
+         {"no escaping", "plain text", "plain text"},
+         {"no escaping", "plain text", "plain text"},
+         {"empty string", "", ""},
++        {"null", null, null},
+         {"ampersand", "bread &amp; butter", "bread & butter"},
+         {"quotes", "&quot;bread&quot; &amp; butter", "\"bread\" & butter"},
+         {"final character only", "greater than &gt;", "greater than >"},
+         {"first character only", "&lt; less than", "< less than"},
+         {"apostrophe", "Huntington's chorea", "Huntington's chorea"},
+         {"languages", "English,Fran&ccedil;ais,&#26085;&#26412;&#35486; (nihongo)", "English,Fran\u00E7ais,\u65E5\u672C\u8A9E (nihongo)"},
+         {"8-bit ascii doesn't number-escape", "~\u007F", "\u007E\u007F"},
+         {"8-bit ascii does number-escape", "&#128;&#159;", "\u0080\u009F"},
+     };
+ 
+
+commit 97dfb3a031f9f5ec3e8d0ec49f0cc2c322f70ffc
+Author: Stephen Colebourne <scolebourne@apache.org>
+Date:   Sat Jul 19 16:22:36 2003
+
+    Update null behaviour for consistency and clarity
+    Doument null behaviour
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137458 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java b/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java
+--- a/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java
++++ b/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java
+@@ -156,22 +188,38 @@
+     public void testEscapeJavaScript() {
++        assertEquals(null, StringEscapeUtils.escapeJavaScript(null));
++        try {
++            StringEscapeUtils.escapeJavaScript(null, null);
++            fail();
++        } catch (IOException ex) {
++            fail();
++        } catch (IllegalArgumentException ex) {
++        }
++        try {
++            StringEscapeUtils.escapeJavaScript(null, "");
++            fail();
++        } catch (IOException ex) {
++            fail();
++        } catch (IllegalArgumentException ex) {
++        }
++        
+         assertEquals("He didn\\'t say, \\\"stop!\\\"", StringEscapeUtils.escapeJavaScript("He didn't say, \"stop!\""));
+     }
+ 
+ 
+     // HTML and XML
+     //--------------------------------------------------------------
+ 
+     String[][] htmlEscapes = {
+         {"no escaping", "plain text", "plain text"},
+         {"no escaping", "plain text", "plain text"},
+         {"empty string", "", ""},
+         {"ampersand", "bread &amp; butter", "bread & butter"},
+         {"quotes", "&quot;bread&quot; &amp; butter", "\"bread\" & butter"},
+         {"final character only", "greater than &gt;", "greater than >"},
+         {"first character only", "&lt; less than", "< less than"},
+         {"apostrophe", "Huntington's chorea", "Huntington's chorea"},
+         {"languages", "English,Fran&ccedil;ais,&#26085;&#26412;&#35486; (nihongo)", "English,Fran\u00E7ais,\u65E5\u672C\u8A9E (nihongo)"},
+         {"8-bit ascii doesn't number-escape", "~\u007F", "\u007E\u007F"},
+         {"8-bit ascii does number-escape", "&#128;&#159;", "\u0080\u009F"},
+     };
+ 
+
+commit 461b85c438af8a6ac69e2ed5cfd4662817f07fc4
+Author: Alex Chaffee <alex@apache.org>
+Date:   Sat May 24 00:35:07 2003
+
+    refactoring Entities object in preparation for optimization
+    add unit tests for Entities class
+    move escape and unescape methods into Entities class
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137333 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java b/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java
+--- a/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java
++++ b/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java
+@@ -156,29 +156,22 @@
+     public void testEscapeJavaScript() {
+         assertEquals("He didn\\'t say, \\\"stop!\\\"", StringEscapeUtils.escapeJavaScript("He didn't say, \"stop!\""));
+     }
+ 
+ 
+     // HTML and XML
+     //--------------------------------------------------------------
+ 
+-    public void testEntitiesObject() throws Exception
+-    {
+-        assertEquals("gt", Entities.XML.entityName('>'));
+-        assertEquals(new Integer('>'), Entities.XML.entityValue("gt"));
+-        assertEquals(null, Entities.XML.entityValue("xyzzy"));
+-    }
+-
+     String[][] htmlEscapes = {
+         {"no escaping", "plain text", "plain text"},
+         {"no escaping", "plain text", "plain text"},
+         {"empty string", "", ""},
+         {"ampersand", "bread &amp; butter", "bread & butter"},
+         {"quotes", "&quot;bread&quot; &amp; butter", "\"bread\" & butter"},
+         {"final character only", "greater than &gt;", "greater than >"},
+         {"first character only", "&lt; less than", "< less than"},
+         {"apostrophe", "Huntington's chorea", "Huntington's chorea"},
+         {"languages", "English,Fran&ccedil;ais,&#26085;&#26412;&#35486; (nihongo)", "English,Fran\u00E7ais,\u65E5\u672C\u8A9E (nihongo)"},
+         {"8-bit ascii doesn't number-escape", "~\u007F", "\u007E\u007F"},
+         {"8-bit ascii does number-escape", "&#128;&#159;", "\u0080\u009F"},
+     };
+ 
+
+commit c8f2281b6ac8eaa98905eb62ca33c41e4994d98a
+Author: Alex Chaffee <alex@apache.org>
+Date:   Wed Apr 9 16:55:33 2003
+
+    Extracted Entities class (instead of inner class)
+    Added support for full HTML 4.0 entity set
+    Separated XML, ISO8859-1 (HTML 3.2), and HTML 4.0 entities inside Entities object
+    Added escapeXml and unescapeXml public API methods
+    Escape now uses entities for values 0x80 or greater (previously 0x100)
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137292 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java b/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java
+--- a/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java
++++ b/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java
+@@ -157,19 +157,29 @@
+     public void testEscapeJavaScript() {
+         assertEquals("He didn\\'t say, \\\"stop!\\\"", StringEscapeUtils.escapeJavaScript("He didn't say, \"stop!\""));
+     }
+ 
+ 
+-    // HTML
++    // HTML and XML
+     //--------------------------------------------------------------
++
++    public void testEntitiesObject() throws Exception
++    {
++        assertEquals("gt", Entities.XML.entityName('>'));
++        assertEquals(new Integer('>'), Entities.XML.entityValue("gt"));
++        assertEquals(null, Entities.XML.entityValue("xyzzy"));
++    }
++
+     String[][] htmlEscapes = {
+         {"no escaping", "plain text", "plain text"},
+         {"no escaping", "plain text", "plain text"},
+         {"empty string", "", ""},
+         {"ampersand", "bread &amp; butter", "bread & butter"},
+         {"quotes", "&quot;bread&quot; &amp; butter", "\"bread\" & butter"},
+         {"final character only", "greater than &gt;", "greater than >"},
+         {"first character only", "&lt; less than", "< less than"},
+         {"apostrophe", "Huntington's chorea", "Huntington's chorea"},
+         {"languages", "English,Fran&ccedil;ais,&#26085;&#26412;&#35486; (nihongo)", "English,Fran\u00E7ais,\u65E5\u672C\u8A9E (nihongo)"},
++        {"8-bit ascii doesn't number-escape", "~\u007F", "\u007E\u007F"},
++        {"8-bit ascii does number-escape", "&#128;&#159;", "\u0080\u009F"},
+     };
+ 
+
+commit 9bff7d372c0c11c86182d8f5f2ce248b36c149fc
+Author: Alex Chaffee <alex@apache.org>
+Date:   Wed Apr 9 13:30:29 2003
+
+    make test strings 7-bit clean (bug 18836)
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137290 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java b/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java
+--- a/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java
++++ b/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java
+@@ -140,19 +140,19 @@
+     public void testEscapeJavaScript() {
+         assertEquals("He didn\\'t say, \\\"stop!\\\"", StringEscapeUtils.escapeJavaScript("He didn't say, \"stop!\""));
+     }
+ 
+ 
+     // HTML
+     //--------------------------------------------------------------
+     String[][] htmlEscapes = {
+         {"no escaping", "plain text", "plain text"},
+         {"no escaping", "plain text", "plain text"},
+         {"empty string", "", ""},
+         {"ampersand", "bread &amp; butter", "bread & butter"},
+         {"quotes", "&quot;bread&quot; &amp; butter", "\"bread\" & butter"},
+         {"final character only", "greater than &gt;", "greater than >"},
+         {"first character only", "&lt; less than", "< less than"},
+         {"apostrophe", "Huntington's chorea", "Huntington's chorea"},
+-        {"languages", "English,Fran&ccedil;ais,&#26085;&#26412;&#35486; (nihongo)", "English,Français,\u65E5\u672C\u8A9E (nihongo)"},
++        {"languages", "English,Fran&ccedil;ais,&#26085;&#26412;&#35486; (nihongo)", "English,Fran\u00E7ais,\u65E5\u672C\u8A9E (nihongo)"},
+     };
+ 
+
+commit f03e83e74e8a723fd8c8fffc84cc7faaf9494ab4
+Author: Alex Chaffee <alex@apache.org>
+Date:   Sun Mar 30 22:53:52 2003
+
+    StringEscapeUtils: escape/unescape Java/JavaScript/HTML
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137278 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java b/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/lang/StringEscapeUtilsTest.java
+@@ -0,0 +140,19 @@
++    public void testEscapeJavaScript() {
++        assertEquals("He didn\\'t say, \\\"stop!\\\"", StringEscapeUtils.escapeJavaScript("He didn't say, \"stop!\""));
++    }
++
++
++    // HTML
++    //--------------------------------------------------------------
++    String[][] htmlEscapes = {
++        {"no escaping", "plain text", "plain text"},
++        {"no escaping", "plain text", "plain text"},
++        {"empty string", "", ""},
++        {"ampersand", "bread &amp; butter", "bread & butter"},
++        {"quotes", "&quot;bread&quot; &amp; butter", "\"bread\" & butter"},
++        {"final character only", "greater than &gt;", "greater than >"},
++        {"first character only", "&lt; less than", "< less than"},
++        {"apostrophe", "Huntington's chorea", "Huntington's chorea"},
++        {"languages", "English,Fran&ccedil;ais,&#26085;&#26412;&#35486; (nihongo)", "English,Français,\u65E5\u672C\u8A9E (nihongo)"},
++    };
++

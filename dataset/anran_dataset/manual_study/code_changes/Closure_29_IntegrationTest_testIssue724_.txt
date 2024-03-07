@@ -1,0 +1,41 @@
+commit 6924915efab89f921fd0779fe200fecc1bf80847
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri May 11 16:35:50 2012
+
+    don't try to inline properties that we don't recognize, because
+    they may be prototype properties.
+    This isn't a perfect fix, but should get most cases.
+    Fixes issue 724
+    
+    R=acleung
+    DELTA=82  (47 added, 21 deleted, 14 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=4758
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1967 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/IntegrationTest.java b/test/com/google/javascript/jscomp/IntegrationTest.java
+--- a/test/com/google/javascript/jscomp/IntegrationTest.java
++++ b/test/com/google/javascript/jscomp/IntegrationTest.java
+@@ -1672,0 +1672,18 @@
++  public void testIssue724() {
++    CompilerOptions options = createCompilerOptions();
++    CompilationLevel.ADVANCED_OPTIMIZATIONS
++        .setOptionsForCompilationLevel(options);
++    String code =
++        "isFunction = function(functionToCheck) {" +
++        "  var getType = {};" +
++        "  return functionToCheck && " +
++        "      getType.toString.apply(functionToCheck) === " +
++        "     '[object Function]';" +
++        "};";
++    String result =
++        "isFunction=function(a){var b={};" +
++        "return a&&\"[object Function]\"===b.b.a(a)}";
++
++    test(options, code, result);
++  }
++

@@ -1,0 +1,36 @@
+commit cb6717764c0460f560e1b09478faa4dac692e8f3
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Tue Apr 12 00:01:14 2016
+
+    Fix #1194
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/type/TestJavaType.java b/src/test/java/com/fasterxml/jackson/databind/type/TestJavaType.java
+--- a/src/test/java/com/fasterxml/jackson/databind/type/TestJavaType.java
++++ b/src/test/java/com/fasterxml/jackson/databind/type/TestJavaType.java
+@@ -31,0 +39,26 @@
++    public void testGenericSignature1195() throws Exception
++    {
++        TypeFactory tf = TypeFactory.defaultInstance();
++        Method m;
++        JavaType t;
++
++        m = Generic1195.class.getMethod("getList");
++        t  = tf.constructType(m.getGenericReturnType());
++        assertEquals("Ljava/util/List<Ljava/lang/String;>;", t.getGenericSignature());
++
++        m = Generic1195.class.getMethod("getMap");
++        t  = tf.constructType(m.getGenericReturnType());
++        assertEquals("Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;",
++                t.getGenericSignature());
++
++        m = Generic1195.class.getMethod("getGeneric");
++        t  = tf.constructType(m.getGenericReturnType());
++        assertEquals("Ljava/util/concurrent/atomic/AtomicReference<Ljava/lang/String;>;", t.getGenericSignature());
++    }
++
++    /*
++    /**********************************************************
++    /* Test methods
++    /**********************************************************
++     */
++    

@@ -1,0 +1,31 @@
+commit 377de51ddf90e01c50646f34e353bbf01844c677
+Author: Brice <brice.dutheil@gmail.com>
+Date:   Wed Mar 16 21:19:45 2011
+
+    issue 238 : reworked inject mocks engine to allow constructor injection, constructor injection is still a work in progress
+    
+    --HG--
+    branch : issue 238 : constructor injection
+    rename : src/org/mockito/internal/configuration/injection/FinalMockCandidateFilter.java => src/org/mockito/internal/configuration/injection/filter/FinalMockCandidateFilter.java
+    rename : src/org/mockito/internal/configuration/injection/MockCandidateFilter.java => src/org/mockito/internal/configuration/injection/filter/MockCandidateFilter.java
+    rename : src/org/mockito/internal/configuration/injection/NameBasedCandidateFilter.java => src/org/mockito/internal/configuration/injection/filter/NameBasedCandidateFilter.java
+    rename : src/org/mockito/internal/configuration/injection/OngoingInjecter.java => src/org/mockito/internal/configuration/injection/filter/OngoingInjecter.java
+    rename : src/org/mockito/internal/configuration/injection/TypeBasedCandidateFilter.java => src/org/mockito/internal/configuration/injection/filter/TypeBasedCandidateFilter.java
+    rename : src/org/mockito/internal/util/reflection/ConstructorInitializer.java => src/org/mockito/internal/util/reflection/FieldConstructorInitializer.java
+
+diff --git a/test/org/mockito/internal/util/reflection/ParameterizedConstructorInstantiatorTest.java b/test/org/mockito/internal/util/reflection/ParameterizedConstructorInstantiatorTest.java
+--- /dev/null
++++ b/test/org/mockito/internal/util/reflection/ParameterizedConstructorInstantiatorTest.java
+@@ -0,0 +92,12 @@
++    public void should_report_failure_if_constructor_throws_exception() throws Exception {
++        given(resolver.resolveTypeInstances(Matchers.<Class<?>[]>anyVararg())).willReturn(new Object[]{ null });
++
++        try {
++            new ParameterizedConstructorInstantiator(this, field("withThrowingConstructor"), resolver).instantiate();
++            fail();
++        } catch (MockitoException e) {
++            assertThat(e.getMessage()).contains("constructor").contains("raised an exception");
++        }
++    }
++
++    @Test

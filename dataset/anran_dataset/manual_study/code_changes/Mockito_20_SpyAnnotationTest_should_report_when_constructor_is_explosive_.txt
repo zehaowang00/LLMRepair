@@ -1,0 +1,84 @@
+commit 9c72b9bea1913605eea9969f759afbf8d2b98702
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Tue Dec 2 03:26:45 2014
+
+    Tidied-up the tests and behavior
+    
+    Changed the code so that we don't allow creating spies for interfaces (this is how it worked before recent changes, so it is a change that makes Mockito more backwards compatible). Tidied up tests and test names. Tightened test coverage.
+
+diff --git a/test/org/mockitousage/annotation/SpyAnnotationTest.java b/test/org/mockitousage/annotation/SpyAnnotationTest.java
+--- a/test/org/mockitousage/annotation/SpyAnnotationTest.java
++++ b/test/org/mockitousage/annotation/SpyAnnotationTest.java
+@@ -79,15 +93,15 @@
+-    public void shouldReportWhenConstructorThrows() throws Exception {
++    public void should_report_when_constructor_is_explosive() throws Exception {
+ 		class FailingSpy {
+ 	        @Spy
+             ThrowingConstructor throwingConstructor;
+ 		}
+ 
+         try {
+             MockitoAnnotations.initMocks(new FailingSpy());
+             fail();
+         } catch (MockitoException e) {
+             Assertions.assertThat(e.getMessage()).contains("Unable to create mock instance");
+         }
+     }
+ 
+     @Test
+
+commit e007e01e0a3a1ea259a8fb290cc164985be12572
+Author: fluentfuture <benyu@benyu-macbookpro2.roam.corp.google.com>
+Date:   Sun Nov 23 00:16:35 2014
+
+    Support @Spy AbstractClass/Interface
+    
+    Fixes #126
+
+diff --git a/test/org/mockitousage/annotation/SpyAnnotationTest.java b/test/org/mockitousage/annotation/SpyAnnotationTest.java
+--- a/test/org/mockitousage/annotation/SpyAnnotationTest.java
++++ b/test/org/mockitousage/annotation/SpyAnnotationTest.java
+@@ -74,15 +73,15 @@
+     public void shouldReportWhenConstructorThrows() throws Exception {
+ 		class FailingSpy {
+ 	        @Spy
+             ThrowingConstructor throwingConstructor;
+ 		}
+ 
+         try {
+             MockitoAnnotations.initMocks(new FailingSpy());
+             fail();
+-        } catch (Exception e) {
+-            Assertions.assertThat(e.getMessage()).contains("raised an exception");
++        } catch (MockitoException e) {
++            Assertions.assertThat(e.getMessage()).contains("Unable to create mock instance");
+         }
+     }
+ 
+     @Test
+
+commit 0b58c2ff2f8e5891390c84f06ac3feb4aa22bcc9
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Fri Oct 29 15:28:01 2010
+
+    More work on exception messages more descriptive
+
+diff --git a/test/org/mockitousage/annotation/SpyAnnotationTest.java b/test/org/mockitousage/annotation/SpyAnnotationTest.java
+--- a/test/org/mockitousage/annotation/SpyAnnotationTest.java
++++ b/test/org/mockitousage/annotation/SpyAnnotationTest.java
+@@ -63,0 +74,15 @@
++    public void shouldReportWhenConstructorThrows() throws Exception {
++		class FailingSpy {
++	        @Spy
++            ThrowingConstructor throwingConstructor;
++		}
++
++        try {
++            MockitoAnnotations.initMocks(new FailingSpy());
++            fail();
++        } catch (Exception e) {
++            Assertions.assertThat(e.getMessage()).contains("raised an exception");
++        }
++    }
++
++    @Test

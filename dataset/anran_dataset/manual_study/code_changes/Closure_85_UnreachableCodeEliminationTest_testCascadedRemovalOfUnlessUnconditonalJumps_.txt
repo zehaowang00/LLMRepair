@@ -1,0 +1,71 @@
+commit 21a2103d7fa5664ea324ef9ee25b4a8922e50955
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Jan 7 16:09:14 2011
+
+    Don't remove nodes out of traversal order.
+    Fixes issue 311.
+    
+    R=nicksantos
+    DELTA=69  (44 added, 22 deleted, 3 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=227
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@676 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/UnreachableCodeEliminationTest.java b/test/com/google/javascript/jscomp/UnreachableCodeEliminationTest.java
+--- a/test/com/google/javascript/jscomp/UnreachableCodeEliminationTest.java
++++ b/test/com/google/javascript/jscomp/UnreachableCodeEliminationTest.java
+@@ -234,9 +234,18 @@
+   public void testCascadedRemovalOfUnlessUnconditonalJumps() {
+     test("switch (a) { case 'a': break; case 'b': break; case 'c': break }",
++         "switch (a) { case 'a': break; case 'b': case 'c': }");
++    // Only one break removed per pass.
++    test("switch (a) { case 'a': break; case 'b': case 'c': }",
+          "switch (a) { case 'a': case 'b': case 'c': }");
++
++    test("function foo() {" +
++      "  switch (a) { case 'a':return; case 'b':return; case 'c':return }}",
++      "function foo() { switch (a) { case 'a':return; case 'b': case 'c': }}");
+     test("function foo() {" +
+-         "  switch (a) { case 'a':return; case 'b':return; case 'c':return }}",
+-         "function foo() { switch (a) { case 'a': case 'b': case 'c': }}");
++      "  switch (a) { case 'a':return; case 'b': case 'c': }}",
++      "function foo() { switch (a) { case 'a': case 'b': case 'c': }}");
++
+     testSame("function foo() {" +
+              "switch (a) { case 'a':return 2; case 'b':return 1}}");
+   }
++
+
+commit 2581851be3b2202bd48d4c76889b020f4cecebf6
+Author: acleung@google.com <acleung@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Aug 5 21:06:30 2010
+
+    Remove more unconditional jumps.
+    
+    R=johnlenz
+    DELTA=94  (74 added, 4 deleted, 16 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=85018
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@342 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/UnreachableCodeEliminationTest.java b/test/com/google/javascript/jscomp/UnreachableCodeEliminationTest.java
+--- a/test/com/google/javascript/jscomp/UnreachableCodeEliminationTest.java
++++ b/test/com/google/javascript/jscomp/UnreachableCodeEliminationTest.java
+@@ -233,0 +235,9 @@
++  public void testCascadedRemovalOfUnlessUnconditonalJumps() {
++    test("switch (a) { case 'a': break; case 'b': break; case 'c': break }",
++         "switch (a) { case 'a': case 'b': case 'c': }");
++    test("function foo() {" +
++         "  switch (a) { case 'a':return; case 'b':return; case 'c':return }}",
++         "function foo() { switch (a) { case 'a': case 'b': case 'c': }}");
++    testSame("function foo() {" +
++             "switch (a) { case 'a':return 2; case 'b':return 1}}");
++  }

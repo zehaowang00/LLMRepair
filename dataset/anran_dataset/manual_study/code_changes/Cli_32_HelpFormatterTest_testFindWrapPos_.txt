@@ -1,0 +1,1420 @@
+commit 777cb81088d47472df21a452edd5ba568d4b3fdf
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Wed Jul 7 09:48:12 2010
+
+    Ensure the wrap width is never exceeded and cut the words longer that the width if necessary (CLI-193)
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/trunk@961374 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/cli/HelpFormatterTest.java b/src/test/java/org/apache/commons/cli/HelpFormatterTest.java
+--- a/src/test/java/org/apache/commons/cli/HelpFormatterTest.java
++++ b/src/test/java/org/apache/commons/cli/HelpFormatterTest.java
+@@ -38,14 +38,21 @@
+     public void testFindWrapPos() throws Exception
+     {
+         HelpFormatter hf = new HelpFormatter();
+ 
+         String text = "This is a test.";
+         // text width should be max 8; the wrap position is 7
+         assertEquals("wrap position", 7, hf.findWrapPos(text, 8, 0));
+         
+         // starting from 8 must give -1 - the wrap pos is after end
+         assertEquals("wrap position 2", -1, hf.findWrapPos(text, 8, 8));
+         
+-        // if there is no a good position before width to make a wrapping look for the next one
++        // words longer than the width are cut
+         text = "aaaa aa";
+-        assertEquals("wrap position 3", 4, hf.findWrapPos(text, 3, 0));
++        assertEquals("wrap position 3", 3, hf.findWrapPos(text, 3, 0));
++        
++        // last word length is equal to the width
++        text = "aaaaaa aaaaaa";
++        assertEquals("wrap position 4", 6, hf.findWrapPos(text, 6, 0));
++        assertEquals("wrap position 4", -1, hf.findWrapPos(text, 6, 7));
++    }
++
+
+commit 83770d84c972bd879aa001c491e9a7fea843d209
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Sun Jun 20 19:03:22 2010
+
+    Split of testPrintWrapped() into smaller test methods
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/trunk@956426 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/cli/HelpFormatterTest.java b/src/test/java/org/apache/commons/cli/HelpFormatterTest.java
+--- a/src/test/java/org/apache/commons/cli/HelpFormatterTest.java
++++ b/src/test/java/org/apache/commons/cli/HelpFormatterTest.java
+@@ -38,12 +38,14 @@
+     public void testFindWrapPos() throws Exception
+     {
+         HelpFormatter hf = new HelpFormatter();
+ 
+         String text = "This is a test.";
+-        //text width should be max 8; the wrap position is 7
++        // text width should be max 8; the wrap position is 7
+         assertEquals("wrap position", 7, hf.findWrapPos(text, 8, 0));
+-        //starting from 8 must give -1 - the wrap pos is after end
++        
++        // starting from 8 must give -1 - the wrap pos is after end
+         assertEquals("wrap position 2", -1, hf.findWrapPos(text, 8, 8));
+-        //if there is no a good position before width to make a wrapping look for the next one
++        
++        // if there is no a good position before width to make a wrapping look for the next one
+         text = "aaaa aa";
+         assertEquals("wrap position 3", 4, hf.findWrapPos(text, 3, 0));
+
+commit c1b7d4ccd8d500879aae6b0c6d202e2b0f5007cc
+Author: Joerg Schaible <joehni@apache.org>
+Date:   Fri Mar 6 17:45:57 2009
+
+    Make JDK 1.4 compatible again.
+    Fix spelling.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/branches/cli-1.x@751120 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/HelpFormatterTest.java b/src/test/org/apache/commons/cli/HelpFormatterTest.java
+--- a/src/test/org/apache/commons/cli/HelpFormatterTest.java
++++ b/src/test/org/apache/commons/cli/HelpFormatterTest.java
+@@ -38,12 +38,12 @@
+     public void testFindWrapPos() throws Exception
+     {
+         HelpFormatter hf = new HelpFormatter();
+ 
+         String text = "This is a test.";
+-        //text width should be max 8; the wrap postition is 7
++        //text width should be max 8; the wrap position is 7
+         assertEquals("wrap position", 7, hf.findWrapPos(text, 8, 0));
+         //starting from 8 must give -1 - the wrap pos is after end
+         assertEquals("wrap position 2", -1, hf.findWrapPos(text, 8, 8));
+         //if there is no a good position before width to make a wrapping look for the next one
+         text = "aaaa aa";
+         assertEquals("wrap position 3", 4, hf.findWrapPos(text, 3, 0));
+
+commit 1042ba35258c9fcfa9f14ccd240d0d1212a2e3ce
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Mon Nov 10 05:42:35 2008
+
+    Moved the tests related to the HelpFormatter in BugsTest into HelpFormatterTest
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/branches/cli-1.x@712642 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/HelpFormatterTest.java b/src/test/org/apache/commons/cli/HelpFormatterTest.java
+--- a/src/test/org/apache/commons/cli/HelpFormatterTest.java
++++ b/src/test/org/apache/commons/cli/HelpFormatterTest.java
+@@ -36,121 +38,12 @@
+-   private static final String EOL = System.getProperty("line.separator");
+-
+-   public static void main( String[] args )
+-   {
+-      String[] testName = { HelpFormatterTest.class.getName() };
+-      junit.textui.TestRunner.main(testName);
+-   }
+-
+-   public void testFindWrapPos() throws Exception
+-   {
+-      HelpFormatter hf = new HelpFormatter();
+-
+-      String text = "This is a test.";
+-      //text width should be max 8; the wrap postition is 7
+-      assertEquals("wrap position", 7, hf.findWrapPos(text, 8, 0));
+-      //starting from 8 must give -1 - the wrap pos is after end
+-      assertEquals("wrap position 2", -1, hf.findWrapPos(text, 8, 8));
+-      //if there is no a good position before width to make a wrapping look for the next one
+-      text = "aaaa aa";
+-      assertEquals("wrap position 3", 4, hf.findWrapPos(text, 3, 0));
+-   }
+-
+-   public void testPrintWrapped() throws Exception
+-   {
+-      StringBuffer sb = new StringBuffer();
+-      HelpFormatter hf = new HelpFormatter();
+-
+-      String text = "This is a test.";
+-      String expected;
+-
+-      expected = "This is a" + hf.getNewLine() + "test.";
+-      hf.renderWrappedText(sb, 12, 0, text);
+-      assertEquals("single line text", expected, sb.toString());
+-
+-      sb.setLength(0);
+-      expected = "This is a" + hf.getNewLine() + "    test.";
+-      hf.renderWrappedText(sb, 12, 4, text);
+-      assertEquals("single line padded text", expected, sb.toString());
+-
+-      text = "  -p,--period <PERIOD>  PERIOD is time duration of form " +
+-          "DATE[-DATE] where DATE has form YYYY[MM[DD]]";
+-
+-      sb.setLength(0);
+-      expected = "  -p,--period <PERIOD>  PERIOD is time duration of" +
+-                 hf.getNewLine() +
+-                 "                        form DATE[-DATE] where DATE" +
+-                 hf.getNewLine() +
+-                 "                        has form YYYY[MM[DD]]";
+-      hf.renderWrappedText(sb, 53, 24, text);
+-      assertEquals("single line padded text 2", expected, sb.toString());
+-
+-      text =
+-         "aaaa aaaa aaaa" + hf.getNewLine() +
+-         "aaaaaa" + hf.getNewLine() +
+-         "aaaaa";
+-
+-      expected = text;
+-      sb.setLength(0);
+-      hf.renderWrappedText(sb, 16, 0, text);
+-      assertEquals("multi line text", expected, sb.toString());
+-
+-      expected =
+-         "aaaa aaaa aaaa" + hf.getNewLine() +
+-         "    aaaaaa" + hf.getNewLine() +
+-         "    aaaaa";
+-      sb.setLength(0);
+-      hf.renderWrappedText(sb, 16, 4, text);
+-      assertEquals("multi-line padded text", expected, sb.toString());
+-   }
+-
+-   public void testPrintOptions() throws Exception
+-   {
+-       StringBuffer sb = new StringBuffer();
+-       HelpFormatter hf = new HelpFormatter();
+-       final int leftPad = 1;
+-       final int descPad = 3;
+-       final String lpad = hf.createPadding(leftPad);
+-       final String dpad = hf.createPadding(descPad);
+-       Options options = null;
+-       String expected = null;
+-
+-       options = new Options().addOption("a", false, "aaaa aaaa aaaa aaaa aaaa");
+-       expected = lpad + "-a" + dpad + "aaaa aaaa aaaa aaaa aaaa";
+-       hf.renderOptions(sb, 60, options, leftPad, descPad);
+-       assertEquals("simple non-wrapped option", expected, sb.toString());
+-
+-       int nextLineTabStop = leftPad+descPad+"-a".length();
+-       expected =
+-           lpad + "-a" + dpad + "aaaa aaaa aaaa" + hf.getNewLine() +
+-           hf.createPadding(nextLineTabStop) + "aaaa aaaa";
+-       sb.setLength(0);
+-       hf.renderOptions(sb, nextLineTabStop+17, options, leftPad, descPad);
+-       assertEquals("simple wrapped option", expected, sb.toString());
+-
+-
+-       options = new Options().addOption("a", "aaa", false, "dddd dddd dddd dddd");
+-       expected = lpad + "-a,--aaa" + dpad + "dddd dddd dddd dddd";
+-       sb.setLength(0);
+-       hf.renderOptions(sb, 60, options, leftPad, descPad);
+-       assertEquals("long non-wrapped option", expected, sb.toString());
+-
+-       nextLineTabStop = leftPad+descPad+"-a,--aaa".length();
+-       expected =
+-           lpad + "-a,--aaa" + dpad + "dddd dddd" + hf.getNewLine() +
+-           hf.createPadding(nextLineTabStop) + "dddd dddd";
+-       sb.setLength(0);
+-       hf.renderOptions(sb, 25, options, leftPad, descPad);
+-       assertEquals("long wrapped option", expected, sb.toString());
+-
+-       options = new Options().
+-           addOption("a", "aaa", false, "dddd dddd dddd dddd").
+-           addOption("b", false, "feeee eeee eeee eeee");
+-       expected =
+-           lpad + "-a,--aaa" + dpad + "dddd dddd" + hf.getNewLine() +
+-           hf.createPadding(nextLineTabStop) + "dddd dddd" + hf.getNewLine() +
+-           lpad + "-b      " + dpad + "feeee eeee" + hf.getNewLine() +
+-           hf.createPadding(nextLineTabStop) + "eeee eeee";
+-       sb.setLength(0);
+-       hf.renderOptions(sb, 25, options, leftPad, descPad);
+-       assertEquals("multiple wrapped options", expected, sb.toString());
+-   }
++    public void testFindWrapPos() throws Exception
++    {
++        HelpFormatter hf = new HelpFormatter();
++
++        String text = "This is a test.";
++        //text width should be max 8; the wrap postition is 7
++        assertEquals("wrap position", 7, hf.findWrapPos(text, 8, 0));
++        //starting from 8 must give -1 - the wrap pos is after end
++        assertEquals("wrap position 2", -1, hf.findWrapPos(text, 8, 8));
++        //if there is no a good position before width to make a wrapping look for the next one
++        text = "aaaa aa";
++        assertEquals("wrap position 3", 4, hf.findWrapPos(text, 3, 0));
+
+commit 2490250f9b3044e4cd946f11b46694f943f5814d
+Author: Emmanuel Bourg <ebourg@apache.org>
+Date:   Thu May 29 11:30:40 2008
+
+    Removed the unused constructors, suite() and teardown() methods from the test cases
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/branches/cli-1.x@661358 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/HelpFormatterTest.java b/src/test/org/apache/commons/cli/HelpFormatterTest.java
+--- a/src/test/org/apache/commons/cli/HelpFormatterTest.java
++++ b/src/test/org/apache/commons/cli/HelpFormatterTest.java
+@@ -37,134 +35,121 @@
+    private static final String EOL = System.getProperty("line.separator");
+ 
+    public static void main( String[] args )
+    {
+       String[] testName = { HelpFormatterTest.class.getName() };
+       junit.textui.TestRunner.main(testName);
+    }
+ 
+-   public static TestSuite suite()
+-   {
+-      return new TestSuite(HelpFormatterTest.class);
+-   }
+-
+-   public HelpFormatterTest( String s )
+-   {
+-      super( s );
+-   }
+-
+-   public void testFindWrapPos()
+-      throws Exception
++   public void testFindWrapPos() throws Exception
+    {
+       HelpFormatter hf = new HelpFormatter();
+ 
+       String text = "This is a test.";
+       //text width should be max 8; the wrap postition is 7
+       assertEquals("wrap position", 7, hf.findWrapPos(text, 8, 0));
+       //starting from 8 must give -1 - the wrap pos is after end
+       assertEquals("wrap position 2", -1, hf.findWrapPos(text, 8, 8));
+       //if there is no a good position before width to make a wrapping look for the next one
+       text = "aaaa aa";
+       assertEquals("wrap position 3", 4, hf.findWrapPos(text, 3, 0));
+    }
+ 
+-   public void testPrintWrapped()
+-      throws Exception
++   public void testPrintWrapped() throws Exception
+    {
+       StringBuffer sb = new StringBuffer();
+       HelpFormatter hf = new HelpFormatter();
+ 
+       String text = "This is a test.";
+       String expected;
+ 
+       expected = "This is a" + hf.getNewLine() + "test.";
+       hf.renderWrappedText(sb, 12, 0, text);
+       assertEquals("single line text", expected, sb.toString());
+ 
+       sb.setLength(0);
+       expected = "This is a" + hf.getNewLine() + "    test.";
+       hf.renderWrappedText(sb, 12, 4, text);
+       assertEquals("single line padded text", expected, sb.toString());
+ 
+       text = "  -p,--period <PERIOD>  PERIOD is time duration of form " +
+           "DATE[-DATE] where DATE has form YYYY[MM[DD]]";
+ 
+       sb.setLength(0);
+       expected = "  -p,--period <PERIOD>  PERIOD is time duration of" +
+                  hf.getNewLine() +
+                  "                        form DATE[-DATE] where DATE" +
+                  hf.getNewLine() +
+                  "                        has form YYYY[MM[DD]]";
+       hf.renderWrappedText(sb, 53, 24, text);
+       assertEquals("single line padded text 2", expected, sb.toString());
+ 
+       text =
+          "aaaa aaaa aaaa" + hf.getNewLine() +
+          "aaaaaa" + hf.getNewLine() +
+          "aaaaa";
+ 
+       expected = text;
+       sb.setLength(0);
+       hf.renderWrappedText(sb, 16, 0, text);
+       assertEquals("multi line text", expected, sb.toString());
+ 
+       expected =
+          "aaaa aaaa aaaa" + hf.getNewLine() +
+          "    aaaaaa" + hf.getNewLine() +
+          "    aaaaa";
+       sb.setLength(0);
+       hf.renderWrappedText(sb, 16, 4, text);
+       assertEquals("multi-line padded text", expected, sb.toString());
+    }
+ 
+-   public void testPrintOptions()
+-   throws Exception
++   public void testPrintOptions() throws Exception
+    {
+        StringBuffer sb = new StringBuffer();
+        HelpFormatter hf = new HelpFormatter();
+        final int leftPad = 1;
+        final int descPad = 3;
+        final String lpad = hf.createPadding(leftPad);
+        final String dpad = hf.createPadding(descPad);
+        Options options = null;
+        String expected = null;
+ 
+        options = new Options().addOption("a", false, "aaaa aaaa aaaa aaaa aaaa");
+        expected = lpad + "-a" + dpad + "aaaa aaaa aaaa aaaa aaaa";
+        hf.renderOptions(sb, 60, options, leftPad, descPad);
+        assertEquals("simple non-wrapped option", expected, sb.toString());
+ 
+        int nextLineTabStop = leftPad+descPad+"-a".length();
+        expected =
+            lpad + "-a" + dpad + "aaaa aaaa aaaa" + hf.getNewLine() +
+            hf.createPadding(nextLineTabStop) + "aaaa aaaa";
+        sb.setLength(0);
+        hf.renderOptions(sb, nextLineTabStop+17, options, leftPad, descPad);
+        assertEquals("simple wrapped option", expected, sb.toString());
+ 
+ 
+        options = new Options().addOption("a", "aaa", false, "dddd dddd dddd dddd");
+        expected = lpad + "-a,--aaa" + dpad + "dddd dddd dddd dddd";
+        sb.setLength(0);
+        hf.renderOptions(sb, 60, options, leftPad, descPad);
+        assertEquals("long non-wrapped option", expected, sb.toString());
+ 
+        nextLineTabStop = leftPad+descPad+"-a,--aaa".length();
+        expected =
+            lpad + "-a,--aaa" + dpad + "dddd dddd" + hf.getNewLine() +
+            hf.createPadding(nextLineTabStop) + "dddd dddd";
+        sb.setLength(0);
+        hf.renderOptions(sb, 25, options, leftPad, descPad);
+        assertEquals("long wrapped option", expected, sb.toString());
+ 
+        options = new Options().
+            addOption("a", "aaa", false, "dddd dddd dddd dddd").
+            addOption("b", false, "feeee eeee eeee eeee");
+        expected =
+            lpad + "-a,--aaa" + dpad + "dddd dddd" + hf.getNewLine() +
+            hf.createPadding(nextLineTabStop) + "dddd dddd" + hf.getNewLine() +
+            lpad + "-b      " + dpad + "feeee eeee" + hf.getNewLine() +
+            hf.createPadding(nextLineTabStop) + "eeee eeee";
+        sb.setLength(0);
+        hf.renderOptions(sb, 25, options, leftPad, descPad);
+        assertEquals("multiple wrapped options", expected, sb.toString());
+    }
+
+commit 4f407378c93b9e2a8e24c855e8bed5eb12bf7a06
+Author: Henri Yandell <bayard@apache.org>
+Date:   Thu May 8 02:40:58 2008
+
+    Applying J. Lewis Muir's patch from CLI-151 fixing HelpFormatter so it wraps properly on multiple lines
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/cli/branches/cli-1.x@654428 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/HelpFormatterTest.java b/src/test/org/apache/commons/cli/HelpFormatterTest.java
+--- a/src/test/org/apache/commons/cli/HelpFormatterTest.java
++++ b/src/test/org/apache/commons/cli/HelpFormatterTest.java
+@@ -35,122 +35,134 @@
+    private static final String EOL = System.getProperty("line.separator");
+ 
+    public static void main( String[] args )
+    {
+       String[] testName = { HelpFormatterTest.class.getName() };
+       junit.textui.TestRunner.main(testName);
+    }
+ 
+    public static TestSuite suite()
+    {
+       return new TestSuite(HelpFormatterTest.class);
+    }
+ 
+    public HelpFormatterTest( String s )
+    {
+       super( s );
+    }
+ 
+    public void testFindWrapPos()
+       throws Exception
+    {
+       HelpFormatter hf = new HelpFormatter();
+ 
+       String text = "This is a test.";
+       //text width should be max 8; the wrap postition is 7
+       assertEquals("wrap position", 7, hf.findWrapPos(text, 8, 0));
+       //starting from 8 must give -1 - the wrap pos is after end
+       assertEquals("wrap position 2", -1, hf.findWrapPos(text, 8, 8));
+       //if there is no a good position before width to make a wrapping look for the next one
+       text = "aaaa aa";
+       assertEquals("wrap position 3", 4, hf.findWrapPos(text, 3, 0));
+    }
+ 
+    public void testPrintWrapped()
+       throws Exception
+    {
+       StringBuffer sb = new StringBuffer();
+       HelpFormatter hf = new HelpFormatter();
+ 
+       String text = "This is a test.";
+       String expected;
+ 
+       expected = "This is a" + hf.getNewLine() + "test.";
+       hf.renderWrappedText(sb, 12, 0, text);
+       assertEquals("single line text", expected, sb.toString());
+ 
+       sb.setLength(0);
+       expected = "This is a" + hf.getNewLine() + "    test.";
+       hf.renderWrappedText(sb, 12, 4, text);
+       assertEquals("single line padded text", expected, sb.toString());
+ 
++      text = "  -p,--period <PERIOD>  PERIOD is time duration of form " +
++          "DATE[-DATE] where DATE has form YYYY[MM[DD]]";
++
++      sb.setLength(0);
++      expected = "  -p,--period <PERIOD>  PERIOD is time duration of" +
++                 hf.getNewLine() +
++                 "                        form DATE[-DATE] where DATE" +
++                 hf.getNewLine() +
++                 "                        has form YYYY[MM[DD]]";
++      hf.renderWrappedText(sb, 53, 24, text);
++      assertEquals("single line padded text 2", expected, sb.toString());
++
+       text =
+          "aaaa aaaa aaaa" + hf.getNewLine() +
+          "aaaaaa" + hf.getNewLine() +
+          "aaaaa";
+ 
+       expected = text;
+       sb.setLength(0);
+       hf.renderWrappedText(sb, 16, 0, text);
+       assertEquals("multi line text", expected, sb.toString());
+ 
+       expected =
+          "aaaa aaaa aaaa" + hf.getNewLine() +
+          "    aaaaaa" + hf.getNewLine() +
+          "    aaaaa";
+       sb.setLength(0);
+       hf.renderWrappedText(sb, 16, 4, text);
+       assertEquals("multi-line padded text", expected, sb.toString());
+    }
+ 
+    public void testPrintOptions()
+    throws Exception
+    {
+        StringBuffer sb = new StringBuffer();
+        HelpFormatter hf = new HelpFormatter();
+        final int leftPad = 1;
+        final int descPad = 3;
+        final String lpad = hf.createPadding(leftPad);
+        final String dpad = hf.createPadding(descPad);
+        Options options = null;
+        String expected = null;
+ 
+        options = new Options().addOption("a", false, "aaaa aaaa aaaa aaaa aaaa");
+        expected = lpad + "-a" + dpad + "aaaa aaaa aaaa aaaa aaaa";
+        hf.renderOptions(sb, 60, options, leftPad, descPad);
+        assertEquals("simple non-wrapped option", expected, sb.toString());
+ 
+        int nextLineTabStop = leftPad+descPad+"-a".length();
+        expected =
+            lpad + "-a" + dpad + "aaaa aaaa aaaa" + hf.getNewLine() +
+            hf.createPadding(nextLineTabStop) + "aaaa aaaa";
+        sb.setLength(0);
+        hf.renderOptions(sb, nextLineTabStop+17, options, leftPad, descPad);
+        assertEquals("simple wrapped option", expected, sb.toString());
+ 
+ 
+        options = new Options().addOption("a", "aaa", false, "dddd dddd dddd dddd");
+        expected = lpad + "-a,--aaa" + dpad + "dddd dddd dddd dddd";
+        sb.setLength(0);
+        hf.renderOptions(sb, 60, options, leftPad, descPad);
+        assertEquals("long non-wrapped option", expected, sb.toString());
+ 
+        nextLineTabStop = leftPad+descPad+"-a,--aaa".length();
+        expected =
+            lpad + "-a,--aaa" + dpad + "dddd dddd" + hf.getNewLine() +
+            hf.createPadding(nextLineTabStop) + "dddd dddd";
+        sb.setLength(0);
+        hf.renderOptions(sb, 25, options, leftPad, descPad);
+        assertEquals("long wrapped option", expected, sb.toString());
+ 
+        options = new Options().
+            addOption("a", "aaa", false, "dddd dddd dddd dddd").
+            addOption("b", false, "feeee eeee eeee eeee");
+        expected =
+            lpad + "-a,--aaa" + dpad + "dddd dddd" + hf.getNewLine() +
+            hf.createPadding(nextLineTabStop) + "dddd dddd" + hf.getNewLine() +
+            lpad + "-b      " + dpad + "feeee eeee" + hf.getNewLine() +
+            hf.createPadding(nextLineTabStop) + "eeee eeee";
+        sb.setLength(0);
+        hf.renderOptions(sb, 25, options, leftPad, descPad);
+        assertEquals("multiple wrapped options", expected, sb.toString());
+    }
+
+commit 7d52b84bd4399872c37c6c0fc3936ff7a7415c6a
+Author: Henri Yandell <bayard@apache.org>
+Date:   Wed Jun 6 04:02:57 2007
+
+    Renaming TestHelpFormatter to the more obvious HelpFormatterTest
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/branches/cli-1.0.x@544763 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/TestHelpFormatter.java b/src/test/org/apache/commons/cli/HelpFormatterTest.java
+--- a/src/test/org/apache/commons/cli/TestHelpFormatter.java
++++ b/src/test/org/apache/commons/cli/HelpFormatterTest.java
+@@ -35,122 +35,122 @@
+    private static final String EOL = System.getProperty("line.separator");
+ 
+    public static void main( String[] args )
+    {
+-      String[] testName = { TestHelpFormatter.class.getName() };
++      String[] testName = { HelpFormatterTest.class.getName() };
+       junit.textui.TestRunner.main(testName);
+    }
+ 
+    public static TestSuite suite()
+    {
+-      return new TestSuite(TestHelpFormatter.class);
++      return new TestSuite(HelpFormatterTest.class);
+    }
+ 
+-   public TestHelpFormatter( String s )
++   public HelpFormatterTest( String s )
+    {
+       super( s );
+    }
+ 
+    public void testFindWrapPos()
+       throws Exception
+    {
+       HelpFormatter hf = new HelpFormatter();
+ 
+       String text = "This is a test.";
+       //text width should be max 8; the wrap postition is 7
+       assertEquals("wrap position", 7, hf.findWrapPos(text, 8, 0));
+       //starting from 8 must give -1 - the wrap pos is after end
+       assertEquals("wrap position 2", -1, hf.findWrapPos(text, 8, 8));
+       //if there is no a good position before width to make a wrapping look for the next one
+       text = "aaaa aa";
+       assertEquals("wrap position 3", 4, hf.findWrapPos(text, 3, 0));
+    }
+ 
+    public void testPrintWrapped()
+       throws Exception
+    {
+       StringBuffer sb = new StringBuffer();
+       HelpFormatter hf = new HelpFormatter();
+ 
+       String text = "This is a test.";
+       String expected;
+ 
+       expected = "This is a" + hf.getNewLine() + "test.";
+       hf.renderWrappedText(sb, 12, 0, text);
+       assertEquals("single line text", expected, sb.toString());
+ 
+       sb.setLength(0);
+       expected = "This is a" + hf.getNewLine() + "    test.";
+       hf.renderWrappedText(sb, 12, 4, text);
+       assertEquals("single line padded text", expected, sb.toString());
+ 
+       text =
+          "aaaa aaaa aaaa" + hf.getNewLine() +
+          "aaaaaa" + hf.getNewLine() +
+          "aaaaa";
+ 
+       expected = text;
+       sb.setLength(0);
+       hf.renderWrappedText(sb, 16, 0, text);
+       assertEquals("multi line text", expected, sb.toString());
+ 
+       expected =
+          "aaaa aaaa aaaa" + hf.getNewLine() +
+          "    aaaaaa" + hf.getNewLine() +
+          "    aaaaa";
+       sb.setLength(0);
+       hf.renderWrappedText(sb, 16, 4, text);
+       assertEquals("multi-line padded text", expected, sb.toString());
+    }
+ 
+    public void testPrintOptions()
+    throws Exception
+    {
+        StringBuffer sb = new StringBuffer();
+        HelpFormatter hf = new HelpFormatter();
+        final int leftPad = 1;
+        final int descPad = 3;
+        final String lpad = hf.createPadding(leftPad);
+        final String dpad = hf.createPadding(descPad);
+        Options options = null;
+        String expected = null;
+ 
+        options = new Options().addOption("a", false, "aaaa aaaa aaaa aaaa aaaa");
+        expected = lpad + "-a" + dpad + "aaaa aaaa aaaa aaaa aaaa";
+        hf.renderOptions(sb, 60, options, leftPad, descPad);
+        assertEquals("simple non-wrapped option", expected, sb.toString());
+ 
+        int nextLineTabStop = leftPad+descPad+"-a".length();
+        expected =
+            lpad + "-a" + dpad + "aaaa aaaa aaaa" + hf.getNewLine() +
+            hf.createPadding(nextLineTabStop) + "aaaa aaaa";
+        sb.setLength(0);
+        hf.renderOptions(sb, nextLineTabStop+17, options, leftPad, descPad);
+        assertEquals("simple wrapped option", expected, sb.toString());
+ 
+ 
+        options = new Options().addOption("a", "aaa", false, "dddd dddd dddd dddd");
+        expected = lpad + "-a,--aaa" + dpad + "dddd dddd dddd dddd";
+        sb.setLength(0);
+        hf.renderOptions(sb, 60, options, leftPad, descPad);
+        assertEquals("long non-wrapped option", expected, sb.toString());
+ 
+        nextLineTabStop = leftPad+descPad+"-a,--aaa".length();
+        expected =
+            lpad + "-a,--aaa" + dpad + "dddd dddd" + hf.getNewLine() +
+            hf.createPadding(nextLineTabStop) + "dddd dddd";
+        sb.setLength(0);
+        hf.renderOptions(sb, 25, options, leftPad, descPad);
+        assertEquals("long wrapped option", expected, sb.toString());
+ 
+        options = new Options().
+            addOption("a", "aaa", false, "dddd dddd dddd dddd").
+            addOption("b", false, "feeee eeee eeee eeee");
+        expected =
+            lpad + "-a,--aaa" + dpad + "dddd dddd" + hf.getNewLine() +
+            hf.createPadding(nextLineTabStop) + "dddd dddd" + hf.getNewLine() +
+            lpad + "-b      " + dpad + "feeee eeee" + hf.getNewLine() +
+            hf.createPadding(nextLineTabStop) + "eeee eeee";
+        sb.setLength(0);
+        hf.renderOptions(sb, 25, options, leftPad, descPad);
+        assertEquals("multiple wrapped options", expected, sb.toString());
+    }
+
+commit 6f972cf56d7a3054bac902fecb6d3dd5ee310dea
+Author: Henri Yandell <bayard@apache.org>
+Date:   Wed Jun 6 04:01:19 2007
+
+    Applying Brian Egge's enhancement from CLI-131
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/branches/cli-1.0.x@544762 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/TestHelpFormatter.java b/src/test/org/apache/commons/cli/TestHelpFormatter.java
+--- a/src/test/org/apache/commons/cli/TestHelpFormatter.java
++++ b/src/test/org/apache/commons/cli/TestHelpFormatter.java
+@@ -33,120 +35,122 @@
++   private static final String EOL = System.getProperty("line.separator");
++
+    public static void main( String[] args )
+    {
+       String[] testName = { TestHelpFormatter.class.getName() };
+       junit.textui.TestRunner.main(testName);
+    }
+ 
+    public static TestSuite suite()
+    {
+       return new TestSuite(TestHelpFormatter.class);
+    }
+ 
+    public TestHelpFormatter( String s )
+    {
+       super( s );
+    }
+ 
+    public void testFindWrapPos()
+       throws Exception
+    {
+       HelpFormatter hf = new HelpFormatter();
+ 
+       String text = "This is a test.";
+       //text width should be max 8; the wrap postition is 7
+       assertEquals("wrap position", 7, hf.findWrapPos(text, 8, 0));
+       //starting from 8 must give -1 - the wrap pos is after end
+       assertEquals("wrap position 2", -1, hf.findWrapPos(text, 8, 8));
+       //if there is no a good position before width to make a wrapping look for the next one
+       text = "aaaa aa";
+       assertEquals("wrap position 3", 4, hf.findWrapPos(text, 3, 0));
+    }
+ 
+    public void testPrintWrapped()
+       throws Exception
+    {
+       StringBuffer sb = new StringBuffer();
+       HelpFormatter hf = new HelpFormatter();
+ 
+       String text = "This is a test.";
+       String expected;
+ 
+       expected = "This is a" + hf.getNewLine() + "test.";
+       hf.renderWrappedText(sb, 12, 0, text);
+       assertEquals("single line text", expected, sb.toString());
+ 
+       sb.setLength(0);
+       expected = "This is a" + hf.getNewLine() + "    test.";
+       hf.renderWrappedText(sb, 12, 4, text);
+       assertEquals("single line padded text", expected, sb.toString());
+ 
+       text =
+          "aaaa aaaa aaaa" + hf.getNewLine() +
+          "aaaaaa" + hf.getNewLine() +
+          "aaaaa";
+ 
+       expected = text;
+       sb.setLength(0);
+       hf.renderWrappedText(sb, 16, 0, text);
+       assertEquals("multi line text", expected, sb.toString());
+ 
+       expected =
+          "aaaa aaaa aaaa" + hf.getNewLine() +
+          "    aaaaaa" + hf.getNewLine() +
+          "    aaaaa";
+       sb.setLength(0);
+       hf.renderWrappedText(sb, 16, 4, text);
+       assertEquals("multi-line padded text", expected, sb.toString());
+    }
+ 
+    public void testPrintOptions()
+    throws Exception
+    {
+        StringBuffer sb = new StringBuffer();
+        HelpFormatter hf = new HelpFormatter();
+        final int leftPad = 1;
+        final int descPad = 3;
+        final String lpad = hf.createPadding(leftPad);
+        final String dpad = hf.createPadding(descPad);
+        Options options = null;
+        String expected = null;
+ 
+        options = new Options().addOption("a", false, "aaaa aaaa aaaa aaaa aaaa");
+        expected = lpad + "-a" + dpad + "aaaa aaaa aaaa aaaa aaaa";
+        hf.renderOptions(sb, 60, options, leftPad, descPad);
+        assertEquals("simple non-wrapped option", expected, sb.toString());
+ 
+        int nextLineTabStop = leftPad+descPad+"-a".length();
+        expected =
+            lpad + "-a" + dpad + "aaaa aaaa aaaa" + hf.getNewLine() +
+            hf.createPadding(nextLineTabStop) + "aaaa aaaa";
+        sb.setLength(0);
+        hf.renderOptions(sb, nextLineTabStop+17, options, leftPad, descPad);
+        assertEquals("simple wrapped option", expected, sb.toString());
+ 
+ 
+        options = new Options().addOption("a", "aaa", false, "dddd dddd dddd dddd");
+        expected = lpad + "-a,--aaa" + dpad + "dddd dddd dddd dddd";
+        sb.setLength(0);
+        hf.renderOptions(sb, 60, options, leftPad, descPad);
+        assertEquals("long non-wrapped option", expected, sb.toString());
+ 
+        nextLineTabStop = leftPad+descPad+"-a,--aaa".length();
+        expected =
+            lpad + "-a,--aaa" + dpad + "dddd dddd" + hf.getNewLine() +
+            hf.createPadding(nextLineTabStop) + "dddd dddd";
+        sb.setLength(0);
+        hf.renderOptions(sb, 25, options, leftPad, descPad);
+        assertEquals("long wrapped option", expected, sb.toString());
+ 
+        options = new Options().
+            addOption("a", "aaa", false, "dddd dddd dddd dddd").
+            addOption("b", false, "feeee eeee eeee eeee");
+        expected =
+            lpad + "-a,--aaa" + dpad + "dddd dddd" + hf.getNewLine() +
+            hf.createPadding(nextLineTabStop) + "dddd dddd" + hf.getNewLine() +
+            lpad + "-b      " + dpad + "feeee eeee" + hf.getNewLine() +
+            hf.createPadding(nextLineTabStop) + "eeee eeee";
+        sb.setLength(0);
+        hf.renderOptions(sb, 25, options, leftPad, descPad);
+        assertEquals("multiple wrapped options", expected, sb.toString());
+    }
+
+commit 9b2b8038b52be022e42c8c7fdf26e236888f94c5
+Author: John Keyes <jkeyes@apache.org>
+Date:   Mon Dec 9 18:47:26 2002
+
+    checkstyle fixes
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129857 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/TestHelpFormatter.java b/src/test/org/apache/commons/cli/TestHelpFormatter.java
+--- a/src/test/org/apache/commons/cli/TestHelpFormatter.java
++++ b/src/test/org/apache/commons/cli/TestHelpFormatter.java
+@@ -27,120 +27,120 @@
+    public static void main( String[] args )
+    {
+       String[] testName = { TestHelpFormatter.class.getName() };
+       junit.textui.TestRunner.main(testName);
+    }
+ 
+    public static TestSuite suite()
+    {
+       return new TestSuite(TestHelpFormatter.class);
+    }
+ 
+    public TestHelpFormatter( String s )
+    {
+       super( s );
+    }
+ 
+    public void testFindWrapPos()
+       throws Exception
+    {
+       HelpFormatter hf = new HelpFormatter();
+ 
+       String text = "This is a test.";
+       //text width should be max 8; the wrap postition is 7
+       assertEquals("wrap position", 7, hf.findWrapPos(text, 8, 0));
+       //starting from 8 must give -1 - the wrap pos is after end
+       assertEquals("wrap position 2", -1, hf.findWrapPos(text, 8, 8));
+       //if there is no a good position before width to make a wrapping look for the next one
+       text = "aaaa aa";
+       assertEquals("wrap position 3", 4, hf.findWrapPos(text, 3, 0));
+    }
+ 
+    public void testPrintWrapped()
+       throws Exception
+    {
+       StringBuffer sb = new StringBuffer();
+       HelpFormatter hf = new HelpFormatter();
+ 
+       String text = "This is a test.";
+       String expected;
+ 
+-      expected = "This is a" + hf.defaultNewLine + "test.";
++      expected = "This is a" + hf.getNewLine() + "test.";
+       hf.renderWrappedText(sb, 12, 0, text);
+       assertEquals("single line text", expected, sb.toString());
+ 
+       sb.setLength(0);
+-      expected = "This is a" + hf.defaultNewLine + "    test.";
++      expected = "This is a" + hf.getNewLine() + "    test.";
+       hf.renderWrappedText(sb, 12, 4, text);
+       assertEquals("single line padded text", expected, sb.toString());
+ 
+       text =
+-         "aaaa aaaa aaaa" + hf.defaultNewLine +
+-         "aaaaaa" + hf.defaultNewLine +
++         "aaaa aaaa aaaa" + hf.getNewLine() +
++         "aaaaaa" + hf.getNewLine() +
+          "aaaaa";
+ 
+       expected = text;
+       sb.setLength(0);
+       hf.renderWrappedText(sb, 16, 0, text);
+       assertEquals("multi line text", expected, sb.toString());
+ 
+       expected =
+-         "aaaa aaaa aaaa" + hf.defaultNewLine +
+-         "    aaaaaa" + hf.defaultNewLine +
++         "aaaa aaaa aaaa" + hf.getNewLine() +
++         "    aaaaaa" + hf.getNewLine() +
+          "    aaaaa";
+       sb.setLength(0);
+       hf.renderWrappedText(sb, 16, 4, text);
+       assertEquals("multi-line padded text", expected, sb.toString());
+    }
+ 
+    public void testPrintOptions()
+    throws Exception
+    {
+        StringBuffer sb = new StringBuffer();
+        HelpFormatter hf = new HelpFormatter();
+        final int leftPad = 1;
+        final int descPad = 3;
+        final String lpad = hf.createPadding(leftPad);
+        final String dpad = hf.createPadding(descPad);
+        Options options = null;
+        String expected = null;
+ 
+        options = new Options().addOption("a", false, "aaaa aaaa aaaa aaaa aaaa");
+        expected = lpad + "-a" + dpad + "aaaa aaaa aaaa aaaa aaaa";
+        hf.renderOptions(sb, 60, options, leftPad, descPad);
+        assertEquals("simple non-wrapped option", expected, sb.toString());
+ 
+        int nextLineTabStop = leftPad+descPad+"-a".length();
+        expected =
+-           lpad + "-a" + dpad + "aaaa aaaa aaaa" + hf.defaultNewLine +
++           lpad + "-a" + dpad + "aaaa aaaa aaaa" + hf.getNewLine() +
+            hf.createPadding(nextLineTabStop) + "aaaa aaaa";
+        sb.setLength(0);
+        hf.renderOptions(sb, nextLineTabStop+17, options, leftPad, descPad);
+        assertEquals("simple wrapped option", expected, sb.toString());
+ 
+ 
+        options = new Options().addOption("a", "aaa", false, "dddd dddd dddd dddd");
+        expected = lpad + "-a,--aaa" + dpad + "dddd dddd dddd dddd";
+        sb.setLength(0);
+        hf.renderOptions(sb, 60, options, leftPad, descPad);
+        assertEquals("long non-wrapped option", expected, sb.toString());
+ 
+        nextLineTabStop = leftPad+descPad+"-a,--aaa".length();
+        expected =
+-           lpad + "-a,--aaa" + dpad + "dddd dddd" + hf.defaultNewLine +
++           lpad + "-a,--aaa" + dpad + "dddd dddd" + hf.getNewLine() +
+            hf.createPadding(nextLineTabStop) + "dddd dddd";
+        sb.setLength(0);
+        hf.renderOptions(sb, 25, options, leftPad, descPad);
+        assertEquals("long wrapped option", expected, sb.toString());
+ 
+        options = new Options().
+            addOption("a", "aaa", false, "dddd dddd dddd dddd").
+            addOption("b", false, "feeee eeee eeee eeee");
+        expected =
+-           lpad + "-a,--aaa" + dpad + "dddd dddd" + hf.defaultNewLine +
+-           hf.createPadding(nextLineTabStop) + "dddd dddd" + hf.defaultNewLine +
+-           lpad + "-b      " + dpad + "feeee eeee" + hf.defaultNewLine +
++           lpad + "-a,--aaa" + dpad + "dddd dddd" + hf.getNewLine() +
++           hf.createPadding(nextLineTabStop) + "dddd dddd" + hf.getNewLine() +
++           lpad + "-b      " + dpad + "feeee eeee" + hf.getNewLine() +
+            hf.createPadding(nextLineTabStop) + "eeee eeee";
+        sb.setLength(0);
+        hf.renderOptions(sb, 25, options, leftPad, descPad);
+        assertEquals("multiple wrapped options", expected, sb.toString());
+    }
+
+commit c7127329dad2c5d6284532da09ddc0fdefd67436
+Author: John Keyes <jkeyes@apache.org>
+Date:   Mon Jul 22 18:49:58 2002
+
+    added automatic usage generation
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129785 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/TestHelpFormatter.java b/src/test/org/apache/commons/cli/TestHelpFormatter.java
+--- a/src/test/org/apache/commons/cli/TestHelpFormatter.java
++++ b/src/test/org/apache/commons/cli/TestHelpFormatter.java
+@@ -30,124 +27,120 @@
+    public static void main( String[] args )
+    {
+       String[] testName = { TestHelpFormatter.class.getName() };
+       junit.textui.TestRunner.main(testName);
+    }
+ 
+    public static TestSuite suite()
+    {
+       return new TestSuite(TestHelpFormatter.class);
+    }
+ 
+-   // -------------------------------------------------------------- Attributes
+-
+-   // ------------------------------------------------------------ Constructors
+    public TestHelpFormatter( String s )
+    {
+       super( s );
+    }
+-   // ------------------------------------------------------------------ Public
+ 
+    public void testFindWrapPos()
+       throws Exception
+    {
+       HelpFormatter hf = new HelpFormatter();
+ 
+       String text = "This is a test.";
+       //text width should be max 8; the wrap postition is 7
+       assertEquals("wrap position", 7, hf.findWrapPos(text, 8, 0));
+       //starting from 8 must give -1 - the wrap pos is after end
+       assertEquals("wrap position 2", -1, hf.findWrapPos(text, 8, 8));
+       //if there is no a good position before width to make a wrapping look for the next one
+       text = "aaaa aa";
+       assertEquals("wrap position 3", 4, hf.findWrapPos(text, 3, 0));
+    }
+ 
+    public void testPrintWrapped()
+       throws Exception
+    {
+       StringBuffer sb = new StringBuffer();
+       HelpFormatter hf = new HelpFormatter();
+ 
+       String text = "This is a test.";
+       String expected;
+ 
+       expected = "This is a" + hf.defaultNewLine + "test.";
+       hf.renderWrappedText(sb, 12, 0, text);
+       assertEquals("single line text", expected, sb.toString());
+ 
+       sb.setLength(0);
+       expected = "This is a" + hf.defaultNewLine + "    test.";
+       hf.renderWrappedText(sb, 12, 4, text);
+       assertEquals("single line padded text", expected, sb.toString());
+ 
+       text =
+          "aaaa aaaa aaaa" + hf.defaultNewLine +
+          "aaaaaa" + hf.defaultNewLine +
+          "aaaaa";
+ 
+       expected = text;
+       sb.setLength(0);
+       hf.renderWrappedText(sb, 16, 0, text);
+       assertEquals("multi line text", expected, sb.toString());
+ 
+       expected =
+          "aaaa aaaa aaaa" + hf.defaultNewLine +
+          "    aaaaaa" + hf.defaultNewLine +
+          "    aaaaa";
+       sb.setLength(0);
+       hf.renderWrappedText(sb, 16, 4, text);
+       assertEquals("multi-line padded text", expected, sb.toString());
+    }
+ 
+    public void testPrintOptions()
+-      throws Exception
++   throws Exception
+    {
+-      StringBuffer sb = new StringBuffer();
+-      HelpFormatter hf = new HelpFormatter();
+-      final int leftPad = 1;
+-      final int descPad = 3;
+-      final String lpad = hf.createPadding(leftPad);
+-      final String dpad = hf.createPadding(descPad);
+-      Options options = null;
+-      String expected = null;
+-
+-      options = new Options().addOption("a", false, "aaaa aaaa aaaa aaaa aaaa");
+-      expected = lpad + "-a" + dpad + "aaaa aaaa aaaa aaaa aaaa";
+-      hf.renderOptions(sb, 60, options, leftPad, descPad);
+-      assertEquals("simple non-wrapped option", expected, sb.toString());
+-
+-      int nextLineTabStop = leftPad+descPad+"-a".length();
+-      expected =
+-         lpad + "-a" + dpad + "aaaa aaaa aaaa" + hf.defaultNewLine +
+-         hf.createPadding(nextLineTabStop) + "aaaa aaaa";
+-      sb.setLength(0);
+-      hf.renderOptions(sb, nextLineTabStop+17, options, leftPad, descPad);
+-      assertEquals("simple wrapped option", expected, sb.toString());
+-
+-
+-      options = new Options().addOption("a", "aaa", false, "dddd dddd dddd dddd");
+-      expected = lpad + "-a,--aaa" + dpad + "dddd dddd dddd dddd";
+-      sb.setLength(0);
+-      hf.renderOptions(sb, 60, options, leftPad, descPad);
+-      assertEquals("long non-wrapped option", expected, sb.toString());
+-
+-      nextLineTabStop = leftPad+descPad+"-a,--aaa".length();
+-      expected =
+-         lpad + "-a,--aaa" + dpad + "dddd dddd" + hf.defaultNewLine +
+-         hf.createPadding(nextLineTabStop) + "dddd dddd";
+-      sb.setLength(0);
+-      hf.renderOptions(sb, 25, options, leftPad, descPad);
+-      assertEquals("long wrapped option", expected, sb.toString());
+-
+-      options = new Options().
+-         addOption("a", "aaa", false, "dddd dddd dddd dddd").
+-         addOption("b", false, "feeee eeee eeee eeee");
+-      expected =
+-         lpad + "-a,--aaa" + dpad + "dddd dddd" + hf.defaultNewLine +
+-         hf.createPadding(nextLineTabStop) + "dddd dddd" + hf.defaultNewLine +
+-         lpad + "-b      " + dpad + "feeee eeee" + hf.defaultNewLine +
+-         hf.createPadding(nextLineTabStop) + "eeee eeee";
+-      sb.setLength(0);
+-      hf.renderOptions(sb, 25, options, leftPad, descPad);
+-      assertEquals("multiple wrapped options", expected, sb.toString());
++       StringBuffer sb = new StringBuffer();
++       HelpFormatter hf = new HelpFormatter();
++       final int leftPad = 1;
++       final int descPad = 3;
++       final String lpad = hf.createPadding(leftPad);
++       final String dpad = hf.createPadding(descPad);
++       Options options = null;
++       String expected = null;
++
++       options = new Options().addOption("a", false, "aaaa aaaa aaaa aaaa aaaa");
++       expected = lpad + "-a" + dpad + "aaaa aaaa aaaa aaaa aaaa";
++       hf.renderOptions(sb, 60, options, leftPad, descPad);
++       assertEquals("simple non-wrapped option", expected, sb.toString());
++
++       int nextLineTabStop = leftPad+descPad+"-a".length();
++       expected =
++           lpad + "-a" + dpad + "aaaa aaaa aaaa" + hf.defaultNewLine +
++           hf.createPadding(nextLineTabStop) + "aaaa aaaa";
++       sb.setLength(0);
++       hf.renderOptions(sb, nextLineTabStop+17, options, leftPad, descPad);
++       assertEquals("simple wrapped option", expected, sb.toString());
++
++
++       options = new Options().addOption("a", "aaa", false, "dddd dddd dddd dddd");
++       expected = lpad + "-a,--aaa" + dpad + "dddd dddd dddd dddd";
++       sb.setLength(0);
++       hf.renderOptions(sb, 60, options, leftPad, descPad);
++       assertEquals("long non-wrapped option", expected, sb.toString());
++
++       nextLineTabStop = leftPad+descPad+"-a,--aaa".length();
++       expected =
++           lpad + "-a,--aaa" + dpad + "dddd dddd" + hf.defaultNewLine +
++           hf.createPadding(nextLineTabStop) + "dddd dddd";
++       sb.setLength(0);
++       hf.renderOptions(sb, 25, options, leftPad, descPad);
++       assertEquals("long wrapped option", expected, sb.toString());
++
++       options = new Options().
++           addOption("a", "aaa", false, "dddd dddd dddd dddd").
++           addOption("b", false, "feeee eeee eeee eeee");
++       expected =
++           lpad + "-a,--aaa" + dpad + "dddd dddd" + hf.defaultNewLine +
++           hf.createPadding(nextLineTabStop) + "dddd dddd" + hf.defaultNewLine +
++           lpad + "-b      " + dpad + "feeee eeee" + hf.defaultNewLine +
++           hf.createPadding(nextLineTabStop) + "eeee eeee";
++       sb.setLength(0);
++       hf.renderOptions(sb, 25, options, leftPad, descPad);
++       assertEquals("multiple wrapped options", expected, sb.toString());
+    }
+
+commit 4cca25d72b216bfc8f2e75e4a99afb608ceb6df8
+Author: John Keyes <jkeyes@apache.org>
+Date:   Sun Jun 16 19:00:59 2002
+
+    configurable parser support added, PosixParser added
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129770 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/TestHelpFormatter.java b/src/test/org/apache/commons/cli/TestHelpFormatter.java
+--- a/src/test/org/apache/commons/cli/TestHelpFormatter.java
++++ b/src/test/org/apache/commons/cli/TestHelpFormatter.java
+@@ -30,124 +30,124 @@
+    public static void main( String[] args )
+    {
+       String[] testName = { TestHelpFormatter.class.getName() };
+       junit.textui.TestRunner.main(testName);
+    }
+ 
+    public static TestSuite suite()
+    {
+       return new TestSuite(TestHelpFormatter.class);
+    }
+ 
+    // -------------------------------------------------------------- Attributes
+ 
+    // ------------------------------------------------------------ Constructors
+    public TestHelpFormatter( String s )
+    {
+       super( s );
+    }
+    // ------------------------------------------------------------------ Public
+ 
+    public void testFindWrapPos()
+       throws Exception
+    {
+       HelpFormatter hf = new HelpFormatter();
+ 
+       String text = "This is a test.";
+       //text width should be max 8; the wrap postition is 7
+       assertEquals("wrap position", 7, hf.findWrapPos(text, 8, 0));
+       //starting from 8 must give -1 - the wrap pos is after end
+       assertEquals("wrap position 2", -1, hf.findWrapPos(text, 8, 8));
+       //if there is no a good position before width to make a wrapping look for the next one
+       text = "aaaa aa";
+       assertEquals("wrap position 3", 4, hf.findWrapPos(text, 3, 0));
+    }
+ 
+    public void testPrintWrapped()
+       throws Exception
+    {
+       StringBuffer sb = new StringBuffer();
+       HelpFormatter hf = new HelpFormatter();
+ 
+       String text = "This is a test.";
+       String expected;
+ 
+       expected = "This is a" + hf.defaultNewLine + "test.";
+       hf.renderWrappedText(sb, 12, 0, text);
+       assertEquals("single line text", expected, sb.toString());
+ 
+       sb.setLength(0);
+       expected = "This is a" + hf.defaultNewLine + "    test.";
+       hf.renderWrappedText(sb, 12, 4, text);
+       assertEquals("single line padded text", expected, sb.toString());
+ 
+       text =
+          "aaaa aaaa aaaa" + hf.defaultNewLine +
+          "aaaaaa" + hf.defaultNewLine +
+          "aaaaa";
+ 
+       expected = text;
+       sb.setLength(0);
+       hf.renderWrappedText(sb, 16, 0, text);
+       assertEquals("multi line text", expected, sb.toString());
+ 
+       expected =
+          "aaaa aaaa aaaa" + hf.defaultNewLine +
+          "    aaaaaa" + hf.defaultNewLine +
+          "    aaaaa";
+       sb.setLength(0);
+       hf.renderWrappedText(sb, 16, 4, text);
+       assertEquals("multi-line padded text", expected, sb.toString());
+    }
+ 
+    public void testPrintOptions()
+       throws Exception
+    {
+       StringBuffer sb = new StringBuffer();
+       HelpFormatter hf = new HelpFormatter();
+       final int leftPad = 1;
+       final int descPad = 3;
+       final String lpad = hf.createPadding(leftPad);
+       final String dpad = hf.createPadding(descPad);
+       Options options = null;
+       String expected = null;
+ 
+-      options = new Options().addOption('a', false, "aaaa aaaa aaaa aaaa aaaa");
++      options = new Options().addOption("a", false, "aaaa aaaa aaaa aaaa aaaa");
+       expected = lpad + "-a" + dpad + "aaaa aaaa aaaa aaaa aaaa";
+       hf.renderOptions(sb, 60, options, leftPad, descPad);
+       assertEquals("simple non-wrapped option", expected, sb.toString());
+ 
+       int nextLineTabStop = leftPad+descPad+"-a".length();
+       expected =
+          lpad + "-a" + dpad + "aaaa aaaa aaaa" + hf.defaultNewLine +
+          hf.createPadding(nextLineTabStop) + "aaaa aaaa";
+       sb.setLength(0);
+       hf.renderOptions(sb, nextLineTabStop+17, options, leftPad, descPad);
+       assertEquals("simple wrapped option", expected, sb.toString());
+ 
+ 
+-      options = new Options().addOption('a', "aaa", false, "dddd dddd dddd dddd");
++      options = new Options().addOption("a", "aaa", false, "dddd dddd dddd dddd");
+       expected = lpad + "-a,--aaa" + dpad + "dddd dddd dddd dddd";
+       sb.setLength(0);
+       hf.renderOptions(sb, 60, options, leftPad, descPad);
+       assertEquals("long non-wrapped option", expected, sb.toString());
+ 
+       nextLineTabStop = leftPad+descPad+"-a,--aaa".length();
+       expected =
+          lpad + "-a,--aaa" + dpad + "dddd dddd" + hf.defaultNewLine +
+          hf.createPadding(nextLineTabStop) + "dddd dddd";
+       sb.setLength(0);
+       hf.renderOptions(sb, 25, options, leftPad, descPad);
+       assertEquals("long wrapped option", expected, sb.toString());
+ 
+       options = new Options().
+-         addOption('a', "aaa", false, "dddd dddd dddd dddd").
+-         addOption('b', false, "feeee eeee eeee eeee");
++         addOption("a", "aaa", false, "dddd dddd dddd dddd").
++         addOption("b", false, "feeee eeee eeee eeee");
+       expected =
+          lpad + "-a,--aaa" + dpad + "dddd dddd" + hf.defaultNewLine +
+          hf.createPadding(nextLineTabStop) + "dddd dddd" + hf.defaultNewLine +
+          lpad + "-b      " + dpad + "feeee eeee" + hf.defaultNewLine +
+          hf.createPadding(nextLineTabStop) + "eeee eeee";
+       sb.setLength(0);
+       hf.renderOptions(sb, 25, options, leftPad, descPad);
+       assertEquals("multiple wrapped options", expected, sb.toString());
+    }
+
+commit aae50c585ec3ac33c6a9af792e80378904a73195
+Author: James Strachan <jstrachan@apache.org>
+Date:   Mon Jun 10 14:01:16 2002
+
+    moved cli over from the sandbox to commons proper
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129767 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/cli/TestHelpFormatter.java b/src/test/org/apache/commons/cli/TestHelpFormatter.java
+--- /dev/null
++++ b/src/test/org/apache/commons/cli/TestHelpFormatter.java
+@@ -0,0 +30,124 @@
++   public static void main( String[] args )
++   {
++      String[] testName = { TestHelpFormatter.class.getName() };
++      junit.textui.TestRunner.main(testName);
++   }
++
++   public static TestSuite suite()
++   {
++      return new TestSuite(TestHelpFormatter.class);
++   }
++
++   // -------------------------------------------------------------- Attributes
++
++   // ------------------------------------------------------------ Constructors
++   public TestHelpFormatter( String s )
++   {
++      super( s );
++   }
++   // ------------------------------------------------------------------ Public
++
++   public void testFindWrapPos()
++      throws Exception
++   {
++      HelpFormatter hf = new HelpFormatter();
++
++      String text = "This is a test.";
++      //text width should be max 8; the wrap postition is 7
++      assertEquals("wrap position", 7, hf.findWrapPos(text, 8, 0));
++      //starting from 8 must give -1 - the wrap pos is after end
++      assertEquals("wrap position 2", -1, hf.findWrapPos(text, 8, 8));
++      //if there is no a good position before width to make a wrapping look for the next one
++      text = "aaaa aa";
++      assertEquals("wrap position 3", 4, hf.findWrapPos(text, 3, 0));
++   }
++
++   public void testPrintWrapped()
++      throws Exception
++   {
++      StringBuffer sb = new StringBuffer();
++      HelpFormatter hf = new HelpFormatter();
++
++      String text = "This is a test.";
++      String expected;
++
++      expected = "This is a" + hf.defaultNewLine + "test.";
++      hf.renderWrappedText(sb, 12, 0, text);
++      assertEquals("single line text", expected, sb.toString());
++
++      sb.setLength(0);
++      expected = "This is a" + hf.defaultNewLine + "    test.";
++      hf.renderWrappedText(sb, 12, 4, text);
++      assertEquals("single line padded text", expected, sb.toString());
++
++      text =
++         "aaaa aaaa aaaa" + hf.defaultNewLine +
++         "aaaaaa" + hf.defaultNewLine +
++         "aaaaa";
++
++      expected = text;
++      sb.setLength(0);
++      hf.renderWrappedText(sb, 16, 0, text);
++      assertEquals("multi line text", expected, sb.toString());
++
++      expected =
++         "aaaa aaaa aaaa" + hf.defaultNewLine +
++         "    aaaaaa" + hf.defaultNewLine +
++         "    aaaaa";
++      sb.setLength(0);
++      hf.renderWrappedText(sb, 16, 4, text);
++      assertEquals("multi-line padded text", expected, sb.toString());
++   }
++
++   public void testPrintOptions()
++      throws Exception
++   {
++      StringBuffer sb = new StringBuffer();
++      HelpFormatter hf = new HelpFormatter();
++      final int leftPad = 1;
++      final int descPad = 3;
++      final String lpad = hf.createPadding(leftPad);
++      final String dpad = hf.createPadding(descPad);
++      Options options = null;
++      String expected = null;
++
++      options = new Options().addOption('a', false, "aaaa aaaa aaaa aaaa aaaa");
++      expected = lpad + "-a" + dpad + "aaaa aaaa aaaa aaaa aaaa";
++      hf.renderOptions(sb, 60, options, leftPad, descPad);
++      assertEquals("simple non-wrapped option", expected, sb.toString());
++
++      int nextLineTabStop = leftPad+descPad+"-a".length();
++      expected =
++         lpad + "-a" + dpad + "aaaa aaaa aaaa" + hf.defaultNewLine +
++         hf.createPadding(nextLineTabStop) + "aaaa aaaa";
++      sb.setLength(0);
++      hf.renderOptions(sb, nextLineTabStop+17, options, leftPad, descPad);
++      assertEquals("simple wrapped option", expected, sb.toString());
++
++
++      options = new Options().addOption('a', "aaa", false, "dddd dddd dddd dddd");
++      expected = lpad + "-a,--aaa" + dpad + "dddd dddd dddd dddd";
++      sb.setLength(0);
++      hf.renderOptions(sb, 60, options, leftPad, descPad);
++      assertEquals("long non-wrapped option", expected, sb.toString());
++
++      nextLineTabStop = leftPad+descPad+"-a,--aaa".length();
++      expected =
++         lpad + "-a,--aaa" + dpad + "dddd dddd" + hf.defaultNewLine +
++         hf.createPadding(nextLineTabStop) + "dddd dddd";
++      sb.setLength(0);
++      hf.renderOptions(sb, 25, options, leftPad, descPad);
++      assertEquals("long wrapped option", expected, sb.toString());
++
++      options = new Options().
++         addOption('a', "aaa", false, "dddd dddd dddd dddd").
++         addOption('b', false, "feeee eeee eeee eeee");
++      expected =
++         lpad + "-a,--aaa" + dpad + "dddd dddd" + hf.defaultNewLine +
++         hf.createPadding(nextLineTabStop) + "dddd dddd" + hf.defaultNewLine +
++         lpad + "-b      " + dpad + "feeee eeee" + hf.defaultNewLine +
++         hf.createPadding(nextLineTabStop) + "eeee eeee";
++      sb.setLength(0);
++      hf.renderOptions(sb, 25, options, leftPad, descPad);
++      assertEquals("multiple wrapped options", expected, sb.toString());
++   }

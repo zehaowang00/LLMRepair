@@ -1,0 +1,141 @@
+commit 1dfad5043a207e032a78ef50c3cba50488bcd300
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Jan 4 20:20:43 2013
+
+    In simple mode, do not remove unreferenced function arguments.
+    Fixes issue 253
+    
+    R=johnlenz
+    DELTA=30 (21 added, 0 deleted, 9 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=6078
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2441 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/IntegrationTest.java b/test/com/google/javascript/jscomp/IntegrationTest.java
+--- a/test/com/google/javascript/jscomp/IntegrationTest.java
++++ b/test/com/google/javascript/jscomp/IntegrationTest.java
+@@ -2326,48 +2326,48 @@
+   public void testIssue787() {
+     CompilerOptions options = createCompilerOptions();
+     CompilationLevel level = CompilationLevel.SIMPLE_OPTIMIZATIONS;
+     level.setOptionsForCompilationLevel(options);
+     WarningLevel warnings = WarningLevel.DEFAULT;
+     warnings.setOptionsForWarningLevel(options);
+ 
+     String code = "" +
+         "function some_function() {\n" +
+         "  var fn1;\n" +
+         "  var fn2;\n" +
+         "\n" +
+         "  if (any_expression) {\n" +
+         "    fn2 = external_ref;\n" +
+         "    fn1 = function (content) {\n" +
+         "      return fn2();\n" +
+         "    }\n" +
+         "  }\n" +
+         "\n" +
+         "  return {\n" +
+         "    method1: function () {\n" +
+         "      if (fn1) fn1();\n" +
+         "      return true;\n" +
+         "    },\n" +
+         "    method2: function () {\n" +
+         "      return false;\n" +
+         "    }\n" +
+         "  }\n" +
+         "}";
+ 
+     String result = "" +
+         "function some_function() {\n" +
+         "  var a, b;\n" +
+-        "  any_expression && (b = external_ref, a = function() {\n" +
++        "  any_expression && (b = external_ref, a = function(a) {\n" +
+         "    return b()\n" +
+         "  });\n" +
+         "  return{method1:function() {\n" +
+         "    a && a();\n" +
+         "    return !0\n" +
+         "  }, method2:function() {\n" +
+         "    return !1\n" +
+         "  }}\n" +
+         "}\n" +
+         "";
+ 
+     test(options, code, result);
+   }
+ 
+
+commit d6d733f461ee5ba26e9326c1c7609f1f00d6d2db
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Aug 2 13:53:06 2012
+
+    Fixes issue 787.  Removing or replacing a Node is the AST caused any
+    following Function nodes to be skipped in the late peephole folding.
+    To prevent this save off the "next" node before visiting a Node.
+    
+    R=nicksantos
+    DELTA=66  (53 added, 5 deleted, 8 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=5295
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2119 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/IntegrationTest.java b/test/com/google/javascript/jscomp/IntegrationTest.java
+--- a/test/com/google/javascript/jscomp/IntegrationTest.java
++++ b/test/com/google/javascript/jscomp/IntegrationTest.java
+@@ -2216,0 +2217,48 @@
++  public void testIssue787() {
++    CompilerOptions options = createCompilerOptions();
++    CompilationLevel level = CompilationLevel.SIMPLE_OPTIMIZATIONS;
++    level.setOptionsForCompilationLevel(options);
++    WarningLevel warnings = WarningLevel.DEFAULT;
++    warnings.setOptionsForWarningLevel(options);
++
++    String code = "" +
++        "function some_function() {\n" +
++        "  var fn1;\n" +
++        "  var fn2;\n" +
++        "\n" +
++        "  if (any_expression) {\n" +
++        "    fn2 = external_ref;\n" +
++        "    fn1 = function (content) {\n" +
++        "      return fn2();\n" +
++        "    }\n" +
++        "  }\n" +
++        "\n" +
++        "  return {\n" +
++        "    method1: function () {\n" +
++        "      if (fn1) fn1();\n" +
++        "      return true;\n" +
++        "    },\n" +
++        "    method2: function () {\n" +
++        "      return false;\n" +
++        "    }\n" +
++        "  }\n" +
++        "}";
++
++    String result = "" +
++        "function some_function() {\n" +
++        "  var a, b;\n" +
++        "  any_expression && (b = external_ref, a = function() {\n" +
++        "    return b()\n" +
++        "  });\n" +
++        "  return{method1:function() {\n" +
++        "    a && a();\n" +
++        "    return !0\n" +
++        "  }, method2:function() {\n" +
++        "    return !1\n" +
++        "  }}\n" +
++        "}\n" +
++        "";
++
++    test(options, code, result);
++  }
++

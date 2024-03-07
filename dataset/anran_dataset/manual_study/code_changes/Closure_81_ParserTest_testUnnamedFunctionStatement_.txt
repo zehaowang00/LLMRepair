@@ -1,0 +1,31 @@
+commit 084b868bc2fbf9d6d0319e5a362ade1d7f43f899
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Feb 17 16:20:42 2011
+
+    Generate a parse error for unnamed function statements.
+    Fixes issue 251.
+    
+    R=nicksantos
+    DELTA=384  (78 added, 0 deleted, 306 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=556
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@797 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/parsing/ParserTest.java b/test/com/google/javascript/jscomp/parsing/ParserTest.java
+--- a/test/com/google/javascript/jscomp/parsing/ParserTest.java
++++ b/test/com/google/javascript/jscomp/parsing/ParserTest.java
+@@ -774,0 +774,10 @@
++  public void testUnnamedFunctionStatement() {
++    // Statements
++    parseError("function() {};", "unnamed function statement");
++    parseError("if (true) { function() {}; }", "unnamed function statement");
++    parse("function f() {};");
++    // Expressions
++    parse("(function f() {});");
++    parse("(function () {});");
++  }
++

@@ -1,0 +1,46 @@
+commit ddd4f84525178a0722ecbc01229d919d11c526f7
+Author: Stephen Colebourne <scolebourne@apache.org>
+Date:   Fri Sep 23 19:17:31 2005
+
+    Test LocaleUtils
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@291219 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/LocaleUtilsTest.java b/src/test/org/apache/commons/lang/LocaleUtilsTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/lang/LocaleUtilsTest.java
+@@ -0,0 +188,34 @@
++    public void testToLocale_2Part() {
++        assertValidToLocale("us_EN", "us", "EN");
++        //valid though doesnt exist
++        assertValidToLocale("us_ZH", "us", "ZH");
++        
++        try {
++            LocaleUtils.toLocale("us-EN");
++            fail("Should fail as not underscore");
++        } catch (IllegalArgumentException iae) {}
++        try {
++            LocaleUtils.toLocale("us_En");
++            fail("Should fail second part not uppercase");
++        } catch (IllegalArgumentException iae) {}
++        try {
++            LocaleUtils.toLocale("us_en");
++            fail("Should fail second part not uppercase");
++        } catch (IllegalArgumentException iae) {}
++        try {
++            LocaleUtils.toLocale("us_eN");
++            fail("Should fail second part not uppercase");
++        } catch (IllegalArgumentException iae) {}
++        try {
++            LocaleUtils.toLocale("uS_EN");
++            fail("Should fail first part not lowercase");
++        } catch (IllegalArgumentException iae) {}
++        try {
++            LocaleUtils.toLocale("us_E3");
++            fail("Should fail second part not uppercase");
++        } catch (IllegalArgumentException iae) {}
++    }        
++
++    /**
++     * Test toLocale() method.
++     */

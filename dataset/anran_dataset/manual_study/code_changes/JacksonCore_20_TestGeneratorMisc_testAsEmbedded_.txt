@@ -1,0 +1,51 @@
+commit fa64390b1bd5f1435daa9d2b17a58594cfb22817
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Thu Sep 1 18:32:46 2016
+
+    Fix #318
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/main/TestGeneratorMisc.java b/src/test/java/com/fasterxml/jackson/core/main/TestGeneratorMisc.java
+--- a/src/test/java/com/fasterxml/jackson/core/main/TestGeneratorMisc.java
++++ b/src/test/java/com/fasterxml/jackson/core/main/TestGeneratorMisc.java
+@@ -319,1 +237,29 @@
++    public void testAsEmbedded() throws Exception
++    {
++        JsonGenerator g;
++
++        StringWriter sw = new StringWriter();
++        g = JSON_F.createGenerator(sw);
++        g.writeEmbeddedObject(null);
++        g.close();
++        assertEquals("null", sw.toString());
++
++        ByteArrayOutputStream bytes =  new ByteArrayOutputStream(100);
++        g = JSON_F.createGenerator(bytes);
++        g.writeEmbeddedObject(null);
++        g.close();
++        assertEquals("null", bytes.toString("UTF-8"));
++
++        // also, for fun, try illegal unknown thingy
++
++        try {
++            g = JSON_F.createGenerator(bytes);
++            // try writing a Class object
++            g.writeEmbeddedObject(getClass());
++            fail("Expected an exception");
++            g.close(); // never gets here
++        } catch (JsonGenerationException e) {
++            verifyException(e, "No native support for");
++        }
++    }
+ }
+
+commit 5ff8a2d9a72f0741f9465bf7f04584a3c3e8c28f
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 00:52:24 2011
+
+    Add unit tests from 1.x, all but 2 passing
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/main/TestGeneratorMisc.java b/src/test/java/com/fasterxml/jackson/core/main/TestGeneratorMisc.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/core/main/TestGeneratorMisc.java
+@@ -0,0 +300,1 @@
++}

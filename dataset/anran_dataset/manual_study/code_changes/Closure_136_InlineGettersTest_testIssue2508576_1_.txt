@@ -1,0 +1,34 @@
+commit 938f48a60c544f6b7bdb5d49006f654a51ca9a22
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Mar 16 18:53:04 2010
+
+    The MethodCompilerPass was being a little too smart for itself, leading
+    to incorrect behavior by the InlineGetter pass (inlining extern
+    definitions of functions which it thought were empty functions). This
+    results in slight worse behavior by the depreciated "MethodCheck" pass,
+    but most projects have moved on to "check_types" which is on by default. (John)
+    R=Alan
+    DELTA=77  (44 added, 28 deleted, 5 changed)
+    
+    Issue 103: Fix inappropriate renaming of local "$super" when the coding
+    convention declares it to be "exported". (John)
+    Fixes issue 103.
+    R=Alan
+    DELTA=86  (77 added, 3 deleted, 6 changed)
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@139 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/InlineGettersTest.java b/test/com/google/javascript/jscomp/InlineGettersTest.java
+--- a/test/com/google/javascript/jscomp/InlineGettersTest.java
++++ b/test/com/google/javascript/jscomp/InlineGettersTest.java
+@@ -234,0 +235,6 @@
++  public void testIssue2508576_1() {
++    // Method defined by an extern should be left alone.
++    String externs = "function alert(a) {}";
++    testSame(externs, "({a:alert,b:alert}).a(\"a\")", null);
++  }
++

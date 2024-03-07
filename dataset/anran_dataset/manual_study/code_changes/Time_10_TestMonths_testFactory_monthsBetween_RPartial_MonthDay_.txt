@@ -1,0 +1,29 @@
+commit 3a413d7844c22dc6ddd50bf5d0d55ff3589e47ac
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Sun Jun 16 06:27:54 2013
+
+    Days.daysBetween fails for MonthDay
+    
+    Problems around leap year
+    Fixes #22
+
+diff --git a/src/test/java/org/joda/time/TestMonths.java b/src/test/java/org/joda/time/TestMonths.java
+--- a/src/test/java/org/joda/time/TestMonths.java
++++ b/src/test/java/org/joda/time/TestMonths.java
+@@ -119,0 +130,16 @@
++    public void testFactory_monthsBetween_RPartial_MonthDay() {
++        MonthDay start = new MonthDay(2, 1);
++        MonthDay end1 = new MonthDay(2, 28);
++        MonthDay end2 = new MonthDay(2, 29);
++        MonthDay end3 = new MonthDay(3, 1);
++        
++        assertEquals(0, Months.monthsBetween(start, end1).getMonths());
++        assertEquals(0, Months.monthsBetween(start, end2).getMonths());
++        assertEquals(1, Months.monthsBetween(start, end3).getMonths());
++        
++        assertEquals(0, Months.monthsBetween(end1, start).getMonths());
++        assertEquals(0, Months.monthsBetween(end2, start).getMonths());
++        assertEquals(-1, Months.monthsBetween(end3, start).getMonths());
++    }
++
++    //-------------------------------------------------------------------------

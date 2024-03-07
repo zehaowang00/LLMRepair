@@ -1,0 +1,107 @@
+commit d577973fb378dfe0d05991ec0dfa6c1f40e574ee
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Feb 3 16:03:48 2012
+
+    print record types better when generating typed code.
+    fixes issue 643
+    
+    R=acleung
+    DELTA=25  (22 added, 0 deleted, 3 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=4168
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1761 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/rhino/jstype/RecordTypeTest.java b/test/com/google/javascript/rhino/jstype/RecordTypeTest.java
+--- a/test/com/google/javascript/rhino/jstype/RecordTypeTest.java
++++ b/test/com/google/javascript/rhino/jstype/RecordTypeTest.java
+@@ -63,13 +65,17 @@
+   public void testLongToString() {
+     JSType record = new RecordTypeBuilder(registry)
+         .addProperty("a1", NUMBER_TYPE, null)
+         .addProperty("a2", NUMBER_TYPE, null)
+         .addProperty("a3", NUMBER_TYPE, null)
+         .addProperty("a4", NUMBER_TYPE, null)
+         .addProperty("a5", NUMBER_TYPE, null)
+         .addProperty("a6", NUMBER_TYPE, null)
+         .build();
+     assertEquals("{a1: number, a2: number, a3: number, a4: number, ...}",
+         record.toString());
++    assertEquals(
++        "{a1: number, a2: number, a3: number, a4: number," +
++        " a5: number, a6: number}",
++        record.toAnnotationString());
+   }
+ 
+
+commit 4a1a31c6a50a0fbe25fa33277909bd51f1deb8e9
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 22 11:52:50 2011
+
+    Fix a bunch of bugs in record type sup/inf with proxy types
+    Fixes issue 603
+    
+    R=tylerg
+    DELTA=76  (39 added, 27 deleted, 10 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3796
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1638 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/rhino/jstype/RecordTypeTest.java b/test/com/google/javascript/rhino/jstype/RecordTypeTest.java
+--- a/test/com/google/javascript/rhino/jstype/RecordTypeTest.java
++++ b/test/com/google/javascript/rhino/jstype/RecordTypeTest.java
+@@ -63,12 +63,13 @@
+   public void testLongToString() {
+     JSType record = new RecordTypeBuilder(registry)
+         .addProperty("a1", NUMBER_TYPE, null)
+         .addProperty("a2", NUMBER_TYPE, null)
+         .addProperty("a3", NUMBER_TYPE, null)
+         .addProperty("a4", NUMBER_TYPE, null)
+         .addProperty("a5", NUMBER_TYPE, null)
+         .addProperty("a6", NUMBER_TYPE, null)
+         .build();
+     assertEquals("{a1: number, a2: number, a3: number, a4: number, ...}",
+         record.toString());
+   }
++
+
+commit febdacb341025491b3ae83ee8ffa9d22c69c295e
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Oct 4 19:04:13 2011
+
+    speed up type analysis a bunch, and fix some bugs in record types
+    
+    
+    R=acleung
+    DELTA=232  (154 added, 54 deleted, 24 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3408
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1489 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/rhino/jstype/RecordTypeTest.java b/test/com/google/javascript/rhino/jstype/RecordTypeTest.java
+--- /dev/null
++++ b/test/com/google/javascript/rhino/jstype/RecordTypeTest.java
+@@ -0,0 +63,12 @@
++  public void testLongToString() {
++    JSType record = new RecordTypeBuilder(registry)
++        .addProperty("a1", NUMBER_TYPE, null)
++        .addProperty("a2", NUMBER_TYPE, null)
++        .addProperty("a3", NUMBER_TYPE, null)
++        .addProperty("a4", NUMBER_TYPE, null)
++        .addProperty("a5", NUMBER_TYPE, null)
++        .addProperty("a6", NUMBER_TYPE, null)
++        .build();
++    assertEquals("{a1: number, a2: number, a3: number, a4: number, ...}",
++        record.toString());
++  }

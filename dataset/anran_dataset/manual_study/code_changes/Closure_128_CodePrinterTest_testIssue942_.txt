@@ -1,0 +1,18 @@
+commit d82fb38b0121bf690cea58df293185c7e91ded9c
+Author: Ben Lickly <blickly@google.com>
+Date:   Tue Mar 19 21:13:11 2013
+
+    Don't quote "0" object literal keys.
+    Fixes issue 942
+    -------------
+    Created by MOE: http://code.google.com/p/moe-java
+    MOE_MIGRATED_REVID=44143868
+
+diff --git a/test/com/google/javascript/jscomp/CodePrinterTest.java b/test/com/google/javascript/jscomp/CodePrinterTest.java
+--- a/test/com/google/javascript/jscomp/CodePrinterTest.java
++++ b/test/com/google/javascript/jscomp/CodePrinterTest.java
+@@ -1422,0 +1422,4 @@
++  public void testIssue942() {
++    assertPrint("var x = {0: 1};", "var x={0:1}");
++  }
++

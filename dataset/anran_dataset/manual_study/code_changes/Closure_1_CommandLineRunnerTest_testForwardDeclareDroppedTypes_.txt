@@ -1,0 +1,159 @@
+commit 1dfad5043a207e032a78ef50c3cba50488bcd300
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Jan 4 20:20:43 2013
+
+    In simple mode, do not remove unreferenced function arguments.
+    Fixes issue 253
+    
+    R=johnlenz
+    DELTA=30 (21 added, 0 deleted, 9 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=6078
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2441 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+--- a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
++++ b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+@@ -740,25 +750,25 @@
+   public void testForwardDeclareDroppedTypes() {
+     args.add("--manage_closure_dependencies=true");
+ 
+     args.add("--warning_level=VERBOSE");
+     test(new String[] {
+           "goog.require('beer');",
+           "goog.provide('beer'); /** @param {Scotch} x */ function f(x) {}",
+           "goog.provide('Scotch'); var x = 3;"
+          },
+          new String[] {
+-           "var beer = {}; function f() {}",
++           "var beer = {}; function f(a) {}",
+            ""
+          });
+ 
+     test(new String[] {
+           "goog.require('beer');",
+           "goog.provide('beer'); /** @param {Scotch} x */ function f(x) {}"
+          },
+          new String[] {
+-           "var beer = {}; function f() {}",
++           "var beer = {}; function f(a) {}",
+            ""
+          },
+          RhinoErrorReporter.TYPE_PARSE_ERROR);
+   }
+ 
+
+commit 5709ec1d0bbe5b7726a14d06f7eab9c35150e314
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Mar 7 15:59:36 2011
+
+    Put bad type annotations behind a diagnostic group, so that they
+    aren't reported if type-checking isn't on.
+    
+    R=acleung
+    DELTA=300  (110 added, 11 deleted, 179 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=780
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@857 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+--- a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
++++ b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+@@ -489,25 +501,25 @@
+   public void testForwardDeclareDroppedTypes() {
+     args.add("--manage_closure_dependencies=true");
+ 
+     args.add("--warning_level=VERBOSE");
+     test(new String[] {
+           "goog.require('beer');",
+           "goog.provide('beer'); /** @param {Scotch} x */ function f(x) {}",
+           "goog.provide('Scotch'); var x = 3;"
+          },
+          new String[] {
+            "var beer = {}; function f() {}",
+            ""
+          });
+ 
+     test(new String[] {
+           "goog.require('beer');",
+           "goog.provide('beer'); /** @param {Scotch} x */ function f(x) {}"
+          },
+          new String[] {
+            "var beer = {}; function f() {}",
+            ""
+          },
+-         RhinoErrorReporter.PARSE_ERROR);
++         RhinoErrorReporter.TYPE_PARSE_ERROR);
+   }
+ 
+
+commit 301ed5b03eb52debdc9b87929a45880eb2faf1fe
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue May 11 21:45:40 2010
+
+    Change on 2010/05/11 by robby
+    
+            Support aliases in JsDoc + some additional tests.
+    
+            R=nick
+            DELTA=311  (294 added, 2 deleted, 15 changed)
+    
+    Change on 2010/05/11 by nick
+    
+            forward-declare type names that are dropped from the input.
+    
+            R=alan
+            DELTA=31  (31 added, 0 deleted, 0 changed)
+    
+    Change on 2010/05/11 by nick
+    
+            Verify that closure-compiler issue 157 is invalid.
+    
+            R=robert
+            DELTA=4  (4 added, 0 deleted, 0 changed)
+    
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=vflmak
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@208 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+--- a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
++++ b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+@@ -299,0 +299,25 @@
++  public void testForwardDeclareDroppedTypes() {
++    args.add("--manage_closure_dependencies=true");
++
++    args.add("--warning_level=VERBOSE");
++    test(new String[] {
++          "goog.require('beer');",
++          "goog.provide('beer'); /** @param {Scotch} x */ function f(x) {}",
++          "goog.provide('Scotch'); var x = 3;"
++         },
++         new String[] {
++           "var beer = {}; function f() {}",
++           ""
++         });
++
++    test(new String[] {
++          "goog.require('beer');",
++          "goog.provide('beer'); /** @param {Scotch} x */ function f(x) {}"
++         },
++         new String[] {
++           "var beer = {}; function f() {}",
++           ""
++         },
++         RhinoErrorReporter.PARSE_ERROR);
++  }
++

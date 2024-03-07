@@ -1,0 +1,351 @@
+commit c2823b4de28120d86aeba9215f0231d990a8eb47
+Author: Cowtowncoder <tatu.saloranta@iki.fi>
+Date:   Fri Jul 31 22:43:48 2015
+
+    Fix #207
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+--- a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
++++ b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+@@ -64,28 +64,28 @@
+     public void testSyntheticWithBytesNew() throws IOException
+     {
+         // pass seed, to keep results consistent:
+         final int SEED = 33333;
+         ByteQuadsCanonicalizer symbols =
+                 ByteQuadsCanonicalizer.createRoot(SEED).makeChild(JsonFactory.Feature.collectDefaults());
+ 
+         final int COUNT = 12000;
+         for (int i = 0; i < COUNT; ++i) {
+             String id = fieldNameFor(i);
+             int[] quads = calcQuads(id.getBytes("UTF-8"));
+             symbols.addName(id, quads, quads.length);
+         }
+         assertEquals(COUNT, symbols.size());
+         assertEquals(16384, symbols.bucketCount());
+         
+         // fragile, but essential to verify low collision counts;
+         // anywhere between 70-80% primary matches
+-        assertEquals(8524, symbols.primaryCount());
++        assertEquals(8534, symbols.primaryCount());
+         // secondary between 10-20%
+         assertEquals(2534, symbols.secondaryCount());
+         // and most of remaining in tertiary
+-        assertEquals(942, symbols.tertiaryCount());
++        assertEquals(932, symbols.tertiaryCount());
+         // so that spill-over is empty or close to
+         assertEquals(0, symbols.spilloverCount());
+     }
+ 
+     // [Issue#145]
+
+commit 86b31e7772a491285d13063777c2497b8b9bb3c3
+Author: Cowtowncoder <tatu.saloranta@iki.fi>
+Date:   Mon Mar 30 14:10:03 2015
+
+    Improve error message for hash collisions, tune tertiary slot sizes
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+--- a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
++++ b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+@@ -64,28 +64,28 @@
+     public void testSyntheticWithBytesNew() throws IOException
+     {
+         // pass seed, to keep results consistent:
+         final int SEED = 33333;
+         ByteQuadsCanonicalizer symbols =
+                 ByteQuadsCanonicalizer.createRoot(SEED).makeChild(JsonFactory.Feature.collectDefaults());
+ 
+         final int COUNT = 12000;
+         for (int i = 0; i < COUNT; ++i) {
+             String id = fieldNameFor(i);
+             int[] quads = calcQuads(id.getBytes("UTF-8"));
+             symbols.addName(id, quads, quads.length);
+         }
+         assertEquals(COUNT, symbols.size());
+         assertEquals(16384, symbols.bucketCount());
+         
+         // fragile, but essential to verify low collision counts;
+         // anywhere between 70-80% primary matches
+-        assertEquals(8515, symbols.primaryCount());
++        assertEquals(8524, symbols.primaryCount());
+         // secondary between 10-20%
+-        assertEquals(2525, symbols.secondaryCount());
++        assertEquals(2534, symbols.secondaryCount());
+         // and most of remaining in tertiary
+-        assertEquals(960, symbols.tertiaryCount());
++        assertEquals(942, symbols.tertiaryCount());
+         // so that spill-over is empty or close to
+         assertEquals(0, symbols.spilloverCount());
+     }
+ 
+     // [Issue#145]
+
+commit 88391ccd5f494490d183306368da42b79b36cd26
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Mon Mar 30 03:27:01 2015
+
+    Simplifying N-byte hashing a bit
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+--- a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
++++ b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+@@ -64,28 +64,28 @@
+     public void testSyntheticWithBytesNew() throws IOException
+     {
+         // pass seed, to keep results consistent:
+         final int SEED = 33333;
+         ByteQuadsCanonicalizer symbols =
+                 ByteQuadsCanonicalizer.createRoot(SEED).makeChild(JsonFactory.Feature.collectDefaults());
+ 
+         final int COUNT = 12000;
+         for (int i = 0; i < COUNT; ++i) {
+             String id = fieldNameFor(i);
+             int[] quads = calcQuads(id.getBytes("UTF-8"));
+             symbols.addName(id, quads, quads.length);
+         }
+         assertEquals(COUNT, symbols.size());
+         assertEquals(16384, symbols.bucketCount());
+-
++        
+         // fragile, but essential to verify low collision counts;
+         // anywhere between 70-80% primary matches
+-        assertEquals(8533, symbols.primaryCount());
++        assertEquals(8515, symbols.primaryCount());
+         // secondary between 10-20%
+-        assertEquals(2468, symbols.secondaryCount());
++        assertEquals(2525, symbols.secondaryCount());
+         // and most of remaining in tertiary
+-        assertEquals(999, symbols.tertiaryCount());
++        assertEquals(960, symbols.tertiaryCount());
+         // so that spill-over is empty or close to
+         assertEquals(0, symbols.spilloverCount());
+     }
+ 
+     // [Issue#145]
+
+commit fe4ca6a0ec9092a66ba42ad8efd7a7fee166a8e3
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Mon Mar 30 02:11:02 2015
+
+    Further improvements to reduce hash collisions, now for 1-4 byte ids
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+--- a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
++++ b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+@@ -64,28 +64,28 @@
+     public void testSyntheticWithBytesNew() throws IOException
+     {
+         // pass seed, to keep results consistent:
+         final int SEED = 33333;
+         ByteQuadsCanonicalizer symbols =
+                 ByteQuadsCanonicalizer.createRoot(SEED).makeChild(JsonFactory.Feature.collectDefaults());
+ 
+         final int COUNT = 12000;
+         for (int i = 0; i < COUNT; ++i) {
+             String id = fieldNameFor(i);
+             int[] quads = calcQuads(id.getBytes("UTF-8"));
+             symbols.addName(id, quads, quads.length);
+         }
+         assertEquals(COUNT, symbols.size());
+         assertEquals(16384, symbols.bucketCount());
+ 
+         // fragile, but essential to verify low collision counts;
+         // anywhere between 70-80% primary matches
+-        assertEquals(8566, symbols.primaryCount());
++        assertEquals(8533, symbols.primaryCount());
+         // secondary between 10-20%
+-        assertEquals(2440, symbols.secondaryCount());
++        assertEquals(2468, symbols.secondaryCount());
+         // and most of remaining in tertiary
+-        assertEquals(994, symbols.tertiaryCount());
++        assertEquals(999, symbols.tertiaryCount());
+         // so that spill-over is empty or close to
+         assertEquals(0, symbols.spilloverCount());
+     }
+ 
+     // [Issue#145]
+
+commit 8db559f7c0ba108f7b8c4a76b2ba00825e3fe8cb
+Merge: aa65eaac e0a02273
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Fri Mar 27 01:20:27 2015
+
+    Merge branch '2.5'
+    
+    Conflicts:
+            src/main/java/com/fasterxml/jackson/core/sym/BytesToNameCanonicalizer.java
+            src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+
+
+commit e0a02273c70bb5d44ebbe70e97aec06e83a28f99
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Fri Mar 27 00:05:39 2015
+
+    Improve situation wrt #187, both by increasing limit to 200, and by adding one more operation for 2-quad (5-8 byte) case, resulting in significantly shorter max collision chain length
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+--- a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
++++ b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+@@ -59,8 +59,7 @@
+     
+-        // Fewer collisions than with chars, but still quite a few
+-        assertEquals(1686, symbols.collisionCount());
++        assertEquals(1733, symbols.collisionCount());
+         // but not super long collision chains:
+         assertEquals(9, symbols.maxCollisionLength());
+     }
+ 
+     // [Issue#145]
+
+commit aa65eaacdaa0aa35a14fa803c5bd217dc63ccdb9
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Fri Feb 6 00:08:56 2015
+
+    last touchups for tests, mark old symbol table deprecated
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+--- a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
++++ b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+@@ -70,1 +71,28 @@
++    public void testSyntheticWithBytesNew() throws IOException
++    {
++        // pass seed, to keep results consistent:
++        final int SEED = 33333;
++        ByteQuadsCanonicalizer symbols =
++                ByteQuadsCanonicalizer.createRoot(SEED).makeChild(JsonFactory.Feature.collectDefaults());
++
++        final int COUNT = 6000;
++        for (int i = 0; i < COUNT; ++i) {
++            String id = fieldNameFor(i);
++            int[] quads = calcQuads(id.getBytes("UTF-8"));
++            symbols.addName(id, quads, quads.length);
++        }
++        assertEquals(COUNT, symbols.size());
++        assertEquals(8192, symbols.bucketCount());
++
++        // fragile, but essential to verify low collision counts;
++        // anywhere between 70-80% primary matches
++        assertEquals(4270, symbols.primaryCount());
++        // secondary between 10-20%
++        assertEquals(1234, symbols.secondaryCount());
++        // and most of remaining in tertiary
++        assertEquals(496, symbols.tertiaryCount());
++        // so that spill-over is empty or close to
++        assertEquals(0, symbols.spilloverCount());
++    }
++    
+     // [Issue#145]
+
+commit 5027dc5db59edae3b59cf08a03276da7efa6a2b2
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Tue Jul 8 23:27:00 2014
+
+    Fixed #145
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+--- a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
++++ b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+@@ -58,6 +59,8 @@
+     
+         // Fewer collisions than with chars, but still quite a few
+         assertEquals(1686, symbols.collisionCount());
+         // but not super long collision chains:
+         assertEquals(9, symbols.maxCollisionLength());
+     }
++
++    // [Issue#145]
+
+commit 1317cf8c0adddb5f7cd4711366bed5550586cb4d
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Jul 14 03:58:47 2012
+
+    ...
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+--- a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
++++ b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+@@ -102,6 +102,6 @@
+     
+         // Fewer collisions than with chars, but still quite a few
+-        assertEquals(1702, symbols.collisionCount());
++        assertEquals(1686, symbols.collisionCount());
+         // but not super long collision chains:
+         assertEquals(9, symbols.maxCollisionLength());
+     }
+
+commit f484cd25a0d066512d84d3eee8e027882c0b6245
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Jul 14 03:35:11 2012
+
+    ...
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+--- a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
++++ b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+@@ -102,6 +102,6 @@
+     
+         // Fewer collisions than with chars, but still quite a few
+-        assertEquals(1760, symbols.collisionCount());
++        assertEquals(1702, symbols.collisionCount());
+         // but not super long collision chains:
+-        assertEquals(8, symbols.maxCollisionLength());
++        assertEquals(9, symbols.maxCollisionLength());
+     }
+
+commit 51d2f00fce6aa309ebc27ed8997efc39ef2ee914
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Jul 14 01:11:08 2012
+
+    ...
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+--- a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
++++ b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+@@ -102,6 +102,6 @@
+     
+         // Fewer collisions than with chars, but still quite a few
+-        assertEquals(1770, symbols.collisionCount());
++        assertEquals(1760, symbols.collisionCount());
+         // but not super long collision chains:
+-        assertEquals(9, symbols.maxCollisionLength());
++        assertEquals(8, symbols.maxCollisionLength());
+     }
+
+commit 3532520e176babbe54141d8d826ff82fd46de823
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Fri Jul 13 23:23:22 2012
+
+    more work with hash collision handling
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+--- a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
++++ b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+@@ -88,6 +102,6 @@
+-        
+-        // holy guacamoley... even here we have too many; but surprisingly (?)
+-        // less than with chars
+-        assertEquals(1697, symbols.collisionCount());
++    
++        // Fewer collisions than with chars, but still quite a few
++        assertEquals(1770, symbols.collisionCount());
++        // but not super long collision chains:
+         assertEquals(9, symbols.maxCollisionLength());
+     }
+
+commit bda3a91da70dede312fa0ad0eac0dfd99f543531
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Wed Jul 11 12:45:22 2012
+
+    more hash collision work for 2.1 too
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+--- a/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
++++ b/src/test/java/com/fasterxml/jackson/core/sym/TestSymbolTables.java
+@@ -54,0 +88,6 @@
++        
++        // holy guacamoley... even here we have too many; but surprisingly (?)
++        // less than with chars
++        assertEquals(1697, symbols.collisionCount());
++        assertEquals(9, symbols.maxCollisionLength());
++    }

@@ -1,0 +1,32 @@
+commit ef2dd6e0723162aaf56cf58eeede68622caeca37
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Wed Apr 20 14:53:10 2011
+
+    Introduce a V3 source map.  Experimental.
+    
+    R=jschorr
+    DELTA=3054  (2176 added, 853 deleted, 25 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=1509
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1026 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/debugging/sourcemap/SourceMapGeneratorV3Test.java b/test/com/google/debugging/sourcemap/SourceMapGeneratorV3Test.java
+--- /dev/null
++++ b/test/com/google/debugging/sourcemap/SourceMapGeneratorV3Test.java
+@@ -0,0 +96,12 @@
++  public void testMultiFunctionMapping() throws Exception {
++    compileAndCheck("function __BASIC__(__PARAM1__, __PARAM2__) {\n" +
++                    "var __VAR__ = '__STR__';\n" +
++                    "var __ANO__ = \"__STR2__\";\n" +
++                    "}\n" +
++
++                    "function __BASIC2__(__PARAM3__, __PARAM4__) {\n" +
++                    "var __VAR2__ = '__STR2__';\n" +
++                    "var __ANO2__ = \"__STR3__\";\n" +
++                    "}\n");
++  }
++

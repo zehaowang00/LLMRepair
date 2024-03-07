@@ -1,0 +1,30 @@
+commit b8411990753314ed3b746d3402dec5a65ff6d603
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Tue Nov 14 14:34:20 2017
+
+    Don't OBE at  EOF
+    
+    Fixes #972
+
+diff --git a/src/test/java/org/jsoup/parser/CharacterReaderTest.java b/src/test/java/org/jsoup/parser/CharacterReaderTest.java
+index 2a0084e5..1325eb26 100644
+--- a/src/test/java/org/jsoup/parser/CharacterReaderTest.java
++++ b/src/test/java/org/jsoup/parser/CharacterReaderTest.java
+@@ -256,5 +256,17 @@ public void empty() {
+         assertEquals("Two", two);
+     }
+ 
++    @Test
++    public void consumeToNonexistentEndWhenAtAnd() {
++        CharacterReader r = new CharacterReader("<!");
++        assertTrue(r.matchConsume("<!"));
++        assertTrue(r.isEmpty());
++
++        String after = r.consumeTo('>');
++        assertEquals("", after);
++
++        assertTrue(r.isEmpty());
++    }
++
+ 
+ }

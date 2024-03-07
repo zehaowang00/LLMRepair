@@ -1,0 +1,32 @@
+commit 3c4a09bf28e7cd600b919b8c799fbbfd19a94c0b
+Author: Stefan Bodewig <bodewig@apache.org>
+Date:   Fri May 8 15:11:27 2015
+
+    COMPRESS-314 read group/user ids > 0x80000000 from (posix) tars
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@1678430 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/tar/TarArchiveInputStreamTest.java b/src/test/java/org/apache/commons/compress/archivers/tar/TarArchiveInputStreamTest.java
+--- a/src/test/java/org/apache/commons/compress/archivers/tar/TarArchiveInputStreamTest.java
++++ b/src/test/java/org/apache/commons/compress/archivers/tar/TarArchiveInputStreamTest.java
+@@ -238,0 +239,20 @@
++    public void shouldReadBigGid() throws Exception {
++        ByteArrayOutputStream bos = new ByteArrayOutputStream();
++        TarArchiveOutputStream tos = new TarArchiveOutputStream(bos);
++        tos.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
++        TarArchiveEntry t = new TarArchiveEntry("name");
++        t.setGroupId(4294967294l);
++        t.setSize(1);
++        tos.putArchiveEntry(t);
++        tos.write(30);
++        tos.closeArchiveEntry();
++        tos.close();
++        byte[] data = bos.toByteArray();
++        ByteArrayInputStream bis = new ByteArrayInputStream(data);
++        TarArchiveInputStream tis =
++            new TarArchiveInputStream(bis);
++        t = tis.getNextTarEntry();
++        assertEquals(4294967294l, t.getLongGroupId());
++        tis.close();
++    }
++

@@ -1,0 +1,47 @@
+commit 6a17da87f9e132bdc147b33223826da040c77a6b
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Dec 14 14:51:37 2010
+
+    Fix checks for variable reads in expressions with assignments.
+    Fixes issue 297.
+    
+    R=nicksantos
+    DELTA=123  (113 added, 3 deleted, 7 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=132
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@629 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/DeadAssignmentsEliminationTest.java b/test/com/google/javascript/jscomp/DeadAssignmentsEliminationTest.java
+--- a/test/com/google/javascript/jscomp/DeadAssignmentsEliminationTest.java
++++ b/test/com/google/javascript/jscomp/DeadAssignmentsEliminationTest.java
+@@ -364,1 +414,9 @@
+-    inFunction("extern = true;", "extern = true;");
++  public void testIssue297f() {
++    test("function f(a) {" +
++         " h((a=1) - (a = g(a)));" +
++         "};",
++         "function f(a) {" +
++         " h((a=1) - (g(a)));" +
++         "};");
++  }
++
+
+commit 6b49cfd9022fe111bdad745c78ea877fbc2f7ba3
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 3 18:51:57 2009
+
+    Initial commit.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/DeadAssignmentsEliminationTest.java b/test/com/google/javascript/jscomp/DeadAssignmentsEliminationTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/DeadAssignmentsEliminationTest.java
+@@ -0,0 +177,1 @@
++    inFunction("extern = true;", "extern = true;");

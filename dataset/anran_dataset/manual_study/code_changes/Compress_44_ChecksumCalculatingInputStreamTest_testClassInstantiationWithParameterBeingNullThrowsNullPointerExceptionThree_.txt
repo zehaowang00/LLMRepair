@@ -1,0 +1,33 @@
+commit 6f379134ae1807cd404ed6c9579707e5dc6a6df0
+Author: Michael Hausegger <michael.hausegger@tugraz.at>
+Date:   Fri Jun 16 15:30:03 2017
+
+    COMPRESS-412 NullPointerException defect in ChecksumCalculatingInputStream#getValue() fixed.
+
+diff --git a/src/test/java/org/apache/commons/compress/utils/ChecksumCalculatingInputStreamTest.java b/src/test/java/org/apache/commons/compress/utils/ChecksumCalculatingInputStreamTest.java
+--- a/src/test/java/org/apache/commons/compress/utils/ChecksumCalculatingInputStreamTest.java
++++ b/src/test/java/org/apache/commons/compress/utils/ChecksumCalculatingInputStreamTest.java
+@@ -109,2 +129,8 @@
++    public void testClassInstantiationWithParameterBeingNullThrowsNullPointerExceptionThree() {
++
++        ChecksumCalculatingInputStream checksumCalculatingInputStream = new ChecksumCalculatingInputStream(new CRC32(),null);
++
++    }
++
+ 
+ }
+\ No newline at end of file
+
+commit b861b4f0e45135e737e1ec2a514d3051157c3c7b
+Author: Michael Hausegger <michael.hausegger@tugraz.at>
+Date:   Tue Jun 13 17:47:50 2017
+
+    add-some-Unit-Tests Added some Unit Tests to increase code coverage.
+
+diff --git a/src/test/java/org/apache/commons/compress/utils/ChecksumCalculatingInputStreamTest.java b/src/test/java/org/apache/commons/compress/utils/ChecksumCalculatingInputStreamTest.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/compress/utils/ChecksumCalculatingInputStreamTest.java
+@@ -0,0 +121,2 @@
++
++}
+\ No newline at end of file

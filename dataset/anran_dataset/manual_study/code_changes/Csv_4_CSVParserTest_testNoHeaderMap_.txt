@@ -1,0 +1,18 @@
+commit 22601f647f2ce9a05fa4ce20ea356492c670940c
+Author: Gary D. Gregory <ggregory@apache.org>
+Date:   Wed Sep 18 10:57:57 2013
+
+    [CSV-100] CSVParser: getHeaderMap throws NPE.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/csv/trunk@1524435 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/csv/CSVParserTest.java b/src/test/java/org/apache/commons/csv/CSVParserTest.java
+--- a/src/test/java/org/apache/commons/csv/CSVParserTest.java
++++ b/src/test/java/org/apache/commons/csv/CSVParserTest.java
+@@ -668,0 +668,6 @@
++    public void testNoHeaderMap() throws Exception {
++        final CSVParser parser = CSVParser.parse("a,b,c\n1,2,3\nx,y,z", CSVFormat.DEFAULT);
++        Assert.assertNull(parser.getHeaderMap());
++    }
++
++    @Test

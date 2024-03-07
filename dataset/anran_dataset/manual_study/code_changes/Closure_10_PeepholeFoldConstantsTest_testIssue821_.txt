@@ -1,0 +1,27 @@
+commit 0884a4cbef1c82153ef306477a12af0480385a35
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Sep 21 13:50:43 2012
+
+    Properly determine if any possible results may be a string.
+    Fixes issue 821
+    
+    R=nicksantos
+    DELTA=36  (27 added, 0 deleted, 9 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=5531
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2206 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+--- a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
++++ b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+@@ -580,0 +580,6 @@
++  public void testIssue821() {
++    foldSame("var a =(Math.random()>0.5? '1' : 2 ) + 3 + 4;");
++    foldSame("var a = ((Math.random() ? 0 : 1) ||" +
++             "(Math.random()>0.5? '1' : 2 )) + 3 + 4;");
++  }
++

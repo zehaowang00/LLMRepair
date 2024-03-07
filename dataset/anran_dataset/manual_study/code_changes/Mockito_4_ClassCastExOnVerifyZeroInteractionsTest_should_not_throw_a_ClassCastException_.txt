@@ -1,0 +1,12 @@
+commit 42b391d4209024292b6101048389570e4ec36b2a
+Author: Brice Dutheil <brice.dutheil@gmail.com>
+Date:   Fri Apr 17 05:45:21 2015
+
+    Fixes #187 : print mock name even when default answer is bogus
+
+diff --git a/test/org/mockitousage/bugs/ClassCastExOnVerifyZeroInteractionsTest.java b/test/org/mockitousage/bugs/ClassCastExOnVerifyZeroInteractionsTest.java
+--- /dev/null
++++ b/test/org/mockitousage/bugs/ClassCastExOnVerifyZeroInteractionsTest.java
+@@ -0,0 +17,2 @@
++    public void should_not_throw_a_ClassCastException() {
++        TestMock test = mock(TestMock.class, new Answer() {

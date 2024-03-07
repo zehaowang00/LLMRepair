@@ -1,0 +1,79 @@
+commit d577973fb378dfe0d05991ec0dfa6c1f40e574ee
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Feb 3 16:03:48 2012
+
+    print record types better when generating typed code.
+    fixes issue 643
+    
+    R=acleung
+    DELTA=25  (22 added, 0 deleted, 3 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=4168
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1761 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/rhino/jstype/RecordTypeTest.java b/test/com/google/javascript/rhino/jstype/RecordTypeTest.java
+--- a/test/com/google/javascript/rhino/jstype/RecordTypeTest.java
++++ b/test/com/google/javascript/rhino/jstype/RecordTypeTest.java
+@@ -46,17 +46,19 @@
+   public void testRecursiveRecord() {
+     ProxyObjectType loop = new ProxyObjectType(registry, NUMBER_TYPE);
+     JSType record = new RecordTypeBuilder(registry)
+         .addProperty("loop", loop, null)
+         .addProperty("number", NUMBER_TYPE, null)
+         .addProperty("string", STRING_TYPE, null)
+         .build();
+     assertEquals("{loop: number, number: number, string: string}",
+         record.toString());
+ 
+     loop.setReferencedType(record);
+     assertEquals("{loop: {...}, number: number, string: string}",
+         record.toString());
++    assertEquals("{loop: ?, number: number, string: string}",
++        record.toAnnotationString());
+ 
+     Asserts.assertEquivalenceOperations(record, loop);
+   }
+ 
+
+commit febdacb341025491b3ae83ee8ffa9d22c69c295e
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Oct 4 19:04:13 2011
+
+    speed up type analysis a bunch, and fix some bugs in record types
+    
+    
+    R=acleung
+    DELTA=232  (154 added, 54 deleted, 24 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3408
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1489 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/rhino/jstype/RecordTypeTest.java b/test/com/google/javascript/rhino/jstype/RecordTypeTest.java
+--- /dev/null
++++ b/test/com/google/javascript/rhino/jstype/RecordTypeTest.java
+@@ -0,0 +46,17 @@
++  public void testRecursiveRecord() {
++    ProxyObjectType loop = new ProxyObjectType(registry, NUMBER_TYPE);
++    JSType record = new RecordTypeBuilder(registry)
++        .addProperty("loop", loop, null)
++        .addProperty("number", NUMBER_TYPE, null)
++        .addProperty("string", STRING_TYPE, null)
++        .build();
++    assertEquals("{loop: number, number: number, string: string}",
++        record.toString());
++
++    loop.setReferencedType(record);
++    assertEquals("{loop: {...}, number: number, string: string}",
++        record.toString());
++
++    Asserts.assertEquivalenceOperations(record, loop);
++  }
++

@@ -1,0 +1,60 @@
+commit 21a2103d7fa5664ea324ef9ee25b4a8922e50955
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Jan 7 16:09:14 2011
+
+    Don't remove nodes out of traversal order.
+    Fixes issue 311.
+    
+    R=nicksantos
+    DELTA=69  (44 added, 22 deleted, 3 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=227
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@676 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/UnreachableCodeEliminationTest.java b/test/com/google/javascript/jscomp/UnreachableCodeEliminationTest.java
+--- a/test/com/google/javascript/jscomp/UnreachableCodeEliminationTest.java
++++ b/test/com/google/javascript/jscomp/UnreachableCodeEliminationTest.java
+@@ -243,1 +252,23 @@
++  public void testIssue311() {
++    test("function a(b) {\n" +
++         "  switch (b.v) {\n" +
++         "    case 'SWITCH':\n" +
++         "      if (b.i >= 0) {\n" +
++         "        return b.o;\n" +
++         "      } else {\n" +
++         "        return;\n" +
++         "      }\n" +
++         "      break;\n" +
++         "  }\n" +
++         "}",
++         "function a(b) {\n" +
++         "  switch (b.v) {\n" +
++         "    case 'SWITCH':\n" +
++         "      if (b.i >= 0) {\n" +
++         "        return b.o;\n" +
++         "      } else {\n" +
++         "      }\n" +
++         "  }\n" +
++         "}");
++  }
+ }
+
+commit 6b49cfd9022fe111bdad745c78ea877fbc2f7ba3
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Nov 3 18:51:57 2009
+
+    Initial commit.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/UnreachableCodeEliminationTest.java b/test/com/google/javascript/jscomp/UnreachableCodeEliminationTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/UnreachableCodeEliminationTest.java
+@@ -0,0 +160,1 @@
++}

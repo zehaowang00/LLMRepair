@@ -1,0 +1,81 @@
+commit 0da657a65c92b086a301a6ffe9e34ec272f8889c
+Author: Thomas Neidhart <tn@apache.org>
+Date:   Sat Aug 31 15:43:02 2013
+
+    [MATH-996] Fix creation of Fraction/BigFraction objects in maxDenominator mode when the value is close to an actual fraction.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1519204 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math3/fraction/BigFractionTest.java b/src/test/java/org/apache/commons/math3/fraction/BigFractionTest.java
+--- a/src/test/java/org/apache/commons/math3/fraction/BigFractionTest.java
++++ b/src/test/java/org/apache/commons/math3/fraction/BigFractionTest.java
+@@ -148,12 +148,15 @@
+     public void testDigitLimitConstructor() throws ConvergenceException {
+         assertFraction(2, 5, new BigFraction(0.4, 9));
+         assertFraction(2, 5, new BigFraction(0.4, 99));
+         assertFraction(2, 5, new BigFraction(0.4, 999));
+ 
+         assertFraction(3, 5, new BigFraction(0.6152, 9));
+         assertFraction(8, 13, new BigFraction(0.6152, 99));
+         assertFraction(510, 829, new BigFraction(0.6152, 999));
+         assertFraction(769, 1250, new BigFraction(0.6152, 9999));
++        
++        // MATH-996
++        assertFraction(1, 2, new BigFraction(0.5000000001, 10));
+     }
+ 
+     @Test
+
+commit a4bbdaf426a92d6351796b1d57407776f09f0a3d
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sun Mar 20 13:24:14 2011
+
+    Converted tests to Junit4.
+    
+    There is one thing remaining: the retry feature in RetryTestCase has been disabled temporarily. We need to find some way to implement it using Junit 4 API.
+    
+    JIRA: MATH-423
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1083514 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/fraction/BigFractionTest.java b/src/test/java/org/apache/commons/math/fraction/BigFractionTest.java
+--- a/src/test/java/org/apache/commons/math/fraction/BigFractionTest.java
++++ b/src/test/java/org/apache/commons/math/fraction/BigFractionTest.java
+@@ -147,11 +152,12 @@
+     public void testDigitLimitConstructor() throws ConvergenceException {
+         assertFraction(2, 5, new BigFraction(0.4, 9));
+         assertFraction(2, 5, new BigFraction(0.4, 99));
+         assertFraction(2, 5, new BigFraction(0.4, 999));
+ 
+         assertFraction(3, 5, new BigFraction(0.6152, 9));
+         assertFraction(8, 13, new BigFraction(0.6152, 99));
+         assertFraction(510, 829, new BigFraction(0.6152, 999));
+         assertFraction(769, 1250, new BigFraction(0.6152, 9999));
+     }
+ 
++    @Test
+
+commit fdcad35060d6e9bb56be5f50eb891f3f313a177c
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sat Mar 28 14:24:11 2009
+
+    Added a BigFraction class that does not overflow when big numerators or denominators are used.
+    Jira: MATH-251
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@759543 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/fraction/BigFractionTest.java b/src/test/org/apache/commons/math/fraction/BigFractionTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/math/fraction/BigFractionTest.java
+@@ -0,0 +145,11 @@
++    public void testDigitLimitConstructor() throws ConvergenceException {
++        assertFraction(2, 5, new BigFraction(0.4, 9));
++        assertFraction(2, 5, new BigFraction(0.4, 99));
++        assertFraction(2, 5, new BigFraction(0.4, 999));
++
++        assertFraction(3, 5, new BigFraction(0.6152, 9));
++        assertFraction(8, 13, new BigFraction(0.6152, 99));
++        assertFraction(510, 829, new BigFraction(0.6152, 999));
++        assertFraction(769, 1250, new BigFraction(0.6152, 9999));
++    }
++

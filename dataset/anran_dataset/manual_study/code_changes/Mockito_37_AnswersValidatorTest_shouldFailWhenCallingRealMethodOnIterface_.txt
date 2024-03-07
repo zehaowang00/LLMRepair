@@ -1,0 +1,25 @@
+commit c0222c2dbfbd2b053961a46e4c2a3973aec55a75
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sun Nov 8 14:32:25 2009
+
+    Inform the user immediately when she tries to 'callRealMethod()' on a mock of a interface. Fixed issue 140
+    
+    --HG--
+    extra : convert_revision : svn%3Aaa2aecf3-ea3e-0410-9d70-716747e7c967/trunk%401661
+
+diff --git a/test/org/mockito/internal/stubbing/answers/AnswersValidatorTest.java b/test/org/mockito/internal/stubbing/answers/AnswersValidatorTest.java
+--- a/test/org/mockito/internal/stubbing/answers/AnswersValidatorTest.java
++++ b/test/org/mockito/internal/stubbing/answers/AnswersValidatorTest.java
+@@ -86,0 +92,12 @@
++    public void shouldFailWhenCallingRealMethodOnIterface() throws Throwable {
++        //given
++        Invocation inovcationOnIterface = new InvocationBuilder().method("simpleMethod").toInvocation();
++        try {
++            //when
++            validator.validate(new CallsRealMethods(), inovcationOnIterface);
++            //then
++            fail();
++        } catch (MockitoException e) {}
++    }
++            
++    @Test

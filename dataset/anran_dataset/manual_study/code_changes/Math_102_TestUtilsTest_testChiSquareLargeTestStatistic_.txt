@@ -1,0 +1,70 @@
+commit a1bac127067c912b4a9f7a2957c427853a36c730
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Wed Jan 9 00:16:00 2008
+
+    Added check and rescaling of expected counts to sum to sum of expected
+    counts if necessary in ChiSquare test.
+    JIRA: MATH-175
+    Reported and patched by Carl Anderson.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@610274 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/stat/inference/TestUtilsTest.java b/src/test/org/apache/commons/math/stat/inference/TestUtilsTest.java
+--- a/src/test/org/apache/commons/math/stat/inference/TestUtilsTest.java
++++ b/src/test/org/apache/commons/math/stat/inference/TestUtilsTest.java
+@@ -168,18 +168,18 @@
+     public void testChiSquareLargeTestStatistic() throws Exception {
+         double[] exp = new double[] {
+                 3389119.5, 649136.6, 285745.4, 25357364.76, 11291189.78, 543628.0, 
+                 232921.0, 437665.75
+         };
+ 
+         long[] obs = new long[] {
+                 2372383, 584222, 257170, 17750155, 7903832, 489265, 209628, 393899
+         };
+         org.apache.commons.math.stat.inference.ChiSquareTestImpl csti =
+             new org.apache.commons.math.stat.inference.ChiSquareTestImpl(); 
+         double cst = csti.chiSquareTest(exp, obs); 
+         assertEquals("chi-square p-value", 0.0, cst, 1E-3);
+         assertEquals( "chi-square test statistic", 
+-                3624883.342907764, TestUtils.chiSquare(exp, obs), 1E-9);
++                114875.90421929007, TestUtils.chiSquare(exp, obs), 1E-9);
+     }
+     
+     /** Contingency table containing zeros - PR # 32531 */
+
+commit 9dba2d780d8195ee4614020d2786d10eb69a2dc5
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sat Jun 4 23:58:14 2005
+
+    Added factory for TTest, ChiSquareTest and TestUtils class with
+    static methods to create instances and execute tests.
+    PR #32663
+    
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@180065 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/stat/inference/TestUtilsTest.java b/src/test/org/apache/commons/math/stat/inference/TestUtilsTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/math/stat/inference/TestUtilsTest.java
+@@ -0,0 +167,18 @@
++    public void testChiSquareLargeTestStatistic() throws Exception {
++        double[] exp = new double[] {
++                3389119.5, 649136.6, 285745.4, 25357364.76, 11291189.78, 543628.0, 
++                232921.0, 437665.75
++        };
++
++        long[] obs = new long[] {
++                2372383, 584222, 257170, 17750155, 7903832, 489265, 209628, 393899
++        };
++        org.apache.commons.math.stat.inference.ChiSquareTestImpl csti =
++            new org.apache.commons.math.stat.inference.ChiSquareTestImpl(); 
++        double cst = csti.chiSquareTest(exp, obs); 
++        assertEquals("chi-square p-value", 0.0, cst, 1E-3);
++        assertEquals( "chi-square test statistic", 
++                3624883.342907764, TestUtils.chiSquare(exp, obs), 1E-9);
++    }
++    
++    /** Contingency table containing zeros - PR # 32531 */

@@ -1,0 +1,297 @@
+commit 58786c3f717fa506280127265cd68fedf17de0a9
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Mar 1 13:30:56 2011
+
+    "delete" operator with a boolean result.
+    Fixes issue 364
+    
+    R=mgoodman
+    DELTA=6  (6 added, 0 deleted, 0 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=697
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@834 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/NodeUtilTest.java b/test/com/google/javascript/jscomp/NodeUtilTest.java
+--- a/test/com/google/javascript/jscomp/NodeUtilTest.java
++++ b/test/com/google/javascript/jscomp/NodeUtilTest.java
+@@ -1465,51 +1467,52 @@
+   public void testIsBooleanResult() {
+     assertFalse(NodeUtil.isBooleanResult(getNode("1")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("true")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("+true")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("+1")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("-1")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("-Infinity")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("Infinity")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("NaN")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("undefined")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("void 0")));
+ 
+     assertFalse(NodeUtil.isBooleanResult(getNode("a << b")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a >> b")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a >>> b")));
+ 
+     assertTrue(NodeUtil.isBooleanResult(getNode("a == b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a != b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a === b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a !== b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a < b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a > b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a <= b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a >= b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a in b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a instanceof b")));
+ 
+     assertFalse(NodeUtil.isBooleanResult(getNode("'a'")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("'a'+b")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a+'b'")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a+b")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a()")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("''.a")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a.b")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a.b()")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a().b()")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("new a()")));
++    assertTrue(NodeUtil.isBooleanResult(getNode("delete a")));
+ 
+     // Definitely not boolean
+     assertFalse(NodeUtil.isBooleanResult(getNode("([true,false])")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("({a:true})")));
+ 
+     // These are boolean but aren't handled yet, "false" here means "unknown".
+     assertTrue(NodeUtil.isBooleanResult(getNode("true && false")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("true || false")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a ? true : false")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a,true")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a=true")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a=1")));
+   }
+ 
+
+commit 1a7fbd18b47c102152869c3b046b65ff0f12fc43
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Feb 7 17:59:16 2011
+
+    Allow more folding of Token.ADD.
+    
+    R=acleung
+    DELTA=160  (107 added, 4 deleted, 49 changed)
+    
+    Hi Jason!
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=453
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@764 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/NodeUtilTest.java b/test/com/google/javascript/jscomp/NodeUtilTest.java
+--- a/test/com/google/javascript/jscomp/NodeUtilTest.java
++++ b/test/com/google/javascript/jscomp/NodeUtilTest.java
+@@ -1451,50 +1451,51 @@
+   public void testIsBooleanResult() {
+     assertFalse(NodeUtil.isBooleanResult(getNode("1")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("true")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("+true")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("+1")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("-1")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("-Infinity")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("Infinity")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("NaN")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("undefined")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("void 0")));
+ 
+     assertFalse(NodeUtil.isBooleanResult(getNode("a << b")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a >> b")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a >>> b")));
+ 
+     assertTrue(NodeUtil.isBooleanResult(getNode("a == b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a != b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a === b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a !== b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a < b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a > b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a <= b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a >= b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a in b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a instanceof b")));
+ 
+     assertFalse(NodeUtil.isBooleanResult(getNode("'a'")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("'a'+b")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a+'b'")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a+b")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a()")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("''.a")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a.b")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a.b()")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a().b()")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("new a()")));
+ 
+     // Definitely not boolean
+     assertFalse(NodeUtil.isBooleanResult(getNode("([true,false])")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("({a:true})")));
+ 
+     // These are boolean but aren't handled yet, "false" here means "unknown".
+-    assertFalse(NodeUtil.isBooleanResult(getNode("true && false")));
+-    assertFalse(NodeUtil.isBooleanResult(getNode("true || false")));
+-    assertFalse(NodeUtil.isBooleanResult(getNode("a ? true : false")));
+-    assertFalse(NodeUtil.isBooleanResult(getNode("a,true")));
++    assertTrue(NodeUtil.isBooleanResult(getNode("true && false")));
++    assertTrue(NodeUtil.isBooleanResult(getNode("true || false")));
++    assertTrue(NodeUtil.isBooleanResult(getNode("a ? true : false")));
++    assertTrue(NodeUtil.isBooleanResult(getNode("a,true")));
++    assertTrue(NodeUtil.isBooleanResult(getNode("a=true")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a=1")));
+   }
+ 
+
+commit 20c504ecbbdea3908bde81709df5a3765d1e385e
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Wed Jan 12 17:57:52 2011
+
+    Patch up NodeUtil.getNumberValue to handle strings values like
+    " 12 " and "baz".
+    
+    R=nicksantos
+    DELTA=123  (109 added, 2 deleted, 12 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=260
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@690 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/NodeUtilTest.java b/test/com/google/javascript/jscomp/NodeUtilTest.java
+--- a/test/com/google/javascript/jscomp/NodeUtilTest.java
++++ b/test/com/google/javascript/jscomp/NodeUtilTest.java
+@@ -1394,50 +1449,50 @@
+   public void testIsBooleanResult() {
+     assertFalse(NodeUtil.isBooleanResult(getNode("1")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("true")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("+true")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("+1")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("-1")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("-Infinity")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("Infinity")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("NaN")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("undefined")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("void 0")));
+ 
+     assertFalse(NodeUtil.isBooleanResult(getNode("a << b")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a >> b")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a >>> b")));
+ 
+     assertTrue(NodeUtil.isBooleanResult(getNode("a == b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a != b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a === b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a !== b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a < b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a > b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a <= b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a >= b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a in b")));
+     assertTrue(NodeUtil.isBooleanResult(getNode("a instanceof b")));
+ 
+     assertFalse(NodeUtil.isBooleanResult(getNode("'a'")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("'a'+b")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a+'b'")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a+b")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a()")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("''.a")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a.b")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a.b()")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a().b()")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("new a()")));
+-    
++
+     // Definitely not boolean
+     assertFalse(NodeUtil.isBooleanResult(getNode("([true,false])")));
+-    assertFalse(NodeUtil.isBooleanResult(getNode("({a:true})")));    
++    assertFalse(NodeUtil.isBooleanResult(getNode("({a:true})")));
+ 
+     // These are boolean but aren't handled yet, "false" here means "unknown".
+     assertFalse(NodeUtil.isBooleanResult(getNode("true && false")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("true || false")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a ? true : false")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a,true")));
+     assertFalse(NodeUtil.isBooleanResult(getNode("a=1")));
+-  }  
++  }
+ 
+
+commit 711b76ac1015234f86805f1735ff2c3da195f55c
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Jan 11 15:06:13 2011
+
+    Some non-contraversal changes from 304.
+    Based on a patch by Ilia Kantor
+    
+    R=nicksantos
+    DELTA=333  (332 added, 0 deleted, 1 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=249
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@686 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/NodeUtilTest.java b/test/com/google/javascript/jscomp/NodeUtilTest.java
+--- a/test/com/google/javascript/jscomp/NodeUtilTest.java
++++ b/test/com/google/javascript/jscomp/NodeUtilTest.java
+@@ -1296,0 +1394,50 @@
++  public void testIsBooleanResult() {
++    assertFalse(NodeUtil.isBooleanResult(getNode("1")));
++    assertTrue(NodeUtil.isBooleanResult(getNode("true")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("+true")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("+1")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("-1")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("-Infinity")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("Infinity")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("NaN")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("undefined")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("void 0")));
++
++    assertFalse(NodeUtil.isBooleanResult(getNode("a << b")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("a >> b")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("a >>> b")));
++
++    assertTrue(NodeUtil.isBooleanResult(getNode("a == b")));
++    assertTrue(NodeUtil.isBooleanResult(getNode("a != b")));
++    assertTrue(NodeUtil.isBooleanResult(getNode("a === b")));
++    assertTrue(NodeUtil.isBooleanResult(getNode("a !== b")));
++    assertTrue(NodeUtil.isBooleanResult(getNode("a < b")));
++    assertTrue(NodeUtil.isBooleanResult(getNode("a > b")));
++    assertTrue(NodeUtil.isBooleanResult(getNode("a <= b")));
++    assertTrue(NodeUtil.isBooleanResult(getNode("a >= b")));
++    assertTrue(NodeUtil.isBooleanResult(getNode("a in b")));
++    assertTrue(NodeUtil.isBooleanResult(getNode("a instanceof b")));
++
++    assertFalse(NodeUtil.isBooleanResult(getNode("'a'")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("'a'+b")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("a+'b'")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("a+b")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("a()")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("''.a")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("a.b")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("a.b()")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("a().b()")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("new a()")));
++    
++    // Definitely not boolean
++    assertFalse(NodeUtil.isBooleanResult(getNode("([true,false])")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("({a:true})")));    
++
++    // These are boolean but aren't handled yet, "false" here means "unknown".
++    assertFalse(NodeUtil.isBooleanResult(getNode("true && false")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("true || false")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("a ? true : false")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("a,true")));
++    assertFalse(NodeUtil.isBooleanResult(getNode("a=1")));
++  }  
++

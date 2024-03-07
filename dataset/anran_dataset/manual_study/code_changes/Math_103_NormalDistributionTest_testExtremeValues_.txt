@@ -1,0 +1,50 @@
+commit 4ce05bcd51ec956d789d20b59c743603d24a8ab7
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Sat Jul 21 22:33:08 2007
+
+    Modified NormalDistributionImpl.cumulativeProbablity to catch
+    MaxIterationsExceededException and return 0 or 1, resp. if the argument
+    is more than 20 standard deviations from the mean.
+    
+    JIRA: MATH-167
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@558450 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/distribution/NormalDistributionTest.java b/src/test/org/apache/commons/math/distribution/NormalDistributionTest.java
+--- a/src/test/org/apache/commons/math/distribution/NormalDistributionTest.java
++++ b/src/test/org/apache/commons/math/distribution/NormalDistributionTest.java
+@@ -123,1 +128,18 @@
++    public void testExtremeValues() throws Exception {
++        NormalDistribution distribution = (NormalDistribution) getDistribution();
++        distribution.setMean(0);
++        distribution.setStandardDeviation(1);
++        for (int i = 0; i < 100; i+=5) { // make sure no convergence exception
++            double lowerTail = distribution.cumulativeProbability((double)-i);
++            double upperTail = distribution.cumulativeProbability((double) i);
++            if (i < 10) { // make sure not top-coded
++                assertTrue(lowerTail > 0.0d);
++                assertTrue(upperTail < 1.0d);
++            }
++            else { // make sure top coding not reversed
++                assertTrue(lowerTail < 0.00001);
++                assertTrue(upperTail > 0.99999);
++            }
++        } 
++   }
+ }
+
+commit ac9e22b1d5abce5909d5ae2b2dde33166dddeae8
+Author: Brent Worden <brentworden@apache.org>
+Date:   Wed May 5 15:59:11 2004
+
+    Replaced normal CDF routine with one based on the error function.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/math/trunk@141214 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/math/distribution/NormalDistributionTest.java b/src/test/org/apache/commons/math/distribution/NormalDistributionTest.java
+--- /dev/null
++++ b/src/test/org/apache/commons/math/distribution/NormalDistributionTest.java
+@@ -0,0 +164,1 @@
++}

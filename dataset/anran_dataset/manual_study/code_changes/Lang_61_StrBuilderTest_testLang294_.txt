@@ -1,0 +1,18 @@
+commit 88c76d207f642831ca899e144159424aaa60cf8e
+Author: Henri Yandell <bayard@apache.org>
+Date:   Tue Oct 31 17:15:00 2006
+
+    Fixing #LANG-294. The indexOf method did not take into account the size variable that limited the amount of the buffer that should be looked at.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@469677 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/text/StrBuilderTest.java b/src/test/org/apache/commons/lang/text/StrBuilderTest.java
+--- a/src/test/org/apache/commons/lang/text/StrBuilderTest.java
++++ b/src/test/org/apache/commons/lang/text/StrBuilderTest.java
+@@ -1731,0 +1732,6 @@
++    public void testLang294() {
++        StrBuilder sb = new StrBuilder("\n%BLAH%\nDo more stuff\neven more stuff\n%BLAH%\n");
++        sb.deleteAll("\n%BLAH%");
++        assertEquals("\nDo more stuff\neven more stuff\n", sb.toString()); 
++    }
++

@@ -1,0 +1,20 @@
+commit 8d109fe1a999a11b4557536dd96f9210460a5936
+Author: Stephen Colebourne <scolebourne@joda.org>
+Date:   Wed Nov 27 07:35:00 2013
+
+    Adding zero no longer changes the offset during DST overlap
+    
+    Fixes #77
+
+diff --git a/src/test/java/org/joda/time/TestMutableDateTime_Adds.java b/src/test/java/org/joda/time/TestMutableDateTime_Adds.java
+--- a/src/test/java/org/joda/time/TestMutableDateTime_Adds.java
++++ b/src/test/java/org/joda/time/TestMutableDateTime_Adds.java
+@@ -176,0 +182,8 @@
++    public void testAdd_DurationFieldType_int_dstOverlapWinter_addZero() {
++        MutableDateTime test = new MutableDateTime(2011, 10, 30, 2, 30, 0, 0, DateTimeZone.forID("Europe/Berlin"));
++        test.addHours(1);
++        assertEquals("2011-10-30T02:30:00.000+01:00", test.toString());
++        test.add(DurationFieldType.years(), 0);
++        assertEquals("2011-10-30T02:30:00.000+01:00", test.toString());
++    }
++

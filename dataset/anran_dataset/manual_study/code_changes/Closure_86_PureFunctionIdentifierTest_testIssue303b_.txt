@@ -1,0 +1,39 @@
+commit 0907b6618a60b2de23c8f7ec2217a37dc5e9a091
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Dec 17 19:47:28 2010
+
+    Fix improper analysis of NEW, the bad way:
+    by assuming NEW always returns a non-local result.
+    Fixes issue 303.
+    
+    R=johnlenz
+    DELTA=68  (56 added, 0 deleted, 12 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=161
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@647 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PureFunctionIdentifierTest.java b/test/com/google/javascript/jscomp/PureFunctionIdentifierTest.java
+--- a/test/com/google/javascript/jscomp/PureFunctionIdentifierTest.java
++++ b/test/com/google/javascript/jscomp/PureFunctionIdentifierTest.java
+@@ -187,0 +205,17 @@
++  public void testIssue303b() throws Exception {
++    checkMarkedCalls(
++        "/** @constructor */ function F() {" +
++        "  var self = this;" +
++        "  window.setTimeout(function() {" +
++        "    window.location = self.location;" +
++        "  }, 0);" +
++        "}" +
++        "F.prototype.setLocation = function(x) {" +
++        "  this.location = x;" +
++        "};" +
++        "function x() {" +
++        "  (new F()).setLocation('http://www.google.com/');" +
++        "} window['x'] = x;",
++        ImmutableList.<String>of());
++  }
++

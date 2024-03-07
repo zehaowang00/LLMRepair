@@ -1,0 +1,79 @@
+commit fe25f7e14d92f5d4746549e7df22e9af35fdf54b
+Author: Cowtowncoder <tatu.saloranta@iki.fi>
+Date:   Wed Oct 28 19:32:31 2015
+
+    Fix #984
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/util/TestTokenBuffer.java b/src/test/java/com/fasterxml/jackson/databind/util/TestTokenBuffer.java
+--- a/src/test/java/com/fasterxml/jackson/databind/util/TestTokenBuffer.java
++++ b/src/test/java/com/fasterxml/jackson/databind/util/TestTokenBuffer.java
+@@ -249,1 +257,56 @@
+-    
++    public void testOutputContext() throws IOException
++    {
++        TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
++        StringWriter w = new StringWriter();
++        JsonGenerator gen = MAPPER.getFactory().createGenerator(w);
++ 
++        // test content: [{"a":1,"b":{"c":2}},{"a":2,"b":{"c":3}}]
++
++        buf.writeStartArray();
++        gen.writeStartArray();
++        _verifyOutputContext(buf, gen);
++        
++        buf.writeStartObject();
++        gen.writeStartObject();
++        _verifyOutputContext(buf, gen);
++        
++        buf.writeFieldName("a");
++        gen.writeFieldName("a");
++        _verifyOutputContext(buf, gen);
++
++        buf.writeNumber(1);
++        gen.writeNumber(1);
++        _verifyOutputContext(buf, gen);
++
++        buf.writeFieldName("b");
++        gen.writeFieldName("b");
++        _verifyOutputContext(buf, gen);
++
++        buf.writeStartObject();
++        gen.writeStartObject();
++        _verifyOutputContext(buf, gen);
++        
++        buf.writeFieldName("c");
++        gen.writeFieldName("c");
++        _verifyOutputContext(buf, gen);
++
++        buf.writeNumber(2);
++        gen.writeNumber(2);
++        _verifyOutputContext(buf, gen);
++
++        buf.writeEndObject();
++        gen.writeEndObject();
++        _verifyOutputContext(buf, gen);
++
++        buf.writeEndObject();
++        gen.writeEndObject();
++        _verifyOutputContext(buf, gen);
++
++        buf.writeEndArray();
++        gen.writeEndArray();
++        _verifyOutputContext(buf, gen);
++        
++        buf.close();
++        gen.close();
++    }
++
+
+commit 60e30f499e9318b2b18c3cbac4edc2bfcf6d6d66
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Tue Mar 6 01:34:20 2012
+
+    Implement [JACKSON-792]; can now handle Object Id forward references correctly
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/util/TestTokenBuffer.java b/src/test/java/com/fasterxml/jackson/databind/util/TestTokenBuffer.java
+--- a/src/test/java/com/fasterxml/jackson/databind/util/TestTokenBuffer.java
++++ b/src/test/java/com/fasterxml/jackson/databind/util/TestTokenBuffer.java
+@@ -177,0 +203,1 @@
++    

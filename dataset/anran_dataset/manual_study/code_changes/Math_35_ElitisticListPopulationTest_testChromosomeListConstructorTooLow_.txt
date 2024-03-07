@@ -1,0 +1,20 @@
+commit a5d8d115cb85149c62059a23e8f4d318cac0e903
+Author: Thomas Neidhart <tn@apache.org>
+Date:   Mon Apr 2 14:46:42 2012
+
+    [MATH-776] Use same range check in ctor as in setter for ElitisticListPopulation.
+    Thanks to Reid Hochstedler
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1308454 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math3/genetics/ElitisticListPopulationTest.java b/src/test/java/org/apache/commons/math3/genetics/ElitisticListPopulationTest.java
+--- a/src/test/java/org/apache/commons/math3/genetics/ElitisticListPopulationTest.java
++++ b/src/test/java/org/apache/commons/math3/genetics/ElitisticListPopulationTest.java
+@@ -39,0 +79,7 @@
++    public void testChromosomeListConstructorTooLow() {
++        final List<Chromosome> chromosomes = Collections.emptyList();
++        final double rate = -0.25;
++        new ElitisticListPopulation(chromosomes, 100, rate);
++    }
++
++    @Test(expected = OutOfRangeException.class)

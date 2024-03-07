@@ -1,0 +1,29 @@
+commit d48c365ba8251057a71a2e2b7aabff640209e31b
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Feb 26 10:11:05 2010
+
+    "var arguments" never shadows the built-in arguments array. Fixes issue 115.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@117 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CompilerRunnerTest.java b/test/com/google/javascript/jscomp/CompilerRunnerTest.java
+--- a/test/com/google/javascript/jscomp/CompilerRunnerTest.java
++++ b/test/com/google/javascript/jscomp/CompilerRunnerTest.java
+@@ -171,0 +175,15 @@
++  public void testIssue115() {
++    CompilerRunner.FLAG_compilation_level.setForTest(
++        CompilationLevel.SIMPLE_OPTIMIZATIONS);
++    CompilerRunner.FLAG_warning_level.setForTest(
++        WarningLevel.VERBOSE);
++    test("function f() { " +
++         "  var arguments = Array.prototype.slice.call(arguments, 0);" +
++         "  return arguments[0]; " +
++         "}",
++         "function f() { " +
++         "  arguments = Array.prototype.slice.call(arguments, 0);" +
++         "  return arguments[0]; " +
++         "}");
++  }
++

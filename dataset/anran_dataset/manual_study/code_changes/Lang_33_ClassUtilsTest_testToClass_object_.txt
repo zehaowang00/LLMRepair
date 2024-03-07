@@ -1,0 +1,122 @@
+commit 0603aef594fa60126c2d45f2ab164eee39f7b44c
+Author: Matthew Jason Benson <mbenson@apache.org>
+Date:   Fri Feb 5 16:31:38 2010
+
+    [LANG-587] avoid NPE in ClassUtils.toClass(Object[])
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@907102 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/ClassUtilsTest.java b/src/test/java/org/apache/commons/lang3/ClassUtilsTest.java
+--- a/src/test/java/org/apache/commons/lang3/ClassUtilsTest.java
++++ b/src/test/java/org/apache/commons/lang3/ClassUtilsTest.java
+@@ -902,9 +902,12 @@
+     public void testToClass_object() {
+         assertNull(ClassUtils.toClass(null));
+ 
+         assertSame(ArrayUtils.EMPTY_CLASS_ARRAY, ClassUtils.toClass(ArrayUtils.EMPTY_OBJECT_ARRAY));
+ 
+         assertTrue(Arrays.equals(new Class[] { String.class, Integer.class, Double.class },
+                 ClassUtils.toClass(new Object[] { "Test", 1, 99d })));
++
++        assertTrue(Arrays.equals(new Class[] { String.class, null, Double.class },
++                ClassUtils.toClass(new Object[] { "Test", null, 99d })));
+     }
+ 
+
+commit 575be16474e8e8246d4bbde6f243fdf38c34ad5b
+Author: Matthew Jason Benson <mbenson@apache.org>
+Date:   Fri Feb 5 16:22:29 2010
+
+    clean up toClass(Object[]) test
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@907099 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/ClassUtilsTest.java b/src/test/java/org/apache/commons/lang3/ClassUtilsTest.java
+--- a/src/test/java/org/apache/commons/lang3/ClassUtilsTest.java
++++ b/src/test/java/org/apache/commons/lang3/ClassUtilsTest.java
+@@ -901,18 +902,9 @@
+     public void testToClass_object() {
+-        assertEquals(null, ClassUtils.toClass(null));
++        assertNull(ClassUtils.toClass(null));
+ 
+-        assertSame(
+-            ArrayUtils.EMPTY_CLASS_ARRAY,
+-            ClassUtils.toClass(new Class[0]));
++        assertSame(ArrayUtils.EMPTY_CLASS_ARRAY, ClassUtils.toClass(ArrayUtils.EMPTY_OBJECT_ARRAY));
+ 
+-        Object[] array = new Object[3];
+-        array[0] = new String("Test");
+-        array[1] = new Integer(1);
+-        array[2] = new Double(99);
+-
+-        Class<?>[] results = ClassUtils.toClass(array);
+-        assertEquals("String", ClassUtils.getShortClassName(results[0]));
+-        assertEquals("Integer", ClassUtils.getShortClassName(results[1]));
+-        assertEquals("Double", ClassUtils.getShortClassName(results[2]));
++        assertTrue(Arrays.equals(new Class[] { String.class, Integer.class, Double.class },
++                ClassUtils.toClass(new Object[] { "Test", 1, 99d })));
+     }
+ 
+
+commit 226e0744326c93dadb3a071bdc0d5d2e0baf78df
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Sat Oct 24 10:15:08 2009
+
+    Fix some raw types
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@829374 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/ClassUtilsTest.java b/src/test/org/apache/commons/lang/ClassUtilsTest.java
+--- a/src/test/org/apache/commons/lang/ClassUtilsTest.java
++++ b/src/test/org/apache/commons/lang/ClassUtilsTest.java
+@@ -740,18 +740,18 @@
+     public void testToClass_object() {
+         assertEquals(null, ClassUtils.toClass(null));
+ 
+         assertSame(
+             ArrayUtils.EMPTY_CLASS_ARRAY,
+             ClassUtils.toClass(new Class[0]));
+ 
+         Object[] array = new Object[3];
+         array[0] = new String("Test");
+         array[1] = new Integer(1);
+         array[2] = new Double(99);
+ 
+-        Class[] results = ClassUtils.toClass(array);
++        Class<?>[] results = ClassUtils.toClass(array);
+         assertEquals("String", ClassUtils.getShortClassName(results[0]));
+         assertEquals("Integer", ClassUtils.getShortClassName(results[1]));
+         assertEquals("Double", ClassUtils.getShortClassName(results[2]));
+     }
+ 
+
+commit 68ae1aa3538c72a9967e4f262e01a42113b46b80
+Author: Henri Yandell <bayard@apache.org>
+Date:   Tue Nov 13 09:35:33 2007
+
+    Moved toClass from ArrayUtils to ClassUtils as per Joerg's comment in LANG-333
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@594551 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/ClassUtilsTest.java b/src/test/org/apache/commons/lang/ClassUtilsTest.java
+--- a/src/test/org/apache/commons/lang/ClassUtilsTest.java
++++ b/src/test/org/apache/commons/lang/ClassUtilsTest.java
+@@ -584,0 +584,18 @@
++    public void testToClass_object() {
++        assertEquals(null, ClassUtils.toClass(null));
++
++        assertSame(
++            ArrayUtils.EMPTY_CLASS_ARRAY,
++            ClassUtils.toClass(new Class[0]));
++
++        Object[] array = new Object[3];
++        array[0] = new String("Test");
++        array[1] = new Integer(1);
++        array[2] = new Double(99);
++
++        Class[] results = ClassUtils.toClass(array);
++        assertEquals("String", ClassUtils.getShortClassName(results[0]));
++        assertEquals("Integer", ClassUtils.getShortClassName(results[1]));
++        assertEquals("Double", ClassUtils.getShortClassName(results[2]));
++    }
++

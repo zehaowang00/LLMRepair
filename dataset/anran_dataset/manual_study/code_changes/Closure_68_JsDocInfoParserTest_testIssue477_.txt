@@ -1,0 +1,26 @@
+commit 9d5a6e3082dd99f6c44df1b3526b9e83b79aa7da
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Jun 3 19:42:43 2011
+
+    Fix a jsdoc parser bug where it was dropping the EndOfComment token
+    Fixes issue 477
+    
+    R=acleung
+    DELTA=15  (12 added, 0 deleted, 3 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=2193
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1158 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/parsing/JsDocInfoParserTest.java b/test/com/google/javascript/jscomp/parsing/JsDocInfoParserTest.java
+--- a/test/com/google/javascript/jscomp/parsing/JsDocInfoParserTest.java
++++ b/test/com/google/javascript/jscomp/parsing/JsDocInfoParserTest.java
+@@ -508,0 +508,5 @@
++  public void testIssue477() throws Exception {
++    parse("@type function */",
++        "Bad type annotation. missing opening (");
++  }
++

@@ -1,0 +1,39 @@
+commit be114a9a286c4d194cd268ac8153173c52619a8d
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Wed Sep 28 18:49:01 2016
+
+    Fix #1385
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestDefaultWithCreators.java b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestDefaultWithCreators.java
+--- a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestDefaultWithCreators.java
++++ b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestDefaultWithCreators.java
+@@ -61,1 +83,16 @@
+-}
++    public void testWithCreatorAndJsonValue() throws Exception
++    {
++        final byte[] BYTES = new byte[] { 1, 2, 3, 4, 5 };
++        ObjectMapper mapper = new ObjectMapper();
++        mapper.enableDefaultTyping();
++        String json = mapper.writeValueAsString(new Bean1385Wrapper(
++                new Bean1385(BYTES)
++        ));
++        Bean1385Wrapper result = mapper.readValue(json, Bean1385Wrapper.class);
++        assertNotNull(result);
++        assertNotNull(result.value);
++        assertEquals(Bean1385.class, result.value.getClass());
++        Bean1385 b = (Bean1385) result.value;
++        Assert.assertArrayEquals(BYTES, b.raw);
++    }
++ }
+
+commit a63c2038a03c7090ce4773d6cf54809150e59350
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 03:26:53 2011
+
+    Add unit tests, almost compilable
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestDefaultWithCreators.java b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestDefaultWithCreators.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestDefaultWithCreators.java
+@@ -0,0 +61,1 @@
++}

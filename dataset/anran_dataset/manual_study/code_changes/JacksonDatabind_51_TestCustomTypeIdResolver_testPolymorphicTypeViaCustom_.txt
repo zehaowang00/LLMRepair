@@ -1,0 +1,42 @@
+commit 36631a98a1199be01b9fbbcc66ac2afa4ad82dfc
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Mon Jun 20 01:49:28 2016
+
+    Fix #1270
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestCustomTypeIdResolver.java b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestCustomTypeIdResolver.java
+--- a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestCustomTypeIdResolver.java
++++ b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestCustomTypeIdResolver.java
+@@ -146,1 +211,20 @@
++    public void testPolymorphicTypeViaCustom() throws Exception {
++        Base1270<Poly1> req = new Base1270<Poly1>();
++        Poly1 o = new Poly1();
++        o.val = "optionValue";
++        req.options = o;
++        req.val = "some value";
++        Top1270 top = new Top1270();
++        top.b = req;
++        String json = MAPPER.writeValueAsString(top);
++        JsonNode tree = MAPPER.readTree(json);
++        assertNotNull(tree.get("b"));
++        assertNotNull(tree.get("b").get("options"));
++        assertNotNull(tree.get("b").get("options").get("val"));
++
++        // Can we reverse the process? I have some doubts
++        Top1270 itemRead = MAPPER.readValue(json, Top1270.class);
++        assertNotNull(itemRead);
++        assertNotNull(itemRead.b);
++    }
+ }
+
+commit a63c2038a03c7090ce4773d6cf54809150e59350
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 03:26:53 2011
+
+    Add unit tests, almost compilable
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/jsontype/TestCustomTypeIdResolver.java b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestCustomTypeIdResolver.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/jsontype/TestCustomTypeIdResolver.java
+@@ -0,0 +95,1 @@
++}

@@ -1,0 +1,28 @@
+commit dfaca81ae7a82b7c3018f265815e98a5138118f7
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Wed Nov 1 18:36:43 2017
+
+    Fix #1809
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/deser/jdk/MapDeserializerCachingTest.java b/src/test/java/com/fasterxml/jackson/databind/deser/jdk/MapDeserializerCachingTest.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/deser/jdk/MapDeserializerCachingTest.java
+@@ -0,0 +35,18 @@
++    public void testCachedSerialize() throws IOException {
++        ObjectMapper mapper = new ObjectMapper();
++        String json = aposToQuotes("{'data':{'1st':'onedata','2nd':'twodata'}}");
++
++        // Do deserialization with non-annotated map property
++        NonAnnotatedMapHolderClass ignored = mapper.readValue(json, NonAnnotatedMapHolderClass.class);
++        assertTrue(ignored.data.containsKey("1st"));
++        assertTrue(ignored.data.containsKey("2nd"));
++
++//mapper = new ObjectMapper();
++        
++        MapHolder model2 = mapper.readValue(json, MapHolder.class);
++        if (!model2.data.containsKey("1st (CUSTOM)")
++            || !model2.data.containsKey("2nd (CUSTOM)")) {
++            fail("Not using custom key deserializer for input: "+json+"; resulted in: "+model2.data);
++        }
++    }
++}

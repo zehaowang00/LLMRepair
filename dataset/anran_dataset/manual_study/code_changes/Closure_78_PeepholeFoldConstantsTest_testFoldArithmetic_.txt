@@ -1,0 +1,148 @@
+commit 25829b0395164533782d608399096803321225a7
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Mar 17 14:12:32 2011
+
+    Delete the divide by zero error
+    I've never heard of this catching any real bug. It seems like if
+    you explicitly typed "1 / 0", you meant to do that.
+    fixes issue 381
+    
+    R=johnlenz
+    DELTA=8  (0 added, 6 deleted, 2 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=924
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@900 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+--- a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
++++ b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+@@ -552,13 +552,13 @@
+   public void testFoldArithmetic() {
+     fold("x = 10 + 20", "x = 30");
+     fold("x = 2 / 4", "x = 0.5");
+     fold("x = 2.25 * 3", "x = 6.75");
+     fold("z = x * y", "z = x * y");
+     fold("x = y * 5", "x = y * 5");
+-    fold("x = 1 / 0", "", PeepholeFoldConstants.DIVIDE_BY_0_ERROR);
++    fold("x = 1 / 0", "x = 1 / 0");
+     fold("x = 3 % 2", "x = 1");
+     fold("x = 3 % -2", "x = 1");
+     fold("x = -1 % 3", "x = -1");
+-    fold("x = 1 % 0", "", PeepholeFoldConstants.DIVIDE_BY_0_ERROR);
++    fold("x = 1 % 0", "x = 1 % 0");
+   }
+ 
+
+commit 04789cb2f4e8758ae6979ce4a23c4b38065756b0
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Wed Oct 27 00:33:01 2010
+
+    response to a comment on http://codereview.appspot.com/2707041/
+    
+    R=acleung
+    DELTA=1  (1 added, 0 deleted, 0 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=749024
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@513 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+--- a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
++++ b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+@@ -437,12 +437,13 @@
+   public void testFoldArithmetic() {
+     fold("x = 10 + 20", "x = 30");
+     fold("x = 2 / 4", "x = 0.5");
+     fold("x = 2.25 * 3", "x = 6.75");
+     fold("z = x * y", "z = x * y");
+     fold("x = y * 5", "x = y * 5");
+     fold("x = 1 / 0", "", PeepholeFoldConstants.DIVIDE_BY_0_ERROR);
+     fold("x = 3 % 2", "x = 1");
+     fold("x = 3 % -2", "x = 1");
++    fold("x = -1 % 3", "x = -1");
+     fold("x = 1 % 0", "", PeepholeFoldConstants.DIVIDE_BY_0_ERROR);
+   }
+ 
+
+commit bbf3ed85e0f668331edb269329bf577fe27932a8
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Oct 25 13:22:32 2010
+
+    Optimize modulo like other operators.
+    Contributed by timwintle
+    Fixes issue 267
+    
+    Revision created by MOE tool push_codebase.
+    
+    R=johnlenz
+    DELTA=11  (11 added, 0 deleted, 0 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=716028
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@507 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+--- a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
++++ b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+@@ -437,9 +437,12 @@
+   public void testFoldArithmetic() {
+     fold("x = 10 + 20", "x = 30");
+     fold("x = 2 / 4", "x = 0.5");
+     fold("x = 2.25 * 3", "x = 6.75");
+     fold("z = x * y", "z = x * y");
+     fold("x = y * 5", "x = y * 5");
+     fold("x = 1 / 0", "", PeepholeFoldConstants.DIVIDE_BY_0_ERROR);
++    fold("x = 3 % 2", "x = 1");
++    fold("x = 3 % -2", "x = 1");
++    fold("x = 1 % 0", "", PeepholeFoldConstants.DIVIDE_BY_0_ERROR);
+   }
+ 
+
+commit 9925370292834ea846727f1f9db76af0d40261df
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Jun 28 20:30:00 2010
+
+    Change on 2010/06/28 12:25:08 by dcc
+    
+            Split up FoldConstants unit tests.
+    
+            R=acleung
+            DELTA=2778  (1508 added, 1270 deleted, 0 changed)
+    
+    Change on 2010/06/28 15:47:46 by johnlenz
+    
+            Prevent COMMAs with more than two children.
+    
+            R=acleung
+            DELTA=1  (1 added, 0 deleted, 0 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=44002
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@257 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/PeepholeFoldConstantsTest.java
+@@ -0,0 +389,9 @@
++  public void testFoldArithmetic() {
++    fold("x = 10 + 20", "x = 30");
++    fold("x = 2 / 4", "x = 0.5");
++    fold("x = 2.25 * 3", "x = 6.75");
++    fold("z = x * y", "z = x * y");
++    fold("x = y * 5", "x = y * 5");
++    fold("x = 1 / 0", "", PeepholeFoldConstants.DIVIDE_BY_0_ERROR);
++  }
++

@@ -1,0 +1,85 @@
+commit 5f0714329e2763d330460efee8ccd7f69acc8e7c
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Mon Nov 13 12:24:36 2017
+
+    Some more :matchText tests
+
+diff --git a/src/test/java/org/jsoup/select/SelectorTest.java b/src/test/java/org/jsoup/select/SelectorTest.java
+index 06b53948..41649b7f 100644
+--- a/src/test/java/org/jsoup/select/SelectorTest.java
++++ b/src/test/java/org/jsoup/select/SelectorTest.java
+@@ -767,7 +767,7 @@ public void selectClassWithSpace() {
+         assertEquals("One", doc.selectFirst("p, div").text());
+     }
+ 
+-    @Test public void textAsElements() {
++    @Test public void matchText() {
+         String html = "<p>One<br>Two</p>";
+         Document doc = Jsoup.parse(html);
+         String origHtml = doc.html();
+@@ -793,4 +793,20 @@ public void selectClassWithSpace() {
+         assertEquals("Two", els.get(1).text());
+         assertEquals("Three", els.get(2).toString());
+     }
++
++    @Test public void matchTextAttributes() {
++        Document doc = Jsoup.parse("<div><p class=one>One<br>Two<p class=two>Three<br>Four");
++        Elements els = doc.select("p.two:matchText:last-child");
++
++        assertEquals(1, els.size());
++        assertEquals("Four", els.text());
++    }
++
++    @Test public void findBetweenSpan() {
++        Document doc = Jsoup.parse("<p><span>One</span> Two <span>Three</span>");
++        Elements els = doc.select("span ~ p:matchText"); // the Two becomes its own p, sibling of the span
++
++        assertEquals(1, els.size());
++        assertEquals("Two", els.text());
++    }
+ }
+
+commit 1d7e6fa1c5fb974bdae7abeabbb1e5a48dc00967
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sun Nov 12 21:38:20 2017
+
+    :matchText
+    
+    Fixes #550
+
+diff --git a/src/test/java/org/jsoup/select/SelectorTest.java b/src/test/java/org/jsoup/select/SelectorTest.java
+index f0e36d43..06b53948 100644
+--- a/src/test/java/org/jsoup/select/SelectorTest.java
++++ b/src/test/java/org/jsoup/select/SelectorTest.java
+@@ -766,4 +766,31 @@ public void selectClassWithSpace() {
+         Document doc = Jsoup.parse(html);
+         assertEquals("One", doc.selectFirst("p, div").text());
+     }
++
++    @Test public void textAsElements() {
++        String html = "<p>One<br>Two</p>";
++        Document doc = Jsoup.parse(html);
++        String origHtml = doc.html();
++
++        Elements one = doc.select("p:matchText:first-child");
++        assertEquals("One", one.first().text());
++
++        Elements two = doc.select("p:matchText:last-child");
++        assertEquals("Two", two.first().text());
++
++        assertEquals(origHtml, doc.html());
++
++        assertEquals("Two", doc.select("p:matchText + br + *").text());
++    }
++
++    @Test public void splitOnBr() {
++        String html = "<div><p>One<br>Two<br>Three</p></div>";
++        Document doc = Jsoup.parse(html);
++
++        Elements els = doc.select("p:matchText");
++        assertEquals(3, els.size());
++        assertEquals("One", els.get(0).text());
++        assertEquals("Two", els.get(1).text());
++        assertEquals("Three", els.get(2).toString());
++    }
+ }

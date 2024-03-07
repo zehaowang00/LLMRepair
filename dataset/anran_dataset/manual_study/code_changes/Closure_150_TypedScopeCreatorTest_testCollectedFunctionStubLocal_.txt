@@ -1,0 +1,38 @@
+commit bf8fc4533884f914182f861576808e71c18410cc
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Sep 13 20:41:11 2010
+
+    Unify global scope building and local scope building.
+    This goes a long way towards fixing issue 61.
+    Try #2
+    
+    R=johnlenz
+    DELTA=492  (242 added, 203 deleted, 47 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=215716
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@424 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java b/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
+--- a/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
++++ b/test/com/google/javascript/jscomp/TypedScopeCreatorTest.java
+@@ -212,0 +212,16 @@
++  public void testCollectedFunctionStubLocal() {
++    testSame(
++        "(function() {" +
++        "/** @constructor */ function f() { " +
++        "  /** @return {number} */ this.foo;" +
++        "}" +
++        "var x = new f();" +
++        "});");
++    ObjectType x = (ObjectType) findNameType("x", lastLocalScope);
++    assertEquals("f", x.toString());
++    assertTrue(x.hasProperty("foo"));
++    assertEquals("function (this:f): number",
++        x.getPropertyType("foo").toString());
++    assertFalse(x.isPropertyTypeInferred("foo"));
++  }
++

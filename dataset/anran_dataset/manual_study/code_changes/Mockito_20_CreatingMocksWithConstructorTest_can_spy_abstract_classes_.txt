@@ -1,0 +1,37 @@
+commit 9e725017713095deba16eb4646ec03a103cf66f6
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sun Nov 16 14:51:25 2014
+
+    Added documentation and new convenience API in top level Mockito class.
+    
+    Issue #92
+
+diff --git a/test/org/mockitousage/constructor/CreatingMocksWithConstructorTest.java b/test/org/mockitousage/constructor/CreatingMocksWithConstructorTest.java
+--- a/test/org/mockitousage/constructor/CreatingMocksWithConstructorTest.java
++++ b/test/org/mockitousage/constructor/CreatingMocksWithConstructorTest.java
+@@ -38,5 +40,6 @@
+-        //the message is a part of state of the mocked type that gets initialized in constructor
++    public void can_spy_abstract_classes() {
++        AbstractMessage mock = spy(AbstractMessage.class);
+         assertEquals("hey!", mock.getMessage());
+     }
+ 
+     @Test
+
+commit 7886e43ead51c44e35166a87c061e6b2c60ebfa6
+Author: Szczepan Faber <szczepiq@gmail.com>
+Date:   Sun Nov 16 07:30:36 2014
+
+    Basic support for creating mocks using constructor
+    
+    Issue #92
+
+diff --git a/test/org/mockitousage/constructor/CreatingMocksWithConstructor.java b/test/org/mockitousage/constructor/CreatingMocksWithConstructor.java
+--- /dev/null
++++ b/test/org/mockitousage/constructor/CreatingMocksWithConstructor.java
+@@ -0,0 +34,5 @@
++        //the message is a part of state of the mocked type that gets initialized in constructor
++        assertEquals("hey!", mock.getMessage());
++    }
++
++    @Test

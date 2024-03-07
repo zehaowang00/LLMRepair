@@ -1,0 +1,34 @@
+commit d80fcc04239ab8c4cf781273c4f9bc54cf06f479
+Author: johnlenz@google.com <johnlenz@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Wed Dec 19 14:55:44 2012
+
+    Special case catch expressions to work around the fact that we don't
+    module catch block as lexical scope for the exception and it doesn't
+    belong in the function scope.
+    Fixes issue 864.
+    
+    R=nicksantos
+    DELTA=60 (56 added, 0 deleted, 4 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=6029
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2415 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/FlowSensitiveInlineVariablesTest.java b/test/com/google/javascript/jscomp/FlowSensitiveInlineVariablesTest.java
+--- a/test/com/google/javascript/jscomp/FlowSensitiveInlineVariablesTest.java
++++ b/test/com/google/javascript/jscomp/FlowSensitiveInlineVariablesTest.java
+@@ -145,0 +156,11 @@
++  public void testDoNotInlineCatchExpression1a() {
++    noInline(
++        "var a;\n" +
++        "try {\n" +
++        "  throw Error(\"\");\n" +
++        "}catch(err) {" +
++        "   a = err + 1;\n" +
++        "}\n" +
++        "return a.stack\n");
++  }
++

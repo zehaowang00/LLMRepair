@@ -1,0 +1,277 @@
+commit 5a8be77a303c9e2f8c19d029e8628d7697fb581d
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Sat Feb 11 19:37:23 2012
+
+    MATH-707
+    Renamed "RealPointValuePair" to "PointValuePair" and made it a subclass
+    of "Pair<double[], Double>".
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1243186 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
+@@ -30,15 +30,15 @@
+     public void testMinimize1() {
+         SimplexOptimizer optimizer = new SimplexOptimizer(1e-11, 1e-30);
+         optimizer.setSimplex(new MultiDirectionalSimplex(new double[] { 0.2, 0.2 }));
+         final FourExtrema fourExtrema = new FourExtrema();
+ 
+-        final RealPointValuePair optimum
++        final PointValuePair optimum
+             = optimizer.optimize(200, fourExtrema, GoalType.MINIMIZE, new double[] { -3, 0 });
+         Assert.assertEquals(fourExtrema.xM, optimum.getPoint()[0], 4e-6);
+         Assert.assertEquals(fourExtrema.yP, optimum.getPoint()[1], 3e-6);
+         Assert.assertEquals(fourExtrema.valueXmYp, optimum.getValue(), 8e-13);
+         Assert.assertTrue(optimizer.getEvaluations() > 120);
+         Assert.assertTrue(optimizer.getEvaluations() < 150);
+     }
+ 
+     @Test
+
+commit 3e7a3e8f0cde866cdfe33dae387a9e796c324023
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Thu Sep 1 19:37:36 2011
+
+    MATH-413
+    Convergence checker passed in the constructor.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1164300 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
+@@ -30,30 +30,15 @@
+-    public void testMinimizeMaximize() {
+-        // the following function has 4 local extrema:
+-        final double xM        = -3.841947088256863675365;
+-        final double yM        = -1.391745200270734924416;
+-        final double xP        =  0.2286682237349059125691;
+-        final double yP        = -yM;
+-        final double valueXmYm =  0.2373295333134216789769; // local  maximum
+-        final double valueXmYp = -valueXmYm;                // local  minimum
+-        final double valueXpYm = -0.7290400707055187115322; // global minimum
+-        final double valueXpYp = -valueXpYm;                // global maximum
+-        MultivariateRealFunction fourExtrema = new MultivariateRealFunction() {
+-                public double value(double[] variables) {
+-                    final double x = variables[0];
+-                    final double y = variables[1];
+-                    return ((x == 0) || (y == 0)) ? 0 :
+-                        (FastMath.atan(x) * FastMath.atan(x + 2) * FastMath.atan(y) * FastMath.atan(y) / (x * y));
+-                }
+-            };
+-
++    public void testMinimize1() {
+         SimplexOptimizer optimizer = new SimplexOptimizer(1e-11, 1e-30);
+         optimizer.setSimplex(new MultiDirectionalSimplex(new double[] { 0.2, 0.2 }));
+-        RealPointValuePair optimum;
++        final FourExtrema fourExtrema = new FourExtrema();
+ 
+-        // minimization
+-        optimum = optimizer.optimize(200, fourExtrema, GoalType.MINIMIZE, new double[] { -3, 0 });
+-        Assert.assertEquals(xM,        optimum.getPoint()[0], 4e-6);
+-        Assert.assertEquals(yP,        optimum.getPoint()[1], 3e-6);
+-        Assert.assertEquals(valueXmYp, optimum.getValue(),    8e-13);
++        final RealPointValuePair optimum
++            = optimizer.optimize(200, fourExtrema, GoalType.MINIMIZE, new double[] { -3, 0 });
++        Assert.assertEquals(fourExtrema.xM, optimum.getPoint()[0], 4e-6);
++        Assert.assertEquals(fourExtrema.yP, optimum.getPoint()[1], 3e-6);
++        Assert.assertEquals(fourExtrema.valueXmYp, optimum.getValue(), 8e-13);
+         Assert.assertTrue(optimizer.getEvaluations() > 120);
+         Assert.assertTrue(optimizer.getEvaluations() < 150);
++    }
++
++    @Test
+
+commit 744562dd82aee25efabd045dbc712cc318a58105
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Fri Jul 1 05:33:55 2011
+
+    removed serialVersionUID for non-serializable classes.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1141890 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
+@@ -30,31 +30,30 @@
+     public void testMinimizeMaximize() {
+         // the following function has 4 local extrema:
+         final double xM        = -3.841947088256863675365;
+         final double yM        = -1.391745200270734924416;
+         final double xP        =  0.2286682237349059125691;
+         final double yP        = -yM;
+         final double valueXmYm =  0.2373295333134216789769; // local  maximum
+         final double valueXmYp = -valueXmYm;                // local  minimum
+         final double valueXpYm = -0.7290400707055187115322; // global minimum
+         final double valueXpYp = -valueXpYm;                // global maximum
+         MultivariateRealFunction fourExtrema = new MultivariateRealFunction() {
+-                private static final long serialVersionUID = -7039124064449091152L;
+                 public double value(double[] variables) {
+                     final double x = variables[0];
+                     final double y = variables[1];
+                     return ((x == 0) || (y == 0)) ? 0 :
+                         (FastMath.atan(x) * FastMath.atan(x + 2) * FastMath.atan(y) * FastMath.atan(y) / (x * y));
+                 }
+             };
+ 
+         SimplexOptimizer optimizer = new SimplexOptimizer(1e-11, 1e-30);
+         optimizer.setSimplex(new MultiDirectionalSimplex(new double[] { 0.2, 0.2 }));
+         RealPointValuePair optimum;
+ 
+         // minimization
+         optimum = optimizer.optimize(200, fourExtrema, GoalType.MINIMIZE, new double[] { -3, 0 });
+         Assert.assertEquals(xM,        optimum.getPoint()[0], 4e-6);
+         Assert.assertEquals(yP,        optimum.getPoint()[1], 3e-6);
+         Assert.assertEquals(valueXmYp, optimum.getValue(),    8e-13);
+         Assert.assertTrue(optimizer.getEvaluations() > 120);
+         Assert.assertTrue(optimizer.getEvaluations() < 150);
+
+commit 9be0992c0d829f45d0473127efdceda3c54a317d
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Tue Dec 7 10:01:37 2010
+
+    MATH-454
+    Pass the number of allowed function evaluations as a parameter to the
+    "optimize" methods.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1043078 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
+@@ -31,32 +30,31 @@
+-    public void testMinimizeMaximize() throws MathUserException {
++    public void testMinimizeMaximize() {
+         // the following function has 4 local extrema:
+         final double xM        = -3.841947088256863675365;
+         final double yM        = -1.391745200270734924416;
+         final double xP        =  0.2286682237349059125691;
+         final double yP        = -yM;
+         final double valueXmYm =  0.2373295333134216789769; // local  maximum
+         final double valueXmYp = -valueXmYm;                // local  minimum
+         final double valueXpYm = -0.7290400707055187115322; // global minimum
+         final double valueXpYp = -valueXpYm;                // global maximum
+         MultivariateRealFunction fourExtrema = new MultivariateRealFunction() {
+                 private static final long serialVersionUID = -7039124064449091152L;
+-                public double value(double[] variables) throws MathUserException {
++                public double value(double[] variables) {
+                     final double x = variables[0];
+                     final double y = variables[1];
+                     return ((x == 0) || (y == 0)) ? 0 :
+                         (FastMath.atan(x) * FastMath.atan(x + 2) * FastMath.atan(y) * FastMath.atan(y) / (x * y));
+                 }
+             };
+ 
+         SimplexOptimizer optimizer = new SimplexOptimizer(1e-11, 1e-30);
+-        optimizer.setMaxEvaluations(200);
+         optimizer.setSimplex(new MultiDirectionalSimplex(new double[] { 0.2, 0.2 }));
+         RealPointValuePair optimum;
+ 
+         // minimization
+-        optimum = optimizer.optimize(fourExtrema, GoalType.MINIMIZE, new double[] { -3, 0 });
++        optimum = optimizer.optimize(200, fourExtrema, GoalType.MINIMIZE, new double[] { -3, 0 });
+         Assert.assertEquals(xM,        optimum.getPoint()[0], 4e-6);
+         Assert.assertEquals(yP,        optimum.getPoint()[1], 3e-6);
+         Assert.assertEquals(valueXmYp, optimum.getValue(),    8e-13);
+         Assert.assertTrue(optimizer.getEvaluations() > 120);
+         Assert.assertTrue(optimizer.getEvaluations() < 150);
+
+commit 8302dd02498495277ec0db9301edb2158bb0e314
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Sat Nov 20 16:01:50 2010
+
+    removed FunctionEvaluationException, DerivativeException and MatrixVisitorException
+    these exception were  deprecated in 2.2 and a smooth transition path was set up to help users, now all user functions should use the new unchecked MathUserException
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1037328 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
+--- a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
++++ b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
+@@ -31,32 +31,32 @@
+-    public void testMinimizeMaximize() throws FunctionEvaluationException {
++    public void testMinimizeMaximize() throws MathUserException {
+         // the following function has 4 local extrema:
+         final double xM        = -3.841947088256863675365;
+         final double yM        = -1.391745200270734924416;
+         final double xP        =  0.2286682237349059125691;
+         final double yP        = -yM;
+         final double valueXmYm =  0.2373295333134216789769; // local  maximum
+         final double valueXmYp = -valueXmYm;                // local  minimum
+         final double valueXpYm = -0.7290400707055187115322; // global minimum
+         final double valueXpYp = -valueXpYm;                // global maximum
+         MultivariateRealFunction fourExtrema = new MultivariateRealFunction() {
+                 private static final long serialVersionUID = -7039124064449091152L;
+-                public double value(double[] variables) throws FunctionEvaluationException {
++                public double value(double[] variables) throws MathUserException {
+                     final double x = variables[0];
+                     final double y = variables[1];
+                     return ((x == 0) || (y == 0)) ? 0 :
+                         (FastMath.atan(x) * FastMath.atan(x + 2) * FastMath.atan(y) * FastMath.atan(y) / (x * y));
+                 }
+             };
+ 
+         SimplexOptimizer optimizer = new SimplexOptimizer(1e-11, 1e-30);
+         optimizer.setMaxEvaluations(200);
+         optimizer.setSimplex(new MultiDirectionalSimplex(new double[] { 0.2, 0.2 }));
+         RealPointValuePair optimum;
+ 
+         // minimization
+         optimum = optimizer.optimize(fourExtrema, GoalType.MINIMIZE, new double[] { -3, 0 });
+         Assert.assertEquals(xM,        optimum.getPoint()[0], 4e-6);
+         Assert.assertEquals(yP,        optimum.getPoint()[1], 3e-6);
+         Assert.assertEquals(valueXmYp, optimum.getValue(),    8e-13);
+         Assert.assertTrue(optimizer.getEvaluations() > 120);
+         Assert.assertTrue(optimizer.getEvaluations() < 150);
+
+commit 3c3ccb79d4e909ddbb552a07a7e9acf2c4e75377
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Mon Oct 25 05:42:33 2010
+
+    MATH-428
+    Refactoring of "DirectSearchOptimizer" to separate the optimization and
+    simplex management aspects. Old classes are deprecated.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1027007 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/math/optimization/direct/SimplexOptimizerMultiDirectionalTest.java
+@@ -0,0 +31,32 @@
++    public void testMinimizeMaximize() throws FunctionEvaluationException {
++        // the following function has 4 local extrema:
++        final double xM        = -3.841947088256863675365;
++        final double yM        = -1.391745200270734924416;
++        final double xP        =  0.2286682237349059125691;
++        final double yP        = -yM;
++        final double valueXmYm =  0.2373295333134216789769; // local  maximum
++        final double valueXmYp = -valueXmYm;                // local  minimum
++        final double valueXpYm = -0.7290400707055187115322; // global minimum
++        final double valueXpYp = -valueXpYm;                // global maximum
++        MultivariateRealFunction fourExtrema = new MultivariateRealFunction() {
++                private static final long serialVersionUID = -7039124064449091152L;
++                public double value(double[] variables) throws FunctionEvaluationException {
++                    final double x = variables[0];
++                    final double y = variables[1];
++                    return ((x == 0) || (y == 0)) ? 0 :
++                        (FastMath.atan(x) * FastMath.atan(x + 2) * FastMath.atan(y) * FastMath.atan(y) / (x * y));
++                }
++            };
++
++        SimplexOptimizer optimizer = new SimplexOptimizer(1e-11, 1e-30);
++        optimizer.setMaxEvaluations(200);
++        optimizer.setSimplex(new MultiDirectionalSimplex(new double[] { 0.2, 0.2 }));
++        RealPointValuePair optimum;
++
++        // minimization
++        optimum = optimizer.optimize(fourExtrema, GoalType.MINIMIZE, new double[] { -3, 0 });
++        Assert.assertEquals(xM,        optimum.getPoint()[0], 4e-6);
++        Assert.assertEquals(yP,        optimum.getPoint()[1], 3e-6);
++        Assert.assertEquals(valueXmYp, optimum.getValue(),    8e-13);
++        Assert.assertTrue(optimizer.getEvaluations() > 120);
++        Assert.assertTrue(optimizer.getEvaluations() < 150);

@@ -1,0 +1,44 @@
+commit 7e9b8336568ea7f05c33e1b58eb67fa6d4eee756
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Wed Aug 31 22:30:59 2011
+
+    Support chrome-team's style of defining prototypes.
+    Fixes issue 537
+    
+    R=acleung
+    DELTA=149  (127 added, 19 deleted, 3 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3173
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1401 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- a/test/com/google/javascript/jscomp/TypeCheckTest.java
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -5263,0 +5263,23 @@
++  public void testIssue537a() throws Exception {
++    testTypes(
++        "/** @constructor */ function Foo() {}" +
++        "Foo.prototype = {method: function() {}};" +
++        "/**\n" +
++        " * @constructor\n" +
++        " * @extends {Foo}\n" +
++        " */\n" +
++        "function Bar() {" +
++        "  Foo.call(this);" +
++        "  if (this.baz()) this.method(1);" +
++        "}" +
++        "Bar.prototype = {" +
++        "  baz: function() {" +
++        "    return true;" +
++        "  }" +
++        "};" +
++        "Bar.prototype.__proto__ = Foo.prototype;",
++        "Function Foo.prototype.method: called with 1 argument(s). " +
++        "Function requires at least 0 argument(s) " +
++        "and no more than 0 argument(s).");
++  }
++

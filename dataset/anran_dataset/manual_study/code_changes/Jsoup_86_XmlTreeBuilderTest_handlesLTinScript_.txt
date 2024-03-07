@@ -1,0 +1,25 @@
+commit 38c13b5ae97c294afb859c49ded903beb7b9b100
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sat Dec 22 21:19:31 2018
+
+    Correct check for element children
+    
+    Fixes #1139
+
+diff --git a/src/test/java/org/jsoup/parser/XmlTreeBuilderTest.java b/src/test/java/org/jsoup/parser/XmlTreeBuilderTest.java
+index 508b8c8f..7ce70b3f 100644
+--- a/src/test/java/org/jsoup/parser/XmlTreeBuilderTest.java
++++ b/src/test/java/org/jsoup/parser/XmlTreeBuilderTest.java
+@@ -237,4 +237,12 @@ public void handlesDodgyXmlDecl() {
+         Document doc = Jsoup.parse(xml, "", Parser.xmlParser());
+         assertEquals("One", doc.select("val").text());
+     }
++
++    @Test
++    public void handlesLTinScript() {
++        // https://github.com/jhy/jsoup/issues/1139
++        String html = "<script> var a=\"<?\"; var b=\"?>\"; </script>";
++        Document doc = Jsoup.parse(html, "", Parser.xmlParser());
++        assertEquals("<script> var a=\"\n <!--?\"; var b=\"?-->\"; </script>", doc.html()); // converted from pseudo xmldecl to comment
++    }
+ }

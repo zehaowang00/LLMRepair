@@ -1,0 +1,49 @@
+commit a4a455053e7e4a77320efd6db0814f4de82d754d
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Thu Sep 27 08:56:19 2012
+
+    LANG-818 FastDateFormat's "z" pattern does not respect timezone of Calendar instances passed to format()
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@1390980 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/time/FastDatePrinterTest.java b/src/test/java/org/apache/commons/lang3/time/FastDatePrinterTest.java
+--- a/src/test/java/org/apache/commons/lang3/time/FastDatePrinterTest.java
++++ b/src/test/java/org/apache/commons/lang3/time/FastDatePrinterTest.java
+@@ -263,1 +266,23 @@
++    public void testCalendarTimezoneRespected() {
++        String[] availableZones = TimeZone.getAvailableIDs();
++        TimeZone currentZone = TimeZone.getDefault();
++        
++        TimeZone anotherZone = null;
++        for (String zone : availableZones) {
++            if (!zone.equals(currentZone.getID())) {
++                anotherZone = TimeZone.getTimeZone(zone);
++            }
++        }
++        
++        assertNotNull("Cannot find another timezone", anotherZone);
++        
++        final String pattern = "h:mma z";
++        final Calendar cal = Calendar.getInstance(anotherZone);
++        
++        SimpleDateFormat sdf = new SimpleDateFormat(pattern);
++        sdf.setTimeZone(anotherZone);
++        String expectedValue = sdf.format(cal.getTime());
++        String actualValue = FastDateFormat.getInstance(pattern).format(cal);
++        assertEquals(expectedValue, actualValue);
++    }
+ }
+
+commit 85a7311e94b6e63d99ca342d42465bfc7df06b28
+Author: Henri Yandell <bayard@apache.org>
+Date:   Thu Jan 26 02:00:26 2012
+
+    Applying Chas Honton's implementation of DateParser and subsequent integration into FastDateFormat and the time package. See LANG-462.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@1236055 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/time/FastDatePrinterTest.java b/src/test/java/org/apache/commons/lang3/time/FastDatePrinterTest.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/lang3/time/FastDatePrinterTest.java
+@@ -0,0 +263,1 @@
++}

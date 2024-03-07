@@ -1,0 +1,101 @@
+commit e9c15465c000c19ef4e0b8f68a680589ae4111d7
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Thu Sep 27 15:18:58 2012
+
+    counter DOS shell file name normalization
+    fixes issue 824
+    
+    R=malteubl
+    DELTA=11  (9 added, 1 deleted, 1 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=5559
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@2223 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/ProcessCommonJSModulesTest.java b/test/com/google/javascript/jscomp/ProcessCommonJSModulesTest.java
+--- a/test/com/google/javascript/jscomp/ProcessCommonJSModulesTest.java
++++ b/test/com/google/javascript/jscomp/ProcessCommonJSModulesTest.java
+@@ -128,6 +128,10 @@
+   public void testGuessModuleName() {
+     ProcessCommonJSModules pass = new ProcessCommonJSModules(null, "foo");
+     assertEquals("module$baz",
+         pass.guessCJSModuleName("foo/baz.js"));
++    assertEquals("module$baz",
++        pass.guessCJSModuleName("foo\\baz.js"));
++    assertEquals("module$bar$baz",
++        pass.guessCJSModuleName("foo\\bar\\baz.js"));
+   }
+ }
+
+commit 32f4884ca5aa648d48d988d8d7dada88212d6dbe
+Author: nicksantos@google.com <nicksantos@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Feb 7 12:43:16 2012
+
+    Normalize the file name prefix if it doesn't end with /
+    Makes some things public
+    fixes issue 651
+    fixes issue 652
+    
+    Contributed by Ben McCann
+    
+    R=malteubl
+    DELTA=24  (11 added, 6 deleted, 7 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=4179
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1768 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/ProcessCommonJSModulesTest.java b/test/com/google/javascript/jscomp/ProcessCommonJSModulesTest.java
+--- a/test/com/google/javascript/jscomp/ProcessCommonJSModulesTest.java
++++ b/test/com/google/javascript/jscomp/ProcessCommonJSModulesTest.java
+@@ -141,1 +142,6 @@
++  public void testGuessModuleName() {
++    ProcessCommonJSModules pass = new ProcessCommonJSModules(null, "foo");
++    assertEquals("module$baz",
++        pass.guessCJSModuleName("foo/baz.js"));
++  }
+ }
+
+commit 5ef7a8a0a8263e8fd0291c7f11ad0bf4bd9cb1a4
+Author: malteubl@google.com <malteubl@google.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Wed Dec 14 15:52:19 2011
+
+    First class support for AMD[1] and Common JS[2] modules in closure compiler.
+    
+    The AMD specific pass, compiles AMD modules to CJS modules. The CJS pass
+    turns the modules into a form that can be concatenated without the need
+    to enclose the code in an immediate function to protect the scope. This makes
+    applying our optimizations significantly more effective.
+    
+    Attempts to set up correct requires and provides for each module and to order
+    modules correctly. This part of my CL needs some help. I'm having trouble
+    understanding the original design and feel that what I wrote looks
+    sub-optimal.
+    
+    I did integration testing by compiling the dojo library which uses AMD.
+    Size reduction looks good and cross module code motion as well as dead
+    code elimination works.
+    [1] https://github.com/amdjs/amdjs-api/wiki/AMD
+    [2] http://wiki.commonjs.org/wiki/Modules/1.1.1
+    
+    R=johnlenz,nicksantos
+    DELTA=1113  (1109 added, 0 deleted, 4 changed)
+    
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=3981
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@1684 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/ProcessCommonJSModulesTest.java b/test/com/google/javascript/jscomp/ProcessCommonJSModulesTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/ProcessCommonJSModulesTest.java
+@@ -0,0 +141,1 @@
++}

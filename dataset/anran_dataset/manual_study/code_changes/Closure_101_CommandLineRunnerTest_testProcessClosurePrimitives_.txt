@@ -1,0 +1,55 @@
+commit 369282db85567f1bf2c9635d0c0043d47f114814
+Author: Nicholas.J.Santos <Nicholas.J.Santos@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Tue Mar 23 20:40:59 2010
+
+    Removing useless members variables. (Alan)
+    R=robert
+    DELTA=4  (0 added, 4 deleted, 0 changed)
+    
+    Fix broken process_closure_primitives flag. (Nick)
+    Fixes issue 130.
+    R=robert
+    DELTA=11  (7 added, 2 deleted, 2 changed)
+    
+    Revision created by MOE tool push_codebase.
+    MOE_MIGRATION=
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@152 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+--- a/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
++++ b/test/com/google/javascript/jscomp/CommandLineRunnerTest.java
+@@ -154,3 +154,10 @@
++  public void testProcessClosurePrimitives() {
++    test("var goog = {}; goog.provide('goog.dom');",
++         "var goog = {}; goog.dom = {};");
++    args.add("--process_closure_primitives=false");
++    testSame("var goog = {}; goog.provide('goog.dom');");
++  }
++
+   //////////////////////////////////////////////////////////////////////////////
+   // Integration tests
+ 
+
+commit 168bc14ff5e9e664863c3b1146f2a5b7a30ffb42
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Fri Dec 11 18:29:29 2009
+
+    Add a pass for collecting symbols exported like window['x'] = ...
+    
+    Fix for issue #70.
+    
+    Assorted minor bug fixes.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@31 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/CompilerRunnerTest.java b/test/com/google/javascript/jscomp/CompilerRunnerTest.java
+--- a/test/com/google/javascript/jscomp/CompilerRunnerTest.java
++++ b/test/com/google/javascript/jscomp/CompilerRunnerTest.java
+@@ -119,0 +119,3 @@
++  //////////////////////////////////////////////////////////////////////////////
++  // Integration tests
++

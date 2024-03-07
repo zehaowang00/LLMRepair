@@ -1,0 +1,38 @@
+commit e54a1c92302f3167b06bc04859b87ac0681bcdf3
+Author: Luc Maisonobe <luc@apache.org>
+Date:   Fri Mar 22 14:55:58 2013
+
+    Fixed Complex.reciprocal() for zero argument.
+    
+    JIRA: MATH-934
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1459927 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math3/complex/ComplexTest.java b/src/test/java/org/apache/commons/math3/complex/ComplexTest.java
+--- a/src/test/java/org/apache/commons/math3/complex/ComplexTest.java
++++ b/src/test/java/org/apache/commons/math3/complex/ComplexTest.java
+@@ -333,5 +333,5 @@
+     public void testReciprocalZero() {
+-        Assert.assertEquals(Complex.ZERO.reciprocal(), Complex.NaN);
++        Assert.assertEquals(Complex.ZERO.reciprocal(), Complex.INF);
+     }
+ 
+     @Test
+
+commit 60d96e0ee72180da2c9b89e1acc66033253f0237
+Author: Sebastien Brisard <celestin@apache.org>
+Date:   Sat Oct 8 00:21:00 2011
+
+    Added FieldElement.negate() and FieldElement.reciprocal() (MATH-686).
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1180312 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/complex/ComplexTest.java b/src/test/java/org/apache/commons/math/complex/ComplexTest.java
+--- a/src/test/java/org/apache/commons/math/complex/ComplexTest.java
++++ b/src/test/java/org/apache/commons/math/complex/ComplexTest.java
+@@ -303,0 +334,5 @@
++    public void testReciprocalZero() {
++        Assert.assertEquals(Complex.ZERO.reciprocal(), Complex.NaN);
++    }
++
++    @Test

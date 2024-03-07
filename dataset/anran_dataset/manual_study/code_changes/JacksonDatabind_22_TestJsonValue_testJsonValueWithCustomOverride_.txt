@@ -1,0 +1,37 @@
+commit a92e2be0ccbe6732e1fef39bf48b0f9dcc559fd6
+Author: Cowtowncoder <tatu.saloranta@iki.fi>
+Date:   Thu Jun 25 18:08:36 2015
+
+    Fix #848
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/ser/TestJsonValue.java b/src/test/java/com/fasterxml/jackson/databind/ser/TestJsonValue.java
+--- a/src/test/java/com/fasterxml/jackson/databind/ser/TestJsonValue.java
++++ b/src/test/java/com/fasterxml/jackson/databind/ser/TestJsonValue.java
+@@ -254,1 +270,15 @@
++    public void testJsonValueWithCustomOverride() throws Exception
++    {
++        final Bean838 INPUT = new Bean838();
++
++        // by default, @JsonValue should be used
++        assertEquals(quote("value"), MAPPER.writeValueAsString(INPUT));
++
++        // but custom serializer should override it
++        ObjectMapper mapper = new ObjectMapper();
++        mapper.registerModule(new SimpleModule()
++            .addSerializer(Bean838.class, new Bean838Serializer())
++            );
++        assertEquals("42", mapper.writeValueAsString(INPUT));
++    }
+ }
+
+commit a63c2038a03c7090ce4773d6cf54809150e59350
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 03:26:53 2011
+
+    Add unit tests, almost compilable
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/ser/TestAnnotationJsonValue.java b/src/test/java/com/fasterxml/jackson/databind/ser/TestAnnotationJsonValue.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/ser/TestAnnotationJsonValue.java
+@@ -0,0 +139,1 @@
++}

@@ -1,0 +1,63 @@
+commit e6f27ebcb9ee0a344308382b99a3894bb61b225d
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Sat Sep 3 15:22:42 2011
+
+    MATH-657
+    Reverting to previous behaviour, as requested by P. Steitz.
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1164917 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/complex/ComplexTest.java b/src/test/java/org/apache/commons/math/complex/ComplexTest.java
+--- a/src/test/java/org/apache/commons/math/complex/ComplexTest.java
++++ b/src/test/java/org/apache/commons/math/complex/ComplexTest.java
+@@ -229,7 +229,8 @@
+     public void testDivideZero() {
+         Complex x = new Complex(3.0, 4.0);
+         Complex z = x.divide(Complex.ZERO);
+-        Assert.assertEquals(z, Complex.INF);
++        // Assert.assertEquals(z, Complex.INF); // See MATH-657
++        Assert.assertEquals(z, Complex.NaN);
+     }
+ 
+     @Test
+
+commit 330f3fe17d132bd4e2a91ff812ccf489e77f390f
+Author: Gilles Sadowski <erans@apache.org>
+Date:   Fri Sep 2 19:05:01 2011
+
+    MATH-657
+    Complex division by zero:
+     z / 0 = INF if z is not ZERO
+     0 / 0 = NaN
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@1164756 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/complex/ComplexTest.java b/src/test/java/org/apache/commons/math/complex/ComplexTest.java
+--- a/src/test/java/org/apache/commons/math/complex/ComplexTest.java
++++ b/src/test/java/org/apache/commons/math/complex/ComplexTest.java
+@@ -229,3 +229,7 @@
+     public void testDivideZero() {
+         Complex x = new Complex(3.0, 4.0);
+         Complex z = x.divide(Complex.ZERO);
++        Assert.assertEquals(z, Complex.INF);
++    }
++
++    @Test
+
+commit 051edd33e81d09cc10e3970b3ee0b1a62914a0ab
+Author: Phil Steitz <psteitz@apache.org>
+Date:   Mon Oct 26 21:32:19 2009
+
+    Removed dead code, improved test coverage.  Dead code pointed out in JIRA: MATH-306. Thanks to Joerg Huber.
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/math/trunk@830044 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/math/complex/ComplexTest.java b/src/test/java/org/apache/commons/math/complex/ComplexTest.java
+--- a/src/test/java/org/apache/commons/math/complex/ComplexTest.java
++++ b/src/test/java/org/apache/commons/math/complex/ComplexTest.java
+@@ -167,0 +181,3 @@
++    public void testDivideZero() {
++        Complex x = new Complex(3.0, 4.0);
++        Complex z = x.divide(Complex.ZERO);

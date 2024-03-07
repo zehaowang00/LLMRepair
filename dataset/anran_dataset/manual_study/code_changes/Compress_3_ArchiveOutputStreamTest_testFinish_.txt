@@ -1,0 +1,62 @@
+commit d170f34fa65e19b604f5a9e04e6ed5f81d35658c
+Author: Christian Grobmeier <grobmeier@apache.org>
+Date:   Wed Apr 22 02:05:23 2009
+
+    COMPRESS-64: finish() does not close archive entries by default any longer
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/compress/trunk@767386 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/compress/archivers/ArchiveOutputStreamTest.java b/src/test/java/org/apache/commons/compress/archivers/ArchiveOutputStreamTest.java
+--- /dev/null
++++ b/src/test/java/org/apache/commons/compress/archivers/ArchiveOutputStreamTest.java
+@@ -0,0 +24,50 @@
++    public void testFinish() throws Exception {
++        OutputStream out1 = new ByteArrayOutputStream();
++        
++        ArchiveOutputStream aos1 = factory.createArchiveOutputStream("zip", out1);
++        aos1.putArchiveEntry(new ZipArchiveEntry("dummy"));
++        try {
++            aos1.finish();
++            fail("After putArchive should follow closeArchive");
++        } catch (IOException io) {
++            // Exception expected
++        }
++        
++        aos1 = factory.createArchiveOutputStream("jar", out1);
++        aos1.putArchiveEntry(new JarArchiveEntry("dummy"));
++        try {
++            aos1.finish();
++            fail("After putArchive should follow closeArchive");
++        } catch (IOException io) {
++            // Exception expected
++        }
++        
++        aos1 = factory.createArchiveOutputStream("ar", out1);
++        aos1.putArchiveEntry(new ArArchiveEntry("dummy", 100));
++        try {
++            aos1.finish();
++            fail("After putArchive should follow closeArchive");
++        } catch (IOException io) {
++            // Exception expected
++        }
++        
++        aos1 = factory.createArchiveOutputStream("cpio", out1);
++        aos1.putArchiveEntry(new CpioArchiveEntry("dummy"));
++        try {
++            aos1.finish();
++            fail("After putArchive should follow closeArchive");
++        } catch (IOException io) {
++            // Exception expected
++        }
++        
++        aos1 = factory.createArchiveOutputStream("tar", out1);
++        aos1.putArchiveEntry(new TarArchiveEntry("dummy"));
++        try {
++            aos1.finish();
++            fail("After putArchive should follow closeArchive");
++        } catch (IOException io) {
++            // Exception expected
++        }
++    }
++
++}

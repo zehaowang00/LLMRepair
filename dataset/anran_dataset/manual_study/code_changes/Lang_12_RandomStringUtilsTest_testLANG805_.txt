@@ -1,0 +1,50 @@
+commit c9d786a4fe2639581047d878a64bab6fb24f1ab3
+Author: Sebastian Bazley <sebb@apache.org>
+Date:   Sat Jun 9 10:58:34 2012
+
+    LANG-805 RandomStringUtils.random(count, 0, 0, false, false, universe, random) always throws java.lang.ArrayIndexOutOfBoundsException
+    
+    git-svn-id: https://svn.apache.org/repos/asf/commons/proper/lang/trunk@1348422 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/java/org/apache/commons/lang3/RandomStringUtilsTest.java b/src/test/java/org/apache/commons/lang3/RandomStringUtilsTest.java
+--- a/src/test/java/org/apache/commons/lang3/RandomStringUtilsTest.java
++++ b/src/test/java/org/apache/commons/lang3/RandomStringUtilsTest.java
+@@ -127,1 +128,5 @@
++    public void testLANG805() {
++        long seed = System.currentTimeMillis();
++        assertEquals("aaa", RandomStringUtils.random(3,0,0,false,false,new char[]{'a'},new Random(seed)));
+     }
++
+
+commit 9b82eaecb12629bfb7861113f69d56e8de1d75a1
+Author: Stephen Colebourne <scolebourne@apache.org>
+Date:   Thu Jul 31 19:24:35 2003
+
+    Fix RandomStringUtils to not throw NPE all the time
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137543 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/RandomStringUtilsTest.java b/src/test/org/apache/commons/lang/RandomStringUtilsTest.java
+--- a/src/test/org/apache/commons/lang/RandomStringUtilsTest.java
++++ b/src/test/org/apache/commons/lang/RandomStringUtilsTest.java
+@@ -177,1 +189,1 @@
+-        Exception e = null;
++    }
+
+commit 11a540bcf9dcf08b238917e4fd0fb843c34f1f56
+Author: Henri Yandell <bayard@apache.org>
+Date:   Wed Apr 9 10:13:03 2003
+
+    Patch for RandomString bug in which counts of 0 or negative counts would cause array exceptions.
+    
+    Submitted by:   ville.skytta@iki.fi (Ville Skyttï¿½)
+    
+    
+    git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/lang/trunk@137289 13f79535-47bb-0310-9956-ffa450edef68
+
+diff --git a/src/test/org/apache/commons/lang/RandomStringUtilsTest.java b/src/test/org/apache/commons/lang/RandomStringUtilsTest.java
+--- a/src/test/org/apache/commons/lang/RandomStringUtilsTest.java
++++ b/src/test/org/apache/commons/lang/RandomStringUtilsTest.java
+@@ -157,0 +161,1 @@
++        Exception e = null;

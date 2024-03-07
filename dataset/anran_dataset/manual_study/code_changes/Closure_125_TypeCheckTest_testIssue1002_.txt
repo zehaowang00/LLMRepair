@@ -1,0 +1,61 @@
+commit 8cef00180a5cf67d047919c89668a6405030dbab
+Author: Ben Lickly <blickly@google.com>
+Date:   Thu May 23 19:06:51 2013
+
+    Skip checks if constructor has no instance type.
+    
+    Fixes issue 1002
+    -------------
+    Created by MOE: http://code.google.com/p/moe-java
+    MOE_MIGRATED_REVID=47053164
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- a/test/com/google/javascript/jscomp/TypeCheckTest.java
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -6740,5 +6740,20 @@
++  public void testIssue1002() throws Exception {
++    testTypes(
++        "/** @interface */" +
++        "var I = function() {};" +
++        "/** @constructor @implements {I} */" +
++        "var A = function() {};" +
++        "/** @constructor @implements {I} */" +
++        "var B = function() {};" +
++        "var f = function() {" +
++        "  if (A === B) {" +
++        "    new B();" +
++        "  }" +
++        "};");
++  }
++
+   /**
+    * Tests that the || operator is type checked correctly, that is of
+    * the type of the first argument or of the second argument. See
+    * bugid 592170 for more details.
+    */
+
+commit 77b7c78d4aeeb6471f2f668a06c0f61a68f95ccd
+Author: nicholas.j.santos@gmail.com <nicholas.j.santos@gmail.com@b0f006be-c8cd-11de-a2e8-8d36a3108c74>
+Date:   Mon Jan 4 15:18:21 2010
+
+    Add more unit tests for type checking.
+    
+    Add phase optimization.
+    
+    Fix a type inference bug.
+    
+    String.prototype.split may not return null.
+    
+    
+    
+    git-svn-id: https://closure-compiler.googlecode.com/svn/trunk@55 b0f006be-c8cd-11de-a2e8-8d36a3108c74
+
+diff --git a/test/com/google/javascript/jscomp/TypeCheckTest.java b/test/com/google/javascript/jscomp/TypeCheckTest.java
+--- /dev/null
++++ b/test/com/google/javascript/jscomp/TypeCheckTest.java
+@@ -0,0 +3907,5 @@
++  /**
++   * Tests that the || operator is type checked correctly, that is of
++   * the type of the first argument or of the second argument. See
++   * bugid 592170 for more details.
++   */

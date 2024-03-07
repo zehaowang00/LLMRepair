@@ -1,0 +1,18 @@
+commit 63afa5297a0b8bcbf31b9c91e5d15537e0fdbdd5
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Wed Jan 25 00:41:59 2017
+
+    Fix #1501
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/creators/InnerClassCreatorTest.java b/src/test/java/com/fasterxml/jackson/databind/creators/InnerClassCreatorTest.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/creators/InnerClassCreatorTest.java
+@@ -0,0 +25,8 @@
++    public void testIssue1501() throws Exception
++    {
++        ObjectMapper mapper = new ObjectMapper();
++        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
++        String ser = mapper.writeValueAsString(new Something());
++        mapper.readValue(ser, Something.class);
++    }
++}

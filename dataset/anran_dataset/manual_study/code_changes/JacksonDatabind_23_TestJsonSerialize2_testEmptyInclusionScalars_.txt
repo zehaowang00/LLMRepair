@@ -1,0 +1,49 @@
+commit 6172d7561007a941b01f960dd44d94a92f3ad763
+Author: Cowtowncoder <tatu.saloranta@iki.fi>
+Date:   Wed Jul 1 15:29:21 2015
+
+    Fix #849
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/ser/TestJsonSerialize2.java b/src/test/java/com/fasterxml/jackson/databind/ser/TestJsonSerialize2.java
+--- a/src/test/java/com/fasterxml/jackson/databind/ser/TestJsonSerialize2.java
++++ b/src/test/java/com/fasterxml/jackson/databind/ser/TestJsonSerialize2.java
+@@ -211,1 +221,26 @@
+-    // [JACKSON-699]
++    public void testEmptyInclusionScalars() throws IOException
++    {
++        ObjectMapper defMapper = MAPPER;
++        ObjectMapper inclMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
++
++        // First, Strings
++        StringWrapper str = new StringWrapper("");
++        assertEquals("{\"str\":\"\"}", defMapper.writeValueAsString(str));
++        assertEquals("{}", inclMapper.writeValueAsString(str));
++        assertEquals("{}", inclMapper.writeValueAsString(new StringWrapper()));
++
++        assertEquals("{\"value\":\"x\"}", defMapper.writeValueAsString(new NonEmptyString("x")));
++        assertEquals("{}", defMapper.writeValueAsString(new NonEmptyString("")));
++
++        // Then numbers
++        assertEquals("{\"value\":12}", defMapper.writeValueAsString(new NonEmptyInt(12)));
++        assertEquals("{}", defMapper.writeValueAsString(new NonEmptyInt(0)));
++
++        assertEquals("{\"value\":1.25}", defMapper.writeValueAsString(new NonEmptyDouble(1.25)));
++        assertEquals("{}", defMapper.writeValueAsString(new NonEmptyDouble(0.0)));
++
++        IntWrapper zero = new IntWrapper(0);
++        assertEquals("{\"i\":0}", defMapper.writeValueAsString(zero));
++        assertEquals("{}", inclMapper.writeValueAsString(zero));
++    }
++
+
+commit a63c2038a03c7090ce4773d6cf54809150e59350
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 03:26:53 2011
+
+    Add unit tests, almost compilable
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/ser/TestAnnotationJsonSerialize2.java b/src/test/java/com/fasterxml/jackson/databind/ser/TestAnnotationJsonSerialize2.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/ser/TestAnnotationJsonSerialize2.java
+@@ -0,0 +215,1 @@
++    // [JACKSON-699]

@@ -1,0 +1,26 @@
+commit 76399e5b273d63d6affeb94597d8dfddce811964
+Author: Jonathan Hedley <jonathan@hedley.net>
+Date:   Sun Oct 6 19:20:52 2013
+
+    Fixed an issue where elements added via the adoption agency algorithm did not preserve their attributes.
+    
+    Fixes #313
+
+diff --git a/src/test/java/org/jsoup/parser/HtmlParserTest.java b/src/test/java/org/jsoup/parser/HtmlParserTest.java
+index 6aeaeaca..d7a1692c 100644
+--- a/src/test/java/org/jsoup/parser/HtmlParserTest.java
++++ b/src/test/java/org/jsoup/parser/HtmlParserTest.java
+@@ -522,6 +522,13 @@
+         assertEquals(want, doc.html());
+     }
+ 
++    @Test public void handlesUnclosedAnchors() {
++        String h = "<a href='http://example.com/'>Link<p>Error link</a>";
++        Document doc = Jsoup.parse(h);
++        String want = "<a href=\"http://example.com/\">Link</a>\n<p><a href=\"http://example.com/\">Error link</a></p>";
++        assertEquals(want, doc.body().html());
++    }
++
+     @Test public void reconstructFormattingElements() {
+         // tests attributes and multi b
+         String h = "<p><b class=one>One <i>Two <b>Three</p><p>Hello</p>";

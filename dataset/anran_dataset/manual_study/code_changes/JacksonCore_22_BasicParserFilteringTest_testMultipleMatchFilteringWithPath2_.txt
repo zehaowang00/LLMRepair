@@ -1,0 +1,74 @@
+commit 6feec20c842586056aa5b19c402b26be08c88ca3
+Author: Rafal Foltynski <r.foltynski@gmail.com>
+Date:   Sat Jun 3 23:32:03 2017
+
+    Fix #208: FilteringParserDelegate match count support
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java b/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
+--- a/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
++++ b/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
+@@ -133,13 +199,14 @@
+     public void testMultipleMatchFilteringWithPath2() throws Exception
+     {
+         String INPUT = aposToQuotes("{'a':123,'ob':{'value0':2,'value':3,'value2':4},'b':true}");
+         JsonParser p0 = JSON_F.createParser(INPUT);
+-        JsonParser p = new FilteringParserDelegate(p0,
++        FilteringParserDelegate p = new FilteringParserDelegate(p0,
+                 new NameMatchFilter("b", "value"),
+                 true, true);
+ 
+         String result = readAndWrite(JSON_F, p);
+         assertEquals(aposToQuotes("{'ob':{'value':3},'b':true}"), result);
++        assertEquals(2, p.getMatchCount());
+     }
+ 
+     @SuppressWarnings("resource")
+
+commit 7f7d10a8479598e5e076ed759d9c9b66f6dd20e7
+Author: Cowtowncoder <tatu.saloranta@iki.fi>
+Date:   Wed Apr 29 19:45:02 2015
+
+    Fix a newly found issue with parser filtering
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java b/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
+--- a/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
++++ b/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
+@@ -118,11 +118,13 @@
+     public void testMultipleMatchFilteringWithPath2() throws Exception
+     {
+-        JsonParser p0 = JSON_F.createParser(SIMPLE);
++        String INPUT = aposToQuotes("{'a':123,'ob':{'value0':2,'value':3,'value2':4},'b':true}");
++        JsonParser p0 = JSON_F.createParser(INPUT);
+         JsonParser p = new FilteringParserDelegate(p0,
+-                new NameMatchFilter("array", "b", "value"),
++                new NameMatchFilter("b", "value"),
+                 true, true);
++
+         String result = readAndWrite(JSON_F, p);
+-        assertEquals(aposToQuotes("{'array':[1,2],'ob':{'value':3},'b':true}"), result);
++        assertEquals(aposToQuotes("{'ob':{'value':3},'b':true}"), result);
+     }
+ 
+     @SuppressWarnings("resource")
+
+commit e183d16b2f03c06217f221f57ac35b6001d74d3f
+Author: Cowtowncoder <tatu.saloranta@iki.fi>
+Date:   Wed Apr 29 19:05:00 2015
+
+    More testing for parser/filter comb
+
+diff --git a/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java b/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/core/filter/BasicParserFilteringTest.java
+@@ -0,0 +118,11 @@
++    public void testMultipleMatchFilteringWithPath2() throws Exception
++    {
++        JsonParser p0 = JSON_F.createParser(SIMPLE);
++        JsonParser p = new FilteringParserDelegate(p0,
++                new NameMatchFilter("array", "b", "value"),
++                true, true);
++        String result = readAndWrite(JSON_F, p);
++        assertEquals(aposToQuotes("{'array':[1,2],'ob':{'value':3},'b':true}"), result);
++    }
++
++    @SuppressWarnings("resource")

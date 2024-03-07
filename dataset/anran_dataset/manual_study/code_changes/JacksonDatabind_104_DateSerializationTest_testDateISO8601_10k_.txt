@@ -1,0 +1,70 @@
+commit 83c7c4347055c3a70a3115fa106aa69c9cb56456
+Author: Tatu Saloranta <tatu.saloranta@iki.fi>
+Date:   Thu Nov 22 20:43:25 2018
+
+    Fix #2167
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/ser/jdk/DateSerializationTest.java b/src/test/java/com/fasterxml/jackson/databind/ser/jdk/DateSerializationTest.java
+--- a/src/test/java/com/fasterxml/jackson/databind/ser/jdk/DateSerializationTest.java
++++ b/src/test/java/com/fasterxml/jackson/databind/ser/jdk/DateSerializationTest.java
+@@ -120,2 +130,10 @@
+-        serialize( mapper, judate(1970, 1, 1,  02, 00, 00, 0, "GMT+2"), "1970-01-01T00:00:00.000+0000");
+-		serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"),   "1970-01-01T00:00:00.000+0000");
++    public void testDateISO8601_10k() throws IOException
++    {
++        ObjectWriter w = MAPPER.writer()
++                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
++        serialize(w, judate(10204, 1, 1,  00, 00, 00, 0, "UTC"),   "+10204-01-01T00:00:00.000+0000");
++        // and although specification lacks for beyond 5 digits (well, actually even 5...), let's do our best:
++        serialize(w, judate(123456, 1, 1,  00, 00, 00, 0, "UTC"),   "+123456-01-01T00:00:00.000+0000");
++    }
++
++    // [databind#2167]: dates before Common Era (CE), that is, BCE, need special care:
+
+commit f11c8ad829e48d9f001de1c6d712ad834d7327d8
+Author: Bertrand Renuart <bertrand.renuart@itma.lu>
+Date:   Mon Aug 28 06:27:22 2017
+
+    Add an option to format TZ offset with or without colon between hours and minutes
+    Add tests to cover this new feature
+    Refactor (some) tests for better readability
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/ser/jdk/DateSerializationTest.java b/src/test/java/com/fasterxml/jackson/databind/ser/jdk/DateSerializationTest.java
+--- a/src/test/java/com/fasterxml/jackson/databind/ser/jdk/DateSerializationTest.java
++++ b/src/test/java/com/fasterxml/jackson/databind/ser/jdk/DateSerializationTest.java
+@@ -106,3 +120,2 @@
+-        // let's hit epoch start
+-        String json = mapper.writeValueAsString(new Date(0L));
+-        assertEquals("\"1970-01-01T00:00:00.000+0000\"", json);
++        serialize( mapper, judate(1970, 1, 1,  02, 00, 00, 0, "GMT+2"), "1970-01-01T00:00:00.000+0000");
++		serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"),   "1970-01-01T00:00:00.000+0000");
+
+commit ff8c08cb7cbc88c5fee8f736d33b3b2baaf9dd68
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Wed Feb 22 01:21:21 2012
+
+    Start work on [JACKSON-439]; serialization-side done
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/ser/TestDateSerialization.java b/src/test/java/com/fasterxml/jackson/databind/ser/TestDateSerialization.java
+--- a/src/test/java/com/fasterxml/jackson/databind/ser/TestDateSerialization.java
++++ b/src/test/java/com/fasterxml/jackson/databind/ser/TestDateSerialization.java
+@@ -45,3 +57,3 @@
+         // let's hit epoch start
+-        mapper.writeValue(sw, new Date(0L));
+-        assertEquals("\"1970-01-01T00:00:00.000+0000\"", sw.toString());
++        String json = mapper.writeValueAsString(new Date(0L));
++        assertEquals("\"1970-01-01T00:00:00.000+0000\"", json);
+
+commit a63c2038a03c7090ce4773d6cf54809150e59350
+Author: Tatu Saloranta <tsaloranta@gmail.com>
+Date:   Sat Dec 24 03:26:53 2011
+
+    Add unit tests, almost compilable
+
+diff --git a/src/test/java/com/fasterxml/jackson/databind/ser/TestDateSerialization.java b/src/test/java/com/fasterxml/jackson/databind/ser/TestDateSerialization.java
+--- /dev/null
++++ b/src/test/java/com/fasterxml/jackson/databind/ser/TestDateSerialization.java
+@@ -0,0 +45,3 @@
++        // let's hit epoch start
++        mapper.writeValue(sw, new Date(0L));
++        assertEquals("\"1970-01-01T00:00:00.000+0000\"", sw.toString());
