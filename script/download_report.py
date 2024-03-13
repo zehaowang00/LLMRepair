@@ -1,7 +1,6 @@
 import pandas as pd
 import os 
 import requests
-from urllib.parse import urljoin
 
 def download_file(url, folder_path):
     local_filename = url.split('/')[-1]
