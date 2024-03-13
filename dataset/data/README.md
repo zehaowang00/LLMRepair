@@ -1,1 +1,0 @@
-# This folder include the dataset for our project
