@@ -11,7 +11,7 @@ def download_file(url, folder_path):
             for chunk in r.iter_content(chunk_size=8192): 
                 f.write(chunk)
 
-folder_path = '/Users/wang/Documents/project/LLMRepair/dataset/bug_report/Lang/'
+folder_path = '/Users/wang/Documents/project/LLMRepair/dataset/bug_report/raw/Lang/'
 data = pd.read_csv(folder_path +'bug_report.csv', usecols=['Report ID','Report URL'])
 url_reports = data.set_index('Report ID')['Report URL'].to_dict()
 for id, url in url_reports.items():
