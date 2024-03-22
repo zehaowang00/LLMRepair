@@ -1,6 +1,8 @@
 import pandas as pd
 import os 
 import json
+from openai import OpenAI
+import re
 
 def get_completion(client, prompt):
     messages = [{"role": "user", "content": prompt}]
@@ -18,13 +20,30 @@ def patch_generation(client, prompt, few_shots, save_file_path ):
     with open(save_file_path, 'w') as file:
        json.dump(json.loads(response), file, indent=4)
 
-def load_data():
-    pass 
+def load_json(file_path):
+    with open(file_path, 'r') as file:
+            data = json.load(file)
+            return data 
+    
+def load_api_key(key_path):
+    with open(key_path, 'r') as file:
+        data = json.load(file)
+        return data['Key']
+    
+def preprocessing_title(report_title):
+     processed_str = re.sub(r"\[LANG-\d+\]", "", report_title)
+     return processed_str.strip()
 
+def generate_patch():
+     pass
+
+def generate_test():
+     pass
 
 prompt_patch = {
   "Role": "As a professional developers. You are responsible for generating program repair patch.",
   "Instruction": "Read ",
+  "Example:":"", 
   "Question": """ Question1: 
               """
 }
@@ -35,3 +54,11 @@ prompt_testing = {
   "Question": """ Question1: 
               """
 }
+
+bug_report_path = ""
+fault_localization_path = ""
+bug_report = load_json(bug_report_path)
+fault_localization_info = load_json(fault_localization_path)
+api_key_path = "/Users/wang/Documents/project/api_key.json" # use your key
+api_key = load_api_key(api_key_path)
+client = OpenAI(api_key=api_key)
