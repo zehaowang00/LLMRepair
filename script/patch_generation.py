@@ -117,4 +117,5 @@ else:
      test_case = load_json(test_file_path)['Fault triggering test']
      prompt_patch = prompt_init_patch(prompt_patch, example=format_example, description=bug_report[0]['description'], title=preprocessing_title(bug_report[0]['title']), file_name=fault_localization_info['Question1'], method_buggy_code=fault_localization_info['Question3'], suspicious_code=fault_localization_info['Question4'])
      prompt_patch['Test case'] = json.dumps(test_case)
-     prompt_patch['Instruction'] = "..."
+     prompt_patch['Instruction'] = "..." #update intruction to tell there is test cases informaiton
+     patch_generation(client, prompt_patch, "", save_file_path)
