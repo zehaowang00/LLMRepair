@@ -1,0 +1,6 @@
+[
+    {
+        "title": "[LANG-432] Fix case-insensitive string handling",
+        "description": "<p><tt>String.to*Case()</tt> is locale-sensitive, this is usually not intended for case-insensitive comparisions. Please see <a href=\"http://www.nabble.com/Re%3A-Common-Bugs-p14931921s177.html\" class=\"external-link\" target=\"_blank\" rel=\"nofollow noopener\">Common Bug #3</a> for details.</p>"
+    }
+]

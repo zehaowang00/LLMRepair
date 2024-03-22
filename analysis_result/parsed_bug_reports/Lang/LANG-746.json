@@ -1,0 +1,6 @@
+[
+    {
+        "title": "[LANG-746] NumberUtils does not handle upper-case hex: 0X and -0X",
+        "description": "<p>NumberUtils.createNumber() should work equally for 0x1234 and 0X1234; currently 0X1234 generates a NumberFormatException</p>\n\n<p>Integer.decode() handles both upper and lower case hex.</p>"
+    }
+]

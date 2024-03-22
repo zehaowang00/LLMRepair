@@ -1,0 +1,6 @@
+[
+    {
+        "title": "[LANG-638] NumberUtils createNumber throws a StringIndexOutOfBoundsException when argument containing \"e\" and \"E\" is passed in",
+        "description": "<p>NumberUtils createNumber throws a StringIndexOutOfBoundsException instead of NumberFormatException when a String containing both possible exponent indicators is passed in.<br/>\nOne example of such a String is \"1eE\".</p>"
+    }
+]

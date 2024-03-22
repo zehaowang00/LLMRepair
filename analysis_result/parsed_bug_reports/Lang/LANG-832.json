@@ -1,0 +1,6 @@
+[
+    {
+        "title": "[LANG-832] FastDateParser does not handle unterminated quotes correctly",
+        "description": "<p>FDP does not handled unterminated quotes the same way as SimpleDateFormat</p>\n\n<p>For example:</p>\n\n<p>Format: 'd'd'<br/>\nDate: d3</p>\n\n<p>This should fail to parse the format and date but it actually works.<br/>\nThe format is parsed as:</p>\n\n<p>Pattern: d(\\p</p>\n{IsNd}\n<p>++)</p>"
+    }
+]

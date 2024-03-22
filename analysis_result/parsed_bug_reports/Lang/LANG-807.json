@@ -1,0 +1,6 @@
+[
+    {
+        "title": "[LANG-807] RandomStringUtils throws confusing IAE when end <= start",
+        "description": "<p>RandomUtils invokes Random#nextInt<img class=\"emoticon\" src=\"https://issues.apache.org/jira/images/icons/emoticons/thumbs_down.png\" height=\"16\" width=\"16\" align=\"absmiddle\" alt=\"\" border=\"0\"/> where n = end - start.</p>\n\n<p>If end &lt;= start, then Random throws:</p>\n\n<p>java.lang.IllegalArgumentException: n must be positive</p>\n\n<p>This is confusing, and does not identify the source of the problem.</p>"
+    }
+]

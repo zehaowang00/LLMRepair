@@ -1,0 +1,6 @@
+[
+    {
+        "title": "[LANG-587] ClassUtils.toClass(Object[]) throws NPE on null array element",
+        "description": "<p>see summary</p>"
+    }
+]

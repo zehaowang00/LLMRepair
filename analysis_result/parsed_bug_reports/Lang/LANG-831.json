@@ -1,0 +1,6 @@
+[
+    {
+        "title": "[LANG-831] FastDateParser does not handle white-space properly",
+        "description": "<p>The SimpleDateFormat Javadoc does not treat white-space specially, however FastDateParser treats a single white-space as being any number of white-space characters.</p>\n\n<p>This means that FDP will parse dates that fail when parsed by SDP.</p>"
+    }
+]

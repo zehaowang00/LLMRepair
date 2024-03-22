@@ -1,0 +1,6 @@
+[
+    {
+        "title": "[LANG-259] ValuedEnum.compareTo(Object other) not typesafe - it easily could be...",
+        "description": "<p>int org.apache.commons.lang.enums.ValuedEnum.compareTo(Object other)<br/>\n is not typesafe - if the int-values are the same, it will return \"0\" even for two totally different sub-classes of ValuedEnum</p>"
+    }
+]

@@ -1,0 +1,6 @@
+[
+    {
+        "title": "[LANG-677] DateUtils.isSameLocalTime does not work correct",
+        "description": "<p>Hi, I think I found a bug in the DateUtils class in the method isSameLocalTime.</p>\n\n<p>Example: <br/>\nCalendar a = Calendar.getInstance();<br/>\na.setTimeInMillis(1297364400000L);</p>\n\n<p>Calendar b = Calendar.getInstance();<br/>\nb.setTimeInMillis(1297321200000L);</p>\n\n<p>Assert.assertFalse(DateUtils.isSameLocalTime(a, b));</p>\n\n<p>This is because the method compares <br/>\ncal1.get(Calendar.HOUR) == cal2.get(Calendar.HOUR) </p>\n\n<p>but I think it has to be <br/>\ncal1.get(Calendar.HOUR_OF_DAY) == cal2.get(Calendar.HOUR_OF_DAY)</p>\n\n\n"
+    }
+]

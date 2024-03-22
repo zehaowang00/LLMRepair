@@ -1,0 +1,6 @@
+[
+    {
+        "title": "[LANG-368] FastDateFormat getDateInstance() and getDateTimeInstance() assume Locale.getDefault() won't change",
+        "description": "<p>The FastDateFormat getDateInstance() and getDateTimeInstance()  methods create the HashMap key from various items including the locale.</p>\n\n<p>If the locale is null, then it is not made part of the key, but the stored object is created using the current default locale.</p>\n\n<p>If the Locale is changed subsequently, then the wrong locale is applied.</p>\n\n<p>Patch for test case to follow.</p>"
+    }
+]

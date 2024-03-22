@@ -1,0 +1,6 @@
+[
+    {
+        "title": "[LANG-303] FastDateFormat.mRules is not transient or serializable",
+        "description": "<p>Reported by FindBugs.</p>\n\n<p>Either we need to make the Rule interface Serializable, or make mRules transient and add deserializing code to kick off init().</p>"
+    }
+]

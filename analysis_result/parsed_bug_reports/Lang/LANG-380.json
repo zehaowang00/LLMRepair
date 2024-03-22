@@ -1,0 +1,6 @@
+[
+    {
+        "title": "[LANG-380] infinite loop in Fraction.reduce when numerator == 0",
+        "description": "<p>Summary pretty much says it all.</p>"
+    }
+]

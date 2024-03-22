@@ -1,0 +1,6 @@
+[
+    {
+        "title": "[LANG-295] StrBuilder contains usages of thisBuf.length when they should use size",
+        "description": "<p>While fixing <a href=\"https://issues.apache.org/jira/browse/LANG-294\" title=\"StrBuilder.replaceAll and StrBuilder.deleteAll can throw ArrayIndexOutOfBoundsException.\" class=\"issue-link\" data-issue-key=\"LANG-294\"><del>LANG-294</del></a> I noticed that there are two other places in StrBuilder that reference thisBuf.length and unless I'm mistaken they shouldn't.</p>"
+    }
+]

@@ -1,0 +1,6 @@
+[
+    {
+        "title": "[LANG-535] ClassUtils.getShortClassName() will not work with an array;  it seems to add a semicolon to the end.",
+        "description": "<p>A semicolon is introduced into the class name at the end for all arrays...</p>\n\n<p>String sArray[] = new String<span class=\"error\">&#91;2&#93;</span>;<br/>\nsArray<span class=\"error\">&#91;0&#93;</span> = \"mark\";<br/>\nsArray<span class=\"error\">&#91;1&#93;</span> = \"is cool\";<br/>\nString simpleString = \"chris\";</p>\n\n<p>assertEquals(\"String\", ClassUtils.getShortClassName(simpleString, null));<br/>\nassertEquals(\"String;\", ClassUtils.getShortClassName(sArray, null));</p>"
+    }
+]

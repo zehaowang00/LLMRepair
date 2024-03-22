@@ -1,0 +1,6 @@
+[
+    {
+        "title": "[LANG-365] BooleanUtils.toBoolean() - invalid drop-thru in case statement causes StringIndexOutOfBoundsException",
+        "description": "<p>The method BooleanUtils.toBoolean() has a case statement; case 3 drops through to case 4; this can cause StringIndexOutOfBoundsException, for example with the test:</p>\n\n<p>assertEquals(false, BooleanUtils.toBoolean(\"tru\"));</p>\n\n<p>The end of case 3 should return false.</p>\n\n<p>Patch to follow for source and unit test.</p>"
+    }
+]
