@@ -2,6 +2,7 @@ import pandas as pd
 import os
 import xml.etree.ElementTree as ET
 import json
+import pickle
 
 
 def extract_report_info(xml_file_path, json_file_path):
@@ -31,3 +32,4 @@ for filename in os.listdir(report_xml_folder):
         )
 
         extract_report_info(xml_file_path, json_file_path)
+

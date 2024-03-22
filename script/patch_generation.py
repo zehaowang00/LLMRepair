@@ -22,7 +22,14 @@ def load_data():
     pass 
 
 
-prompt_geneartion = {
+prompt_patch = {
+  "Role": "As a professional developers. You are responsible for generating program repair patch.",
+  "Instruction": "Read ",
+  "Question": """ Question1: 
+              """
+}
+
+prompt_testing = {
   "Role": "As a professional developers. You are responsible for generating program repair patch.",
   "Instruction": "Read ",
   "Question": """ Question1: 
