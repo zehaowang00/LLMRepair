@@ -1,9 +1,11 @@
 diff --git a/src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java b/src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java
-index 1234567..7654321 100644
+index abcdef1..1234567 100644
 --- a/src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java
 +++ b/src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java
-@@ -1,5 +1,5 @@
- public static boolean isAvailableLocale(Locale locale) {
+@@ -100,7 +100,7 @@ public static boolean isAvailableLocale(Locale locale) {
+     }
+ 
+     public static boolean isAvailableLocale(Locale locale) {
 -        return cAvailableLocaleSet.contains(locale);
 +        return cAvailableLocaleSet != null && cAvailableLocaleSet.contains(locale);
      }

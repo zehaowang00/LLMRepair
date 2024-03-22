@@ -1,0 +1,10 @@
+{
+    "Fault triggering test": {
+        "test_case_1": {
+            "input": {
+                "locale": "en_US"
+            },
+            "expected_output": "NullPointerException"
+        }
+    }
+}
