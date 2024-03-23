@@ -45,7 +45,11 @@ def prompt_init(prompt, description, title, source_code, file_name):
      prompt['Checked code'] = source_code
      prompt['"File name of checked code"'] = file_name
      return prompt
-     
+
+def get_report_map_dic(report_df):
+    report_df['Lang ID'] = report_df['Bug ID'].apply(lambda x: 'LANG_' + str(x))
+    report_df['Report ID'] = report_df['Report ID'].apply(lambda x: x.replace('-','_'))
+    return report_df.set_index('Lang ID')['Report ID'].to_dict()      
 
 prompt_localization = {
   "Role": "As a professional developers. You are responsible for locate and extract the buggy code snippet in the provided checked code carefully and accurately",
@@ -69,9 +73,13 @@ prompt_localization = {
 # bug_report_des_path = '../analysis_result/parsed_bug_reports/Lang/LANG-857.json'
 # source_code_path = '/Users/wang/Documents/project/defects4j/Data/Lang/lang_6_b/src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java'
 # save_file_path = '../analysis_result/GPT_response/fault_location/Lang/LANG-6.json'
-bug_report_des_path = '../analysis_result/parsed_bug_reports/Lang/LANG-304.json'
-source_code_path = '/Users/wang/Documents/project/defects4j/Data/Lang/lang_57_b/src/java/org/apache/commons/lang/LocaleUtils.java'
-save_file_path = '../analysis_result/GPT_response/fault_location/Lang/LANG-57.json'
+report_map_path = '../dataset/bug_report/Lang/bug_report.csv'
+bug_report= pd.read_csv(report_map_path)
+bug_report_map = get_report_map_dic(bug_report)
+bug_id = 'LANG_57'
+bug_report_des_path = '../analysis_result/parsed_bug_reports/Lang/' + bug_report_map[bug_id] + '.json'
+source_code_path = '/Users/wang/Documents/project/defects4j/Data/Lang/' + bug_id.lower() + '_b/src/java/org/apache/commons/lang/LocaleUtils.java'
+save_file_path = f'../analysis_result/GPT_response/fault_location/Lang/{bug_id}.json'
 report = load_bug_report(bug_report_des_path)
 prompt_localization = prompt_init(prompt_localization, report[0]['description'], preprocessing_title(report[0]['title']), load_source_code(source_code_path), "src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java")
 api_key_path = "/Users/wang/Documents/project/api_key.json" # use your key

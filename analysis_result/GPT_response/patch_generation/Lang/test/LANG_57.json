@@ -1,0 +1,3 @@
+{
+    "Fault Triggering Test": "public class LocaleUtilsTest {\n    @Test\n    public void testIsAvailableLocale() {\n        Locale locale = null;\n        boolean result = LocaleUtils.isAvailableLocale(locale);\n        assertFalse(result);\n    }\n}"
+}

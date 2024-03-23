@@ -1,6 +1,0 @@
-{
-    "Question1": "src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java",
-    "Question2": "No",
-    "Question3": "public static boolean isAvailableLocale(Locale locale) {\n        return cAvailableLocaleSet.contains(locale);\n    }",
-    "Question4": "return cAvailableLocaleSet.contains(locale);"
-}
