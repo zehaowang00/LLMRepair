@@ -46,12 +46,6 @@ def preprocessing_title(report_title):
      processed_str = re.sub(r"\[LANG-\d+\]", "", report_title)
      return processed_str.strip()
 
-def generate_patch():
-     pass
-
-def generate_test():
-     pass
-
 def prompt_init_patch(prompt, example, description, title, file_name, method_buggy_code, suspicious_code):
      prompt['Fix Patch format Example'] = "git diff format"
      prompt['Bug report description'] = description
@@ -69,11 +63,38 @@ def prompt_init_test(prompt, description, title, method_buggy_code, suspicious_c
      prompt['suspicious buggy code statements'] = suspicious_code
      return prompt
 
+def prompt_reason_patch(prompt):
+     return prompt
+
+def prompt_reason_test(prompt):
+     return prompt
+
 def get_report_map_dic(report_df):
     report_df['Lang ID'] = report_df['Bug ID'].apply(lambda x: 'LANG_' + str(x))
     report_df['Report ID'] = report_df['Report ID'].apply(lambda x: x.replace('-','_'))
-    return report_df.set_index('Lang ID')['Report ID'].to_dict()    
+    return report_df.set_index('Lang ID')['Report ID'].to_dict()   
  
+def has_reason_analysis(): 
+    return False
+
+def test_role_patch_generation(client, reason_analysis, prompt_patch, prompt_test, description, title, method_buggy_code, suspicious_code, file_name, save_file_path): 
+     if not reason_analysis:
+          prompt_test = prompt_init_test(prompt_test, description, title, method_buggy_code=method_buggy_code, suspicious_code=suspicious_code)
+          test_generation(client, prompt_test, "", test_file_path)
+          test_case = load_json(test_file_path)['Fault Triggering Test']
+          prompt_patch = prompt_init_patch(prompt_patch, example=format_example, description=description, title=title, file_name=file_name, method_buggy_code=method_buggy_code, suspicious_code=suspicious_code)
+          prompt_patch['Fualt triggering test for bug'] = json.dumps(test_case)
+          #prompt_patch['Instruction'] = "Output JSON format" #update intruction to tell there is test cases informaiton
+          patch_generation(client, prompt_patch, "", save_file_path)
+     else: 
+          prompt_test = prompt_reason_test(prompt_test) # need to finish
+          test_generation(client, prompt_test, "", test_file_path)
+          test_case = load_json(test_file_path)['Fault Triggering Test']
+          prompt_patch = prompt_reason_patch(prompt_patch)
+          prompt_patch['Fualt triggering test for bug'] = json.dumps(test_case)
+          #prompt_patch['Instruction'] = "Output JSON format" #update intruction to tell there is test cases informaiton
+          patch_generation(client, prompt_patch, "", save_file_path)
+
 prompt_patch = {
   "Role": "As a professional developers. You are responsible for fixing the bug in bug report and generating program repair patch.",
   "Instruction": """You should check the bug report information. The location of buggy code is provided. There are two type of information: method include bug, and suspicious buggy code statements. 
@@ -115,15 +136,15 @@ format_example = load_source_code(example_file_path)
 api_key_path = "/Users/wang/Documents/project/api_key.json" # use your key
 api_key = load_api_key(api_key_path)
 client = OpenAI(api_key=api_key)
-without_tester_role = True
+without_tester_role = False
+
 if without_tester_role:
-     prompt_patch = prompt_init_patch(prompt_patch, example=format_example, description=bug_report[0]['description'], title=preprocessing_title(bug_report[0]['title']), file_name=fault_localization_info['Question1'], method_buggy_code=fault_localization_info['Question3'], suspicious_code=fault_localization_info['Question4'])
-     patch_generation(client, prompt_patch, "", save_file_path)
+     if not has_reason_analysis():
+          prompt_patch = prompt_init_patch(prompt_patch, example=format_example, description=bug_report[0]['description'], title=preprocessing_title(bug_report[0]['title']), file_name=fault_localization_info['Question1'], method_buggy_code=fault_localization_info['Question3'], suspicious_code=fault_localization_info['Question4'])
+          patch_generation(client, prompt_patch, "", save_file_path)
+     else:
+          prompt_patch = prompt_reason_patch(prompt_patch)
+          patch_generation(client, prompt_patch, "", save_file_path)
+
 else:
-     prompt_test = prompt_init_test(prompt_test, description=bug_report[0]['description'], title=preprocessing_title(bug_report[0]['title']), method_buggy_code=fault_localization_info['Question3'], suspicious_code=fault_localization_info['Question4'])
-     test_generation(client, prompt_test, "", test_file_path)
-     test_case = load_json(test_file_path)['Fault Triggering Test']
-     prompt_patch = prompt_init_patch(prompt_patch, example=format_example, description=bug_report[0]['description'], title=preprocessing_title(bug_report[0]['title']), file_name=fault_localization_info['Question1'], method_buggy_code=fault_localization_info['Question3'], suspicious_code=fault_localization_info['Question4'])
-     prompt_patch['Fualt triggering test for bug'] = json.dumps(test_case)
-     #prompt_patch['Instruction'] = "Output JSON format" #update intruction to tell there is test cases informaiton
-     patch_generation(client, prompt_patch, "", save_file_path)
+     test_role_patch_generation(client, has_reason_analysis(), prompt_patch, prompt_test, description=bug_report[0]['description'], title=preprocessing_title(bug_report[0]['title']), method_buggy_code=fault_localization_info['Question3'], suspicious_code=fault_localization_info['Question4'], file_name=fault_localization_info['Question1'], save_file_path=save_file_path)

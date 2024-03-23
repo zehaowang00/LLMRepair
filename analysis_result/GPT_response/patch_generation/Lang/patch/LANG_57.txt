@@ -2,7 +2,7 @@ diff --git a/src/main/java/org/apache/commons/lang3/text/translate/CharSequenceT
 index 1234567..7654321 100644
 --- a/src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java
 +++ b/src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java
-@@ -10,6 +10,7 @@ import java.util.Set;
+@@ -10,6 +10,7 @@ import java.util.Locale;
  public static boolean isAvailableLocale(Locale locale) {
 -       return cAvailableLocaleSet.contains(locale);
 +       return cAvailableLocaleSet != null && cAvailableLocaleSet.contains(locale);
