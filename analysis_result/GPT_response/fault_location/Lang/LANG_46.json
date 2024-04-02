@@ -1,0 +1,6 @@
+{
+    "Question1": "src/java/org/apache/commons/lang/StringEscapeUtils.java",
+    "Question2": "Yes",
+    "Question3": "public static String escapeJava(String str) {\n        return escapeJavaStyleString(str, false);\n    }",
+    "Question4": "out.write('/');"
+}

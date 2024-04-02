@@ -1,0 +1,6 @@
+{
+    "Question1": "src/java/org/apache/commons/lang/time/DateUtils.java",
+    "Question2": "Yes",
+    "Question3": "public static Date truncate(Date date, int field) { ... }",
+    "Question4": "val.add(Calendar.DATE, 15);"
+}

@@ -1,0 +1,6 @@
+{
+    "Question1": "src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java",
+    "Question2": "No",
+    "Question3": "public ToStringBuilder(Object object) { ... }",
+    "Question4": "The thread local in org.apache.commons.lang3.builder.ToStringStyle is created but never removed and no API is provided to remove it."
+}

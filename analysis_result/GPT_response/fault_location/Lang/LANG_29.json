@@ -1,0 +1,6 @@
+{
+    "Question1": "src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java",
+    "Question2": "No",
+    "Question3": "public String toString() {\n    if (this.getObject() == null) {\n        this.getStringBuffer().append(this.getStyle().getNullText());\n    } else {\n        style.appendEnd(this.getStringBuffer(), this.getObject());\n    }\n    return this.getStringBuffer().toString();\n}",
+    "Question4": "if (this.getObject() == null) {\n    this.getStringBuffer().append(this.getStyle().getNullText());\n} else {\n    style.appendEnd(this.getStringBuffer(), this.getObject());\n}"
+}

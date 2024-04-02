@@ -1,0 +1,6 @@
+{
+    "Question1": "EntityArrays.java",
+    "Question2": "No",
+    "Question3": "private static final String[][] ISO8859_1_ESCAPE method contains the bug",
+    "Question4": "The code statements {\"\\u00D7\", \"&amp;Ouml;\"} and {\"\\u00D8\", \"&amp;times;\"} cause the bug"
+}
