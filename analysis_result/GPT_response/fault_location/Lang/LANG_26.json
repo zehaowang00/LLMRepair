@@ -1,0 +1,6 @@
+{
+    "Question1": "src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java",
+    "Question2": "No",
+    "Question3": "public static String format(Date date, String pattern, TimeZone timeZone, Locale locale) {\n        FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);\n        return df.format(date);\n    }",
+    "Question4": "FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);\n        return df.format(date);"
+}

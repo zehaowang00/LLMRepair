@@ -1,0 +1,6 @@
+{
+    "Question1": "src/java/org/apache/commons/lang/StringEscapeUtils.java",
+    "Question2": "Yes",
+    "Question3": "public static String escapeHtml(String str) {\n        if (str == null) {\n            return null;\n        }\n        try {\n            StringWriter writer = new StringWriter ((int)(str.length() * 1.5));\n            escapeHtml(writer, str);\n            return writer.toString();\n        } catch (IOException ioe) {\n            //should be impossible\n            throw new UnhandledException(ioe);\n        }\n    }",
+    "Question4": "The buggy code statements are in the escapeHtml method where the HTML entities are escaped. The issue is with the handling of unicode characters above U+00FFFF, which are incorrectly converted into 2 characters instead of the correct single character representation."
+}
