@@ -8,9 +8,10 @@ def get_completion(client, prompt):
     messages = [{"role": "user", "content": prompt}]
     response = client.chat.completions.create(
         model="gpt-3.5-turbo-0125",
+        # model = 'gpt-4',
         messages=messages,
         response_format={"type": "json_object"},
-        temperature=0,
+        temperature=0.3,
     )
     return response.choices[0].message.content
 
@@ -37,26 +38,62 @@ def load_api_key(key_path):
     with open(key_path, 'r') as file:
         data = json.load(file)
         return data['Key']
+    
+def prompt_init(prompt, description, title, source_code, file_name):
+     prompt['Bug report description'] = description
+     prompt['Bug report title'] = title
+     prompt['Checked code'] = source_code
+     prompt['"File name of checked code"'] = file_name
+     return prompt
+
+def prompt_reason_fault(prompt):
+     return prompt
+
+def get_report_map_dic(report_df):
+    report_df['Lang ID'] = report_df['Bug ID'].apply(lambda x: 'LANG_' + str(x))
+    report_df['Report ID'] = report_df['Report ID'].apply(lambda x: x.replace('-','_'))
+    return report_df.set_index('Lang ID')['Report ID'].to_dict()      
+
+def has_reason_analysis():
+    return False
 
 prompt_localization = {
-  "Role": "As a professional developers. You are responsible for locate the location of buggy code snippet in the provided input file",
-  "Instruction": "check the bug report description/title and try to find the answer for the question. Output in json format.",
+  "Role": "As a professional developers. You are responsible for locate and extract the buggy code snippet in the provided checked code carefully and accurately",
+  "Instruction": "check the bug report description/title and try to answer the question. Output in JSON format.",
   "Bug report description": "",
   "Bug report title": "", 
-  "Input file": "",
+  "Checked code": "",
+  "File name of checked code": "",
   "Question": """ 
-            Question1: What is the code that contains the bug in the provided input file? (Please just reply the block level of code statements that has bug. Do not explain the bug, just reply the source code that may contain bug)
-            Question2: Provide the code line number about the buggy code snippet in the source code. (Answer the location of start line number and the location of end line number)
+            Question1: What is the file name of checked code? 
+            Question2: If checked code has the bug that is described in the bug report? (Only Answer Yes or No)
+            Question3: In the checked code, Which method in the code contains the bug in the bug report? (please output the entire method that include buggy code from checked code, include the method name and body. The code you provide here is for further manual fix.)
+            Question4: In the mthod, which code statements cause the bug?  (please answer the specific buggy code statements carefully. The answer should be the code in the method-level buggy code from the answer of Question3 for the bug in bug report.)
   """
 }
 
-bug_report_des_path = '../analysis_result/parsed_bug_reports/Lang/LANG-747.json'
-source_code_file = '/Users/wang/Documents/project/defects4j/Data/Lang/lang_1_b/src/main/java/org/apache/commons/lang3/math/NumberUtils.java'
-save_file_path = '../analysis_result/GPT_response/fault_location/Lang/LANG-1.json'
+
+
+#bug_report_des_path = '../analysis_result/parsed_bug_reports/Lang/LANG-747.json'
+#source_code_path = '/Users/wang/Documents/project/defects4j/Data/Lang/lang_1_b/src/main/java/org/apache/commons/lang3/math/NumberUtils.java'
+#save_file_path = '../analysis_result/GPT_response/fault_location/Lang/LANG-1.json'
+# bug_report_des_path = '../analysis_result/parsed_bug_reports/Lang/LANG-857.json'
+# source_code_path = '/Users/wang/Documents/project/defects4j/Data/Lang/lang_6_b/src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java'
+# save_file_path = '../analysis_result/GPT_response/fault_location/Lang/LANG-6.json'
+report_map_path = '../dataset/bug_report/Lang/bug_report.csv'
+bug_report= pd.read_csv(report_map_path)
+bug_report_map = get_report_map_dic(bug_report)
+bug_id = 'LANG_57'
+bug_report_des_path = '../analysis_result/parsed_bug_reports/Lang/' + bug_report_map[bug_id] + '.json'
+source_code_path = '/Users/wang/Documents/project/defects4j/Data/Lang/' + bug_id.lower() + '_b/src/java/org/apache/commons/lang/LocaleUtils.java'
+save_file_path = f'../analysis_result/GPT_response/fault_location/Lang/{bug_id}.json'
 report = load_bug_report(bug_report_des_path)
-prompt_localization['Bug report description'] = report[0]['description']
-prompt_localization['Bug report title'] = preprocessing_title(report[0]['title'])
+prompt_localization = prompt_init(prompt_localization, report[0]['description'], preprocessing_title(report[0]['title']), load_source_code(source_code_path), "src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java")
 api_key_path = "/Users/wang/Documents/project/api_key.json" # use your key
 api_key = load_api_key(api_key_path)
 client = OpenAI(api_key=api_key)
-fault_localization(client, prompt_localization, "", save_file_path)
+if not has_reason_analysis():
+    fault_localization(client, prompt_localization, "", save_file_path)
+else:
+     prompt_localization = prompt_reason_fault(prompt_localization)
+     fault_localization(client, prompt_localization, "", save_file_path)
