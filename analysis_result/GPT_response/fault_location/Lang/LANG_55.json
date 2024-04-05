@@ -1,0 +1,6 @@
+{
+    "Question1": "src/java/org/apache/commons/lang/time/StopWatch.java",
+    "Question2": "Yes",
+    "Question3": "public void stop() {\n        if(this.runningState != STATE_RUNNING && this.runningState != STATE_SUSPENDED) {\n            throw new IllegalStateException(\"Stopwatch is not running. \");\n        }\n            stopTime = System.currentTimeMillis();\n        this.runningState = STATE_STOPPED;\n    }",
+    "Question4": "stopTime = System.currentTimeMillis();\n        this.runningState = STATE_STOPPED;"
+}

@@ -1,0 +1,6 @@
+{
+    "Question1": "Entities.java",
+    "Question2": "No",
+    "Question3": "public void unescapeXml(StringBuffer out, String value)",
+    "Question4": "doTestUnescapeEntity(\"&amp;#12345678;\", \"&amp;#12345678;\");\ndoTestUnescapeEntity(\"x&amp;#12345678;y\", \"x&amp;#12345678;y\");\ndoTestUnescapeEntity(\"&amp;#x12345678;\", \"&amp;#x12345678;\");\ndoTestUnescapeEntity(\"x&amp;#x12345678;y\", \"x&amp;#x12345678;y\");"
+}
