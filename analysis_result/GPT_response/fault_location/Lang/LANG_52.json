@@ -1,0 +1,6 @@
+{
+    "Question1": "src/java/org/apache/commons/lang/StringEscapeUtils.java",
+    "Question2": "Yes",
+    "Question3": "public static String escapeJavaScript(String str) {\n        return escapeJavaStyleString(str, true);\n    }",
+    "Question4": "The code statements that cause the bug are: \nreturn escapeJavaStyleString(str, true);"
+}

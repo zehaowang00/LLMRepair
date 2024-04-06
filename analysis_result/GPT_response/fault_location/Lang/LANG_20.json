@@ -1,0 +1,6 @@
+{
+    "Question1": "src/main/java/org/apache/commons/lang3/ObjectUtils.java",
+    "Question2": "No",
+    "Question3": "public static String identityToString(Object object) {\n        if (object == null) {\n            return null;\n        }\n        StringBuffer buffer = new StringBuffer();\n        identityToString(buffer, object);\n        return buffer.toString();\n    }",
+    "Question4": "The code statements that cause the bug are:\n1. if (object == null) {\n            return null;\n        }"
+}

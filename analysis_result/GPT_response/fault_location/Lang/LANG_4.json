@@ -1,0 +1,6 @@
+{
+    "Question1": "src/main/java/org/apache/commons/lang3/text/translate/AggregateTranslator.java",
+    "Question2": "No",
+    "Question3": "public int translate(final CharSequence input, final int index, final Writer out) throws IOException { \n        for (final CharSequenceTranslator translator : translators) { \n            final int consumed = translator.translate(input, index, out); \n            if(consumed != 0) { \n                return consumed; \n            } \n        } \n        return 0; \n    }",
+    "Question4": "final int consumed = translator.translate(input, index, out);"
+}
