@@ -1,0 +1,11 @@
+diff --git a/src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java b/src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java
+index abcdef1..1234567 100644
+--- a/src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java
++++ b/src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java
+@@ -76,4 +76,4 @@
+  public final void translate(CharSequence input, Writer out) throws IOException {
+-        if (out == null) {
++        if (input == null || out == null) {
+             throw new IllegalArgumentException("The Writer must not be null");
+         }
+         if (input == null) {
