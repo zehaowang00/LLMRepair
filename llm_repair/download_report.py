@@ -12,7 +12,7 @@ def download_file(url, folder_path):
                 f.write(chunk)
 
 #folder_path = '/Users/wang/Documents/project/LLMRepair/dataset/bug_report/Lang/'
-folder_path = '/Users/linqiangguo/PycharmProjects/LLMRepair/dataset/bug_report/Lang'
+folder_path = '/dataset/bug_report/Lang'
 data = pd.read_csv(folder_path +'bug_report.csv', usecols=['Report ID','Report URL'])
 url_reports = data.set_index('Report ID')['Report URL'].to_dict()
 for id, url in url_reports.items():
