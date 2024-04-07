@@ -1,7 +1,7 @@
 file_name,if_has_bug,method_level,block_level,Bug_ID,Ground_Method_Truth,Locate Correct Method
-src/main/java/org/apache/commons/lang3/exception/ContextedRuntimeException.java,No,,,LANG_27,org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,No Method Info
+src/main/java/org/apache/commons/lang3/exception/ContextedRuntimeException.java,No,,,LANG_27,org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,cannot locat method
 src/main/java/org/apache/commons/lang3/math/NumberUtils.java,Yes,public static Number createNumber(final String str) throws NumberFormatException {,return Long.decode(str);,LANG_1,org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,True
-src/java/org/apache/commons/lang/time/FastDateFormat.java,No,,,LANG_50,"org.apache.commons.lang.time.FastDateFormat.getDateInstance(ILjava/util/TimeZone;Ljava/util/Locale;)Lorg/apache/commons/lang/time/FastDateFormat;,org.apache.commons.lang.time.FastDateFormat.getDateTimeInstance(IILjava/util/TimeZone;Ljava/util/Locale;)Lorg/apache/commons/lang/time/FastDateFormat;",No Method Info
+src/java/org/apache/commons/lang/time/FastDateFormat.java,No,,,LANG_50,"org.apache.commons.lang.time.FastDateFormat.getDateInstance(ILjava/util/TimeZone;Ljava/util/Locale;)Lorg/apache/commons/lang/time/FastDateFormat;,org.apache.commons.lang.time.FastDateFormat.getDateTimeInstance(IILjava/util/TimeZone;Ljava/util/Locale;)Lorg/apache/commons/lang/time/FastDateFormat;",cannot locat method
 src/main/java/org/apache/commons/lang3/RandomStringUtils.java,Yes,"public static String random(int count, int start, int end, boolean letters, boolean numbers, char... chars)","if (chars != null && chars.length == 0) {
             throw new IllegalArgumentException(""The chars array must not be empty"");
         }",LANG_11,org.apache.commons.lang3.RandomStringUtils.random(IIIZZ[CLjava/util/Random;)Ljava/lang/String;,True
@@ -18,7 +18,7 @@ src/java/org/apache/commons/lang/BooleanUtils.java,Yes,"public static boolean to
         }
         return bool.booleanValue() ? true : false;
     }",return bool.booleanValue() ? true : false;,LANG_51,org.apache.commons.lang.BooleanUtils.toBoolean(Ljava/lang/String;)Z,True
-src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java,No,,,LANG_26,org.apache.commons.lang3.time.FastDateFormat.format(Ljava/util/Date;)Ljava/lang/String;,No Method Info
+src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java,No,,,LANG_26,org.apache.commons.lang3.time.FastDateFormat.format(Ljava/util/Date;)Ljava/lang/String;,cannot locat method
 src/main/java/org/apache/commons/lang3/math/NumberUtils.java,Yes,"public Number createNumber(String str) throws NumberFormatException {
         if (str == null) {
             return null;
@@ -187,7 +187,7 @@ src/java/org/apache/commons/lang/time/FastDateFormat.java,Yes,"protected void in
         mMaxLengthEstimate = len;
     }","UnpaddedMonthField() {
             super();
-        }",LANG_56,,False
+        }",LANG_56,,no ground truth method
 src/main/java/org/apache/commons/lang3/StringEscapeUtils.java,Yes,public static final String escapeXml(String input) {,"loop counter ""i"" moves from 0 to Character.codePointCount(input, 0, input.length()), but it should move from 0 to input.length().",LANG_17,org.apache.commons.lang3.text.translate.CharSequenceTranslator.translate(Ljava/lang/CharSequence;Ljava/io/Writer;)V,False
 src/java/org/apache/commons/lang/LocaleUtils.java,Yes,public static Locale toLocale(String str),"if (ch0 < 'a' || ch0 > 'z' || ch1 < 'a' || ch1 > 'z') {
             throw new IllegalArgumentException(""Invalid locale format: "" + str);
@@ -401,7 +401,7 @@ src/main/java/org/apache/commons/lang3/reflect/TypeUtils.java,Yes,"private stati
             return isAssignable(type, (TypeVariable<?>) toType, typeVarAssigns);
         }
         // */",LANG_15,"org.apache.commons.lang3.reflect.TypeUtils.isAssignable(Ljava/lang/reflect/Type;Ljava/lang/reflect/ParameterizedType;Ljava/util/Map;)Z,org.apache.commons.lang3.reflect.TypeUtils.getTypeArguments(Ljava/lang/Class;Ljava/lang/Class;Ljava/util/Map;)Ljava/util/Map;",False
-src/java/org/apache/commons/lang/LocaleUtils.java,No,,,LANG_54,org.apache.commons.lang.LocaleUtils.toLocale(Ljava/lang/String;)Ljava/util/Locale;,No Method Info
+src/java/org/apache/commons/lang/LocaleUtils.java,No,,,LANG_54,org.apache.commons.lang.LocaleUtils.toLocale(Ljava/lang/String;)Ljava/util/Locale;,cannot locat method
 src/main/java/org/apache/commons/lang3/LocaleUtils.java,Yes,toLocale,"if (len == 2) {
                 return new Locale(str);
             }
@@ -625,14 +625,14 @@ src/main/java/org/apache/commons/lang3/text/ExtendedMessageFormat.java,Yes,publi
             default:
                 stripCustom.append(c[pos.getIndex()]);
                 next(pos);
-            }",LANG_23,,False
+            }",LANG_23,,no ground truth method
 src/main/java/org/apache/commons/lang3/time/FastDateFormat.java,Yes,"protected FastDateFormat(String pattern, TimeZone timeZone, Locale locale) {
         printer= new FastDatePrinter(pattern, timeZone, locale);
         parser= new FastDateParser(pattern, timeZone, locale);
     }","The buggy code statements are:
 1. printer= new FastDatePrinter(pattern, timeZone, locale);
 2. parser= new FastDateParser(pattern, timeZone, locale);",LANG_9,org.apache.commons.lang3.time.FastDateParser.init()V,False
-src/java/org/apache/commons/lang/Entities.java,No,,,LANG_62,"org.apache.commons.lang.Entities.unescape(Ljava/lang/String;)Ljava/lang/String;,org.apache.commons.lang.Entities.unescape(Ljava/io/Writer;Ljava/lang/String;)V",No Method Info
+src/java/org/apache/commons/lang/Entities.java,No,,,LANG_62,"org.apache.commons.lang.Entities.unescape(Ljava/lang/String;)Ljava/lang/String;,org.apache.commons.lang.Entities.unescape(Ljava/io/Writer;Ljava/lang/String;)V",cannot locat method
 src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java,Yes,public String toString(),"style.appendEnd(this.getStringBuffer(), this.getObject());",LANG_34,"org.apache.commons.lang3.builder.ToStringStyle.getRegistry()Ljava/util/Map;,org.apache.commons.lang3.builder.ToStringStyle.isRegistered(Ljava/lang/Object;)Z",False
 src/java/org/apache/commons/lang/time/DurationFormatUtils.java,Yes,"public static String formatDuration(long durationMillis, String format)","if (Token.containsTokenWithValue(tokens, d) ) {
             days = (int) (durationMillis / DateUtils.MILLIS_PER_DAY);
@@ -776,7 +776,7 @@ src/java/org/apache/commons/lang3/time/FastDateFormat.java,Yes,"protected void i
 
             rules.add(rule);
         }",LANG_38,org.apache.commons.lang3.time.FastDateFormat.format(Ljava/util/Calendar;Ljava/lang/StringBuffer;)Ljava/lang/StringBuffer;,False
-src/main/java/org/apache/commons/lang3/text/translate/AggregateTranslator.java,No,,,LANG_4,"org.apache.commons.lang3.text.translate.LookupTranslator.<init>([[Ljava/lang/CharSequence;)V,org.apache.commons.lang3.text.translate.LookupTranslator.translate(Ljava/lang/CharSequence;ILjava/io/Writer;)I",No Method Info
+src/main/java/org/apache/commons/lang3/text/translate/AggregateTranslator.java,No,,,LANG_4,"org.apache.commons.lang3.text.translate.LookupTranslator.<init>([[Ljava/lang/CharSequence;)V,org.apache.commons.lang3.text.translate.LookupTranslator.translate(Ljava/lang/CharSequence;ILjava/io/Writer;)I",cannot locat method
 src/java/org/apache/commons/lang/time/StopWatch.java,Yes,"public void resume() {
         if(this.runningState != STATE_SUSPENDED) {
             throw new IllegalStateException(""Stopwatch must be suspended to resume. "");

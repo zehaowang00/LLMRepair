@@ -8,12 +8,13 @@ def load_json(file_path):
         return data
 
 def check_method(method_code, ground_method_truth):
-    function_name = "###"
+    if len(ground_method_truth) == 0:
+        return "no ground truth method"
     if len(ground_method_truth) > 0:
         function_name = ground_method_truth.split('.')[-1]
         function_name = function_name[:function_name.index('(')]
     if len(method_code) == 0:
-        return "No Method Info"
+        return "cannot locat method"
     if function_name in method_code:
         return "True"
     else:
