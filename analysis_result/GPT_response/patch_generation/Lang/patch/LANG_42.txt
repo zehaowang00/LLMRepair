@@ -1,1 +1,12 @@
-diff --git a/src/java/org/apache/commons/lang/StringEscapeUtils.java b/src/java/org/apache/commons/lang/StringEscapeUtils.java\nindex abcdef1..1234567 100644\n--- a/src/java/org/apache/commons/lang/StringEscapeUtils.java\n+++ b/src/java/org/apache/commons/lang/StringEscapeUtils.java\n@@ -100,7 +100,7 @@ public static String escapeHtml(String str) {\n         if (str == null) {\n             return null;\n         }\n-        return StringUtils.replace(str, "'", "''");\n+        return StringEscapeUtils.escapeHtmlEntities(str);\n     }
+diff --git a/src/java/org/apache/commons/lang/StringEscapeUtils.java b/src/java/org/apache/commons/lang/StringEscapeUtils.java
+index 1234567..7654321 100644
+--- a/src/java/org/apache/commons/lang/StringEscapeUtils.java
++++ b/src/java/org/apache/commons/lang/StringEscapeUtils.java
+@@ -1,6 +1,6 @@
+ public static String escapeHtml(String str) {
+         if (str == null) {
+             return null;
+         }
+-        return StringUtils.replace(str, "'", "''");
++        return str;
+     }

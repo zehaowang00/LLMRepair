@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "public void testEqualsOverride() {\n    ExtendedMessageFormat format1 = new ExtendedMessageFormat(\"{0}\");\n    ExtendedMessageFormat format2 = new ExtendedMessageFormat(\"{0}\");\n    assertTrue(format1.equals(format2));\n}"
+    "Fault Triggering Test": "public void testEqualsOverride() {\n    ExtendedMessageFormat format1 = new ExtendedMessageFormat(\"{0}\");\n    ExtendedMessageFormat format2 = new ExtendedMessageFormat(\"{0}\");\n    assertEquals(format1, format2);\n}"
 }

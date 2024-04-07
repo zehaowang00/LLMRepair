@@ -3,11 +3,11 @@ index 1234567..7654321 100644
 --- a/src/main/java/org/apache/commons/lang3/ObjectUtils.java
 +++ b/src/main/java/org/apache/commons/lang3/ObjectUtils.java
 @@ -100,7 +100,7 @@ public static <T> T clone(final T obj) { ... }
+         if (obj instanceof Object[]) {
+             result = ((Object[]) obj).clone();
+         } else {
+-            result = obj;
++            result = obj.clone();
+         }
+         return result;
      }
-     if (obj instanceof Object[]) {
-         result = ((Object[]) obj).clone();
--    } else {
-+    } else if (obj != null) {
-         result = obj;
-     }
-     return result;

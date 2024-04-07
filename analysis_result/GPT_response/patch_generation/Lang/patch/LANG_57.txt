@@ -2,8 +2,11 @@ diff --git a/src/java/org/apache/commons/lang/LocaleUtils.java b/src/java/org/ap
 index 1234567..7654321 100644
 --- a/src/java/org/apache/commons/lang/LocaleUtils.java
 +++ b/src/java/org/apache/commons/lang/LocaleUtils.java
-@@ -1,5 +1,5 @@
- public static boolean isAvailableLocale(Locale locale) {
+@@ -100,7 +100,7 @@ public static boolean isAvailableLocale(Locale locale) {
+     // Fixing the bug by initializing cAvailableLocaleSet
+     if (cAvailableLocaleSet == null) {
+         cAvailableLocaleSet = availableLocaleSet();
+     }
 -    return cAvailableLocaleSet.contains(locale);
 +    return cAvailableLocaleSet != null && cAvailableLocaleSet.contains(locale);
  }

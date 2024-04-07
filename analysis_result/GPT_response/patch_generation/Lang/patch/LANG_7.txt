@@ -1,14 +1,14 @@
 diff --git a/src/main/java/org/apache/commons/lang3/math/NumberUtils.java b/src/main/java/org/apache/commons/lang3/math/NumberUtils.java
-index 3c3f2e2..b2c4e5f 100644
+index 1234567..7654321 100644
 --- a/src/main/java/org/apache/commons/lang3/math/NumberUtils.java
 +++ b/src/main/java/org/apache/commons/lang3/math/NumberUtils.java
-@@ -126,9 +126,6 @@ public Number createNumber(String str) throws NumberFormatException {
+@@ -1,6 +1,6 @@
+ public Number createNumber(String str) throws NumberFormatException {
+         if (str == null) {
+             return null;
          }
-         if (StringUtils.isBlank(str)) {
+-        if (StringUtils.isBlank(str)) {
++        if (StringUtils.isBlank(str) || str.startsWith("--")) {
              throw new NumberFormatException("A blank string is not a valid number");
--        }
--        if (str.startsWith("--")) {
--            return null;
-         }
+         }  
          if (str.startsWith("0x") || str.startsWith("-0x") || str.startsWith("0X") || str.startsWith("-0X")) {
-             int hexDigits = str.length() - 2; // drop 0x

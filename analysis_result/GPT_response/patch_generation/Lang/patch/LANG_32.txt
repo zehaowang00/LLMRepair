@@ -1,13 +1,13 @@
 diff --git a/src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java b/src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java
-index 1234567..abcdefg 100644
+index 1234567..7654321 100644
 --- a/src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java
 +++ b/src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java
-@@ -100,7 +100,7 @@ public ToStringBuilder(Object object, ToStringStyle style, StringBuffer buffer) {
-         if (style == null) {
-             // use a default style
-             defaultStyle = ToStringStyle.DEFAULT_STYLE;
--        } else {
-+        } else if (style != null) {
-             defaultStyle = style;
-         }
-         this.buffer = buffer;
+@@ -123,7 +123,7 @@ public ToStringBuilder(Object object, ToStringStyle style, StringBuffer buffer) {
+     this.buffer = buffer;
+     if (style == null) {
+         // use the default style
+-        defaultStyle = style;
++        defaultStyle = new ToStringStyle();
+     } else {
+         defaultStyle = style;
+     }

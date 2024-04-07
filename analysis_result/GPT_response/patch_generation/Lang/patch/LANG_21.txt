@@ -1,11 +1,17 @@
 diff --git a/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java b/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
-index abcdef1..1234567 100644
+index 1234567..890abcde 100644
 --- a/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
 +++ b/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
 @@ -123,7 +123,7 @@ protected void init() {
         List<Rule> rulesList = parsePattern();
--       mRules = rulesList.toArray(new Rule[rulesList.size()]);
-+       mRules = rulesList.toArray(new Rule[0]);
+        Rule[] rulesArray = new Rule[rulesList.size()];
+        rulesArray = rulesList.toArray(rulesArray);
+        mRules = rulesArray;
 
         int len = 0;
         for (int i=mRules.length; --i >= 0; ) {
+            len += mRules[i].estimateLength();
+        }
+
+        mMaxLengthEstimate = len;
+    }

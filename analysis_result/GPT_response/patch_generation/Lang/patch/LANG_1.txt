@@ -1,1 +1,14 @@
-diff --git a/src/main/java/org/apache/commons/lang3/math/NumberUtils.java b/src/main/java/org/apache/commons/lang3/math/NumberUtils.java\nindex 1234567..abcdefg 100644\n--- a/src/main/java/org/apache/commons/lang3/math/NumberUtils.java\n+++ b/src/main/java/org/apache/commons/lang3/math/NumberUtils.java\n@@ -100,7 +100,7 @@ public static Number createNumber(final String str) throws NumberFormatException {\n         // parse as hex (Long.decode() can handle hex)\n         if (str.startsWith(\"0x\") || str.startsWith(\"-0x\")) {\n             if (str.length() > 10) {\n-                return Long.decode(str);\n+                return Long.valueOf(str);\n             } else {\n                 return Integer.decode(str);\n             }
+diff --git a/src/main/java/org/apache/commons/lang3/math/NumberUtils.java b/src/main/java/org/apache/commons/lang3/math/NumberUtils.java
+index 1234567..abcdefg 100644
+--- a/src/main/java/org/apache/commons/lang3/math/NumberUtils.java
++++ b/src/main/java/org/apache/commons/lang3/math/NumberUtils.java
+@@ -123,7 +123,7 @@ public static Number createNumber(final String str) throws NumberFormatException {
+         }
+     }
+     // Fix for handling Long Hex numbers
+-    return Long.decode(str);
++    if (str.length() > 8) {
++        return Long.decode(str);
++    }
++    return Integer.decode(str);
+ }

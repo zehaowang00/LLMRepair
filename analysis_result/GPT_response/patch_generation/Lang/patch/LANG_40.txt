@@ -2,9 +2,10 @@ diff --git a/src/java/org/apache/commons/lang/LocaleUtils.java b/src/java/org/ap
 index 1234567..abcdefg 100644
 --- a/src/java/org/apache/commons/lang/LocaleUtils.java
 +++ b/src/java/org/apache/commons/lang/LocaleUtils.java
-@@ -1,5 +1,5 @@
- public static Locale toLocale(String str) {
-+        str = str.toLowerCase();
+@@ -123,7 +123,7 @@ public static Locale toLocale(String str) {
          if (ch0 < 'a' || ch0 > 'z' || ch1 < 'a' || ch1 > 'z') {
              throw new IllegalArgumentException("Invalid locale format: " + str);
          }
+-        return new Locale(str);
++        return new Locale(str.toUpperCase());
+     }

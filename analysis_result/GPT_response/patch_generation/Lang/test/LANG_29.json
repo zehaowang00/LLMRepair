@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "public void testSystemUtilsGetJavaVersionAsFloatThrowsException() {\n    SystemUtils.getJavaVersionAsFloat(null);\n}"
+    "Fault Triggering Test": "public class TestSystemUtils {\n    public static void main(String[] args) {\n        SystemUtils.getJavaVersionAsFloat(null);\n    }\n}"
 }

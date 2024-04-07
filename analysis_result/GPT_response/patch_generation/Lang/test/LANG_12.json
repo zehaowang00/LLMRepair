@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "public void testRandomStringUtilsBug() {\n    Random random = new Random();\n    char[] chars = {};\n    try {\n        RandomStringUtils.random(1, 0, 0, false, false, chars, random);\n        fail(\"Expected ArrayIndexOutOfBoundsException was not thrown\");\n    } catch (ArrayIndexOutOfBoundsException e) {\n        // Expected exception\n    }\n}"
+    "Fault Triggering Test": "public void testRandomStringUtilsBug() {\n    Random random = new Random();\n    char[] chars = new char[0];\n    int count = 1;\n    int start = 0;\n    int end = 0;\n    boolean letters = false;\n    boolean numbers = false;\n    String result = RandomStringUtils.random(count, start, end, letters, numbers, chars, random);\n}"
 }

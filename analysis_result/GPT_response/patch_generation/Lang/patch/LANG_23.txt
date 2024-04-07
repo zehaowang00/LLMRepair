@@ -1,1 +1,11 @@
-diff --git a/src/main/java/org/apache/commons/lang3/text/ExtendedMessageFormat.java b/src/main/java/org/apache/commons/lang3/text/ExtendedMessageFormat.java\nindex 1234567..7654321 100644\n--- a/src/main/java/org/apache/commons/lang3/text/ExtendedMessageFormat.java\n+++ b/src/main/java/org/apache/commons/lang3/text/ExtendedMessageFormat.java\n@@ -100,6 +100,7 @@ public final void applyPattern(String pattern) {\n                 //$FALL-THROUGH$\n             default:\n                 stripCustom.append(c[pos.getIndex()]);\n+                next(pos);\n         }\n     }\n }
+diff --git a/src/main/java/org/apache/commons/lang3/text/ExtendedMessageFormat.java b/src/main/java/org/apache/commons/lang3/text/ExtendedMessageFormat.java
+index 1234567..7654321 100644
+--- a/src/main/java/org/apache/commons/lang3/text/ExtendedMessageFormat.java
++++ b/src/main/java/org/apache/commons/lang3/text/ExtendedMessageFormat.java
+@@ -123,6 +123,7 @@ public final void applyPattern(String pattern) {
+             //$FALL-THROUGH$
+         default:
+             stripCustom.append(c[pos.getIndex()]);
++            next(pos);
+         }
+     }

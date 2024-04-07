@@ -2,12 +2,12 @@ diff --git a/src/java/org/apache/commons/lang/LocaleUtils.java b/src/java/org/ap
 index 1234567..7654321 100644
 --- a/src/java/org/apache/commons/lang/LocaleUtils.java
 +++ b/src/java/org/apache/commons/lang/LocaleUtils.java
-@@ -123,7 +123,7 @@ public class LocaleUtils {
+@@ -100,7 +100,7 @@ public class LocaleUtils {
          if (language.length() == 0 && country.length() == 0 && variant.length() > 0) {
              throw new IllegalArgumentException("Invalid locale format: " + locale);
          }
--        if (language.length() == 0 || country.length() == 0) {
-+        if (language.length() == 0) {
-             return new Locale(language, "", variant);
+-        if (language.length() == 0 && country.length() == 0 && variant.length() == 0) {
++        if (language.length() == 0 && country.length() == 0) {
+             return new Locale("");
          }
          return new Locale(language, country, variant);

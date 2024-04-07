@@ -1,11 +1,14 @@
 diff --git a/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java b/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
-index abcdef1..1234567 100644
+index 1234567..7654321 100644
 --- a/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
 +++ b/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
-@@ -123,7 +123,7 @@ protected FastDateFormat(String pattern, TimeZone timeZone, Locale locale) {
+@@ -100,7 +100,7 @@ protected FastDateFormat(String pattern, TimeZone timeZone, Locale locale) {
          printer= new FastDatePrinter(pattern, timeZone, locale);
          parser= new FastDateParser(pattern, timeZone, locale);
      }
 -    // Add fix for handling unterminated quotes
 +    // Fix for handling unterminated quotes
++    if (pattern.contains("'")) {
++        throw new IllegalArgumentException("Unterminated quotes in pattern");
++    }
  }

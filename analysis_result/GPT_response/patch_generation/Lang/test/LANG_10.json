@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "SimpleDateFormat sdf = new SimpleDateFormat(\"yyyy-MM-dd HH:mm:ss\");\nString dateStr = \"2022-01-01 12:00:00\";\nDate date = sdf.parse(dateStr);"
+    "Fault Triggering Test": "SimpleDateFormat sdf = new SimpleDateFormat(\"yyyy-MM-dd HH:mm:ss\");\nDate date = sdf.parse(\"2022-01-01 12:00:00\");"
 }

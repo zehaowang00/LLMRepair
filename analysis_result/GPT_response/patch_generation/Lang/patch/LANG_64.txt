@@ -1,5 +1,5 @@
 diff --git a/src/java/org/apache/commons/lang/enums/ValuedEnum.java b/src/java/org/apache/commons/lang/enums/ValuedEnum.java
-index 1234567..abcdefg 100644
+index 1234567..7654321 100644
 --- a/src/java/org/apache/commons/lang/enums/ValuedEnum.java
 +++ b/src/java/org/apache/commons/lang/enums/ValuedEnum.java
 @@ -1,5 +1,5 @@

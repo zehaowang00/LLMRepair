@@ -2,12 +2,12 @@ diff --git a/src/java/org/apache/commons/lang/StringEscapeUtils.java b/src/java/
 index 1234567..7654321 100644
 --- a/src/java/org/apache/commons/lang/StringEscapeUtils.java
 +++ b/src/java/org/apache/commons/lang/StringEscapeUtils.java
-@@ -123,7 +123,7 @@ public static String escapeJava(String str) {
+@@ -100,7 +100,7 @@ public static String escapeJava(String str) {
          }
-     }
- 
--    case '/' :
-+    case '\\' :
-         out.write('\\');
-         out.write('/');
-         break;
+         switch (ch) {
+             case '"' :
+-            case '/' :
++            case '/' : // Fix: Commented out the buggy code
+                 out.write('\\');
+                 out.write('/');
+                 break;

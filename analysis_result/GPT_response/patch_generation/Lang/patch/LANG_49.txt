@@ -1,5 +1,5 @@
 diff --git a/src/java/org/apache/commons/lang/math/Fraction.java b/src/java/org/apache/commons/lang/math/Fraction.java
-index 1234567..7654321 100644
+index 1234567..abcdefg 100644
 --- a/src/java/org/apache/commons/lang/math/Fraction.java
 +++ b/src/java/org/apache/commons/lang/math/Fraction.java
 @@ -100,7 +100,7 @@ public Fraction getFraction(int numerator, int denominator) {

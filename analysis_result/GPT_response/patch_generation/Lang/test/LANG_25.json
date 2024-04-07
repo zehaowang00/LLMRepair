@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "public void testISO8859_1_ESCAPE_Bug() {\n    String[][] ISO8859_1_ESCAPE = {\n        {\"\\u00D7\", \"&amp;Ouml;\"}, // \\u00d6 - uppercase O, umlaut\n        {\"\\u00D8\", \"&amp;times;\"}, // multiplication sign\n    };\n\n    // Test logic to trigger the bug\n    // Add your test logic here\n}"
+    "Fault Triggering Test": "public void testISO8859_1_ESCAPE_bug() {\n    String[][] ISO8859_1_ESCAPE = {\n        {\"\\u00D7\", \"&amp;Ouml;\"}, // \\u00d6 - uppercase O, umlaut\n        {\"\\u00D8\", \"&amp;times;\"}, // multiplication sign\n    };\n\n    // Test logic that uses ISO8859_1_ESCAPE array\n}"
 }

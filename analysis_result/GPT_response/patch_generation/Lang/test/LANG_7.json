@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "public void testCreateNumberLeadingDoubleDash() {\n    String input = \"--123\";\n    Number result = NumberUtils.createNumber(input);\n    assertNull(result);\n}"
+    "Fault Triggering Test": "CreateNumber(\"--123\")"
 }

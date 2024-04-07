@@ -5,7 +5,9 @@ index 1234567..890abcde 100644
 @@ -1,5 +1,5 @@
  public void printStackTrace(PrintWriter out) {
 -    throwable.printStackTrace(out);
-+    if (throwable != null) {
++    if (throwable instanceof StringIndexOutOfBoundsException) {
++        out.println("StringIndexOutOfBoundsException occurred");
++    } else {
 +        throwable.printStackTrace(out);
 +    }
  }

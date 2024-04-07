@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "public void testUnterminatedQuotes() {\n        FastDateFormat fdp = new FastDateFormat(\"'d'd\", TimeZone.getDefault(), Locale.getDefault());\n}"
+    "Fault Triggering Test": "@Test\npublic void testUnterminatedQuotesHandling() {\n    FastDateFormat fdp = new FastDateFormat(\"'d'd\", TimeZone.getDefault(), Locale.getDefault());\n}"
 }

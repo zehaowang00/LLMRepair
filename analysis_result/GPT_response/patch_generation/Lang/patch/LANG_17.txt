@@ -5,8 +5,9 @@ index 1234567..7654321 100644
 @@ -100,7 +100,7 @@ public static final String escapeXml(String input) {
              }
          }
-         // escapeXml
--        return writer.toString();
-+        return writer.toString().replace("\uFFFD", "");
      }
- }
+-    for (int i = 0; i < Character.codePointCount(input, 0, input.length()); i++) {
++    for (int i = 0; i < input.length(); i++) {
+         int c = input.codePointAt(i);
+         if (c < ESCAPE_XML.length && ESCAPE_XML[c] != null) {
+             out.write(ESCAPE_XML[c]);

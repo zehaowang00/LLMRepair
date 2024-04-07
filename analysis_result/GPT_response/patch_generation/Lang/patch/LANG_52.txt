@@ -3,11 +3,11 @@ index 1234567..7654321 100644
 --- a/src/java/org/apache/commons/lang/StringEscapeUtils.java
 +++ b/src/java/org/apache/commons/lang/StringEscapeUtils.java
 @@ -100,7 +100,7 @@ public static String escapeJavaScript(String str) { 
-         }
-         out.write('\/');
-         break;
--        case '"':
-+        case '\/':
-             out.write('\/');
-             break;
-         case '\\':
+             // escape '/' into '\/'
+             case '/':
+                 out.write('\/');
+-                break;
++                continue;
+             // escape other characters
+             default:
+                 out.write(c);

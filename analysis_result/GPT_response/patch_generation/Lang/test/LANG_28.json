@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "public class StringEscapeUtilsTest {\n    public static void main(String[] args) {\n        StringWriter writer = new StringWriter();\n        String str = \"\ud83d\ude0a\"; // Supplementary character\n        StringEscapeUtils.escape(writer, str);\n    }\n}"
+    "Fault Triggering Test": "public void testEscapeXMLWithSupplementaryCharacters() {\n        StringWriter writer = new StringWriter();\n        String str = \"\ud83d\ude0a\"; // Supplementary character\n        try {\n            StringEscapeUtils.escape(writer, str);\n            String result = writer.toString();\n            assertEquals(\"&amp;#128522;\", result); // Expected output for supplementary character\n        } catch (IOException e) {\n            fail(\"IOException occurred\");\n        }\n    }"
 }

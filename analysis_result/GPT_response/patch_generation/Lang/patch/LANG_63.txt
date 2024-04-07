@@ -2,11 +2,12 @@ diff --git a/src/java/org/apache/commons/lang/time/DurationFormatUtils.java b/sr
 index 1234567..7654321 100644
 --- a/src/java/org/apache/commons/lang/time/DurationFormatUtils.java
 +++ b/src/java/org/apache/commons/lang/time/DurationFormatUtils.java
-@@ -100,6 +100,8 @@ public static String formatDuration(long durationMillis, String format) {
+@@ -100,7 +100,7 @@ public static String formatDuration(long durationMillis, String format) {
          }
-         if (Token.containsTokenWithValue(tokens, S) ) {
-             milliseconds = (int) durationMillis;
-+            if (milliseconds < 0) {
-+                milliseconds = 0;
-+            }
+         if (Token.containsTokenWithValue(tokens, H) ) {
+             hours = (int) (durationMillis / DateUtils.MILLIS_PER_HOUR);
+-            durationMillis = durationMillis - (hours * DateUtils.MILLIS_PER_HOUR);
++            durationMillis = durationMillis % DateUtils.MILLIS_PER_HOUR;
          }
+         if (Token.containsTokenWithValue(tokens, m) ) {
+             minutes = (int) (durationMillis / DateUtils.MILLIS_PER_MINUTE);

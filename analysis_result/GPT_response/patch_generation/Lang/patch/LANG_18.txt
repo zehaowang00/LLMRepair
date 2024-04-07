@@ -1,11 +1,11 @@
 diff --git a/src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java b/src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java
-index 1234567..7654321 100644
+index 1234567..890abcde 100644
 --- a/src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java
 +++ b/src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java
 @@ -100,7 +100,7 @@ public static String format(Date date, String pattern) {
          }
+ 
          SimpleDateFormat df = new SimpleDateFormat(pattern);
-         // Fixing the year format issue
 -        return df.format(date);
 +        return FastDateFormat.getInstance(pattern).format(date);
      }

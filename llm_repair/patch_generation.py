@@ -145,7 +145,7 @@ prompt_patch = {
     "suspicious buggy code statements": "",
     "File name of checked code": "",
     "Fix Patch format Example": "",
-    "Question": "The patch for the bug in the bug report? (Only Output the fix patch for fix the bug in bug report refer the fix patch format example. No other words)"
+    "Question": """The patch for the bug in the bug report? (Only Output the fix patch for fix the bug in bug report refer the fix patch format example. No other words)."""
 }
 
 prompt_test = {

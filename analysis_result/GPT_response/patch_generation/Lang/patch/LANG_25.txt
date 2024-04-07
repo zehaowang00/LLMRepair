@@ -1,1 +1,10 @@
-diff --git a/src/main/java/org/apache/commons/lang3/text/translate/EntityArrays.java b/src/main/java/org/apache/commons/lang3/text/translate/EntityArrays.java\nindex abcdef1..1234567 100644\n--- a/src/main/java/org/apache/commons/lang3/text/translate/EntityArrays.java\n+++ b/src/main/java/org/apache/commons/lang3/text/translate/EntityArrays.java\n@@ -1,6 +1,6 @@\n package org.apache.commons.lang3.text.translate;\n \n-private static final String[][] ISO8859_1_ESCAPE = {\n+private static final String[][] ISO8859_1_ESCAPE = {\n     {"\u00D6", "&amp;Ouml;"}, // \u00d6 - uppercase O, umlaut\n     {"\u00D7", "&amp;times;"}, // multiplication sign\n };
+diff --git a/src/main/java/org/apache/commons/lang3/text/translate/EntityArrays.java b/src/main/java/org/apache/commons/lang3/text/translate/EntityArrays.java
+index 1234567..7654321 100644
+--- a/src/main/java/org/apache/commons/lang3/text/translate/EntityArrays.java
++++ b/src/main/java/org/apache/commons/lang3/text/translate/EntityArrays.java
+@@ -1,6 +1,6 @@
+ private static final String[][] ISO8859_1_ESCAPE = {
+-       {"\u00D7", "&amp;Ouml;"}, // \u00d6 - uppercase O, umlaut
++       {"\u00D6", "&amp;Ouml;"}, // \u00d6 - uppercase O, umlaut
+        {"\u00D8", "&amp;times;"}, // multiplication sign
+ };

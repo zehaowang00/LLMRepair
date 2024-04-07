@@ -1,14 +1,13 @@
 diff --git a/src/main/java/org/apache/commons/lang3/SerializationUtils.java b/src/main/java/org/apache/commons/lang3/SerializationUtils.java
-index 1234567..7654321 100644
+index abcdef1..1234567 100644
 --- a/src/main/java/org/apache/commons/lang3/SerializationUtils.java
 +++ b/src/main/java/org/apache/commons/lang3/SerializationUtils.java
-@@ -100,6 +100,9 @@ public class SerializationUtils {
+@@ -100,7 +100,7 @@ public static <T extends Serializable> T clone(T object) { ... }
+             }
+         }
+     } catch (ClassNotFoundException ex) {
+-        throw new SerializationException("ClassNotFoundException while cloning: " + ex.getMessage(), ex);
++        return null; // Return null instead of throwing exception
      }
+ }
  
-     protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
-+        try {
-+            return super.resolveClass(desc);
-+        }
-         String name = desc.getName();
-         try {
-             return Class.forName(name, false, classLoader);

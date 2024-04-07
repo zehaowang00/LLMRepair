@@ -6,8 +6,6 @@ index 1234567..7654321 100644
          return printer.applyRules(calendar, buf);
      }
  
--    protected StringBuffer applyRules(Calendar calendar, StringBuffer buf) {
-+    protected StringBuffer applyRules(Calendar calendar, StringBuffer buf) {
-         TimeZone tz = calendar.getTimeZone();
-         return printer.applyRules(calendar, buf);
-     }
+-    Calendar myCal = Calendar.getInstance(TimeZone.getTimeZone("US/Central"));
++    Calendar myCal = Calendar.getInstance(TimeZone.getTimeZone("US/Eastern"));
+     System.out.println(FastDateFormat.getInstance("h:mma z").format(myCal));

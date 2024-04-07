@@ -3,11 +3,11 @@ index abcdef1..1234567 100644
 --- a/src/main/java/org/apache/commons/lang3/reflect/TypeUtils.java
 +++ b/src/main/java/org/apache/commons/lang3/reflect/TypeUtils.java
 @@ -1234,7 +1234,7 @@ private static boolean isAssignable(Type type, Type toType, Map<TypeVariable<?>, T
-             return isAssignable(type, (Class<?>) toType);
+             return isAssignable(type, (GenericArrayType) toType, typeVarAssigns);
          }
  
--        if (toType instanceof ParameterizedType) {
-+        if (toType instanceof ParameterizedType && type instanceof ParameterizedType) {
-             return isAssignable(type, (ParameterizedType) toType, typeVarAssigns);
+-        if (toType instanceof WildcardType) {
++        if (toType instanceof WildcardType && !(toType instanceof TypeVariable<?>)) {
+             return isAssignable(type, (WildcardType) toType, typeVarAssigns);
          }
  

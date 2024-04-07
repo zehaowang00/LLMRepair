@@ -1,13 +1,1 @@
-diff --git a/src/java/org/apache/commons/lang/time/FastDateFormat.java b/src/java/org/apache/commons/lang/time/FastDateFormat.java
-index 1234567..abcdefg 100644
---- a/src/java/org/apache/commons/lang/time/FastDateFormat.java
-+++ b/src/java/org/apache/commons/lang/time/FastDateFormat.java
-@@ -123,7 +123,7 @@
-     public static FastDateFormat getInstance() {
-         return getInstance(getDefaultPattern(), null, null);
-     }
--    public static FastDateFormat getInstance() {
-+    public static FastDateFormat getInstance(Locale locale) {
-         return getInstance(getDefaultPattern(), null, locale);
-     }
- }
+diff --git a/src/java/org/apache/commons/lang/time/FastDateFormat.java b/src/java/org/apache/commons/lang/time/FastDateFormat.java\nindex 1234567..abcdefg 100644\n--- a/src/java/org/apache/commons/lang/time/FastDateFormat.java\n+++ b/src/java/org/apache/commons/lang/time/FastDateFormat.java\n@@ -123,7 +123,7 @@ public class FastDateFormat {\n     public static FastDateFormat getDateInstance() {\n         return getDateInstance(DateFormat.SHORT, null, null);\n     }\n-    public static FastDateFormat getDateInstance(int style, Locale locale, TimeZone timeZone) {\n+    public static FastDateFormat getDateInstance(int style, Locale locale, TimeZone timeZone) {\n+        if (locale == null) {\n+            locale = Locale.getDefault();\n+        }\n         return cache.getDateTimeInstance(style, null, locale, timeZone);\n     }\n }
