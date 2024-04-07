@@ -1,0 +1,3 @@
+{
+    "Fix Patch": "diff --git a/src/java/org/apache/commons/lang/exception/NestableDelegate.java b/src/java/org/apache/commons/lang/exception/NestableDelegate.java\nindex 1234567..890abcde 100644\n--- a/src/java/org/apache/commons/lang/exception/NestableDelegate.java\n+++ b/src/java/org/apache/commons/lang/exception/NestableDelegate.java\n@@ -1,5 +1,5 @@\n public void printStackTrace(PrintWriter out) {\n-    throwable.printStackTrace(out);\n+    if (throwable != null) {\n+        throwable.printStackTrace(out);\n+    }\n }"
+}

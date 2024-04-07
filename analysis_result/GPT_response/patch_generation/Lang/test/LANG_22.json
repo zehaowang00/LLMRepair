@@ -1,0 +1,3 @@
+{
+    "Fault Triggering Test": "public void testGcdWithIntegerMinValue() {\n\tFraction f = Fraction.getReducedFraction(Integer.MIN_VALUE, (int)Math.pow(2, 3));\n\tassertEquals(Integer.MIN_VALUE, f.getNumerator());\n\tassertEquals(1, f.getDenominator());\n}"
+}

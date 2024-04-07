@@ -1,0 +1,3 @@
+{
+    "Fault Triggering Test": "public void testTimeZoneBug() {\n    Calendar myCal = Calendar.getInstance(TimeZone.getTimeZone(\"US/Eastern\"));\n    FastDateFormat.getInstance(\"h:mma z\").format(myCal);\n}"
+}

@@ -117,9 +117,9 @@ def repair_single_bug(client, prompt_patch, prompt_test, format_example, save_fi
         if not has_reason_analysis():
             prompt_patch = prompt_init_patch(prompt_patch, example=format_example, description=bug_report[0]['description'],
                                          title=preprocessing_title(bug_report[0]['title']),
-                                         file_name=fault_localization_info['Question1'],
-                                         method_buggy_code=fault_localization_info['Question3'],
-                                         suspicious_code=fault_localization_info['Question4'])
+                                         file_name=fault_localization_info['file_name'],
+                                         method_buggy_code=fault_localization_info['method_level'],
+                                         suspicious_code=fault_localization_info['block_level'])
             patch_generation(client, prompt_patch, "", save_file_path)
         else:
             prompt_patch = prompt_reason_patch(prompt_patch)
@@ -130,9 +130,9 @@ def repair_single_bug(client, prompt_patch, prompt_test, format_example, save_fi
                                test_file_path,
                                description=bug_report[0]['description'],
                                title=preprocessing_title(bug_report[0]['title']),
-                               method_buggy_code=fault_localization_info['Question3'],
-                               suspicious_code=fault_localization_info['Question4'],
-                               file_name=fault_localization_info['Question1'], save_file_path=save_file_path)
+                               method_buggy_code=fault_localization_info['method_level'],
+                               suspicious_code=fault_localization_info['block_level'],
+                               file_name=fault_localization_info['file_name'], save_file_path=save_file_path)
 prompt_patch = {
     "Role": "As a professional developers. You are responsible for fixing the bug in bug report and generating program repair patch.",
     "Instruction": """You should check the bug report information. The location of buggy code is provided. There are two type of information: method include bug, and suspicious buggy code statements. 
@@ -150,7 +150,7 @@ prompt_patch = {
 
 prompt_test = {
     "Role": "As a professional testers. You are responsible for generating the fault triggering tests for bugs.",
-    "Instruction": "Read the bug report information. Genearte the fault trigering test for the bug in the method. Output in JSON format",
+    "Instruction": "Read the bug report information. Genearte the fault trigering test for the bug in the method. Output in JSON format. Please use the json key:Fault Triggering Test",
     "Bug report description": "",
     "Bug report title": "",
     "Method include buggy code": "",
@@ -177,22 +177,28 @@ api_key = load_api_key(api_key_path)
 client = OpenAI(api_key=api_key)
 without_tester_role = False
 index = 0
+failed_list = []
 for project in projects:
     localizatin_file_path = "../analysis_result/GPT_response/fault_location/Lang/"
     for filename in os.listdir(localizatin_file_path):
-        if filename.endswith(".json"):
-            bug_id = filename.split('.')[0]
-            bug_report_path = '../analysis_result/parsed_bug_reports/Lang/' + bug_report_map[bug_id] + '.json'
-            fault_localization_path = f"../analysis_result/GPT_response/fault_location/Lang/{bug_id}.json"
-            save_file_path = f"../analysis_result/GPT_response/patch_generation/Lang/patch/{bug_id}.json"
-            test_file_path = f"../analysis_result/GPT_response/patch_generation/Lang/test/{bug_id}.json"
-            example_file_path = "../analysis_result/GPT_response/patch_generation/Patch_example_Lang_22.txt"
-            bug_report = load_json(bug_report_path)
-            fault_localization_info = load_json(fault_localization_path)
-            format_example = load_source_code(example_file_path)
-            repair_single_bug(client, prompt_patch, prompt_test, format_example, save_file_path, test_file_path, without_tester_role)
-            index = index + 1
-            print("processed: " + str(index))
+        try: 
+            if filename.endswith(".json"):
+                bug_id = filename.split('.')[0]
+                bug_report_path = '../analysis_result/parsed_bug_reports/Lang/' + bug_report_map[bug_id] + '.json'
+                fault_localization_path = f"../analysis_result/GPT_response/fault_location/Lang/{bug_id}.json"
+                save_file_path = f"../analysis_result/GPT_response/patch_generation/Lang/patch/{bug_id}.json"
+                test_file_path = f"../analysis_result/GPT_response/patch_generation/Lang/test/{bug_id}.json"
+                example_file_path = "../analysis_result/GPT_response/patch_generation/Patch_example_Lang_22.txt"
+                bug_report = load_json(bug_report_path)
+                fault_localization_info = load_json(fault_localization_path)
+                format_example = load_source_code(example_file_path)
+                repair_single_bug(client, prompt_patch, prompt_test, format_example, save_file_path, test_file_path, without_tester_role)
+                index = index + 1
+                print("processed: " + str(index))
+        except Exception:
+            failed_list.append(filename.split('.')[0])
+
+print("failed generated patch: " + str(failed_list))
 # if without_tester_role:
 #     if not has_reason_analysis():
 #         prompt_patch = prompt_init_patch(prompt_patch, example=format_example, description=bug_report[0]['description'],

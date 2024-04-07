@@ -1,0 +1,3 @@
+{
+    "Fault Triggering Test": "public void testCreateNumberWithOneDigitLong() {\n    try {\n        NumberUtils.createNumber(\"1l\");\n        fail(\"NumberFormatException not thrown\");\n    } catch (NumberFormatException e) {\n        // Expected exception\n    }\n}"
+}

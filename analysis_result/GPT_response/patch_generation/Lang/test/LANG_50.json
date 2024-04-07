@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "public void testLocaleChangeBug() {\n    FastDateFormat format = FastDateFormat.getDateInstance();\n    Locale.setDefault(Locale.FRANCE);\n    assertEquals(\"Incorrect locale applied after changing default locale\", Locale.FRANCE, format.getLocale());\n}"
+    "Fault Triggering Test": "public void testLocaleChange() {\n    FastDateFormat format = FastDateFormat.getInstance();\n    Locale.setDefault(Locale.US);\n    assertEquals(\"US\", format.getLocale().getCountry());\n    Locale.setDefault(Locale.FRANCE);\n    assertEquals(\"FR\", format.getLocale().getCountry());\n}"
 }

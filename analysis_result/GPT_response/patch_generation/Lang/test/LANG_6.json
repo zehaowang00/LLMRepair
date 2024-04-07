@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "@Test\npublic void testTranslateWithSurrogatePair() throws IOException {\n    CharSequence input = new StringBuilder().appendCodePoint(0x1F630);\n    StringWriter out = new StringWriter();\n    translator.translate(input, out);\n}"
+    "Fault Triggering Test": "@Test\npublic void testTranslateWithSurrogatePair() throws Exception {\n    CharSequenceTranslator translator = new CharSequenceTranslator() {\n        @Override\n        public int translate(CharSequence input, int index, Writer out) throws IOException {\n            out.write(input.toString());\n            return 1;\n        }\n    };\n    StringWriter writer = new StringWriter();\n    translator.translate(\"\\uD83D\\uDE30\", writer);\n}"
 }

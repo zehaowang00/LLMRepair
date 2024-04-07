@@ -1,0 +1,9 @@
+diff --git a/src/java/org/apache/commons/lang/text/ExtendedMessageFormat.java b/src/java/org/apache/commons/lang/text/ExtendedMessageFormat.java
+index 1234567..7654321 100644
+--- a/src/java/org/apache/commons/lang/text/ExtendedMessageFormat.java
++++ b/src/java/org/apache/commons/lang/text/ExtendedMessageFormat.java
+@@ -421,7 +421,8 @@
+         if (escapingOn && c[start] == QUOTE) {
++            next(pos);
+             return appendTo == null ? null : appendTo.append(QUOTE);
+         }

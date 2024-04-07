@@ -1,0 +1,16 @@
+diff --git a/src/main/java/org/apache/commons/lang3/concurrent/ConstantInitializer.java b/src/main/java/org/apache/commons/lang3/concurrent/ConstantInitializer.java
+index 1234567..7654321 100644
+--- a/src/main/java/org/apache/commons/lang3/concurrent/ConstantInitializer.java
++++ b/src/main/java/org/apache/commons/lang3/concurrent/ConstantInitializer.java
+@@ -1,5 +1,5 @@
+ package org.apache.commons.lang3.concurrent;
+ 
+-import org.apache.commons.lang3.ObjectUtils;
++import org.apache.commons.lang3.StringUtils;
+ 
+ public class ConstantInitializer {
+     public boolean equals(Object obj) {
+-        return ObjectUtils.equals(getObject(), c.getObject());
++        return StringUtils.equals(getObject(), c.getObject());
+     }
+ }

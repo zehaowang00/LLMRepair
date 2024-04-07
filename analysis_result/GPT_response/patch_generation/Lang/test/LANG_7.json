@@ -1,7 +1,3 @@
 {
-    "Bug report title": "NumberUtils#createNumber - bad behaviour for leading \"--\"",
-    "Method include buggy code": "public static Number createNumber(String str) throws NumberFormatException { ... }",
-    "suspicious buggy code statements": "if (str.startsWith(\"--\")) {\n    return null;\n}",
-    "Expected Output": "Fault Triggering Test: Can you provide one test case for testing the bug? (Please generate a complete and compilable test case code for trigger the bug in the bug report. No other words)",
     "Fault Triggering Test": "public void testCreateNumberLeadingDoubleDash() {\n    String input = \"--123\";\n    Number result = NumberUtils.createNumber(input);\n    assertNull(result);\n}"
 }

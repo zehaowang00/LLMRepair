@@ -1,0 +1,3 @@
+{
+    "Fault Triggering Test": "public void testAbbreviateBug() {\n    String str = \"This is a test string\";\n    int lower = 20;\n    int upper = 25;\n    String appendToEnd = \"...\";\n    String result = WordUtils.abbreviate(str, lower, upper, appendToEnd);\n}"
+}

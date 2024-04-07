@@ -1,0 +1,11 @@
+diff --git a/src/java/org/apache/commons/lang/Entities.java b/src/java/org/apache/commons/lang/Entities.java
+index 1234567..abcdefg 100644
+--- a/src/java/org/apache/commons/lang/Entities.java
++++ b/src/java/org/apache/commons/lang/Entities.java
+@@ -1,5 +1,5 @@
+ public class Entities {
+-    public static String unescapeXml(String str) {
++    public static String unescapeXml(String str) {
+         return str.replaceAll("&amp;#(\d{1,5});", "&#$1;");
+     }
+ }

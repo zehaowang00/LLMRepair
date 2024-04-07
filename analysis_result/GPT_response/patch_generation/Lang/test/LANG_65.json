@@ -1,0 +1,3 @@
+{
+    "Fault Triggering Test": "public void testTruncateDSTSwitchingHours() {\n    Date oct31_01MDT = new Date(1099206000000L);\n    Date result = DateUtils.truncate(oct31_01MDT, Calendar.HOUR_OF_DAY);\n    assertEquals(oct31_01MDT, result);\n}"
+}

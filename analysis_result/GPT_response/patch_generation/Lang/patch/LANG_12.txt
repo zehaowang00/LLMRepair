@@ -1,0 +1,12 @@
+diff --git a/src/main/java/org/apache/commons/lang3/RandomStringUtils.java b/src/main/java/org/apache/commons/lang3/RandomStringUtils.java
+index abcdefg..hijklmn 100644
+--- a/src/main/java/org/apache/commons/lang3/RandomStringUtils.java
++++ b/src/main/java/org/apache/commons/lang3/RandomStringUtils.java
+@@ -250,7 +250,7 @@ public static String random(int count, int start, int end, boolean letters, boo
+         }
+         //ch = chars[random.nextInt(gap) + start];
+         ch = chars[random.nextInt(gap) % chars.length];
+-        //ch = chars[random.nextInt(gap) + start];
++        //ch = chars[random.nextInt(gap) % chars.length];
+         return new String(new char[] {ch});
+     }

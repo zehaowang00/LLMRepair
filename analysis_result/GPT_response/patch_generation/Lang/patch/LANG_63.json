@@ -1,0 +1,4 @@
+{
+    "Fix Patch": "diff --git a/src/java/org/apache/commons/lang/time/DurationFormatUtils.java b/src/java/org/apache/commons/lang/time/DurationFormatUtils.java\nindex 1234567..7654321 100644\n--- a/src/java/org/apache/commons/lang/time/DurationFormatUtils.java\n+++ b/src/java/org/apache/commons/lang/time/DurationFormatUtils.java\n@@ -100,6 +100,8 @@ public static String formatDuration(long durationMillis, String format) {\n         }\n         if (Token.containsTokenWithValue(tokens, S) ) {\n             milliseconds = (int) durationMillis;\n+            if (milliseconds < 0) {\n+                milliseconds = 0;\n+            }\n         }",
+    "Question": "The patch for the bug in the bug report? (Only Output the fix patch for fix the bug in bug report refer the fix patch format example. No other words)"
+}

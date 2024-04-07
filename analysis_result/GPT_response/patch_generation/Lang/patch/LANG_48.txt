@@ -1,0 +1,11 @@
+diff --git a/src/java/org/apache/commons/lang/NumberUtils.java b/src/java/org/apache/commons/lang/NumberUtils.java
+index abcdefg..hijklmn 100644
+--- a/src/java/org/apache/commons/lang/NumberUtils.java
++++ b/src/java/org/apache/commons/lang/NumberUtils.java
+@@ -123,7 +123,7 @@ public static Number createNumber(String val) throws NumberFormatException {
+     if (val == null) {
+         return null;
+     }
+-    return null;
++    return new BigDecimal(val);
+ }

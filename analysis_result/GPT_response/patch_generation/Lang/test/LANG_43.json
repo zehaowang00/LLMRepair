@@ -1,0 +1,3 @@
+{
+    "Fault Triggering Test": "ExtendedMessageFormat mf = new ExtendedMessageFormat(\"it''s a {dummy} 'test'!\", formatRegistry);\nString formattedPattern = mf.format(new String[] {\"great\"});"
+}

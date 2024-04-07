@@ -1,0 +1,3 @@
+{
+    "Fault Triggering Test": "public void testMemoryLeak() {\n    ToStringStyle style = new ToStringStyle();\n    style.appendEnd(this.getStringBuffer(), this.getObject());\n}"
+}

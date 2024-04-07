@@ -1,0 +1,14 @@
+diff --git a/src/java/org/apache/commons/lang/time/DateUtils.java b/src/java/org/apache/commons/lang/time/DateUtils.java
+index abcdef1..1234567 100644
+--- a/src/java/org/apache/commons/lang/time/DateUtils.java
++++ b/src/java/org/apache/commons/lang/time/DateUtils.java
+@@ -123,6 +123,9 @@ public static Date truncate(Date date, int field) {
+         // reset time
+         // ----------------- Fix for LANG-59 ---------------------- START ---------------
+         // see http://issues.apache.org/jira/browse/LANG-59
++        if (field == Calendar.HOUR_OF_DAY) {
++            date = new Date(date.getTime() - (date.getTime() % 3600000));
++        }
+         // Manually truncate milliseconds, seconds and minutes, rather than using
+         // Calendar methods.
+         Calendar gval = Calendar.getInstance();

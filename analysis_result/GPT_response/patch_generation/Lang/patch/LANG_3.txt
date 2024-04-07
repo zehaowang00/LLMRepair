@@ -1,0 +1,13 @@
+diff --git a/src/main/java/org/apache/commons/lang3/math/NumberUtils.java b/src/main/java/org/apache/commons/lang3/math/NumberUtils.java
+index 1234567..abcdefg 100644
+--- a/src/main/java/org/apache/commons/lang3/math/NumberUtils.java
++++ b/src/main/java/org/apache/commons/lang3/math/NumberUtils.java
+@@ -123,7 +123,7 @@ public static Number createNumber(final String str) throws NumberFormatException {
+     }
+ 
+     for (String prefix : hex_prefixes) {
+-        if (str.startsWith(prefix)) {
++        if (str.trim().startsWith(prefix)) {
+             return createNumber(str.substring(prefix.length()), locale);
+         }
+     }

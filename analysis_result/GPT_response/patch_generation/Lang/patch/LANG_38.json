@@ -1,0 +1,4 @@
+{
+    "Fix Patch": "diff --git a/src/java/org/apache/commons/lang3/time/FastDateFormat.java b/src/java/org/apache/commons/lang3/time/FastDateFormat.java\nindex 1234567..abcdefg 100644\n--- a/src/java/org/apache/commons/lang3/time/FastDateFormat.java\n+++ b/src/java/org/apache/commons/lang3/time/FastDateFormat.java\n@@ -123,7 +123,7 @@ protected void init() {\n         List<Rule> rulesList = parsePattern();\n         mRules = rulesList.toArray(new Rule[rulesList.size()]);\n \n-        int len = 0;\n+        int len = 1;\n         for (int i=mRules.length; --i >= 0; ) {\n             len += mRules[i].estimateLength();\n         }\n",
+    "Question": "The patch for the bug in the bug report? (Only Output the fix patch for fix the bug in bug report refer the fix patch format example. No other words)"
+}

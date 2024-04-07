@@ -1,0 +1,13 @@
+diff --git a/src/java/org/apache/commons/lang/NumberUtils.java b/src/java/org/apache/commons/lang/NumberUtils.java
+index 1234567..7654321 100644
+--- a/src/java/org/apache/commons/lang/NumberUtils.java
++++ b/src/java/org/apache/commons/lang/NumberUtils.java
+@@ -455,7 +455,7 @@ public static Number createNumber(String val) throws NumberFormatException {
+                         && exp == null
+                         && (numeric.charAt(0) == '-' && isDigits(numeric.substring(1)) || isDigits(numeric))) {
+                         try {
+-                            return createLong(numeric);
++                            return createLong(numeric.replace('l', ' ').trim());
+                         } catch (NumberFormatException nfe) {
+                             //Too big for a long
+                         }

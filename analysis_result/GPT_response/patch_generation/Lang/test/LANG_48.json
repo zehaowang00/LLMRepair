@@ -1,0 +1,3 @@
+{
+    "Fault Triggering Test": "public void testBigDecimalComparison() { BigDecimal bd1 = new BigDecimal(\"10\"); BigDecimal bd2 = new BigDecimal(\"10.0\"); assertFalse(bd1.equals(bd2)); }"
+}

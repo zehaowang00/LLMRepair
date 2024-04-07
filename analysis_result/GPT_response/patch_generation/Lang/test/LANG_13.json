@@ -1,0 +1,3 @@
+{
+    "Fault Triggering Test": "public void testPrimitiveTypeClassSerialization() {\n\tClass<?> primitiveType = int.class;\n\tClass<?> clone = SerializationUtils.clone(primitiveType);\n\tassertEquals(primitiveType, clone);\n}"
+}

@@ -1,1 +1,13 @@
-diff --git a/src/main/java/org/apache/commons/lang3/ObjectUtils.java b/src/main/java/org/apache/commons/lang3/ObjectUtils.java\nindex 1234567..7654321 100644\n--- a/src/main/java/org/apache/commons/lang3/ObjectUtils.java\n+++ b/src/main/java/org/apache/commons/lang3/ObjectUtils.java\n@@ -1,6 +1,6 @@\n public static String identityToString(Object object) {\n         if (object == null) {\n-            return null;\n+            return \"null\";\n         }\n         StringBuffer buffer = new StringBuffer();\n         identityToString(buffer, object);\n         return buffer.toString();\n     }
+diff --git a/src/main/java/org/apache/commons/lang3/ObjectUtils.java b/src/main/java/org/apache/commons/lang3/ObjectUtils.java
+index 1234567..7654321 100644
+--- a/src/main/java/org/apache/commons/lang3/ObjectUtils.java
++++ b/src/main/java/org/apache/commons/lang3/ObjectUtils.java
+@@ -100,7 +100,7 @@ public static <T> T clone(final T obj) { ... }
+     }
+     if (obj instanceof Object[]) {
+         result = ((Object[]) obj).clone();
+-    } else {
++    } else if (obj != null) {
+         result = obj;
+     }
+     return result;

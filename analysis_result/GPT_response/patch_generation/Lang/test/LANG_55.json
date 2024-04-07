@@ -1,0 +1,3 @@
+{
+    "Fault Triggering Test": "public void testStopWatchBug() {\n        StopWatch sw = new StopWatch();\n        sw.start();\n        Thread.sleep(1000);\n        sw.suspend();\n        Thread.sleep(2000);\n        sw.resume();\n        Thread.sleep(3000);\n        sw.suspend();\n        Thread.sleep(4000);\n        Thread.sleep(5000);\n        sw.stop();\n        assertEquals(6000, sw.getTime());\n    }"
+}

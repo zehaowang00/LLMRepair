@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "public void testToLocaleWithLanguageAndVariantButNoCountryCode() {\n    String input = \"fr__POSIX\";\n    Locale result = LocaleUtils.toLocale(input);\n    // Assert the result\n}"
+    "Fault Triggering Test": "LocaleUtils.toLocale(\"fr\", \"\", \"POSIX\")"
 }

@@ -1,0 +1,4 @@
+{
+    "Fix Patch": "diff --git a/src/main/java/org/apache/commons/lang3/math/Fraction.java b/src/main/java/org/apache/commons/lang3/math/Fraction.java\nindex 1234567..7654321 100644\n--- a/src/main/java/org/apache/commons/lang3/math/Fraction.java\n+++ b/src/main/java/org/apache/commons/lang3/math/Fraction.java\n@@ -123,6 +123,10 @@ public static Fraction getReducedFraction(int numerator, int denominator) {\n         if (denominator==Integer.MIN_VALUE && (numerator&1)==0) {\n             numerator/=2; denominator/=2;\n         }\n+        if (numerator == Integer.MIN_VALUE && denominator == (int)Math.pow(2, k)) {\n+            numerator = Integer.MIN_VALUE / 2;\n+            denominator = 1;\n+        }\n         return new Fraction(numerator, denominator);\n     }",
+    "Question": "The patch for the bug in the bug report? (Only Output the fix patch for fix the bug in bug report refer the fix patch format example. No other words)"
+}

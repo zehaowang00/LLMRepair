@@ -1,0 +1,3 @@
+{
+    "Fault Triggering Test": "Calendar cal = new GregorianCalendar(TimeZone.getTimeZone(\"GMT-8\"));\n    cal.clear();\n    cal.set(2009, 9, 16, 8, 42, 16);\n    FastDateFormat format = FastDateFormat.getInstance(\"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\", TimeZone.getTimeZone(\"GMT\"));\n    assertEquals(\"dateTime\", dateTime, format.format(cal));"
+}

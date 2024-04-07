@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "public void testIsNumberWithTrailingDecimal() {\n    String testString = \"2.\";\n    boolean result = NumberUtils.isNumber(testString);\n    assertFalse(result);\n}"
+    "Fault Triggering Test": "public void testIsNumberWithTrailingDecimal() {\n    String testString = \"2.\";\n    boolean result = NumberUtils.isNumber(testString);\n    assertTrue(result);\n}"
 }

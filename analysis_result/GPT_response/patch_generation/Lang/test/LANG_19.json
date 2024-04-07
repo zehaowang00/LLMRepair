@@ -1,0 +1,3 @@
+{
+    "Fault Triggering Test": "public void testUnescapeHtml4() {\n        String input = \"&#03\";\n        String result = StringEscapeUtils.unescapeHtml4(input);\n    }"
+}

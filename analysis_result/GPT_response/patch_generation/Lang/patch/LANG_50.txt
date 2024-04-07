@@ -2,12 +2,12 @@ diff --git a/src/java/org/apache/commons/lang/time/FastDateFormat.java b/src/jav
 index 1234567..abcdefg 100644
 --- a/src/java/org/apache/commons/lang/time/FastDateFormat.java
 +++ b/src/java/org/apache/commons/lang/time/FastDateFormat.java
-@@ -123,7 +123,7 @@ public class FastDateFormat extends Format {
-         if (locale == null) {
-             this.locale = Locale.getDefault();
-         } else {
--            this.locale = locale;
-+            this.locale = (Locale) locale.clone();
-         }
+@@ -123,7 +123,7 @@
+     public static FastDateFormat getInstance() {
+         return getInstance(getDefaultPattern(), null, null);
+     }
+-    public static FastDateFormat getInstance() {
++    public static FastDateFormat getInstance(Locale locale) {
+         return getInstance(getDefaultPattern(), null, locale);
      }
  }

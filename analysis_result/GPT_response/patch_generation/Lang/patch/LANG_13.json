@@ -1,0 +1,3 @@
+{
+    "Fix Patch": "diff --git a/src/main/java/org/apache/commons/lang3/SerializationUtils.java b/src/main/java/org/apache/commons/lang3/SerializationUtils.java\nindex 1234567..7654321 100644\n--- a/src/main/java/org/apache/commons/lang3/SerializationUtils.java\n+++ b/src/main/java/org/apache/commons/lang3/SerializationUtils.java\n@@ -100,6 +100,9 @@ public class SerializationUtils {\n     }\n \n     protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {\n+        try {\n+            return super.resolveClass(desc);\n+        }\n         String name = desc.getName();\n         try {\n             return Class.forName(name, false, classLoader);\n"
+}

@@ -2,12 +2,13 @@ diff --git a/src/main/java/org/apache/commons/lang3/RandomStringUtils.java b/src
 index 1234567..abcdefg 100644
 --- a/src/main/java/org/apache/commons/lang3/RandomStringUtils.java
 +++ b/src/main/java/org/apache/commons/lang3/RandomStringUtils.java
-@@ -100,6 +100,9 @@ public static String random(int count, int start, int end, boolean letters, boolean numbers, char... chars) { 
-         if (end <= start) { 
-             throw new IllegalArgumentException("Invalid range, end must be greater than start"); 
-         } 
-+        if (chars != null && chars.length == 0) { 
-+            throw new IllegalArgumentException("The chars array must not be empty"); 
-+        } 
-         return random(count, start, end, letters, numbers, chars, RANDOM); 
-     }
+@@ -100,6 +100,10 @@ public static String random(int count, int start, int end, boolean letters, boolean numbers, char... chars) {
+         if (chars != null && chars.length == 0) {
+             throw new IllegalArgumentException("The chars array must not be empty");
+         }
++        if (end <= start) {
++            throw new IllegalArgumentException("end must be greater than start");
++        }
+         if (count == 0) {
+             return "";
+         }

@@ -1,0 +1,3 @@
+{
+    "Fault Triggering Test": "public void testCreateNumberWithSingleLowercaseL() {\n    NumberUtils.createNumber(\"l\");\n}"
+}

@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "public void testGetShortClassNameWithArray() {\n    String sArray[] = new String[2];\n    sArray[0] = \"mark\";\n    sArray[1] = \"is cool\";\n    String result = ClassUtils.getShortClassName(sArray);\n    assertEquals(\"String;\", result);\n}"
+    "Fault Triggering Test": "public void testGetShortClassNameWithArray() {\n    String[] sArray = new String[2];\n    sArray[0] = \"mark\";\n    sArray[1] = \"is cool\";\n    assertEquals(\"String\", ClassUtils.getShortClassName(\"chris\"));\n    assertEquals(\"String;\", ClassUtils.getShortClassName(sArray));\n}"
 }

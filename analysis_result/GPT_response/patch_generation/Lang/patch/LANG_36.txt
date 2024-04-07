@@ -1,16 +1,1 @@
-diff --git a/src/java/org/apache/commons/lang3/math/NumberUtils.java b/src/java/org/apache/commons/lang3/math/NumberUtils.java
-index 1234567..7654321 100644
---- a/src/java/org/apache/commons/lang3/math/NumberUtils.java
-+++ b/src/java/org/apache/commons/lang3/math/NumberUtils.java
-@@ -1444,6 +1444,12 @@ public static boolean isNumber(String str) { 
-             }
-         }
-     }
-+    if (chars[i] == '.') {
-+        if (hasDecPoint || hasExp) {
-+            return false;
-+        }
-+        return foundDigit;
-+    }
-     return false;
- }
+diff --git a/src/java/org/apache/commons/lang3/math/NumberUtils.java b/src/java/org/apache/commons/lang3/math/NumberUtils.java\nindex 1234567..abcdefg 100644\n--- a/src/java/org/apache/commons/lang3/math/NumberUtils.java\n+++ b/src/java/org/apache/commons/lang3/math/NumberUtils.java\n@@ -1445,6 +1445,11 @@ public static Number createNumber(String str) throws NumberFormatException {\n         // two decimal points or dec in exponent   \n         return false;\n     }\n+    if (chars[i] == '.') {\n+        if (hasDecPoint || hasExp) {\n+            // two decimal points or dec in exponent   \n+            return false;\n+        }\n     return foundDigit; // single trailing decimal point after non-exponent is ok\n }

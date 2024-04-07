@@ -1,0 +1,3 @@
+{
+    "Fault Triggering Test": "public void testNumberOverflow() throws Exception {\n        doTestUnescapeEntity(\"&amp;#12345678;\", \"&amp;#12345678;\");\n    }"
+}

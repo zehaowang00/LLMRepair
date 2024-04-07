@@ -1,12 +1,16 @@
 diff --git a/src/main/java/org/apache/commons/lang3/exception/ContextedRuntimeException.java b/src/main/java/org/apache/commons/lang3/exception/ContextedRuntimeException.java
-index 1234567..7654321 100644
+index 1234567..abcdefg 100644
 --- a/src/main/java/org/apache/commons/lang3/exception/ContextedRuntimeException.java
 +++ b/src/main/java/org/apache/commons/lang3/exception/ContextedRuntimeException.java
-@@ -1,5 +1,5 @@
- public ContextedRuntimeException addValue(String label, Object value) {        
--        exceptionContext.addValue(label, value);
-+        if (label != null && value != null) {
-+            exceptionContext.addValue(label, value);
+@@ -123,7 +123,7 @@ public class ContextedRuntimeException extends RuntimeException {
+             }
+         }
+         // Fix the bug by catching NumberFormatException
+-        return NumberUtils.createNumber(str);
++        try {
++            return NumberUtils.createNumber(str);
++        } catch (NumberFormatException e) {
++            throw new NumberFormatException("Invalid number format: " + str);
 +        }
-         return this;
      }
+ }

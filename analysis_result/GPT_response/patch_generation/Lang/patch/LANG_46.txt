@@ -2,12 +2,12 @@ diff --git a/src/java/org/apache/commons/lang/StringEscapeUtils.java b/src/java/
 index 1234567..7654321 100644
 --- a/src/java/org/apache/commons/lang/StringEscapeUtils.java
 +++ b/src/java/org/apache/commons/lang/StringEscapeUtils.java
-@@ -100,7 +100,7 @@ public static String escapeJava(String str) {
+@@ -123,7 +123,7 @@ public static String escapeJava(String str) {
          }
      }
  
--    return escapeJavaStyleString(str, false);
-+    return escapeJavaStyleString(str, true);
- }
- 
- /**
+-    case '/' :
++    case '\\' :
+         out.write('\\');
+         out.write('/');
+         break;

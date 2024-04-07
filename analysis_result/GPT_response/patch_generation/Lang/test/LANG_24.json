@@ -1,0 +1,3 @@
+{
+    "Fault Triggering Test": "public void testIsNumberBug() {\n    String testString = \"1.1L\";\n    boolean result = NumberUtils.isNumber(testString);\n    assertFalse(result);\n}"
+}

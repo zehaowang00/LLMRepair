@@ -1,0 +1,13 @@
+diff --git a/src/java/org/apache/commons/lang/WordUtils.java b/src/java/org/apache/commons/lang/WordUtils.java
+index 1234567..7654321 100644
+--- a/src/java/org/apache/commons/lang/WordUtils.java
++++ b/src/java/org/apache/commons/lang/WordUtils.java
+@@ -100,7 +100,7 @@ public static String abbreviate(String str, int lower, int upper, String appendT
+         }
+ 
+         // Make sure the first upper characters are not whitespace
+-        int index = StringUtils.indexOf(str, " ", lower);
++        int index = Math.min(StringUtils.indexOf(str, " ", lower), str.length());
+         while (index >= 0 && index <= upper && Character.isWhitespace(str.charAt(index))) {
+             index = StringUtils.indexOf(str, " ", index + 1);
+         }

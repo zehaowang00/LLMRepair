@@ -1,0 +1,3 @@
+{
+    "Fault Triggering Test": "public void testLookupTranslatorBug() {\n    CharSequence cs1 = \"1 < 2\";\n    CharSequence cs2 = CharBuffer.wrap(\"1 < 2\".toCharArray());\n    String result1 = StringEscapeUtils.ESCAPE_HTML4.translate(cs1);\n    String result2 = StringEscapeUtils.ESCAPE_HTML4.translate(cs2);\n    assertEquals(\"1 &lt; 2\", result1);\n    assertEquals(\"1 < 2\", result2);\n}"
+}
