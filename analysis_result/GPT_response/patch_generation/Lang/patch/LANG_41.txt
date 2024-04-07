@@ -1,0 +1,13 @@
+diff --git a/src/java/org/apache/commons/lang/ClassUtils.java b/src/java/org/apache/commons/lang/ClassUtils.java
+index 1234567..7654321 100644
+--- a/src/java/org/apache/commons/lang/ClassUtils.java
++++ b/src/java/org/apache/commons/lang/ClassUtils.java
+@@ -100,7 +100,7 @@ public static String getShortClassName(String className) { 
+     if (className == null) {
+         return null;
+     }
+-    String out = className;
++    String out = className.replace(";", "");
+     out = out.replace(INNER_CLASS_SEPARATOR_CHAR, PACKAGE_SEPARATOR_CHAR);
+     int i = out.lastIndexOf(PACKAGE_SEPARATOR_CHAR);
+     if (i != -1) {

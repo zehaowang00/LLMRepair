@@ -1,0 +1,9 @@
+git diff src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java
+--- a/src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java
++++ b/src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java
+@@ -123,7 +123,7 @@
+     public static String format(Date date, String pattern, TimeZone timeZone, Locale locale) {
+         FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale, locale);
+         return df.format(date);
+-    }
++    }

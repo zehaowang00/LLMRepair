@@ -1,0 +1,12 @@
+diff --git a/src/main/java/org/apache/commons/lang3/exception/ContextedRuntimeException.java b/src/main/java/org/apache/commons/lang3/exception/ContextedRuntimeException.java
+index 1234567..7654321 100644
+--- a/src/main/java/org/apache/commons/lang3/exception/ContextedRuntimeException.java
++++ b/src/main/java/org/apache/commons/lang3/exception/ContextedRuntimeException.java
+@@ -1,5 +1,5 @@
+ public ContextedRuntimeException addValue(String label, Object value) {        
+-        exceptionContext.addValue(label, value);
++        if (label != null && value != null) {
++            exceptionContext.addValue(label, value);
++        }
+         return this;
+     }

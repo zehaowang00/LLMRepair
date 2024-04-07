@@ -4,7 +4,6 @@ import xml.etree.ElementTree as ET
 import json
 import pickle
 
-
 def extract_report_info(xml_file_path, json_file_path):
     tree = ET.parse(xml_file_path)
     root = tree.getroot()

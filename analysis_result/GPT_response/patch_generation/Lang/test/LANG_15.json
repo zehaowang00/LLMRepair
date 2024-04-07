@@ -1,0 +1,3 @@
+{
+    "Fault Triggering Test": "TypeUtils.getTypeArguments(Other.class, This.class);\nAssert.assertEquals(2, typeVarAssigns.size());\nAssert.assertEquals(String.class, typeVarAssigns.get(This.class.getTypeParameters()[0]));\nAssert.assertEquals(Other.class.getTypeParameters()[0], typeVarAssigns.get(This.class.getTypeParameters()[1]));"
+}

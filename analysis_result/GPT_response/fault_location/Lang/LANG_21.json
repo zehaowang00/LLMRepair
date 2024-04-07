@@ -1,6 +1,6 @@
 {
-    "Question1": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
-    "Question2": "Yes",
-    "Question3": "public class FastDateFormat extends Format { ... }",
-    "Question4": "cal1.get(Calendar.HOUR) == cal2.get(Calendar.HOUR)"
+    "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
+    "if_has_bug": "Yes",
+    "method_level": "protected void init() {\n        List<Rule> rulesList = parsePattern();\n        mRules = rulesList.toArray(new Rule[rulesList.size()]);\n\n        int len = 0;\n        for (int i=mRules.length; --i >= 0; ) {\n            len += mRules[i].estimateLength();\n        }\n\n        mMaxLengthEstimate = len;\n    }",
+    "block_level": "mRules = rulesList.toArray(new Rule[rulesList.size()]);"
 }

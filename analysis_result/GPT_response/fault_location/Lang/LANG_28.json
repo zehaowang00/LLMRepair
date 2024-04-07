@@ -1,6 +1,6 @@
 {
-    "Question1": "src/main/java/org/apache/commons/lang3/StringEscapeUtils.java",
-    "Question2": "Yes",
-    "Question3": "public void escape(Writer writer, String str) throws IOException {\n        int len = str.length();\n        for (int i = 0; i < len; i++) {\n            int code = str.codePointAt<img class=\"emoticon\" src=\"https://issues.apache.org/jira/images/icons/emoticons/information.png\" height=\"16\" width=\"16\" align=\"absmiddle\" alt=\"\" border=\"0\"/>;\n            String entityName = this.entityName(code);\n            if (entityName != null) \n{\n                writer.write('&amp;');\n                writer.write(entityName);\n                writer.write(';');\n            }\n else if (code > 0x7F) \n{\n                    writer.write(\"&amp;#\");\n                    writer.write(code);\n                    writer.write(';');\n            }\n else \n{\n                    writer.write((char) code);\n            }\n\n            if (code > 0xffff) \n{\n                    i++;\n            }\n        }\n    }",
-    "Question4": "int code = str.codePointAt<img class=\"emoticon\" src=\"https://issues.apache.org/jira/images/icons/emoticons/information.png\" height=\"16\" width=\"16\" align=\"absmiddle\" alt=\"\" border=\"0\"/>;\n            String entityName = this.entityName(code);\n            if (entityName != null) \n{\n                writer.write('&amp;');\n                writer.write(entityName);\n                writer.write(';');\n            }\n else if (code > 0x7F) \n{\n                    writer.write(\"&amp;#\");\n                    writer.write(code);\n                    writer.write(';');\n            }\n else \n{\n                    writer.write((char) code);\n            }\n\n            if (code > 0xffff) \n{\n                    i++;\n            }"
+    "file_name": "src/main/java/org/apache/commons/lang3/StringEscapeUtils.java",
+    "if_has_bug": "Yes",
+    "method_level": "public void escape(Writer writer, String str) throws IOException",
+    "block_level": "writer.write((char) code);"
 }

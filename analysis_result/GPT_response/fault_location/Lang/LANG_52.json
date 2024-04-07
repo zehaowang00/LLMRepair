@@ -1,6 +1,6 @@
 {
-    "Question1": "src/java/org/apache/commons/lang/StringEscapeUtils.java",
-    "Question2": "Yes",
-    "Question3": "public static String escapeJavaScript(String str) {\n        return escapeJavaStyleString(str, true);\n    }",
-    "Question4": "The code statements that cause the bug are: \nreturn escapeJavaStyleString(str, true);"
+    "file_name": "src/java/org/apache/commons/lang/StringEscapeUtils.java",
+    "if_has_bug": "Yes",
+    "method_level": "public static String escapeJavaScript(String str) { ... }",
+    "block_level": "out.write('\\'');"
 }

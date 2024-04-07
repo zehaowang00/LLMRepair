@@ -1,6 +1,6 @@
 {
-    "Question1": "src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java",
-    "Question2": "No",
-    "Question3": "public ToStringBuilder(Object object) { ... }",
-    "Question4": "The thread local in org.apache.commons.lang3.builder.ToStringStyle is created but never removed and no API is provided to remove it."
+    "file_name": "src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java",
+    "if_has_bug": "Yes",
+    "method_level": "public String toString()",
+    "block_level": "style.appendEnd(this.getStringBuffer(), this.getObject());"
 }

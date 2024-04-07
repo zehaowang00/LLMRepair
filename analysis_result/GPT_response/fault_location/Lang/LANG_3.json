@@ -1,6 +1,6 @@
 {
-    "Question1": "src/main/java/org/apache/commons/lang3/math/NumberUtils.java",
-    "Question2": "No",
-    "Question3": "public static Number createNumber(final String str) throws NumberFormatException { ... }",
-    "Question4": "The code statements that cause the bug are related to parsing the input string as a number without considering the type of number (e.g., Integer, Long, Float, etc.) and handling floating point numbers other than Float."
+    "file_name": "src/main/java/org/apache/commons/lang3/math/NumberUtils.java",
+    "if_has_bug": "Yes",
+    "method_level": "public static Number createNumber(final String str) throws NumberFormatException {",
+    "block_level": "final String[] hex_prefixes = {\"0x\", \"0X\", \"-0x\", \"-0X\", \"#\", \"-#\"};"
 }

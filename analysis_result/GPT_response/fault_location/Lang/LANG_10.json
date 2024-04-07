@@ -1,6 +1,6 @@
 {
-    "Question1": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
-    "Question2": "No",
-    "Question3": "public Date parse(String source) throws ParseException {\n        return parser.parse(source);\n    }",
-    "Question4": "return parser.parse(source);"
+    "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
+    "if_has_bug": "Yes",
+    "method_level": "protected StringBuffer applyRules(Calendar calendar, StringBuffer buf) {",
+    "block_level": "This means that FDP will parse dates that fail when parsed by SDP."
 }

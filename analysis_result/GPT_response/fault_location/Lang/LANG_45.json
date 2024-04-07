@@ -1,6 +1,6 @@
 {
-    "Question1": "src/java/org/apache/commons/lang/WordUtils.java",
-    "Question2": "Yes",
-    "Question3": "public static String abbreviate(String str, int lower, int upper, String appendToEnd) { ... }",
-    "Question4": "if (index > upper) {\n    result.append(str.substring(0, upper));\n    result.append(StringUtils.defaultString(appendToEnd));\n}"
+    "file_name": "src/java/org/apache/commons/lang/WordUtils.java",
+    "if_has_bug": "Yes",
+    "method_level": "public static String abbreviate(String str, int lower, int upper, String appendToEnd) { ... }",
+    "block_level": "int index = StringUtils.indexOf(str, \" \", lower);"
 }

@@ -1,6 +1,6 @@
 {
-    "Question1": "src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java",
-    "Question2": "Yes",
-    "Question3": "public String toString() {\n    return ToStringBuilder.reflectionToString(this);\n}",
-    "Question4": "The bug is caused by not removing the thread local in the ToStringStyle class. The specific buggy code statement is the call to reflectionToString(this) method in the toString() method of the ToStringBuilder class."
+    "file_name": "src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java",
+    "if_has_bug": "Yes",
+    "method_level": "public ToStringBuilder(Object object, ToStringStyle style, StringBuffer buffer) {",
+    "block_level": "defaultStyle = style;"
 }

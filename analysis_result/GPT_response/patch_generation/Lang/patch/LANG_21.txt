@@ -1,0 +1,12 @@
+diff --git a/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java b/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
+index 1234567..890abcde 100644
+--- a/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
++++ b/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
+@@ -1,5 +1,5 @@
+ public class FastDateFormat extends Format {
+     ...
+-    if (cal1.get(Calendar.HOUR) == cal2.get(Calendar.HOUR)) {
++    if (cal1.get(Calendar.HOUR_OF_DAY) == cal2.get(Calendar.HOUR_OF_DAY)) {
+         ...
+     }
+ }

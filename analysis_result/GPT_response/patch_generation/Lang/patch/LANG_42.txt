@@ -1,0 +1,13 @@
+diff --git a/src/java/org/apache/commons/lang/StringEscapeUtils.java b/src/java/org/apache/commons/lang/StringEscapeUtils.java
+index 1234567..7654321 100644
+--- a/src/java/org/apache/commons/lang/StringEscapeUtils.java
++++ b/src/java/org/apache/commons/lang/StringEscapeUtils.java
+@@ -100,7 +100,7 @@ public static String escapeHtml(String str) {
+         }
+         try {
+             StringWriter writer = new StringWriter ((int)(str.length() * 1.5));
+-            escapeHtml(writer, str);
++            escapeHtml(writer, StringEscapeUtils.unescapeHtml(str));
+             return writer.toString();
+         } catch (IOException ioe) {
+             //should be impossible

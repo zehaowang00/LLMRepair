@@ -1,0 +1,11 @@
+diff --git a/src/java/org/apache/commons/lang/BooleanUtils.java b/src/java/org/apache/commons/lang/BooleanUtils.java
+index 1234567..7654321 100644
+--- a/src/java/org/apache/commons/lang/BooleanUtils.java
++++ b/src/java/org/apache/commons/lang/BooleanUtils.java
+@@ -3,7 +3,7 @@ public static boolean toBoolean(Boolean bool) {
+        if (bool == null) {
+            return false;
+        }
+-        return bool.booleanValue() ? true : false;
++        return bool.booleanValue();
+    }

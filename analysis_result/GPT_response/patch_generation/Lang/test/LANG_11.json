@@ -1,0 +1,3 @@
+{
+    "Fault Triggering Test": "public void testRandomStringUtilsIllegalArgumentException() {\n        try {\n            RandomStringUtils.random(5, 10, 5, true, true, 'a', 'b', 'c');\n            fail(\"Expected IllegalArgumentException was not thrown\");\n        } catch (IllegalArgumentException e) {\n            // Expected IllegalArgumentException\n        }\n    }"
+}

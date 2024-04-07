@@ -1,6 +1,6 @@
 {
-    "Question1": "src/main/java/org/apache/commons/lang3/StringEscapeUtils.java",
-    "Question2": "Yes",
-    "Question3": "public static final String unescapeHtml4(String input) {\n        return UNESCAPE_HTML4.translate(input);\n    }",
-    "Question4": "The code statements that cause the bug are:\nreturn UNESCAPE_HTML4.translate(input);"
+    "file_name": "src/main/java/org/apache/commons/lang3/StringEscapeUtils.java",
+    "if_has_bug": "Yes",
+    "method_level": "public static final String unescapeHtml4(String input) {\n        return UNESCAPE_HTML4.translate(input);\n    }",
+    "block_level": "new NumericEntityUnescaper()"
 }

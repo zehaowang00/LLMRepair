@@ -1,0 +1,3 @@
+{
+    "Fix Patch": "diff --git a/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java b/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java\nindex 1234567..7654321 100644\n--- a/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java\n+++ b/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java\n@@ -123,7 +123,7 @@ public Date parse(String source) throws ParseException {\n         return parser.parse(StringUtils.deleteWhitespace(source));\n     }"
+}

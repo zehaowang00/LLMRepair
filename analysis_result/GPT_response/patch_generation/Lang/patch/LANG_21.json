@@ -1,0 +1,4 @@
+{
+    "Fix Patch": "diff --git a/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java b/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java\nindex 1234567..890abcde 100644\n--- a/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java\n+++ b/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java\n@@ -1,5 +1,5 @@\n public class FastDateFormat extends Format {\n     ...\n-    if (cal1.get(Calendar.HOUR) == cal2.get(Calendar.HOUR)) {\n+    if (cal1.get(Calendar.HOUR_OF_DAY) == cal2.get(Calendar.HOUR_OF_DAY)) {\n         ...\n     }\n }",
+    "Question": "The patch for the bug in the bug report? (Only Output the fix patch for fix the bug in bug report refer the fix patch format example. No other words)"
+}

@@ -1,6 +1,6 @@
 {
-    "Question1": "src/main/java/org/apache/commons/lang3/SerializationUtils.java",
-    "Question2": "Yes",
-    "Question3": "public static <T extends Serializable> T clone(T object) { ... }",
-    "Question4": "ClassLoaderAwareObjectInputStream in = null; try { ... } catch (ClassNotFoundException ex) { ... }"
+    "file_name": "src/main/java/org/apache/commons/lang3/SerializationUtils.java",
+    "if_has_bug": "Yes",
+    "method_level": "public static <T extends Serializable> T clone(T object) { ... }",
+    "block_level": "Class<?> clone = SerializationUtils.clone(primitiveType);"
 }

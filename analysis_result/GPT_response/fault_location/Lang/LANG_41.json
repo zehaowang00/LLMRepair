@@ -1,6 +1,6 @@
 {
-    "Question1": "src/java/org/apache/commons/lang/ClassUtils.java",
-    "Question2": "Yes",
-    "Question3": "public static String getShortClassName(String className) { ... }",
-    "Question4": "out = out.replace(INNER_CLASS_SEPARATOR_CHAR, PACKAGE_SEPARATOR_CHAR);"
+    "file_name": "src/java/org/apache/commons/lang/ClassUtils.java",
+    "if_has_bug": "Yes",
+    "method_level": "public static String getShortClassName(String className)",
+    "block_level": "out = out.replace(INNER_CLASS_SEPARATOR_CHAR, PACKAGE_SEPARATOR_CHAR);"
 }

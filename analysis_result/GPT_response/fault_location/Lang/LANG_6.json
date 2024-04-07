@@ -1,6 +1,6 @@
 {
-    "Question1": "src/main/java/org/apache/commons/lang3/StringEscapeUtils.java",
-    "Question2": "Yes",
-    "Question3": "public final void translate(CharSequence input, Writer out) throws IOException {\n\n        if(index != 0) {\n            throw new IllegalStateException(\"CsvEscaper should never reach the [1] index\");\n        }\n\n        if (StringUtils.containsNone(input.toString(), CSV_SEARCH_CHARS)) {\n            out.write(input.toString());\n        } else {\n            out.write(CSV_QUOTE);\n            out.write(StringUtils.replace(input.toString(), CSV_QUOTE_STR, CSV_QUOTE_STR + CSV_QUOTE_STR));\n            out.write(CSV_QUOTE);\n        }\n        return input.length();\n    }",
-    "Question4": "if(index != 0) {\n    throw new IllegalStateException(\"CsvEscaper should never reach the [1] index\");\n}"
+    "file_name": "src/main/java/org/apache/commons/lang3/StringEscapeUtils.java",
+    "if_has_bug": "Yes",
+    "method_level": "public final void translate(CharSequence input, Writer out) throws IOException",
+    "block_level": "out.write(input.toString());"
 }

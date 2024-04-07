@@ -92,7 +92,7 @@ def has_reason_analysis():
 
 prompt_localization = {
     "Role": "As a professional developers. You are responsible for locate and extract the buggy code snippet in the provided checked code carefully and accurately",
-    "Instruction": "check the bug report description/title and try to answer the question. Output in JSON format.",
+    "Instruction": "check the bug report description/title and try to answer the question. Output in JSON format. Please use following for key for the four questison: file_name, if_has_bug, method_level, block_level",
     "Bug report description": "",
     "Bug report title": "",
     "Checked code": "",
@@ -100,7 +100,7 @@ prompt_localization = {
     "Question": """ 
             Question1: What is the file name of checked code? 
             Question2: If checked code has the bug that is described in the bug report? (Only Answer Yes or No)
-            Question3: In the checked code, Which method in the code contains the bug in the bug report? (please output the entire method that include buggy code from checked code, include the method name and body. The code you provide here is for further manual fix.)
+            Question3: In the checked code, Which method in the code contains the bug in the bug report? (The answer should be consistent with the answer 2. please output the entire method that include buggy code from checked code, include the method name and body. The code you provide here is for further manual fix.)
             Question4: In the method, which code statements cause the bug?  (please answer the specific buggy code statements carefully. The answer should be the code in the method-level buggy code from the answer of Question3 for the bug in bug report.)
   """
 }
@@ -113,7 +113,7 @@ prompt_localization = {
 # save_file_path = '../analysis_result/GPT_response/fault_location/Lang/LANG-6.json'
 
 # load api key - use your own openai key
-api_key_path = "/Users/linqiangguo/Documents/apiKeys/openaiKey.json"  # use your key
+api_key_path = "/Users/wang/Documents/project/api_key.json"  # use your key
 api_key = load_api_key(api_key_path)
 
 # load bug report
@@ -121,12 +121,13 @@ report_map_path = '../dataset/bug_report/Lang/bug_report.csv'
 bug_report = pd.read_csv(report_map_path)
 bug_report_map = get_report_map_dic(bug_report)
 error_bug_id_list = []
+index = 0
 # for each bug report, find the predictions methods list from bug_file_prediction by IR
 for bug_id, report_id in bug_report_map.items():
     bug_report_des_path = '../analysis_result/parsed_bug_reports/Lang/' + bug_report_map[bug_id] + '.json'
     report_id = report_id.replace("_", "-")
     predict_file_name = f"finalmultic_{report_id}"
-    predict_report_map_path = ('/Users/linqiangguo/PycharmProjects/LLMRepair/dataset/bug_file_prediction'
+    predict_report_map_path = ('../dataset/bug_file_prediction'
                                '/LANG_file_predict/') + predict_file_name + '.csv'
     try:
         predict_file = pd.read_csv(predict_report_map_path)
@@ -146,7 +147,7 @@ for bug_id, report_id in bug_report_map.items():
             break
         else:
             fileName = predictionBugReport.fileName
-            source_code_path = '/Users/linqiangguo/IdeaProjects/defects4j/Data/Lang/' + bug_id.lower() + '_b/' + fileName
+            source_code_path = '/Users/wang/Documents/project/defects4j/Data/Lang/' + bug_id.lower() + '_b/' + fileName
             save_file_path = f'../analysis_result/GPT_response/fault_location/Lang/{bug_id}.json'
             report = load_bug_report(bug_report_des_path)
             prompt_localization = prompt_init(prompt_localization, report[0]['description'],
@@ -160,6 +161,8 @@ for bug_id, report_id in bug_report_map.items():
                 else:
                     prompt_localization = prompt_reason_fault(prompt_localization)
                     fault_localization(client, prompt_localization, "", save_file_path)
+                index = index + 1
+                print("processed: " + str(index))
             except openai.BadRequestError as e:
                 error_bug_id_list.append(bug_id)
                 continue

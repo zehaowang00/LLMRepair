@@ -1,0 +1,4 @@
+{
+    "Fix Patch": "diff --git a/src/main/java/org/apache/commons/lang3/math/NumberUtils.java b/src/main/java/org/apache/commons/lang3/math/NumberUtils.java\nindex abcdef1..1234567 100644\n--- a/src/main/java/org/apache/commons/lang3/math/NumberUtils.java\n+++ b/src/main/java/org/apache/commons/lang3/math/NumberUtils.java\n@@ -456,9 +456,9 @@ public static Number createNumber(String str) throws NumberFormatException {\n     }\n \n     if (str.startsWith(\"--\")) {\n-        return null;\n+        throw new NumberFormatException(\"Invalid input: \" + str);\n     }\n \n     // Rest of the method remains the same\n }",
+    "Question": "The patch for the bug in the bug report? (Only Output the fix patch for fix the bug in bug report refer the fix patch format example. No other words)"
+}

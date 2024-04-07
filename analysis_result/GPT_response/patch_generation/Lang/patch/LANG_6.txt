@@ -1,0 +1,17 @@
+diff --git a/src/main/java/org/apache/commons/lang3/StringEscapeUtils.java b/src/main/java/org/apache/commons/lang3/StringEscapeUtils.java
+index 1234567..7654321 100644
+--- a/src/main/java/org/apache/commons/lang3/StringEscapeUtils.java
++++ b/src/main/java/org/apache/commons/lang3/StringEscapeUtils.java
+@@ -100,7 +100,7 @@ public final void translate(CharSequence input, Writer out) throws IOException {
+
+         if (StringUtils.containsNone(input.toString(), CSV_SEARCH_CHARS)) {
+             out.write(input.toString());
+         } else {
+-            out.write(CSV_QUOTE);
++            out.write(CSV_QUOTE_STR);
+             out.write(StringUtils.replace(input.toString(), CSV_QUOTE_STR, CSV_QUOTE_STR + CSV_QUOTE_STR));
+-            out.write(CSV_QUOTE);
++            out.write(CSV_QUOTE_STR);
+         }
+         return input.length();
+     }

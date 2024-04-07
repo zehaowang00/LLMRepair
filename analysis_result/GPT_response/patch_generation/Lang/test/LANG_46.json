@@ -1,0 +1,3 @@
+{
+    "Fault Triggering Test": "public void testEscapeJavaWithSlash() {\n        final String input = \"String with a slash (/) in it\";\n        \n        final String expected = input;\n        final String actual   = StringEscapeUtils.escapeJava( input );\n\n        assertEquals( expected, actual );\n    }"
+}

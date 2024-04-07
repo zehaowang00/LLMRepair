@@ -1,9 +1,0 @@
-{
-    "Question1": [
-        "    public static Long createLong(final String str) {\n        if (str == null) {\n            return null;\n        }\n        return Long.decode(str);\n    }"
-    ],
-    "Question2": {
-        "StartLine": 397,
-        "EndLine": 399
-    }
-}

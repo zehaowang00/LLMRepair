@@ -1,6 +1,6 @@
 {
-    "Question1": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
-    "Question2": "No",
-    "Question3": "public StringBuffer applyRules(Calendar calendar, StringBuffer buf) { \n        return printer.applyRules(calendar, buf); \n    }",
-    "Question4": "return printer.applyRules(calendar, buf);"
+    "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
+    "if_has_bug": "Yes",
+    "method_level": "protected FastDateFormat(String pattern, TimeZone timeZone, Locale locale) {\n        printer= new FastDatePrinter(pattern, timeZone, locale);\n        parser= new FastDateParser(pattern, timeZone, locale);\n    }",
+    "block_level": "The buggy code statements are:\n1. printer= new FastDatePrinter(pattern, timeZone, locale);\n2. parser= new FastDateParser(pattern, timeZone, locale);"
 }

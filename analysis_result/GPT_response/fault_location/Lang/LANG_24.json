@@ -1,6 +1,6 @@
 {
-    "Question1": "src/main/java/org/apache/commons/lang3/math/NumberUtils.java",
-    "Question2": "Yes",
-    "Question3": "public static boolean isNumber(String str) { ... }",
-    "Question4": "if (chars[i] == 'l' || chars[i] == 'L') { ... return foundDigit && !hasExp; }"
+    "file_name": "src/main/java/org/apache/commons/lang3/math/NumberUtils.java",
+    "if_has_bug": "Yes",
+    "method_level": "public static boolean isNumber(String str) {",
+    "block_level": "return foundDigit && !hasExp;"
 }

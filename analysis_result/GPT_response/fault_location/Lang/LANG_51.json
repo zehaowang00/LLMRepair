@@ -1,6 +1,6 @@
 {
-    "Question1": "src/java/org/apache/commons/lang/BooleanUtils.java",
-    "Question2": "Yes",
-    "Question3": "public static boolean toBoolean(Boolean bool) {\n        if (bool == null) {\n            return false;\n        }\n        return bool.booleanValue() ? true : false;\n    }",
-    "Question4": "return bool.booleanValue() ? true : false;"
+    "file_name": "src/java/org/apache/commons/lang/BooleanUtils.java",
+    "if_has_bug": "Yes",
+    "method_level": "public static boolean toBoolean(Boolean bool) {\n        if (bool == null) {\n            return false;\n        }\n        return bool.booleanValue() ? true : false;\n    }",
+    "block_level": "return bool.booleanValue() ? true : false;"
 }

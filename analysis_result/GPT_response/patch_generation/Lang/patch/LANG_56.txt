@@ -1,0 +1,17 @@
+diff --git a/src/java/org/apache/commons/lang/time/FastDateFormat.java b/src/java/org/apache/commons/lang/time/FastDateFormat.java
+index abcdef1..1234567 100644
+--- a/src/java/org/apache/commons/lang/time/FastDateFormat.java
++++ b/src/java/org/apache/commons/lang/time/FastDateFormat.java
+@@ -20,7 +20,7 @@
+ public class FastDateFormat extends Format {
+ 
+     // Make mRules transient
+-    private final Rule[] mRules;
++    private transient final Rule[] mRules;
+ 
+     // Add deserializing code to kick off init()
+     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+         in.defaultReadObject();
+         init();
+     }
+ }

@@ -1,0 +1,14 @@
+diff --git a/src/java/org/apache/commons/lang/LocaleUtils.java b/src/java/org/apache/commons/lang/LocaleUtils.java
+index 1234567..7654321 100644
+--- a/src/java/org/apache/commons/lang/LocaleUtils.java
++++ b/src/java/org/apache/commons/lang/LocaleUtils.java
+@@ -100,7 +100,7 @@ public static Locale toLocale(String str) { 
+         int len = str.length();
+         if (len != 2 && len != 5 && len < 7) {
+             throw new IllegalArgumentException("Invalid length: " + len);
+-        }
++        } else if (len == 5 && str.charAt(2) != '_') {
++            throw new IllegalArgumentException("Invalid format: " + str);
+         }
+         ...
+     }

@@ -1,6 +1,6 @@
 {
-    "File name of checked code": "src/java/org/apache/commons/lang/enums/ValuedEnum.java",
-    "Question2": "Yes",
-    "Question3": "public int compareTo(Object other) {\n        return iValue - ((ValuedEnum) other).iValue;\n    }",
-    "Question4": "return iValue - ((ValuedEnum) other).iValue;"
+    "file_name": "src/java/org/apache/commons/lang/enums/ValuedEnum.java",
+    "if_has_bug": "Yes",
+    "method_level": "compareTo(Object other)",
+    "block_level": "return iValue - ((ValuedEnum) other).iValue;"
 }

@@ -1,0 +1,3 @@
+{
+    "Fault Triggering Test": "public class BugTest {\n    public static void main(String[] args) {\n        String input = \"'\\uD834\\uDD62'\"; // UTF-16 representation of U+1D362\n        String output = StringEscapeUtils.escapeHtml(input);\n        System.out.println(output); // should output: '&#119650;'\n    }\n}"
+}

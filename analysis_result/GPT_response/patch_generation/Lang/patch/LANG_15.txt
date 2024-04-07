@@ -1,0 +1,13 @@
+diff --git a/src/main/java/org/apache/commons/lang3/reflect/TypeUtils.java b/src/main/java/org/apache/commons/lang3/reflect/TypeUtils.java
+index 1234567..7654321 100644
+--- a/src/main/java/org/apache/commons/lang3/reflect/TypeUtils.java
++++ b/src/main/java/org/apache/commons/lang3/reflect/TypeUtils.java
+@@ -1234,7 +1234,7 @@ private static boolean isAssignable(Type type, Type toType, Map<TypeVariable<?>, Type> typeVarAssigns) {
+         }
+ 
+         if (toType instanceof ParameterizedType) {
+-            return isAssignable(type, (ParameterizedType) toType, typeVarAssigns);
++            return isAssignable(type, ((ParameterizedType) toType).getRawType(), typeVarAssigns);
+         }
+ 
+         if (toType instanceof GenericArrayType) {

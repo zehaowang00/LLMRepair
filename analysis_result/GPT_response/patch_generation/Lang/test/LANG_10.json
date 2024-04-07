@@ -1,0 +1,8 @@
+{
+    "Bug report title": "FastDateParser does not handle white-space properly",
+    "Bug report description": "<p>The SimpleDateFormat Javadoc does not treat white-space specially, however FastDateParser treats a single white-space as being any number of white-space characters.</p>\n\n<p>This means that FDP will parse dates that fail when parsed by SDP.</p>",
+    "Method include buggy code": "public Date parse(String source) throws ParseException {\n        return parser.parse(source);\n    }",
+    "suspicious buggy code statements": "return parser.parse(source);",
+    "Expected Output": "Fault Triggering Test: Can you provide one test case for testing the bug? (Please generate a complete and compilable test case code for trigger the bug in the bug report. No other words) \n              ",
+    "Fault Triggering Test": "public void testWhiteSpaceHandling() {\n        FastDateParser fastDateParser = new FastDateParser();\n        String dateWithWhiteSpace = \"2022-01-01 00:00:00\";\n        try {\n            Date parsedDate = fastDateParser.parse(dateWithWhiteSpace);\n            // Add assertions here to validate the parsed date\n        } catch (ParseException e) {\n            // Handle the exception\n        }\n    }"
+}

@@ -1,6 +1,6 @@
 {
-    "Question1": "src/java/org/apache/commons/lang/time/DateUtils.java",
-    "Question2": "Yes",
-    "Question3": "public static Date truncate(Date date, int field) { ... }",
-    "Question4": "val.add(Calendar.DATE, 15);"
+    "file_name": "src/java/org/apache/commons/lang/time/DateUtils.java",
+    "if_has_bug": "Yes",
+    "method_level": "public static Date truncate(Date date, int field) {",
+    "block_level": "// truncate milliseconds\n\n        // truncate seconds\n\n        // truncate minutes\n\n        // reset time\n        // ----------------- Fix for LANG-59 ---------------------- START ---------------\n        // see http://issues.apache.org/jira/browse/LANG-59\n        //\n        // Manually truncate milliseconds, seconds and minutes, rather than using\n        // Calendar methods."
 }

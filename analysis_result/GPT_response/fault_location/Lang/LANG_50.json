@@ -1,6 +1,6 @@
 {
-    "Question1": "src/java/org/apache/commons/lang/time/FastDateFormat.java",
-    "Question2": "Yes",
-    "Question3": "public class FastDateFormat extends Format { ... }",
-    "Question4": "If the locale is null, then it is not made part of the key, but the stored object is created using the current default locale."
+    "file_name": "src/java/org/apache/commons/lang/time/FastDateFormat.java",
+    "if_has_bug": "No",
+    "method_level": "",
+    "block_level": ""
 }
