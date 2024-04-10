@@ -1,6 +1,0 @@
-{
-    "file_name": "src/java/org/apache/commons/lang/NumberUtils.java",
-    "if_has_bug": "Yes",
-    "method_level": "public static Number createNumber(String val) throws NumberFormatException {",
-    "block_level": "return null;"
-}

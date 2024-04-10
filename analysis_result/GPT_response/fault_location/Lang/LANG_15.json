@@ -1,6 +1,0 @@
-{
-    "file_name": "src/main/java/org/apache/commons/lang3/reflect/TypeUtils.java",
-    "if_has_bug": "Yes",
-    "method_level": "private static boolean isAssignable(Type type, Type toType, Map<TypeVariable<?>, Type> typeVarAssigns) {",
-    "block_level": "if (toType == null || toType instanceof Class<?>) {\n            return isAssignable(type, (Class<?>) toType);\n        }\n\n        if (toType instanceof ParameterizedType) {\n            return isAssignable(type, (ParameterizedType) toType, typeVarAssigns);\n        }\n\n        if (toType instanceof GenericArrayType) {\n            return isAssignable(type, (GenericArrayType) toType, typeVarAssigns);\n        }\n\n        if (toType instanceof WildcardType) {\n            return isAssignable(type, (WildcardType) toType, typeVarAssigns);\n        }\n\n        // *\n        if (toType instanceof TypeVariable<?>) {\n            return isAssignable(type, (TypeVariable<?>) toType, typeVarAssigns);\n        }\n        // */"
-}

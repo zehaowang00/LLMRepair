@@ -1,6 +1,0 @@
-{
-    "file_name": "src/main/java/org/apache/commons/lang3/SerializationUtils.java",
-    "if_has_bug": "Yes",
-    "method_level": "public static <T extends Serializable> T clone(T object) { ... }",
-    "block_level": "Class<?> clone = SerializationUtils.clone(primitiveType);"
-}

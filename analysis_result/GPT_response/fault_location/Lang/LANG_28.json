@@ -1,6 +1,0 @@
-{
-    "file_name": "src/main/java/org/apache/commons/lang3/StringEscapeUtils.java",
-    "if_has_bug": "Yes",
-    "method_level": "public void escape(Writer writer, String str) throws IOException",
-    "block_level": "writer.write((char) code);"
-}

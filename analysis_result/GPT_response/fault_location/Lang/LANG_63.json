@@ -1,6 +1,0 @@
-{
-    "file_name": "src/java/org/apache/commons/lang/time/DurationFormatUtils.java",
-    "if_has_bug": "Yes",
-    "method_level": "public static String formatDuration(long durationMillis, String format)",
-    "block_level": "if (Token.containsTokenWithValue(tokens, d) ) {\n            days = (int) (durationMillis / DateUtils.MILLIS_PER_DAY);\n            durationMillis = durationMillis - (days * DateUtils.MILLIS_PER_DAY);\n        }\n        if (Token.containsTokenWithValue(tokens, H) ) {\n            hours = (int) (durationMillis / DateUtils.MILLIS_PER_HOUR);\n            durationMillis = durationMillis - (hours * DateUtils.MILLIS_PER_HOUR);\n        }\n        if (Token.containsTokenWithValue(tokens, m) ) {\n            minutes = (int) (durationMillis / DateUtils.MILLIS_PER_MINUTE);\n            durationMillis = durationMillis - (minutes * DateUtils.MILLIS_PER_MINUTE);\n        }\n        if (Token.containsTokenWithValue(tokens, s) ) {\n            seconds = (int) (durationMillis / DateUtils.MILLIS_PER_SECOND);\n            durationMillis = durationMillis - (seconds * DateUtils.MILLIS_PER_SECOND);\n        }\n        if (Token.containsTokenWithValue(tokens, S) ) {\n            milliseconds = (int) durationMillis;\n        }"
-}

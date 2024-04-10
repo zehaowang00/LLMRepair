@@ -1,6 +1,0 @@
-{
-    "file_name": "src/java/org/apache/commons/lang/exception/NestableDelegate.java",
-    "if_has_bug": "Yes",
-    "method_level": "public void printStackTrace(PrintWriter out) { ... }",
-    "block_level": "throwable.printStackTrace(out);"
-}

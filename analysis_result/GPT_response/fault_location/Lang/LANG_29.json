@@ -1,6 +1,0 @@
-{
-    "file_name": "src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java",
-    "if_has_bug": "Yes",
-    "method_level": "public String toString() { ... }",
-    "block_level": "style.appendEnd(this.getStringBuffer(), this.getObject());"
-}

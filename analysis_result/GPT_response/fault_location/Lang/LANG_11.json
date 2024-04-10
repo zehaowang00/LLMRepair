@@ -1,6 +1,22 @@
 {
-    "file_name": "src/main/java/org/apache/commons/lang3/RandomStringUtils.java",
-    "if_has_bug": "Yes",
-    "method_level": "public static String random(int count, int start, int end, boolean letters, boolean numbers, char... chars)",
-    "block_level": "if (chars != null && chars.length == 0) {\n            throw new IllegalArgumentException(\"The chars array must not be empty\");\n        }"
+    "result": [
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/RandomStringUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String random(int count, int start, int end, boolean letters, boolean numbers, char... chars, Random random)",
+            "block_level": "if(ch >= 56192 && ch <= 56319)"
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/CharRange.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/builder/StandardToStringStyle.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        }
+    ]
 }

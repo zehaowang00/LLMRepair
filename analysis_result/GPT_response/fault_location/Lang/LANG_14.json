@@ -1,6 +1,0 @@
-{
-    "file_name": "src/main/java/org/apache/commons/lang3/concurrent/ConstantInitializer.java",
-    "if_has_bug": "Yes",
-    "method_level": "equals(Object obj)",
-    "block_level": "return ObjectUtils.equals(getObject(), c.getObject());"
-}

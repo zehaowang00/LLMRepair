@@ -1,6 +1,0 @@
-{
-    "file_name": "src/java/org/apache/commons/lang/time/DateUtils.java",
-    "if_has_bug": "Yes",
-    "method_level": "public static Date round(Date date, int field) {\n        if (date == null) {\n            throw new IllegalArgumentException(\"The date must not be null\");\n        }\n        Calendar gval = Calendar.getInstance();\n        gval.setTime(date);\n        modify(gval, field, true);\n        return gval.getTime();\n    }",
-    "block_level": "The code statements that cause the bug are related to the modification of milliseconds, seconds, and minutes in the 'modify' method within the 'round' method."
-}

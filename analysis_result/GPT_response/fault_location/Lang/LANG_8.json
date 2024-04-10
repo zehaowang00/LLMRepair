@@ -1,6 +1,22 @@
 {
-    "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
-    "if_has_bug": "Yes",
-    "method_level": "protected StringBuffer applyRules(Calendar calendar, StringBuffer buf) {\n        return printer.applyRules(calendar, buf);\n    }",
-    "block_level": "Calendar myCal = Calendar.getInstance(TimeZone.getTimeZone(\"US/Central\"));\nSystem.out.println(FastDateFormat.getInstance(\"h:mma z\").format(myCal));"
+    "result": [
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
+            "if_has_bug": "Yes",
+            "method_level": "protected StringBuffer applyRules(Calendar calendar, StringBuffer buf) {\n        return printer.applyRules(calendar, buf);\n    }",
+            "block_level": "return printer.applyRules(calendar, buf);"
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String format(Date date, String pattern)",
+            "block_level": "FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);\nreturn df.format(date);"
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateParser.java",
+            "if_has_bug": "Yes",
+            "method_level": "protected FastDateParser(String pattern, TimeZone timeZone, Locale locale) {",
+            "block_level": "currentStrategy= getStrategy(currentFormatField, definingCalendar);"
+        }
+    ]
 }

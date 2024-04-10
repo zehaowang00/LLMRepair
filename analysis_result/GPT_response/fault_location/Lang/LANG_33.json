@@ -1,6 +1,0 @@
-{
-    "file_name": "src/main/java/org/apache/commons/lang3/ClassUtils.java",
-    "if_has_bug": "Yes",
-    "method_level": "public static Method getPublicMethod(Class<?> cls, String methodName, Class<?> parameterTypes[])",
-    "block_level": "if (!Modifier.isPublic(candidateClass.getModifiers())) {\n                continue;\n            }\n            Method candidateMethod;\n            try {\n                candidateMethod = candidateClass.getMethod(methodName, parameterTypes);\n            } catch (NoSuchMethodException ex) {\n                continue;\n            }\n            if (Modifier.isPublic(candidateMethod.getDeclaringClass().getModifiers())) {\n                return candidateMethod;\n            }"
-}

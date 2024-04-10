@@ -1,6 +1,0 @@
-{
-    "file_name": "src/main/java/org/apache/commons/lang3/StringEscapeUtils.java",
-    "if_has_bug": "Yes",
-    "method_level": "public static final String escapeXml(String input) {",
-    "block_level": "loop counter \"i\" moves from 0 to Character.codePointCount(input, 0, input.length()), but it should move from 0 to input.length()."
-}

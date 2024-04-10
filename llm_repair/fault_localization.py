@@ -27,8 +27,9 @@ def get_completion(client, prompt):
 
 def fault_localization(client, prompt, few_shots, save_file_path):
     response = get_completion(client, json.dumps(prompt))
-    with open(save_file_path, 'w') as file:
-        json.dump(json.loads(response), file, indent=4)
+    # with open(save_file_path, 'w') as file:
+    #     json.dump(json.loads(response), file, indent=4)
+    return response
 
 
 def load_bug_report(file_path):
@@ -99,9 +100,9 @@ prompt_localization = {
     "File name of checked code": "",
     "Question": """ 
             Question1: What is the file name of checked code? 
-            Question2: If checked code has the bug that is described in the bug report? (Only Answer Yes or No)
-            Question3: In the checked code, Which method in the code contains the bug in the bug report? (The answer should be consistent with the answer 2. please output the entire method that include buggy code from checked code, include the method name and body. The code you provide here is for further manual fix.)
-            Question4: In the method, which code statements cause the bug?  (please answer the specific buggy code statements carefully. The answer should be the code in the method-level buggy code from the answer of Question3 for the bug in bug report.)
+            Question2: If checked code has the bug that is described in the bug report? (Only Answer Yes or No.Only Answer Yes or No. The code file may have the bug described in the bug report or not, so you need to check carefully. If you answer yes, you must be very sure the bug in bug report happen in this code file no other source code file.)
+            Question3: In the checked code, Which method in the code contains the bug in the bug report? (If the answer to question 2 is yes. please output the entire method that include buggy code from checked code, include the method name and body. The code you provide here is for further manual fix.)
+            Question4: In the method, which code statements cause the bug?  (If the answer to question 2 is yes. The answer should be the code in the method-level buggy code from the answer of Question3 for the bug in bug report.)
   """
 }
 
@@ -135,7 +136,7 @@ for bug_id, report_id in bug_report_map.items():
     except FileNotFoundError as e:
         error_bug_id_list.append(bug_id)
         continue
-
+    response_results = []
     # for each bug, and top k(or by threshold) suspicious buggy method, build prompt to LLM
     for rank, predictionBugReport in predict_file_map.items():
         prob = predictionBugReport.prob
@@ -143,7 +144,7 @@ for bug_id, report_id in bug_report_map.items():
         # if prob < 0.5:
 
         # by rank (eg: we only take the highest rank method)
-        if rank > 1:
+        if rank > 3:
             break
         else:
             fileName = predictionBugReport.fileName
@@ -157,18 +158,24 @@ for bug_id, report_id in bug_report_map.items():
             client = OpenAI(api_key=api_key)
             try:
                 if not has_reason_analysis():
-                    fault_localization(client, prompt_localization, "", save_file_path)
+                    result = fault_localization(client, prompt_localization, "", save_file_path)
+                    response_results.append(json.loads(result))
                 else:
-                    prompt_localization = prompt_reason_fault(prompt_localization)
+                    result = prompt_localization = prompt_reason_fault(prompt_localization)
                     fault_localization(client, prompt_localization, "", save_file_path)
-                index = index + 1
-                print("processed: " + str(index))
+                    response_results.append(json.loads(result))
+                # index = index + 1
+                # print("processed: " + str(index))
             except openai.BadRequestError as e:
                 error_bug_id_list.append(bug_id)
                 continue
             except openai.RateLimitError as e2:
                 error_bug_id_list.append(bug_id)
                 continue
-
+    index = index + 1
+    print("processed: " + str(index))
+    with open(save_file_path, 'w') as file:
+        saved_dict = {'result': response_results}
+        json.dump(saved_dict, file, indent=4)
 
 print(error_bug_id_list)

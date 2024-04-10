@@ -1,6 +1,0 @@
-{
-    "file_name": "src/java/org/apache/commons/lang/math/Fraction.java",
-    "if_has_bug": "Yes",
-    "method_level": "public Fraction getFraction(int numerator, int denominator)",
-    "block_level": "if (denominator == 0) {\n            throw new ArithmeticException(\"The denominator must not be zero\");\n        }"
-}

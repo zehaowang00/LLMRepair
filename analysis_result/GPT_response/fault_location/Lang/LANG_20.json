@@ -1,6 +1,0 @@
-{
-    "file_name": "src/main/java/org/apache/commons/lang3/ObjectUtils.java",
-    "if_has_bug": "Yes",
-    "method_level": "public static <T> T clone(final T obj) { ... }",
-    "block_level": "result = ((Object[]) obj).clone();"
-}

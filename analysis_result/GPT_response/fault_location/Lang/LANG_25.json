@@ -1,6 +1,0 @@
-{
-    "file_name": "src/main/java/org/apache/commons/lang3/text/translate/EntityArrays.java",
-    "if_has_bug": "Yes",
-    "method_level": "private static final String[][] ISO8859_1_ESCAPE",
-    "block_level": "{\"\\u00D7\", \"&amp;Ouml;\"}, // \\u00d6 - uppercase O, umlaut"
-}

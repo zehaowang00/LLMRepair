@@ -1,6 +1,22 @@
 {
-    "file_name": "src/main/java/org/apache/commons/lang3/math/NumberUtils.java",
-    "if_has_bug": "Yes",
-    "method_level": "public static Number createNumber(final String str) throws NumberFormatException {",
-    "block_level": "final String[] hex_prefixes = {\"0x\", \"0X\", \"-0x\", \"-0X\", \"#\", \"-#\"};"
+    "result": [
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/math/NumberUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static Number createNumber(final String str) throws NumberFormatException {",
+            "block_level": "final String[] hex_prefixes = {\"0x\", \"0X\", \"-0x\", \"-0X\", \"#\", \"-#\"};"
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/mutable/MutableFloat.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/math/IEEE754rUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static double min(final double a, final double b)",
+            "block_level": "if(Double.isNaN(a)) {\n            return b;\n        } else\n        if(Double.isNaN(b)) {\n            return a;\n        } else {\n            return Math.min(a, b);\n        }"
+        }
+    ]
 }

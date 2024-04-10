@@ -1,6 +1,22 @@
 {
-    "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
-    "if_has_bug": "Yes",
-    "method_level": "protected FastDateFormat(String pattern, TimeZone timeZone, Locale locale) {\n        printer= new FastDatePrinter(pattern, timeZone, locale);\n        parser= new FastDateParser(pattern, timeZone, locale);\n    }",
-    "block_level": "The buggy code statements are:\n1. printer= new FastDatePrinter(pattern, timeZone, locale);\n2. parser= new FastDateParser(pattern, timeZone, locale);"
+    "result": [
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String format(Date date, String pattern, TimeZone timeZone, Locale locale) { \n        FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);\n        return df.format(date);\n    }",
+            "block_level": "The bug is caused by the incorrect handling of unterminated quotes in the FastDateFormat.getInstance() method call within the format() method."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/time/DateParser.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        }
+    ]
 }

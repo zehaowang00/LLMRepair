@@ -1,6 +1,22 @@
 {
-    "file_name": "src/main/java/org/apache/commons/lang3/math/NumberUtils.java",
-    "if_has_bug": "Yes",
-    "method_level": "public static Number createNumber(final String str) throws NumberFormatException {",
-    "block_level": "return Long.decode(str);"
+    "result": [
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/math/NumberUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public Number createNumber(final String str) throws NumberFormatException {",
+            "block_level": "It is trivial to fix createLong() - just use Long.decode() instead of valueOf()."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/mutable/MutableLong.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/math/IEEE754rUtils.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        }
+    ]
 }
