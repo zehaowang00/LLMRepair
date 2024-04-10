@@ -1,8 +1,6 @@
 import pandas as pd
 import os
 import json
-import ast
-import javalang
 
 
 def load_json(file_path):
@@ -11,17 +9,25 @@ def load_json(file_path):
         return data
 
 
-def check_method_level(method_code, ground_method_truth):
+def check_method_level(method_code, ground_method_truth, file_prediction):
+    if "False" == file_prediction:
+        return "False"
     if len(ground_method_truth) == 0:
         return "no ground truth method"
-    if len(ground_method_truth) > 0:
-        function_name = ground_method_truth.split('.')[-1]
-        function_name = function_name[:function_name.index('(')]
     if len(method_code) == 0:
-        return "cannot locat method"
-    if function_name in method_code:
-        return "True"
-    else:
+        return "cannot locate method"
+    method_signature = method_code.strip().split('(')
+    method_signature = method_signature[0].split(' ')[-1]
+    if len(ground_method_truth) > 0:
+        if "," in ground_method_truth:
+            truth_list = ground_method_truth.strip().split(',')
+        else:
+            truth_list = [ground_method_truth.strip()]
+        for function_name in truth_list:
+            function_name = function_name.split('.')[-1]
+            function_name = function_name[:function_name.index('(')]
+            if function_name == method_signature:
+                return "True"
         return "False"
 
 
@@ -46,7 +52,9 @@ def is_code_part_of(main, part):
     return part.strip() in main.strip()
 
 
-def check_block_level(line_code, ground_line_truth, bug_ID):
+def check_block_level(line_code, ground_line_truth, bug_ID, file_prediction):
+    if "FALSE" == file_prediction:
+        return "False"
     if bug_ID in line_unprocessed_bugId or len(ground_line_truth) == 0:
         return "no ground truth block"
     if len(line_code) == 0:
@@ -61,7 +69,7 @@ def check_block_level(line_code, ground_line_truth, bug_ID):
             if is_code_part_of(truth, line_code) or is_code_part_of(line_code, truth):
                 return "True"
 
-    return "false"
+    return "False"
 
 
 ground_truth_lines = '../dataset/localization_groudtruth/buggy-lines'
@@ -108,12 +116,12 @@ for project in projects:
             dicts.append(fault_localization_info)
 
 fault_df = pd.DataFrame(dicts)
-fault_df['Locate Correct Method'] = fault_df.apply(
-    lambda row: check_method_level(row['method_level'], row['Ground_Method_Truth']), axis=1)
 fault_df['Locate Correct File'] = fault_df.apply(
     lambda row: check_file_level(row['file_name'], row['Ground_Method_Truth'], row['if_has_bug']), axis=1)
+fault_df['Locate Correct Method'] = fault_df.apply(
+    lambda row: check_method_level(row['method_level'], row['Ground_Method_Truth'], row['Locate Correct File']), axis=1)
 fault_df['Locate Correct Block'] = fault_df.apply(
-    lambda row: check_block_level(row['block_level'], row['Ground_Line_Truth'], row['Bug_ID']), axis=1)
+    lambda row: check_block_level(row['block_level'], row['Ground_Line_Truth'], row['Bug_ID'], row['Locate Correct File']), axis=1)
 
 fault_df.to_csv("../analysis_result/evaluation/fault_location_eval.csv", index=False)
 right_method_df = fault_df[fault_df['Locate Correct Method'] == 'True']
