@@ -1,0 +1,6 @@
+{
+    "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
+    "if_has_bug": "Yes",
+    "method_level": "public void appendTo(StringBuffer buffer, Calendar calendar)",
+    "block_level": "case 'H': // hour in day (number, 0..23)\n                rule = selectNumberRule(Calendar.HOUR_OF_DAY, tokenLen);\n                break;"
+}

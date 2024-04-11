@@ -8,15 +8,15 @@
         },
         {
             "file_name": "src/java/org/apache/commons/lang/time/DateFormatUtils.java",
-            "if_has_bug": "No",
-            "method_level": "",
-            "block_level": ""
+            "if_has_bug": "Yes",
+            "method_level": "public static String format(Date date, String pattern, TimeZone timeZone, Locale locale) {",
+            "block_level": "FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);\nreturn df.format(date);"
         },
         {
             "file_name": "src/java/org/apache/commons/lang/text/DefaultMetaFormatFactory.java",
             "if_has_bug": "Yes",
-            "method_level": "public static Format getFormat(final Locale locale) {",
-            "block_level": "If the Locale is changed subsequently, then the wrong locale is applied."
+            "method_level": "public static Format getFormat(final Locale locale)",
+            "block_level": "If the locale is null, then it is not made part of the key, but the stored object is created using the current default locale."
         }
     ]
 }

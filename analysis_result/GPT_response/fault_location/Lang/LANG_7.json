@@ -4,7 +4,7 @@
             "file_name": "src/main/java/org/apache/commons/lang3/math/NumberUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public Number createNumber(String str) throws NumberFormatException {",
-            "block_level": "if (str.startsWith(\"--\")) {\n            return null;\n        }"
+            "block_level": "if (str.startsWith(\"--\")) {\n    return null;\n}"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/JavaVersion.java",
@@ -14,9 +14,9 @@
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/exception/ExceptionContext.java",
-            "if_has_bug": "No",
-            "method_level": "",
-            "block_level": ""
+            "if_has_bug": "Yes",
+            "method_level": "public ExceptionContext addContextValue(String label, Object value)",
+            "block_level": "if (label == null) {\n    throw new IllegalArgumentException(\"The label must not be null\");\n}\nif (value == null) {\n    throw new IllegalArgumentException(\"The value must not be null\");\n}\nif (contextValues.containsKey(label)) {\n    List<Object> list = contextValues.get(label);\n    list.add(value);\n} else {\n    List<Object> list = new ArrayList<>();\n    list.add(value);\n    contextValues.put(label, list);\n}"
         }
     ]
 }

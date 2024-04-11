@@ -1,0 +1,6 @@
+{
+    "file_name": "src/java/org/apache/commons/lang/builder/EqualsBuilder.java",
+    "if_has_bug": "Yes",
+    "method_level": "public EqualsBuilder append(Object lhs, Object rhs) {",
+    "block_level": "isEquals = lhs.equals(rhs);"
+}

@@ -1,0 +1,6 @@
+{
+    "file_name": "src/java/org/apache/commons/lang/BooleanUtils.java",
+    "if_has_bug": "Yes",
+    "method_level": "public static Boolean toBooleanObject(String str)",
+    "block_level": "if (\"true\".equalsIgnoreCase(str)) {\n            return Boolean.TRUE;\n        } else if (\"false\".equalsIgnoreCase(str)) {\n            return Boolean.FALSE;\n        } else if (\"on\".equalsIgnoreCase(str)) {\n            return Boolean.TRUE;\n        } else if (\"off\".equalsIgnoreCase(str)) {\n            return Boolean.FALSE;\n        } else if (\"yes\".equalsIgnoreCase(str)) {\n            return Boolean.TRUE;\n        } else if (\"no\".equalsIgnoreCase(str)) {\n            return Boolean.FALSE;\n        }\n        // no match\n        return null;"
+}

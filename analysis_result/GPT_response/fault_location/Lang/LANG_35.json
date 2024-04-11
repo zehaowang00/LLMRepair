@@ -2,9 +2,9 @@
     "result": [
         {
             "file_name": "src/main/java/org/apache/commons/lang3/exception/ExceptionContext.java",
-            "if_has_bug": "No",
-            "method_level": "",
-            "block_level": ""
+            "if_has_bug": "Yes",
+            "method_level": "public ExceptionContext addValue(String label, Object value)",
+            "block_level": "if (label == null) {\n    throw new IllegalArgumentException(\"The label cannot be null\");\n}\n\nif (value == null) {\n    throw new IllegalArgumentException(\"The value cannot be null\");\n}"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/ClassUtils.java",

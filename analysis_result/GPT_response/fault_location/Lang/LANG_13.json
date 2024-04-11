@@ -3,14 +3,14 @@
         {
             "file_name": "src/main/java/org/apache/commons/lang3/SerializationUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public static <T extends Serializable> T clone(T object) { ... }",
-            "block_level": "ClassLoaderAwareObjectInputStream in = null; try { ... } catch (ClassNotFoundException ex) { ... } catch (IOException ex) { ... } finally { ... }"
+            "method_level": "public static <T extends Serializable> T clone(T object) {",
+            "block_level": "Class cl = (Class) primClasses.get(name);\n\t    if (cl != null) {\n\t\treturn cl;\n\t    } else {\n\t\tthrow ex;\n\t    }"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/ClassUtils.java",
-            "if_has_bug": "No",
-            "method_level": "",
-            "block_level": ""
+            "if_has_bug": "Yes",
+            "method_level": "public Method getPublicMethod(Class<?> cls, String methodName, Class<?>... parameterTypes) throws SecurityException, NoSuchMethodException",
+            "block_level": "Method body starting from 'Method declaredMethod = cls.getMethod(methodName, parameterTypes);' to the end of the method."
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/exception/ContextedRuntimeException.java",

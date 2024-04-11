@@ -3,20 +3,20 @@
         {
             "file_name": "src/main/java/org/apache/commons/lang3/text/translate/AggregateTranslator.java",
             "if_has_bug": "Yes",
-            "method_level": "translate method in AggregateTranslator class",
-            "block_level": "The bug is caused by the following code statements in the translate method: \n\nfor (final CharSequenceTranslator translator : translators) {\n    final int consumed = translator.translate(input, index, out);\n    if(consumed != 0) {\n        return consumed;\n    }\n}"
+            "method_level": "public int translate(final CharSequence input, final int index, final Writer out) throws IOException",
+            "block_level": "for (final CharSequenceTranslator translator : translators) {\n    final int consumed = translator.translate(input, index, out);\n    if(consumed != 0) {\n        return consumed;\n    }\n}"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java",
             "if_has_bug": "Yes",
             "method_level": "public final void translate(final CharSequence input, final Writer out) throws IOException {",
-            "block_level": "out.write(c);"
+            "block_level": "            final int consumed = translate(input, pos, out);\n            if (consumed == 0) {\n                final char[] c = Character.toChars(Character.codePointAt(input, pos));\n                out.write(c);\n                pos+= c.length;\n                continue;\n            }"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/text/translate/LookupTranslator.java",
             "if_has_bug": "Yes",
-            "method_level": "public int translate(final CharSequence input, final int index, final Writer out) throws IOException {",
-            "block_level": "final CharSequence subSeq = input.subSequence(index, index + i);\nfinal CharSequence result = lookupMap.get(subSeq);\nif (result != null) {\n    out.write(result.toString());\n    return i;\n}"
+            "method_level": "public int translate(final CharSequence input, final int index, final Writer out) throws IOException",
+            "block_level": "for (int i = max; i >= shortest; i--) {\n            final CharSequence subSeq = input.subSequence(index, index + i);\n            final CharSequence result = lookupMap.get(subSeq);\n            if (result != null) {\n                out.write(result.toString());\n                return i;\n            }\n        }"
         }
     ]
 }

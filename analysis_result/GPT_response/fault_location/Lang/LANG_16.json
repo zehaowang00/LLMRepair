@@ -9,14 +9,14 @@
         {
             "file_name": "src/main/java/org/apache/commons/lang3/text/FormatFactory.java",
             "if_has_bug": "Yes",
-            "method_level": "getFormat method",
-            "block_level": "0X1234 generates a NumberFormatException"
+            "method_level": "Format getFormat(String name, String arguments, Locale locale)",
+            "block_level": "Currently, the method getFormat() in FormatFactory.java does not handle upper-case hex values like 0X1234. This causes a NumberFormatException when trying to create a number from such values. The issue lies in the implementation of the method that does not account for upper-case hex values."
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/exception/ExceptionContext.java",
-            "if_has_bug": "No",
-            "method_level": "",
-            "block_level": ""
+            "if_has_bug": "Yes",
+            "method_level": "public ExceptionContext addContextValue(String label, Object value)",
+            "block_level": "The bug is caused by the fact that the method addContextValue() does not handle upper-case hex values like 0X1234 correctly. The specific code snippet causing the bug is not provided in the checked code."
         }
     ]
 }

@@ -3,8 +3,8 @@
         {
             "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
             "if_has_bug": "Yes",
-            "method_level": "protected StringBuffer applyRules(Calendar calendar, StringBuffer buf) {\n        return printer.applyRules(calendar, buf);\n    }",
-            "block_level": "return printer.applyRules(calendar, buf);"
+            "method_level": "public String format(Calendar calendar)",
+            "block_level": "return printer.format(calendar);"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java",
@@ -15,8 +15,8 @@
         {
             "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateParser.java",
             "if_has_bug": "Yes",
-            "method_level": "protected FastDateParser(String pattern, TimeZone timeZone, Locale locale) {",
-            "block_level": "currentStrategy= getStrategy(currentFormatField, definingCalendar);"
+            "method_level": "private void init() {",
+            "block_level": "Matcher patternMatcher= formatPattern.matcher(pattern);\n        if(!patternMatcher.lookingAt()) {\n            throw new IllegalArgumentException(\n                    \"Illegal pattern character '\" + pattern.charAt(patternMatcher.regionStart()) + \"'\");\n        }\n\n        currentFormatField= patternMatcher.group();\n        Strategy currentStrategy= getStrategy(currentFormatField, definingCalendar);\n        for(;;) {\n            patternMatcher.region(patternMatcher.end(), patternMatcher.regionEnd());\n            if(!patternMatcher.lookingAt()) {\n                nextStrategy = null;\n                break;\n            }\n            String nextFormatField= patternMatcher.group();\n            nextStrategy = getStrategy(nextFormatField, definingCalendar);\n            if(currentStrategy.addRegex(this, regex)) {\n                collector.add(currentStrategy);\n            }\n            currentFormatField= nextFormatField;\n            currentStrategy= nextStrategy;\n        }\n        if (patternMatcher.regionStart() != patternMatcher.regionEnd()) {\n            throw new IllegalArgumentException(\"Failed to parse \\\"\"+pattern+\"\\\" ; gave up at index \"+patternMatcher.regionStart());\n        }\n        if(currentStrategy.addRegex(this, regex)) {\n            collector.add(currentStrategy);\n        }\n        currentFormatField= null;\n        strategies= collector.toArray(new Strategy[collector.size()]);\n        parsePattern= Pattern.compile(regex.toString());"
         }
     ]
 }

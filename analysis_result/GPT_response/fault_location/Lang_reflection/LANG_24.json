@@ -1,0 +1,6 @@
+{
+    "file_name": "src/main/java/org/apache/commons/lang3/math/NumberUtils.java",
+    "if_has_bug": "Yes",
+    "method_level": "public static boolean isNumber(String str)",
+    "block_level": "if (chars[i] == 'l'\n                || chars[i] == 'L') {\n                // not allowing L with an exponent\n                return foundDigit && !hasExp && !hasDecPoint;\n            }"
+}

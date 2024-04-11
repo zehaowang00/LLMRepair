@@ -4,13 +4,13 @@
             "file_name": "src/java/org/apache/commons/lang/StringEscapeUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public static String escapeJavaScript(String str) {",
-            "block_level": "out.write('\\'');"
+            "block_level": "if (ch == '\\'' && escapeSingleQuote) {\n  out.write('\\\\');\n  out.write('\\'');\n} else if (ch == '\\'' && !escapeSingleQuote) {\n  out.write('\\'');\n} else {\n  out.write(ch);\n}"
         },
         {
             "file_name": "src/java/org/apache/commons/lang/SystemUtils.java",
-            "if_has_bug": "No",
-            "method_level": "",
-            "block_level": ""
+            "if_has_bug": "Yes",
+            "method_level": "private static float getJavaVersionAsFloat() {",
+            "block_level": "if (JAVA_VERSION_TRIMMED == null) {\n            return 0f;\n        }\n        String str = JAVA_VERSION_TRIMMED.substring(0, 3);\n        if (JAVA_VERSION_TRIMMED.length() >= 5) {\n            str = str + JAVA_VERSION_TRIMMED.substring(4, 5);\n        }\n        try {\n            return Float.parseFloat(str);\n        } catch (Exception ex) {\n            return 0;\n        }"
         },
         {
             "file_name": "src/java/org/apache/commons/lang/CharUtils.java",

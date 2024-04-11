@@ -1,0 +1,6 @@
+{
+    "file_name": "src/main/java/org/apache/commons/lang3/mutable/MutableFloat.java",
+    "if_has_bug": "Yes",
+    "method_level": "public MutableFloat(final String value) throws NumberFormatException",
+    "block_level": "this.value = Float.parseFloat(value);"
+}

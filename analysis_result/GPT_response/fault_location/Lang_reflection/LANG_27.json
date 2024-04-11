@@ -1,0 +1,6 @@
+{
+    "file_name": "src/main/java/org/apache/commons/lang3/exception/ContextedRuntimeException.java",
+    "if_has_bug": "Yes",
+    "method_level": "public ContextedRuntimeException addValue(String label, Object value)",
+    "block_level": "exceptionContext.addValue(label, value);"
+}

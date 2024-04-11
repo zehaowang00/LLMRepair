@@ -2,21 +2,21 @@
     "result": [
         {
             "file_name": "src/main/java/org/apache/commons/lang3/exception/ContextedRuntimeException.java",
-            "if_has_bug": "No",
-            "method_level": "",
-            "block_level": ""
+            "if_has_bug": "Yes",
+            "method_level": "public ContextedRuntimeException addValue(String label, Object value)",
+            "block_level": "exceptionContext.addValue(label, value);"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/exception/ContextedException.java",
-            "if_has_bug": "No",
-            "method_level": "",
-            "block_level": ""
+            "if_has_bug": "Yes",
+            "method_level": "public ContextedException addValue(String label, Object value)",
+            "block_level": "exceptionContext.addValue(label, value);"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/RandomStringUtils.java",
-            "if_has_bug": "No",
-            "method_level": "",
-            "block_level": ""
+            "if_has_bug": "Yes",
+            "method_level": "public static String random(int count, int start, int end, boolean letters, boolean numbers, char[] chars, Random random)",
+            "block_level": "if(ch >= 56320 && ch <= 57343) {\n                    if(count == 0) {\n                        count++;\n                    } else {\n                        // low surrogate, insert high surrogate after putting it in\n                        buffer[count] = ch;\n                        count--;\n                        buffer[count] = (char) (55296 + random.nextInt(128));\n                    }\n                } else if(ch >= 55296 && ch <= 56191) {\n                    if(count == 0) {\n                        count++;\n                    } else {\n                        // high surrogate, insert low surrogate before putting it in\n                        buffer[count] = (char) (56320 + random.nextInt(128));\n                        count--;\n                        buffer[count] = ch;\n                    }\n                } else if(ch >= 56192 && ch <= 56319) {\n                    // private high surrogate, no effing clue, so skip it\n                    count++;\n                } else {\n                    buffer[count] = ch;\n                }"
         }
     ]
 }

@@ -2,21 +2,21 @@
     "result": [
         {
             "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
-            "if_has_bug": "No",
-            "method_level": "",
-            "block_level": ""
+            "if_has_bug": "Yes",
+            "method_level": "public Date parse(String source) throws ParseException {",
+            "block_level": "return parser.parse(source);"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateParser.java",
             "if_has_bug": "Yes",
             "method_level": "protected FastDateParser(String pattern, TimeZone timeZone, Locale locale) {",
-            "block_level": "Matcher patternMatcher= formatPattern.matcher(pattern);\n        if(!patternMatcher.lookingAt()) {\n            throw new IllegalArgumentException(\"Invalid pattern\");\n        }\n\n        currentFormatField= patternMatcher.group();\n        Strategy currentStrategy= getStrategy(currentFormatField);\n        for(;;) {\n            patternMatcher.region(patternMatcher.end(), patternMatcher.regionEnd());\n            if(!patternMatcher.lookingAt()) {\n                nextStrategy = null;\n                break;\n            }\n            String nextFormatField= patternMatcher.group();\n            nextStrategy = getStrategy(nextFormatField);\n            if(currentStrategy.addRegex(this, regex)) {\n                collector.add(currentStrategy);\n            }\n            currentFormatField= nextFormatField;\n            currentStrategy= nextStrategy;\n        }\n        if(currentStrategy.addRegex(this, regex)) {\n            collector.add(currentStrategy);\n        }\n        currentFormatField= null;\n        strategies= collector.toArray(new Strategy[collector.size()]);\n        parsePattern= Pattern.compile(regex.toString());"
+            "block_level": "StringBuilder regex= new StringBuilder();\n        List<Strategy> collector = new ArrayList<Strategy>();\n\n        Matcher patternMatcher= formatPattern.matcher(pattern);\n        if(!patternMatcher.lookingAt()) {\n            throw new IllegalArgumentException(\"Invalid pattern\");\n        }\n\n        currentFormatField= patternMatcher.group();\n        Strategy currentStrategy= getStrategy(currentFormatField);\n        for(;;) {\n            patternMatcher.region(patternMatcher.end(), patternMatcher.regionEnd());\n            if(!patternMatcher.lookingAt()) {\n                nextStrategy = null;\n                break;\n            }\n            String nextFormatField= patternMatcher.group();\n            nextStrategy = getStrategy(nextFormatField);\n            if(currentStrategy.addRegex(this, regex)) {\n                collector.add(currentStrategy);\n            }\n            currentFormatField= nextFormatField;\n            currentStrategy= nextStrategy;\n        }\n        if(currentStrategy.addRegex(this, regex)) {\n            collector.add(currentStrategy);\n        }\n        currentFormatField= null;\n        strategies= collector.toArray(new Strategy[collector.size()]);\n        parsePattern= Pattern.compile(regex.toString();"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java",
-            "if_has_bug": "No",
-            "method_level": "",
-            "block_level": ""
+            "if_has_bug": "Yes",
+            "method_level": "public static String format(Date date, String pattern)",
+            "block_level": "FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);\nreturn df.format(date);"
         }
     ]
 }

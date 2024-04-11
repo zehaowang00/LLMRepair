@@ -3,7 +3,7 @@
         {
             "file_name": "src/java/org/apache/commons/lang/LocaleUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public static boolean isAvailableLocale(Locale locale) {\n        return cAvailableLocaleSet.contains(locale);\n    }",
+            "method_level": "public static boolean isAvailableLocale(Locale locale) {",
             "block_level": "return cAvailableLocaleSet.contains(locale);"
         },
         {
@@ -15,8 +15,8 @@
         {
             "file_name": "src/java/org/apache/commons/lang/exception/ExceptionUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public boolean setCause(Throwable target, Throwable cause) {",
-            "block_level": "if (target == null) {\n    throw new NullArgumentException(\"target\");\n}\nObject[] causeArgs = new Object[]{cause};\nboolean modifiedTarget = false;\nif (THROWABLE_INITCAUSE_METHOD != null) {\n    try {\n        THROWABLE_INITCAUSE_METHOD.invoke(target, causeArgs);\n        modifiedTarget = true;\n    } catch (IllegalAccessException ignored) {\n        // Exception ignored.\n    } catch (InvocationTargetException ignored) {\n        // Exception ignored.\n    }\n}\ntry {\n    Method setCauseMethod = target.getClass().getMethod(\"setCause\", new Class[]{Throwable.class});\n    setCauseMethod.invoke(target, causeArgs);\n    modifiedTarget = true;\n} catch (NoSuchMethodException ignored) {\n    // Exception ignored.\n} catch (IllegalAccessException ignored) {\n    // Exception ignored.\n} catch (InvocationTargetException ignored) {\n    // Exception ignored.\n}\nreturn modifiedTarget;\n}"
+            "method_level": "public static Throwable getCause(Throwable throwable)",
+            "block_level": "return getCause(throwable, CAUSE_METHOD_NAMES);"
         }
     ]
 }

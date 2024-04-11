@@ -1,0 +1,6 @@
+{
+    "file_name": "src/main/java/org/apache/commons/lang3/text/translate/LookupTranslator.java",
+    "if_has_bug": "Yes",
+    "method_level": "public int translate(final CharSequence input, final int index, final Writer out) throws IOException",
+    "block_level": "for (int i = max; i >= shortest; i--) {\n            final CharSequence subSeq = input.subSequence(index, index + i);\n            final CharSequence result = lookupMap.get(subSeq);\n            if (result != null) {\n                out.write(result.toString());\n                return i;\n            }\n        }"
+}

@@ -3,19 +3,19 @@
         {
             "file_name": "src/java/org/apache/commons/lang/time/DateUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public Date round(Date date, int field) {",
-            "block_level": "time = time - (minutes * 60000L);"
+            "method_level": "public static Date round(Date date, int field)",
+            "block_level": "if (field == Calendar.MINUTE) {\n    done = true;\n}\n"
         },
         {
             "file_name": "src/java/org/apache/commons/lang/time/FastDateFormat.java",
             "if_has_bug": "Yes",
-            "method_level": "public void format(Date date)",
-            "block_level": "buffer.append((char)(value / 10 + '0'));\nbuffer.append((char)(value % 10 + '0'));"
+            "method_level": "public void appendTo(StringBuffer buffer, Calendar calendar)",
+            "block_level": "if (offset < 0) {\n    buffer.append('-');\n    offset = -offset;\n} else {\n    buffer.append('+');\n}\n\nint hours = offset / (60 * 60 * 1000);\nbuffer.append((char)(hours / 10 + '0'));\nbuffer.append((char)(hours % 10 + '0'));\n\nif (mColon) {\n    buffer.append(':');\n}\n\nint minutes = offset / (60 * 1000) - 60 * hours;\nbuffer.append((char)(minutes / 10 + '0'));\nbuffer.append((char)(minutes % 10 + '0'));"
         },
         {
             "file_name": "src/java/org/apache/commons/lang/time/DateFormatUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public static String format(Date date, String pattern)",
+            "method_level": "public static String format(Date date, String pattern, TimeZone timeZone, Locale locale) {",
             "block_level": "return df.format(date);"
         }
     ]

@@ -4,19 +4,19 @@
             "file_name": "src/main/java/org/apache/commons/lang3/text/translate/EntityArrays.java",
             "if_has_bug": "Yes",
             "method_level": "private static final String[][] ISO8859_1_ESCAPE",
-            "block_level": "{\"\\u00D7\", \"&amp;Ouml;\"}, // \\u00d6 - uppercase O, umlaut\n        {\"\\u00D8\", \"&amp;times;\"}, // multiplication sign"
+            "block_level": "        {\"\\u00D7\", \"&amp;Ouml;\"}, // \n        {\"\\u00D8\", \"&amp;times;\"}, // multiplication sign"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaper.java",
             "if_has_bug": "Yes",
             "method_level": "public int translate(CharSequence input, int index, Writer out) throws IOException {",
-            "block_level": "entityValue = Integer.parseInt(input.subSequence(start, end).toString(), 16);"
+            "block_level": "if(input.charAt(index) == '&' && input.charAt(index + 1) == '#') {\n            int start = index + 2;\n            boolean isHex = false;\n\n            char firstChar = input.charAt(start);\n            if(firstChar == 'x' || firstChar == 'X') {\n                start++;\n                isHex = true;\n            }\n\n            int end = start;\n            while(input.charAt(end) != ';') {\n                end++;\n            }\n\n            int entityValue;\n            try {\n                if(isHex) {\n                    entityValue = Integer.parseInt(input.subSequence(start, end).toString(), 16);\n                } else {\n                    entityValue = Integer.parseInt(input.subSequence(start, end).toString(), 10);\n                }\n            } catch(NumberFormatException nfe) {\n                return 0;\n            }\n\n            if(entityValue > 0xFFFF) {\n                char[] chrs = Character.toChars(entityValue);\n                out.write(chrs[0]);\n                out.write(chrs[1]);\n            } else {\n                out.write(entityValue);\n            }\n            return 2 + (end - start) + (isHex ? 1 : 0) + 1;\n        }"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/StringEscapeUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public static final CharSequenceTranslator ESCAPE_HTML3",
-            "block_level": "{\"\\u00D7\", \"&amp;Ouml;\"}, // \\\\u00d6 - uppercase O, umlaut"
+            "block_level": "new LookupTranslator(EntityArrays.ISO8859_1_ESCAPE()"
         }
     ]
 }

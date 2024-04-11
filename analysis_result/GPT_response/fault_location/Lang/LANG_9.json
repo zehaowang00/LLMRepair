@@ -2,21 +2,21 @@
     "result": [
         {
             "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
-            "if_has_bug": "No",
-            "method_level": "",
-            "block_level": ""
+            "if_has_bug": "Yes",
+            "method_level": "public Date parse(String source) throws ParseException {",
+            "block_level": "return parser.parse(source);"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public static String format(Date date, String pattern, TimeZone timeZone, Locale locale) { \n        FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);\n        return df.format(date);\n    }",
-            "block_level": "The bug is caused by the incorrect handling of unterminated quotes in the FastDateFormat.getInstance() method call within the format() method."
+            "method_level": "public static String format(Date date, String pattern)",
+            "block_level": "FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);\nreturn df.format(date);"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/time/DateParser.java",
-            "if_has_bug": "No",
-            "method_level": "",
-            "block_level": ""
+            "if_has_bug": "Yes",
+            "method_level": "DateParser interface",
+            "block_level": "parse(String source) method"
         }
     ]
 }

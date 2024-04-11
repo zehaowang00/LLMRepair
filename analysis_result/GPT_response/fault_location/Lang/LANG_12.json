@@ -3,14 +3,14 @@
         {
             "file_name": "src/main/java/org/apache/commons/lang3/RandomStringUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public static String random(int count, int start, int end, boolean letters, boolean numbers, char... chars, Random random)",
+            "method_level": "public static String random(int count, int start, int end, boolean letters, boolean numbers, char... chars)",
             "block_level": "ch = chars[random.nextInt(gap) + start];"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/CharRange.java",
             "if_has_bug": "Yes",
-            "method_level": "private CharRange(char start, char end, boolean negated) { \n        super();\n        if (start > end) {\n            char temp = start;\n            start = end;\n            end = temp;\n        }\n        \n        this.start = start;\n        this.end = end;\n        this.negated = negated;\n    }",
-            "block_level": "ch = chars[random.nextInt(gap) + start];"
+            "method_level": "private CharRange(char start, char end, boolean negated) {",
+            "block_level": "if (start > end) {\n    char temp = start;\n    start = end;\n    end = temp;\n}\n\nthis.start = start;\nthis.end = end;\nthis.negated = negated;"
         }
     ]
 }

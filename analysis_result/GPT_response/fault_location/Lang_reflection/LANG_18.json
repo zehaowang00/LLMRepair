@@ -1,0 +1,6 @@
+{
+    "file_name": "src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java",
+    "if_has_bug": "Yes",
+    "method_level": "public static String format(Date date, String pattern)",
+    "block_level": "FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);\nreturn df.format(date);"
+}
