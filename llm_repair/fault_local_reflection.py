@@ -5,20 +5,7 @@ import json
 import re
 from openai import OpenAI
 
-#from fault_localization import get_report_map_dic, load_bug_report, preprocessing_title, load_api_key
-
-
-def get_completion(client, prompt):
-    messages = [{"role": "user", "content": prompt}]
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo-0125",
-        # model = 'gpt-4',
-        messages=messages,
-        response_format={"type": "json_object"},
-        temperature=0.3,
-    )
-    return response.choices[0].message.content
-
+from fault_localization import load_api_key, preprocessing_title, get_report_map_dic, load_json, load_bug_report, get_completion
 
 def fault_local_reflection(client, prompt, save_file_path):
     response = get_completion(client, json.dumps(prompt))
@@ -28,39 +15,13 @@ def fault_local_reflection(client, prompt, save_file_path):
     #return response
 
 
-def load_json(file_path):
-    with open(file_path, 'r') as file:
-        data = json.load(file)
-        return data
-
-
 def prompt_init(prompt, description, title, source_code):
     prompt['Bug report description'] = description
     prompt['Bug report title'] = title
     prompt['code from agents'] = source_code
     return prompt
-#
 
-def load_api_key(key_path):
-    with open(key_path, 'r') as file:
-        data = json.load(file)
-        return data['Key']
 
-def preprocessing_title(report_title):
-    processed_str = re.sub(r"\[LANG-\d+\]", "", report_title)
-    return processed_str.strip()
-
-def get_report_map_dic(report_df):
-    report_df['Lang ID'] = report_df['Bug ID'].apply(lambda x: 'LANG_' + str(x))
-    report_df['Report ID'] = report_df['Report ID'].apply(lambda x: x.replace('-', '_'))
-    return report_df.set_index('Lang ID')['Report ID'].to_dict()
-
-def load_bug_report(file_path):
-    with open(file_path, 'r') as file:
-        data = json.load(file)
-        return data
-
-#
 prompt_reflection = {
     "Role": "As a professional developers. You are responsible check the fault localization result from other agent.",
     "Instruction": "Other agent provides three fault localization result on three different code files but there is only file that has the bug for the bug in the bug report. Check the bug report description/title and try to answer the question. Output in JSON format. Please use following for key: file_name, if_has_bug, method_level, block_level",
