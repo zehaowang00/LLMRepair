@@ -3,8 +3,8 @@
         {
             "file_name": "src/java/org/apache/commons/lang/exception/NestableDelegate.java",
             "if_has_bug": "Yes",
-            "method_level": "public void printStackTrace(PrintWriter out) { ... }",
-            "block_level": "throwable.printStackTrace(out);"
+            "method_level": "public void printStackTrace(PrintWriter out) {",
+            "block_level": "if (throwable instanceof Nestable) {\n                ((Nestable)throwable).printPartialStackTrace(out);\n            } else {\n                throwable.printStackTrace(out);\n            }\n            return;"
         },
         {
             "file_name": "src/java/org/apache/commons/lang/exception/Nestable.java",
@@ -14,9 +14,9 @@
         },
         {
             "file_name": "src/java/org/apache/commons/lang/exception/NestableRuntimeException.java",
-            "if_has_bug": "No",
-            "method_level": "",
-            "block_level": ""
+            "if_has_bug": "Yes",
+            "method_level": "public NestableRuntimeException(String msg)",
+            "block_level": "if (super.getMessage() != null) {\n    return super.getMessage();\n} else if (cause != null) {\n    return cause.toString();\n} else {\n    return null;\n}"
         }
     ]
 }

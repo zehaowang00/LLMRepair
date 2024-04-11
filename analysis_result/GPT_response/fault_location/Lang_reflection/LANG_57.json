@@ -1,0 +1,6 @@
+{
+    "file_name": "src/java/org/apache/commons/lang/LocaleUtils.java",
+    "if_has_bug": "Yes",
+    "method_level": "public static boolean isAvailableLocale(Locale locale) {",
+    "block_level": "return cAvailableLocaleSet.contains(locale);"
+}

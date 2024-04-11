@@ -3,20 +3,20 @@
         {
             "file_name": "src/java/org/apache/commons/lang/BooleanUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public static boolean toBoolean(Boolean bool) {\n        if (bool == null) {\n            return false;\n        }\n        return bool.booleanValue() ? true : false;\n    }",
-            "block_level": "return bool.booleanValue() ? true : false;"
+            "method_level": "public static Boolean toBooleanObject(String str)",
+            "block_level": "if (\"true\".equalsIgnoreCase(str)) {\n            return Boolean.TRUE;\n        } else if (\"false\".equalsIgnoreCase(str)) {\n            return Boolean.FALSE;\n        } else if (\"on\".equalsIgnoreCase(str)) {\n            return Boolean.TRUE;\n        } else if (\"off\".equalsIgnoreCase(str)) {\n            return Boolean.FALSE;\n        } else if (\"yes\".equalsIgnoreCase(str)) {\n            return Boolean.TRUE;\n        } else if (\"no\".equalsIgnoreCase(str)) {\n            return Boolean.FALSE;\n        }\n        // no match\n        return null;"
         },
         {
             "file_name": "src/java/org/apache/commons/lang/mutable/MutableBoolean.java",
             "if_has_bug": "Yes",
-            "method_level": "public boolean booleanValue() {\n        return value;\n    }",
-            "block_level": "The end of case 3 should return false."
+            "method_level": "public boolean booleanValue()",
+            "block_level": "return value;"
         },
         {
             "file_name": "src/java/org/apache/commons/lang/exception/ExceptionUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public static Throwable getCause(Throwable throwable)",
-            "block_level": "The end of case 3 should return false."
+            "block_level": "Method body starting from 'return getCauseUsingWellKnownTypes(throwable);' to the end of the method."
         }
     ]
 }

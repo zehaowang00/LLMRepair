@@ -1,0 +1,6 @@
+{
+    "file_name": "src/java/org/apache/commons/lang3/exception/ExceptionUtils.java",
+    "if_has_bug": "Yes",
+    "method_level": "public static Throwable getCause(Throwable throwable)",
+    "block_level": "Method body starting from 'public static Throwable getCause(Throwable throwable)' until 'return cause;'"
+}

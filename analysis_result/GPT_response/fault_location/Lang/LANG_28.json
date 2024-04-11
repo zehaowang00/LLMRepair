@@ -3,14 +3,14 @@
         {
             "file_name": "src/main/java/org/apache/commons/lang3/StringEscapeUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public void escape(Writer writer, String str) throws IOException { ... }",
-            "block_level": "writer.write((char) code);"
+            "method_level": "public static final String escapeXml(String input) {",
+            "block_level": "if (code > 0xffff) {\n    i++;\n}"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/text/translate/NumericEntityEscaper.java",
-            "if_has_bug": "Yes",
-            "method_level": "public boolean translate(int codepoint, Writer out) throws IOException {",
-            "block_level": "out.write(\"&#\");\nout.write(Integer.toString(codepoint, 10));\nout.write(';');"
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/text/translate/UnicodeEscaper.java",

@@ -1,0 +1,6 @@
+{
+    "file_name": "src/java/org/apache/commons/lang/StringEscapeUtils.java",
+    "if_has_bug": "Yes",
+    "method_level": "public static String escapeJavaScript(String str) {",
+    "block_level": "if (ch == '\\'' && escapeSingleQuote) {\n  out.write('\\\\');\n  out.write('\\'');\n} else if (ch == '\\'' && !escapeSingleQuote) {\n  out.write('\\'');\n} else {\n  out.write(ch);\n}"
+}

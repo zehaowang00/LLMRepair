@@ -1,0 +1,6 @@
+{
+    "file_name": "src/java/org/apache/commons/lang/enums/Enum.java",
+    "if_has_bug": "Yes",
+    "method_level": "protected Enum(String name) {",
+    "block_level": "if (other == this) {\n            return true;\n        } else if (other == null) {\n            return false;\n        } else if (other.getClass() == this.getClass()) {\n            // Ok to do a class cast to Enum here since the test above\n            // guarantee both\n            // classes are in the same class loader.\n            return iName.equals(((Enum) other).iName);\n        } else {\n            // This and other are in different class loaders, we must check indirectly\n            if (other.getClass().getName().equals(this.getClass().getName()) == false) {\n                return false;\n            }\n            return iName.equals( getNameInOtherClassLoader(other) );\n        }"
+}

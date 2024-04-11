@@ -3,8 +3,8 @@
         {
             "file_name": "src/main/java/org/apache/commons/lang3/reflect/TypeUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public static boolean isAssignable(Type type, Type toType, Map<TypeVariable<?>, Type> typeVarAssigns)",
-            "block_level": "return isAssignable(type, (ParameterizedType) toType, typeVarAssigns);"
+            "method_level": "public static boolean isAssignable(Type type, Class<?> toClass)",
+            "block_level": "private static boolean isAssignable(Type type, ParameterizedType toParameterizedType, Map<TypeVariable<?>, Type> typeVarAssigns)"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/ClassUtils.java",

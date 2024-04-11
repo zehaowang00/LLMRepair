@@ -3,20 +3,20 @@
         {
             "file_name": "src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public static String formatUTC(long millis, String pattern)",
-            "block_level": "return format(new Date(millis), pattern, UTC_TIME_ZONE, null);"
+            "method_level": "public static String format(Date date, String pattern)",
+            "block_level": "FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);\nreturn df.format(date);"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
             "if_has_bug": "Yes",
-            "method_level": "protected void init() {\n        List<Rule> rulesList = parsePattern();\n        mRules = rulesList.toArray(new Rule[rulesList.size()]);\n\n        int len = 0;\n        for (int i=mRules.length; --i >= 0; ) {\n            len += mRules[i].estimateLength();\n        }\n\n        mMaxLengthEstimate = len;\n    }",
-            "block_level": "mRules = rulesList.toArray(new Rule[rulesList.size()]);"
+            "method_level": "protected FastDateFormat(String pattern, TimeZone timeZone, Locale locale) {",
+            "block_level": "rule = selectNumberRule(Calendar.YEAR, tokenLen);"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/time/FormatCache.java",
             "if_has_bug": "Yes",
-            "method_level": "getDateTimeInstance",
-            "block_level": "pattern = ((SimpleDateFormat)formatter).toPattern();"
+            "method_level": "public F getDateTimeInstance(Integer dateStyle, Integer timeStyle, TimeZone timeZone, Locale locale) {",
+            "block_level": "if (dateStyle == null) {\n    formatter = DateFormat.getTimeInstance(timeStyle, locale);                    \n}\nelse if (timeStyle == null) {\n    formatter = DateFormat.getDateInstance(dateStyle, locale);                    \n}\nelse {\n    formatter = DateFormat.getDateTimeInstance(dateStyle, timeStyle, locale);\n}\npattern = ((SimpleDateFormat)formatter).toPattern();\nString previous = cDateTimeInstanceCache.putIfAbsent(key, pattern);\nif (previous != null) {\n    pattern= previous;\n}"
         }
     ]
 }

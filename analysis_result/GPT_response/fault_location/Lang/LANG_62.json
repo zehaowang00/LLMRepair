@@ -3,14 +3,14 @@
         {
             "file_name": "src/java/org/apache/commons/lang/Entities.java",
             "if_has_bug": "Yes",
-            "method_level": "public void testNumberOverflow() throws Exception {\n        doTestUnescapeEntity(\"&amp;#12345678;\", \"&amp;#12345678;\");\n        doTestUnescapeEntity(\"x&amp;#12345678;y\", \"x&amp;#12345678;y\");\n        doTestUnescapeEntity(\"&amp;#x12345678;\", \"&amp;#x12345678;\");\n        doTestUnescapeEntity(\"x&amp;#x12345678;y\", \"x&amp;#x12345678;y\");\n    }",
-            "block_level": "doTestUnescapeEntity(\"&amp;#12345678;\", \"&amp;#12345678;\");"
+            "method_level": "public void testNumberOverflow() throws Exception",
+            "block_level": "doTestUnescapeEntity(\"&amp;#12345678;\", \"&amp;#12345678;\");\n        doTestUnescapeEntity(\"x&amp;#12345678;y\", \"x&amp;#12345678;y\");\n        doTestUnescapeEntity(\"&amp;#x12345678;\", \"&amp;#x12345678;\");\n        doTestUnescapeEntity(\"x&amp;#x12345678;y\", \"x&amp;#x12345678;y\");"
         },
         {
             "file_name": "src/java/org/apache/commons/lang/StringEscapeUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public static String escapeXml(String str) {\n        if (str == null) {\n            return null;\n        }\n        return Entities.XML.escape(str);\n    }",
-            "block_level": "return Entities.XML.escape(str);"
+            "method_level": "public static String escapeJava(String str) {",
+            "block_level": "if (ch > 0xfff) {\n    out.write(\"\\\\u\" + hex(ch));\n} else if (ch > 0xff) {\n    out.write(\"\\\\u0\" + hex(ch));\n} else if (ch > 0x7f) {\n    out.write(\"\\\\u00\" + hex(ch));\n} else if (ch < 32) {\n    switch (ch) {\n        case '\\b':\n            out.write('\\\\');\n            out.write('b');\n            break;\n        case '\\n':\n            out.write('\\\\');\n            out.write('n');\n            break;\n        case '\\t':\n            out.write('\\\\');\n            out.write('t');\n            break;\n        case '\\f':\n            out.write('\\\\');\n            out.write('f');\n            break;\n        case '\\r':\n            out.write('\\\\');\n            out.write('r');\n            break;\n        default :\n            if (ch > 0xf) {\n                out.write(\"\\\\u00\" + hex(ch));\n            } else {\n                out.write(\"\\\\u000\" + hex(ch));\n            }\n            break;\n    }\n} else {\n    switch (ch) {\n        case '\\\\':\n            out.write('\\\\');\n            out.write('\\\\');\n            break;\n        case '\"':\n            out.write('\\\\');\n            out.write('\"');\n            break;\n        default :\n            out.write(ch);\n            break;\n    }\n}"
         },
         {
             "file_name": "src/java/org/apache/commons/lang/exception/Nestable.java",

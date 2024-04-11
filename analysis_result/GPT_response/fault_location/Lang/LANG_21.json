@@ -3,14 +3,14 @@
         {
             "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
             "if_has_bug": "Yes",
-            "method_level": "protected void init() {\n        List<Rule> rulesList = parsePattern();\n        mRules = rulesList.toArray(new Rule[rulesList.size()]);\n\n        int len = 0;\n        for (int i=mRules.length; --i >= 0; ) {\n            len += mRules[i].estimateLength();\n        }\n\n        mMaxLengthEstimate = len;\n    }",
-            "block_level": "len += mRules[i].estimateLength();"
+            "method_level": "public void appendTo(StringBuffer buffer, Calendar calendar)",
+            "block_level": "case 'H': // hour in day (number, 0..23)\n                rule = selectNumberRule(Calendar.HOUR_OF_DAY, tokenLen);\n                break;"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public static String format(Calendar calendar, String pattern)",
-            "block_level": "cal1.get(Calendar.HOUR) == cal2.get(Calendar.HOUR)"
+            "method_level": "public static String format(Date date, String pattern)",
+            "block_level": "return df.format(date);"
         }
     ]
 }

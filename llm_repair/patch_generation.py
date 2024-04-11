@@ -4,17 +4,7 @@ import json
 from openai import OpenAI
 import re
 
-
-def get_completion(client, prompt):
-    messages = [{"role": "user", "content": prompt}]
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo-0125",
-        #model="gpt-4",
-        messages=messages,
-        response_format={"type": "json_object"},
-        temperature=0.3,
-    )
-    return response.choices[0].message.content
+from fault_localization import get_completion, load_json, load_api_key, preprocessing_title, get_report_map_dic
 
 
 def patch_generation(client, prompt, few_shots, save_file_path):
@@ -31,27 +21,10 @@ def test_generation(client, prompt, few_shots, save_file_path):
         json.dump(json.loads(response), file, indent=4)
 
 
-def load_json(file_path):
-    with open(file_path, 'r') as file:
-        data = json.load(file)
-        return data
-
-
-def load_api_key(key_path):
-    with open(key_path, 'r') as file:
-        data = json.load(file)
-        return data['Key']
-
-
 def load_source_code(file_path):
     with open(file_path, 'r') as file:
         source_code = file.read()
         return source_code
-
-
-def preprocessing_title(report_title):
-    processed_str = re.sub(r"\[LANG-\d+\]", "", report_title)
-    return processed_str.strip()
 
 
 def prompt_init_patch(prompt, example, description, title, file_name, method_buggy_code, suspicious_code):
@@ -80,12 +53,6 @@ def prompt_reason_test(prompt):
     return prompt
 
 
-def get_report_map_dic(report_df):
-    report_df['Lang ID'] = report_df['Bug ID'].apply(lambda x: 'LANG_' + str(x))
-    report_df['Report ID'] = report_df['Report ID'].apply(lambda x: x.replace('-', '_'))
-    return report_df.set_index('Lang ID')['Report ID'].to_dict()
-
-
 def has_reason_analysis():
     return False
 
@@ -112,14 +79,17 @@ def test_role_patch_generation(client, reason_analysis, prompt_patch, prompt_tes
         #prompt_patch['Instruction'] = "Output JSON format" #update intruction to tell there is test cases informaiton
         patch_generation(client, prompt_patch, "", save_file_path)
 
-def repair_single_bug(client, prompt_patch, prompt_test, format_example, save_file_path, test_file_path, without_tester_role):
+
+def repair_single_bug(client, prompt_patch, prompt_test, format_example, save_file_path, test_file_path,
+                      without_tester_role):
     if without_tester_role:
         if not has_reason_analysis():
-            prompt_patch = prompt_init_patch(prompt_patch, example=format_example, description=bug_report[0]['description'],
-                                         title=preprocessing_title(bug_report[0]['title']),
-                                         file_name=fault_localization_info['file_name'],
-                                         method_buggy_code=fault_localization_info['method_level'],
-                                         suspicious_code=fault_localization_info['block_level'])
+            prompt_patch = prompt_init_patch(prompt_patch, example=format_example,
+                                             description=bug_report[0]['description'],
+                                             title=preprocessing_title(bug_report[0]['title']),
+                                             file_name=fault_localization_info['file_name'],
+                                             method_buggy_code=fault_localization_info['method_level'],
+                                             suspicious_code=fault_localization_info['block_level'])
             patch_generation(client, prompt_patch, "", save_file_path)
         else:
             prompt_patch = prompt_reason_patch(prompt_patch)
@@ -127,12 +97,14 @@ def repair_single_bug(client, prompt_patch, prompt_test, format_example, save_fi
 
     else:
         test_role_patch_generation(client, has_reason_analysis(), prompt_patch, prompt_test,
-                               test_file_path,
-                               description=bug_report[0]['description'],
-                               title=preprocessing_title(bug_report[0]['title']),
-                               method_buggy_code=fault_localization_info['method_level'],
-                               suspicious_code=fault_localization_info['block_level'],
-                               file_name=fault_localization_info['file_name'], save_file_path=save_file_path)
+                                   test_file_path,
+                                   description=bug_report[0]['description'],
+                                   title=preprocessing_title(bug_report[0]['title']),
+                                   method_buggy_code=fault_localization_info['method_level'],
+                                   suspicious_code=fault_localization_info['block_level'],
+                                   file_name=fault_localization_info['file_name'], save_file_path=save_file_path)
+
+
 prompt_patch = {
     "Role": "As a professional developers. You are responsible for fixing the bug in bug report and generating program repair patch.",
     "Instruction": """You should check the bug report information. The location of buggy code is provided. There are two type of information: method include bug, and suspicious buggy code statements. 
@@ -181,7 +153,7 @@ failed_list = []
 for project in projects:
     localizatin_file_path = "../analysis_result/GPT_response/fault_location/Lang/"
     for filename in os.listdir(localizatin_file_path):
-        try: 
+        try:
             if filename.endswith(".json"):
                 bug_id = filename.split('.')[0]
                 bug_report_path = '../analysis_result/parsed_bug_reports/Lang/' + bug_report_map[bug_id] + '.json'
@@ -192,7 +164,8 @@ for project in projects:
                 bug_report = load_json(bug_report_path)
                 fault_localization_info = load_json(fault_localization_path)
                 format_example = load_source_code(example_file_path)
-                repair_single_bug(client, prompt_patch, prompt_test, format_example, save_file_path, test_file_path, without_tester_role)
+                repair_single_bug(client, prompt_patch, prompt_test, format_example, save_file_path, test_file_path,
+                                  without_tester_role)
                 index = index + 1
                 print("processed: " + str(index))
         except Exception:

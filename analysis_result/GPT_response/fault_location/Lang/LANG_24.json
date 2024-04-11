@@ -3,19 +3,19 @@
         {
             "file_name": "src/main/java/org/apache/commons/lang3/math/NumberUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public Number createNumber(String str) throws NumberFormatException {",
-            "block_level": "if (chars[i] == 'l' || chars[i] == 'L') {\n                // not allowing L with an exponent\n                return foundDigit && !hasExp;\n            }"
+            "method_level": "public static boolean isNumber(String str)",
+            "block_level": "if (chars[i] == 'l'\n                || chars[i] == 'L') {\n                // not allowing L with an exponent\n                return foundDigit && !hasExp;\n            }\n\n            to:\n\n            if (chars[i] == 'l'\n                || chars[i] == 'L') {\n                // not allowing L with an exponent\n                return foundDigit && !hasExp && !hasDecPoint;\n            }"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/Pair.java",
-            "if_has_bug": "No",
-            "method_level": "",
-            "block_level": ""
+            "if_has_bug": "Yes",
+            "method_level": "public Pair(L left, R right) {",
+            "block_level": "if (chars[i] == 'l'\n                || chars[i] == 'L') {\n                // not allowing L with an exponent\n                return foundDigit && !hasExp && !hasDecPoint;\n            }"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/BooleanUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public static boolean xor(boolean... array) {\n        // Validates input\n        if (array == null) {\n            throw new IllegalArgumentException(\"The Array must not be null\");\n        } else if (array.length == 0) {\n            throw new IllegalArgumentException(\"Array is empty\");\n        }\n\n        // Loops through array, comparing each item\n        int trueCount = 0;\n        for (boolean element : array) {\n            // If item is true, and trueCount is < 1, increments count\n            // Else, xor fails\n            if (element) {\n                if (trueCount < 1) {\n                    trueCount++;\n                } else {\n                    return false;\n                }\n            }\n        }\n\n        // Returns true if there was exactly 1 true item\n        return trueCount == 1;\n    }",
+            "method_level": "public static boolean xor(boolean... array) {",
             "block_level": "if (element) {\n                if (trueCount < 1) {\n                    trueCount++;\n                } else {\n                    return false;\n                }\n            }"
         }
     ]

@@ -3,8 +3,8 @@
         {
             "file_name": "src/main/java/org/apache/commons/lang3/math/Fraction.java",
             "if_has_bug": "Yes",
-            "method_level": "public static Fraction getReducedFraction(int numerator, int denominator) {",
-            "block_level": "if (denominator==Integer.MIN_VALUE && (numerator&1)==0) {\n            numerator/=2; denominator/=2;\n        }"
+            "method_level": "private Fraction getReducedFraction(int numerator, int denominator) {",
+            "block_level": "if (denominator == 0) {\n            throw new ArithmeticException(\"The denominator must not be zero\");\n        }\n        if (numerator==0) {\n            return ZERO; // normalize zero.\n        }\n        // allow 2^k/-2^31 as a valid fraction (where k>0)\n        if (denominator==Integer.MIN_VALUE && (numerator&1)==0) {\n            numerator/=2; denominator/=2;\n        }\n        if (denominator < 0) {\n            if (numerator==Integer.MIN_VALUE ||\n                    denominator==Integer.MIN_VALUE) {\n                throw new ArithmeticException(\"overflow: can't negate\");\n            }\n            numerator = -numerator;\n            denominator = -denominator;\n        }\n        // simplify fraction.\n        int gcd = greatestCommonDivisor(numerator, denominator);\n        numerator /= gcd;\n        denominator /= gcd;\n        return new Fraction(numerator, denominator);"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/math/NumberUtils.java",

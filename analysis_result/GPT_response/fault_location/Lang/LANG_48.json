@@ -4,18 +4,18 @@
             "file_name": "src/java/org/apache/commons/lang/NumberUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public static Number createNumber(String val) throws NumberFormatException {",
-            "block_level": "return createBigDecimal(numeric);"
+            "block_level": "if (val.startsWith(\"0x\") || val.startsWith(\"-0x\")) {\n            return createInteger(val);\n        }"
         },
         {
             "file_name": "src/java/org/apache/commons/lang/builder/EqualsBuilder.java",
             "if_has_bug": "Yes",
-            "method_level": "public EqualsBuilder append(Object lhs, Object rhs) { ... }",
+            "method_level": "public EqualsBuilder append(Object lhs, Object rhs) {",
             "block_level": "isEquals = lhs.equals(rhs);"
         },
         {
             "file_name": "src/java/org/apache/commons/lang/builder/CompareToBuilder.java",
             "if_has_bug": "Yes",
-            "method_level": "public CompareToBuilder append(Object lhs, Object rhs, Comparator comparator) { ... }",
+            "method_level": "public CompareToBuilder append(Object lhs, Object rhs, Comparator comparator) {",
             "block_level": "comparison = ((Comparable) lhs).compareTo(rhs);"
         }
     ]

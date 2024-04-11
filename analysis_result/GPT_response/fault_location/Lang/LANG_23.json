@@ -4,19 +4,19 @@
             "file_name": "src/main/java/org/apache/commons/lang3/text/ExtendedMessageFormat.java",
             "if_has_bug": "Yes",
             "method_level": "public final void applyPattern(String pattern)",
-            "block_level": "super.applyPattern(pattern);"
+            "block_level": "switch (c[pos.getIndex()]) {\n            case QUOTE:\n                appendQuotedString(pattern, pos, stripCustom, true);\n                break;\n            case START_FE:\n                fmtCount++;\n                seekNonWs(pattern, pos);\n                int start = pos.getIndex();\n                int index = readArgumentIndex(pattern, next(pos));\n                stripCustom.append(START_FE).append(index);\n                seekNonWs(pattern, pos);\n                Format format = null;\n                String formatDescription = null;\n                if (c[pos.getIndex()] == START_FMT) {\n                    formatDescription = parseFormatDescription(pattern,\n                            next(pos));\n                    format = getFormat(formatDescription);\n                    if (format == null) {\n                        stripCustom.append(START_FMT).append(formatDescription);\n                    }\n                }\n                foundFormats.add(format);\n                foundDescriptions.add(format == null ? null : formatDescription);\n                Validate.isTrue(foundFormats.size() == fmtCount);\n                Validate.isTrue(foundDescriptions.size() == fmtCount);\n                if (c[pos.getIndex()] != END_FE) {\n                    throw new IllegalArgumentException(\n                            \"Unreadable format element at position \" + start);\n                }\n                //$FALL-THROUGH$\n            default:\n                stripCustom.append(c[pos.getIndex()]);\n                next(pos);\n            }"
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/text/FormatFactory.java",
             "if_has_bug": "Yes",
-            "method_level": "getFormat(String name, String arguments, Locale locale)",
+            "method_level": "Format getFormat(String name, String arguments, Locale locale)",
             "block_level": "This class extends a class that defines an equals method and adds fields, but doesn't define an equals method itself."
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/builder/StandardToStringStyle.java",
-            "if_has_bug": "No",
-            "method_level": "",
-            "block_level": ""
+            "if_has_bug": "Yes",
+            "method_level": "public class StandardToStringStyle extends ToStringStyle {",
+            "block_level": "public boolean isUseClassName() {\n        return super.isUseClassName();\n    }\n\n    public boolean isUseShortClassName() {\n        return super.isUseShortClassName();\n    }\n\n    public boolean isUseIdentityHashCode() {\n        return super.isUseIdentityHashCode();\n    }\n\n    public boolean isUseFieldNames() {\n        return super.isUseFieldNames();\n    }\n\n    public boolean isDefaultFullDetail() {\n        return super.isDefaultFullDetail();\n    }\n\n    public boolean isArrayContentDetail() {\n        return super.isArrayContentDetail();\n    }\n\n    public String getArrayStart() {\n        return super.getArrayStart();\n    }\n\n    public String getArrayEnd() {\n        return super.getArrayEnd();\n    }\n\n    public String getArraySeparator() {\n        return super.getArraySeparator();\n    }\n\n    public String getContentStart() {\n        return super.getContentStart();\n    }\n\n    public String getContentEnd() {\n        return super.getContentEnd();\n    }\n\n    public String getFieldNameValueSeparator() {\n        return super.getFieldNameValueSeparator();\n    }\n\n    public String getFieldSeparator() {\n        return super.getFieldSeparator();\n    }\n\n    public boolean isFieldSeparatorAtStart() {\n        return super.isFieldSeparatorAtStart();\n    }\n\n    public boolean isFieldSeparatorAtEnd() {\n        return super.isFieldSeparatorAtEnd();\n    }\n\n    public String getNullText() {\n        return super.getNullText();\n    }\n\n    public String getSizeStartText() {\n        return super.getSizeStartText();\n    }\n\n    public String getSizeEndText() {\n        return super.getSizeEndText();\n    }\n\n    public String getSummaryObjectStartText() {\n        return super.getSummaryObjectStartText();\n    }\n\n    public String getSummaryObjectEndText() {\n        return super.getSummaryObjectEndText();\n    }"
         }
     ]
 }

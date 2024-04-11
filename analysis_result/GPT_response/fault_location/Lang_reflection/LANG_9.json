@@ -1,0 +1,6 @@
+{
+    "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
+    "if_has_bug": "Yes",
+    "method_level": "public Date parse(String source) throws ParseException {",
+    "block_level": "return parser.parse(source);"
+}

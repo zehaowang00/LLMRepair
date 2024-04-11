@@ -8,9 +8,9 @@
         },
         {
             "file_name": "src/java/org/apache/commons/lang3/ObjectUtils.java",
-            "if_has_bug": "No",
-            "method_level": "",
-            "block_level": ""
+            "if_has_bug": "Yes",
+            "method_level": "public static Object defaultIfNull(Object object, Object defaultValue) {",
+            "block_level": "return object != null ? object : defaultValue;"
         }
     ]
 }

@@ -3,20 +3,20 @@
         {
             "file_name": "src/java/org/apache/commons/lang/LocaleUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public static Locale toLocale(String str) {",
-            "block_level": "if (len == 2) {\n            return new Locale(str, \"\");\n        } else {\n            if (str.charAt(2) != '_') {\n                throw new IllegalArgumentException(\"Invalid locale format: \" + str);\n            }\n            char ch3 = str.charAt(3);\n            char ch4 = str.charAt(4);\n            if (ch3 < 'A' || ch3 > 'Z' || ch4 < 'A' || ch4 > 'Z') {\n                throw new IllegalArgumentException(\"Invalid locale format: \" + str);\n            }\n            if (len == 5) {\n                return new Locale(str.substring(0, 2), str.substring(3, 5));\n            } else {\n                if (str.charAt(5) != '_') {\n                    throw new IllegalArgumentException(\"Invalid locale format: \" + str);\n                }\n                return new Locale(str.substring(0, 2), str.substring(3, 5), str.substring(6));\n            }\n        }"
+            "method_level": "public static Locale toLocale(String str)",
+            "block_level": "if (len != 2 && len != 5 && len < 7) {\n    throw new IllegalArgumentException(\"Invalid locale format: \" + str);\n}"
         },
         {
             "file_name": "src/java/org/apache/commons/lang/time/DateFormatUtils.java",
-            "if_has_bug": "No",
-            "method_level": "",
-            "block_level": ""
+            "if_has_bug": "Yes",
+            "method_level": "public static String format(Date date, String pattern, TimeZone timeZone, Locale locale) {",
+            "block_level": "FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);\nreturn df.format(date);"
         },
         {
             "file_name": "src/java/org/apache/commons/lang/time/FastDateFormat.java",
-            "if_has_bug": "No",
-            "method_level": "",
-            "block_level": ""
+            "if_has_bug": "Yes",
+            "method_level": "protected void init()",
+            "block_level": "List rulesList = parsePattern();\n        mRules = (Rule[]) rulesList.toArray(new Rule[rulesList.size()]);\n\n        int len = 0;\n        for (int i=mRules.length; --i >= 0; ) {\n            len += mRules[i].estimateLength();\n        }\n\n        mMaxLengthEstimate = len;"
         }
     ]
 }

@@ -3,20 +3,20 @@
         {
             "file_name": "src/java/org/apache/commons/lang/time/FastDateFormat.java",
             "if_has_bug": "Yes",
-            "method_level": "TimeZoneNameRule",
-            "block_level": "buffer.append(mStandard);"
+            "method_level": "public void appendTo(StringBuffer buffer, Calendar calendar)",
+            "block_level": "if (mTimeZoneForced) {\n    if (mTimeZone.useDaylightTime() && calendar.get(Calendar.DST_OFFSET) != 0) {\n        buffer.append(mDaylight);\n    } else {\n        buffer.append(mStandard);\n    }\n} else {\n    TimeZone timeZone = calendar.getTimeZone();\n    if (timeZone.useDaylightTime() && calendar.get(Calendar.DST_OFFSET) != 0) {\n        buffer.append(getTimeZoneDisplay(timeZone, true, mStyle, mLocale));\n    } else {\n        buffer.append(getTimeZoneDisplay(timeZone, false, mStyle, mLocale));\n    }\n}"
         },
         {
             "file_name": "src/java/org/apache/commons/lang/time/DateFormatUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public static String formatUTC(Date date, String pattern)",
-            "block_level": "mRules transient"
+            "method_level": "public static String format(Date date, String pattern, TimeZone timeZone, Locale locale) {",
+            "block_level": "FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);\nreturn df.format(date);"
         },
         {
             "file_name": "src/java/org/apache/commons/lang/time/DateUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public static void modify(Calendar val, int field, boolean round) { ... }",
-            "block_level": "val.add(fields[i][0], 1);"
+            "method_level": "public static void modify(Calendar val, int field, boolean round)",
+            "block_level": "if (fields[i][j] == field) {\n                    //This is our field... we stop looping\n                    if (round && roundUp) {\n                        if (field == DateUtils.SEMI_MONTH) {\n                            //This is a special case that's hard to generalize\n                            //If the date is 1, we round up to 16, otherwise\n                            //  we subtract 15 days and add 1 month\n                            if (val.get(Calendar.DATE) == 1) {\n                                val.add(Calendar.DATE, 15);\n                            } else {\n                                val.add(Calendar.DATE, -15);\n                                val.add(Calendar.MONTH, 1);\n                            }\n                        } else {\n                            //We need at add one to this field since the\n                            //  last number causes us to round up\n                            val.add(fields[i][0], 1);\n                        }\n                    }\n                    return;\n                }"
         }
     ]
 }

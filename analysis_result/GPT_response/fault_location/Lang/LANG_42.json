@@ -3,8 +3,8 @@
         {
             "file_name": "src/java/org/apache/commons/lang/StringEscapeUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public static String escapeHtml(String str) { ... }",
-            "block_level": "return Entities.HTML40.escape(str);"
+            "method_level": "public static String escapeHtml(String str) {",
+            "block_level": "if (str == null) {\n    return null;\n}\ntry {\n    StringWriter writer = new StringWriter ((int)(str.length() * 1.5));\n    escapeHtml(writer, str);\n    return writer.toString();\n} catch (IOException ioe) {\n    //should be impossible\n    throw new UnhandledException(ioe);\n}"
         },
         {
             "file_name": "src/java/org/apache/commons/lang/CharUtils.java",
@@ -14,9 +14,9 @@
         },
         {
             "file_name": "src/java/org/apache/commons/lang/SerializationUtils.java",
-            "if_has_bug": "No",
-            "method_level": "",
-            "block_level": ""
+            "if_has_bug": "Yes",
+            "method_level": "public static void serialize(Serializable obj, OutputStream outputStream)",
+            "block_level": "try {\n            // stream closed in the finally\n            out = new ObjectOutputStream(outputStream);\n            out.writeObject(obj);\n            \n        } catch (IOException ex) {\n            throw new SerializationException(ex);\n        } finally {\n            try {\n                if (out != null) {\n                    out.close();\n                }\n            } catch (IOException ex) {\n                // ignore close exception\n            }\n        }"
         }
     ]
 }
