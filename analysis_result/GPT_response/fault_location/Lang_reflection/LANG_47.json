@@ -1,6 +1,10 @@
 {
-    "file_name": "src/java/org/apache/commons/lang/ObjectUtils.java",
-    "if_has_bug": "Yes",
-    "method_level": "public static Object appendFixedWidth(StringBuffer buffer, String str, int fieldWidth, int offset, String nullText)",
-    "block_level": "if (str == null) {\n            str = getNullText();\n        }\n        if (str.length() > fieldWidth) {\n            str.getChars(0, fieldWidth, buffer, offset);\n        } else {\n            int padSize = fieldWidth - str.length();\n            if (padSize > 0) {\n                for (int i = 0; i < padSize; i++) {\n                    buffer.append(' ');\n                }\n            }\n            buffer.append(str);\n        }"
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/ObjectUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static Object appendIdentityToString(StringBuffer buffer, Object object)",
+            "block_level": "if (object == null) {\n            throw new NullPointerException(\"Cannot get the toString of a null identity\");\n        }"
+        }
+    ]
 }

@@ -1,6 +1,10 @@
 {
-    "file_name": "src/main/java/org/apache/commons/lang3/LocaleUtils.java",
-    "if_has_bug": "Yes",
-    "method_level": "public static Locale toLocale(final String str)",
-    "block_level": "if (str.charAt(2) != '_') {\n    throw new IllegalArgumentException(\"Invalid locale format: \" + str);\n}"
+    "result": [
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/LocaleUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static Locale toLocale(final String str)",
+            "block_level": "if (str.charAt(2) != '_') {\n                throw new IllegalArgumentException(\"Invalid locale format: \" + str);\n            }"
+        }
+    ]
 }

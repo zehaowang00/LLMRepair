@@ -1,6 +1,10 @@
 {
-    "file_name": "src/java/org/apache/commons/lang/time/FastDateFormat.java",
-    "if_has_bug": "Yes",
-    "method_level": "public void appendTo(StringBuffer buffer, Calendar calendar)",
-    "block_level": "if (mTimeZoneForced) {\n    if (mTimeZone.useDaylightTime() && calendar.get(Calendar.DST_OFFSET) != 0) {\n        buffer.append(mDaylight);\n    } else {\n        buffer.append(mStandard);\n    }\n} else {\n    TimeZone timeZone = calendar.getTimeZone();\n    if (timeZone.useDaylightTime() && calendar.get(Calendar.DST_OFFSET) != 0) {\n        buffer.append(getTimeZoneDisplay(timeZone, true, mStyle, mLocale));\n    } else {\n        buffer.append(getTimeZoneDisplay(timeZone, false, mStyle, mLocale));\n    }\n}"
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/time/FastDateFormat.java",
+            "if_has_bug": "Yes",
+            "method_level": "protected void init()",
+            "block_level": "List rulesList = parsePattern();\n        mRules = (Rule[]) rulesList.toArray(new Rule[rulesList.size()]);\n\n        int len = 0;\n        for (int i=mRules.length; --i >= 0; ) {\n            len += mRules[i].estimateLength();\n        }\n\n        mMaxLengthEstimate = len;"
+        }
+    ]
 }

@@ -1,6 +1,11 @@
 {
-    "file_name": "src/java/org/apache/commons/lang/time/DurationFormatUtils.java",
-    "if_has_bug": "Yes",
-    "method_level": "public static String formatDuration(long durationMillis, String format)",
-    "block_level": "if (Token.containsTokenWithValue(tokens, d) ) {\n            days = (int) (durationMillis / DateUtils.MILLIS_PER_DAY);\n            durationMillis = durationMillis - (days * DateUtils.MILLIS_PER_DAY);\n        }\n        if (Token.containsTokenWithValue(tokens, H) ) {\n            hours = (int) (durationMillis / DateUtils.MILLIS_PER_HOUR);\n            durationMillis = durationMillis - (hours * DateUtils.MILLIS_PER_HOUR);\n        }\n        if (Token.containsTokenWithValue(tokens, m) ) {\n            minutes = (int) (durationMillis / DateUtils.MILLIS_PER_MINUTE);\n            durationMillis = durationMillis - (minutes * DateUtils.MILLIS_PER_MINUTE);\n        }\n        if (Token.containsTokenWithValue(tokens, s) ) {\n            seconds = (int) (durationMillis / DateUtils.MILLIS_PER_SECOND);\n            durationMillis = durationMillis - (seconds * DateUtils.MILLIS_PER_SECOND);\n        }\n        if (Token.containsTokenWithValue(tokens, S) ) {\n            milliseconds = (int) durationMillis;\n        }"
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/time/DurationFormatUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String formatDuration",
+            "block_level": "if (Token.containsTokenWithValue(tokens, d) ) {\n            days = (int) (durationMillis / DateUtils.MILLIS_PER_DAY);\n            durationMillis = durationMillis - (days * DateUtils.MILLIS_PER_DAY);\n        }\n        if (Token.containsTokenWithValue(tokens, H) ) {\n            hours = (int) (durationMillis / DateUtils.MILLIS_PER_HOUR);\n            durationMillis = durationMillis - (hours * DateUtils.MILLIS_PER_HOUR);\n        }\n        if (Token.containsTokenWithValue(tokens, m) ) {\n            minutes = (int) (durationMillis / DateUtils.MILLIS_PER_MINUTE);\n            durationMillis = durationMillis - (minutes * DateUtils.MILLIS_PER_MINUTE);\n        }\n        if (Token.containsTokenWithValue(tokens, s) ) {\n            seconds = (int) (durationMillis / DateUtils.MILLIS_PER_SECOND);\n            durationMillis = durationMillis - (seconds * DateUtils.MILLIS_PER_SECOND);\n        }\n        if (Token.containsTokenWithValue(tokens, S) ) {\n            milliseconds = (int) durationMillis;\n        }",
+            "reason": "The 'formatDuration' method in the 'DurationFormatUtils' class contains the bug described in the bug report because it is responsible for formatting the time gap as a string, and the specific block of code within this method matches the scenario described in the bug report where the wrong result is returned when the Date is set to Dec 31, 2005."
+        }
+    ]
 }

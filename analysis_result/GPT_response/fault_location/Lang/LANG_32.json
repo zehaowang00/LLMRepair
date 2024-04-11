@@ -3,20 +3,30 @@
         {
             "file_name": "src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java",
             "if_has_bug": "Yes",
-            "method_level": "public String toString()",
-            "block_level": "if (this.getObject() == null) {\n            this.getStringBuffer().append(this.getStyle().getNullText());\n        } else {\n            style.appendEnd(this.getStringBuffer(), this.getObject());\n        }"
+            "method_level": "public String toString() {",
+            "block_level": "if (this.getObject() == null) {\n            this.getStringBuffer().append(this.getStyle().getNullText());\n        } else {\n            style.appendEnd(this.getStringBuffer(), this.getObject());\n        }",
+            "reason": "The bug described in the bug report is related to memory leak caused by the thread local in the ToStringStyle class not being removed. In the toString method of the ToStringBuilder class, there is a check for null object and appending the nullText from the style. This logic could potentially cause memory leaks if not handled properly."
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/LocaleUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public static Locale toLocale(String str)",
-            "block_level": "if (str == null) {\n    return null;\n}\nint len = str.length();\nif (len != 2 && len != 5 && len < 7) {\n    throw new IllegalArgumentException(\"Invalid locale format: \" + str);\n}\nchar ch0 = str.charAt(0);\nchar ch1 = str.charAt(1);\nif (ch0 < 'a' || ch0 > 'z' || ch1 < 'a' || ch1 > 'z') {\n    throw new IllegalArgumentException(\"Invalid locale format: \" + str);\n}\nif (len == 2) {\n    return new Locale(str, \"\");\n} else {\n    if (str.charAt(2) != '_') {\n        throw new IllegalArgumentException(\"Invalid locale format: \" + str);\n    }\n    char ch3 = str.charAt(3);\n    if (ch3 == '_') {\n        return new Locale(str.substring(0, 2), \"\", str.substring(4));\n    }\n    char ch4 = str.charAt(4);\n    if (ch3 < 'A' || ch3 > 'Z' || ch4 < 'A' || ch4 > 'Z') {\n        throw new IllegalArgumentException(\"Invalid locale format: \" + str);\n    }\n    if (len == 5) {\n        return new Locale(str.substring(0, 2), str.substring(3, 5));\n    } else {\n        if (str.charAt(5) != '_') {\n            throw new IllegalArgumentException(\"Invalid locale format: \" + str);\n        }\n        return new Locale(str.substring(0, 2), str.substring(3, 5), str.substring(6));\n    }\n}"
+            "block_level": "if (len != 2 && len != 5 && len < 7) {\n            throw new IllegalArgumentException(\"Invalid locale format: \" + str);\n        }\n        char ch0 = str.charAt(0);\n        char ch1 = str.charAt(1);\n        if (ch0 < 'a' || ch0 > 'z' || ch1 < 'a' || ch1 > 'z') {\n            throw new IllegalArgumentException(\"Invalid locale format: \" + str);\n        }\n        if (len == 2) {\n            return new Locale(str, \"\");\n        } else {\n            if (str.charAt(2) != '_') {\n                throw new IllegalArgumentException(\"Invalid locale format: \" + str);\n            }\n            char ch3 = str.charAt(3);\n            if (ch3 == '_') {\n                return new Locale(str.substring(0, 2), \"\", str.substring(4));\n            }\n            char ch4 = str.charAt(4);\n            if (ch3 < 'A' || ch3 > 'Z' || ch4 < 'A' || ch4 > 'Z') {\n                throw new IllegalArgumentException(\"Invalid locale format: \" + str);\n            }\n            if (len == 5) {\n                return new Locale(str.substring(0, 2), str.substring(3, 5));\n            } else {\n                if (str.charAt(5) != '_') {\n                    throw new IllegalArgumentException(\"Invalid locale format: \" + str);\n                }\n                return new Locale(str.substring(0, 2), str.substring(3, 5), str.substring(6));\n            }\n        }",
+            "reason": "The method 'public static Locale toLocale(String str)' in the 'LocaleUtils.java' file contains the bug described in the bug report. The code snippet provided in the block-level corresponds to the validation logic for the locale format, which matches the bug description of memory leak due to improper handling of locale strings."
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/builder/ReflectionToStringBuilder.java",
             "if_has_bug": "Yes",
-            "method_level": "public static String toString(Object object)",
-            "block_level": "return toString(object, null, false, false, null);"
+            "method_level": "public class ReflectionToStringBuilder extends ToStringBuilder {",
+            "block_level": "protected boolean accept(Field field) { ... }",
+            "reason": "The bug described in the bug report is related to the use of ThreadLocals in ToStringStyle class, which is being used in the ReflectionToStringBuilder class. The accept method inside the ReflectionToStringBuilder class is responsible for determining whether or not to append the given Field, which is a critical part of the functionality that could lead to memory leaks in container environments."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/builder/StandardToStringStyle.java",
+            "if_has_bug": "Yes",
+            "method_level": "public class StandardToStringStyle extends ToStringStyle {",
+            "block_level": "The thread local in org.apache.commons.lang3.builder.ToStringStyle is created but never removed and no API is provided to remove it. If a webapp's use of LANG triggers the loading of this class, a reference chain will be created that will cause a memory leak on web application reload.",
+            "reason": "The bug report specifically mentions the class org.apache.commons.lang3.builder.ToStringStyle, which is the class being extended in the public class StandardToStringStyle. Therefore, the bug described in the bug report is present in this method."
         }
     ]
 }

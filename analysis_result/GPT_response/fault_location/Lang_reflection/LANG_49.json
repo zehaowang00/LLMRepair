@@ -1,6 +1,10 @@
 {
-    "file_name": "src/java/org/apache/commons/lang/math/Fraction.java",
-    "if_has_bug": "Yes",
-    "method_level": "private Fraction addSub(Fraction fraction, boolean isAdd) {",
-    "block_level": "int d1 = greatestCommonDivisor(denominator, fraction.denominator);\n        if (d1==1) {\n            int uvp = mulAndCheck(numerator, fraction.denominator);\n            int upv = mulAndCheck(fraction.numerator, denominator);\n            return new Fraction\n                (isAdd ? addAndCheck(uvp, upv) : subAndCheck(uvp, upv),\n                 mulPosAndCheck(denominator, fraction.denominator));\n        }\n        int t = isAdd ? uvp.add(upv) : uvp.subtract(upv);\n        int tmodd1 = t.mod(BigInteger.valueOf(d1)).intValue();\n        int d2 = (tmodd1==0)?d1:greatestCommonDivisor(tmodd1, d1);\n        BigInteger w = t.divide(BigInteger.valueOf(d2));\n        return new Fraction\n            (w.intValue(),\n             mulPosAndCheck(denominator, fraction.denominator));"
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/math/Fraction.java",
+            "if_has_bug": "Yes",
+            "method_level": "private Fraction addSub(Fraction fraction, boolean isAdd) {",
+            "block_level": "int d1 = greatestCommonDivisor(denominator, fraction.denominator);\n        if (d1==1) {\n            int uvp = mulAndCheck(numerator, fraction.denominator);\n            int upv = mulAndCheck(fraction.numerator, denominator);\n            return new Fraction\n                (isAdd ? addAndCheck(uvp, upv) : subAndCheck(uvp, upv),\n                 mulPosAndCheck(denominator, fraction.denominator));\n        }"
+        }
+    ]
 }

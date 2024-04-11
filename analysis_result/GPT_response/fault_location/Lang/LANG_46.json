@@ -4,19 +4,29 @@
             "file_name": "src/java/org/apache/commons/lang/StringEscapeUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public static String escapeJava(String str) {",
-            "block_level": "case '/' :\n    out.write('\\\\');\n    out.write('/');\n    break;"
+            "block_level": "case '/' :\n    out.write('\\\\');\n    out.write('/');\n    break;",
+            "reason": "The escapeJava method in the StringEscapeUtils class contains the bug described in the bug report. Specifically, the block of code that escapes '/' characters is causing the issue."
         },
         {
             "file_name": "src/java/org/apache/commons/lang/CharUtils.java",
             "if_has_bug": "No",
             "method_level": "",
-            "block_level": ""
+            "block_level": "",
+            "reason": ""
         },
         {
             "file_name": "src/java/org/apache/commons/lang/IllegalClassException.java",
             "if_has_bug": "No",
             "method_level": "",
-            "block_level": ""
+            "block_level": "",
+            "reason": ""
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/text/StrSubstitutor.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": ""
         }
     ]
 }

@@ -3,20 +3,37 @@
         {
             "file_name": "src/main/java/org/apache/commons/lang3/math/NumberUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public static boolean isNumber(String str)",
-            "block_level": "if (chars[i] == 'l'\n                || chars[i] == 'L') {\n                // not allowing L with an exponent\n                return foundDigit && !hasExp;\n            }\n\n            to:\n\n            if (chars[i] == 'l'\n                || chars[i] == 'L') {\n                // not allowing L with an exponent\n                return foundDigit && !hasExp && !hasDecPoint;\n            }"
+            "method_level": "public static boolean isNumber(String str) {",
+            "block_level": "if (chars[i] == 'l' || chars[i] == 'L') {",
+            "reason": "The bug described in the bug report is located in the 'isNumber' method of the 'NumberUtils' class. The specific block of code that causes the bug is the condition where the character is checked if it is 'l' or 'L'."
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/Pair.java",
             "if_has_bug": "Yes",
-            "method_level": "public Pair(L left, R right) {",
-            "block_level": "if (chars[i] == 'l'\n                || chars[i] == 'L') {\n                // not allowing L with an exponent\n                return foundDigit && !hasExp && !hasDecPoint;\n            }"
+            "method_level": "public Pair(L left, R right)",
+            "block_level": "if (chars[i] == 'l' || chars[i] == 'L') {\n    // not allowing L with an exponent\n    return foundDigit && !hasExp && !hasDecPoint;\n}",
+            "reason": "The bug described in the bug report is found in the 'Pair.java' file at the method level 'public Pair(L left, R right)'. The specific code statements causing the bug are within the block-level snippet provided."
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/BooleanUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public static boolean xor(boolean... array) {",
-            "block_level": "if (element) {\n                if (trueCount < 1) {\n                    trueCount++;\n                } else {\n                    return false;\n                }\n            }"
+            "block_level": "if (element) {\n                if (trueCount < 1) {\n                    trueCount++;\n                } else {\n                    return false;\n                }\n            }",
+            "reason": "The bug described in the bug report is related to the logic inside the xor method, specifically the condition where trueCount is incremented. The bug report mentions a specific issue with handling 'L' with an exponent, which is not directly visible in the code snippet provided. However, the logic inside the xor method seems to be the culprit based on the bug description."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/RandomStringUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String random(int count, int start, int end, boolean letters, boolean numbers, char[] chars, Random random)",
+            "block_level": "if ((letters && Character.isLetter(ch))\n                || (numbers && Character.isDigit(ch))\n                || (!letters && !numbers)) \n            {\n                if(ch >= 56320 && ch <= 57343) {\n                    if(count == 0) {\n                        count++;\n                    } else {\n                        // low surrogate, insert high surrogate after putting it in\n                        buffer[count] = ch;\n                        count--;\n                        buffer[count] = (char) (55296 + random.nextInt(128));\n                    }\n                } else if(ch >= 55296 && ch <= 56191) {\n                    if(count == 0) {\n                        count++;\n                    } else {\n                        // high surrogate, insert low surrogate before putting it in\n                        buffer[count] = (char) (56320 + random.nextInt(128));\n                        count--;\n                        buffer[count] = ch;\n                    }\n                } else if(ch >= 56192 && ch <= 56319) {\n                    // private high surrogate, no effing clue, so skip it\n                    count++;\n                } else {\n                    buffer[count] = ch;\n                }\n            } else {\n                count++;\n            }",
+            "reason": "The bug described in the bug report is related to the handling of the character 'L' in the method 'public static String random(int count, int start, int end, boolean letters, boolean numbers, char[] chars, Random random)'. The bug report mentions that 'L' should not be allowed with an exponent, but the current implementation does not check for the presence of a decimal point. The provided code snippet contains the exact block of code where the bug occurs."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/event/EventUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static <L> void addEventListener(Object eventSource, Class<L> listenerType, L listener)",
+            "block_level": "if (chars[i] == 'l' || chars[i] == 'L') { return foundDigit && !hasExp && !hasDecPoint; }",
+            "reason": "The bug described in the bug report is located in the method 'addEventListener' in the EventUtils.java file. The specific block of code that causes the bug is the if statement that checks if the character is 'l' or 'L'. The bug report mentions that the code should also check for 'hasDecPoint' which is missing in the original code."
         }
     ]
 }

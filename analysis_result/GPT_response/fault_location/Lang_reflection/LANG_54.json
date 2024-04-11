@@ -1,6 +1,10 @@
 {
-    "file_name": "src/java/org/apache/commons/lang/LocaleUtils.java",
-    "if_has_bug": "Yes",
-    "method_level": "public static Locale toLocale(String str)",
-    "block_level": "if (len != 2 && len != 5 && len < 7) {\n    throw new IllegalArgumentException(\"Invalid locale format: \" + str);\n}"
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/LocaleUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static Locale toLocale(String str)",
+            "block_level": "if (len != 2 && len != 5 && len < 7) {\n            throw new IllegalArgumentException(\"Invalid locale format: \" + str);\n        }"
+        }
+    ]
 }

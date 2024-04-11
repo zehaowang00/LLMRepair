@@ -3,20 +3,37 @@
         {
             "file_name": "src/main/java/org/apache/commons/lang3/ObjectUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public static <T> T clone(final T obj) {",
-            "block_level": "final Method clone = obj.getClass().getMethod(\"clone\");\nresult = clone.invoke(obj);"
+            "method_level": "public static <T> T clone(final T obj)",
+            "block_level": "final Method clone = obj.getClass().getMethod(\"clone\");\nresult = clone.invoke(obj);",
+            "reason": "The bug described in the bug report is related to the behavior of the clone method when the object is cloneable. The method 'public static <T> clone(final T obj)' in the checked code file contains the logic for cloning objects, which is directly related to the bug reported."
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java",
-            "if_has_bug": "Yes",
-            "method_level": "public String toString() {",
-            "block_level": "if (this.getObject() == null) {\n            this.getStringBuffer().append(this.getStyle().getNullText());\n        } else {\n            style.appendEnd(this.getStringBuffer(), this.getObject());\n        }"
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": ""
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/BooleanUtils.java",
             "if_has_bug": "No",
             "method_level": "",
-            "block_level": ""
+            "block_level": "",
+            "reason": "The checked code file 'BooleanUtils.java' does not contain the bug described in the bug report. The bug report describes an issue related to 'StringUtils.join' method, which is not present in the 'BooleanUtils.java' file. Therefore, the bug is not found in this code file."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/concurrent/ConstantInitializer.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": "The bug described in the bug report is related to StringUtils.join method, which is not present in the checked code file ConstantInitializer.java. Therefore, the bug described in the bug report does not exist in the checked code file."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/builder/ReflectionToStringBuilder.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": ""
         }
     ]
 }

@@ -3,14 +3,30 @@
         {
             "file_name": "src/java/org/apache/commons/lang/ObjectUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public static Object appendFixedWidth(StringBuffer buffer, String str, int fieldWidth, int offset, String nullText)",
-            "block_level": "if (str == null) {\n            str = getNullText();\n        }\n        if (str.length() > fieldWidth) {\n            str.getChars(0, fieldWidth, buffer, offset);\n        } else {\n            int padSize = fieldWidth - str.length();\n            if (padSize > 0) {\n                for (int i = 0; i < padSize; i++) {\n                    buffer.append(' ');\n                }\n            }\n            buffer.append(str);\n        }"
+            "method_level": "public static Object appendIdentityToString(StringBuffer buffer, Object object)",
+            "block_level": "if (object == null) {\n            throw new NullPointerException(\"Cannot get the toString of a null identity\");\n        }",
+            "reason": "The bug described in the bug report is related to appending a null value with fixed width causing a null pointer exception. In the method 'appendIdentityToString' of the checked code file, there is a block of code that throws a NullPointerException when the object is null, which aligns with the bug report description."
         },
         {
             "file_name": "src/java/org/apache/commons/lang/builder/CompareToBuilder.java",
             "if_has_bug": "No",
             "method_level": "",
-            "block_level": ""
+            "block_level": "",
+            "reason": ""
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/builder/EqualsBuilder.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static boolean reflectionEquals(Object lhs, Object rhs, boolean testTransients, Class reflectUpToClass)",
+            "block_level": "try {\n            reflectionAppend(lhs, rhs, testClass, equalsBuilder, testTransients, excludeFields);\n            while (testClass.getSuperclass() != null && testClass != reflectUpToClass) {\n                testClass = testClass.getSuperclass();\n                reflectionAppend(lhs, rhs, testClass, equalsBuilder, testTransients, excludeFields);\n            }\n        } catch (IllegalArgumentException e) {\n            // In this case, we tried to test a subclass vs. a superclass and\n            // the subclass has ivars or the ivars are transient and \n            // we are testing transients.\n            // If a subclass has ivars that we are trying to test them, we get an\n            // exception and we know that the objects are not equal.\n            return false;\n        }",
+            "reason": "The method 'reflectionEquals' in the 'EqualsBuilder' class contains the bug described in the bug report. The bug occurs when trying to test a subclass vs. a superclass and the subclass has ivars or the ivars are transient while testing transients. This leads to an IllegalArgumentException and indicates that the objects are not equal."
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/NullArgumentException.java",
+            "if_has_bug": "Yes",
+            "method_level": "public NullArgumentException(String argName)",
+            "block_level": "super((argName == null ? \"Argument\" : argName) + \" must not be null.\");",
+            "reason": "The NullArgumentException class constructor method contains the logic for handling null arguments, which is directly related to the bug report description of appending a null value causing a null pointer exception."
         }
     ]
 }

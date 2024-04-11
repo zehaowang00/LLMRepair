@@ -4,19 +4,36 @@
             "file_name": "src/java/org/apache/commons/lang/text/ExtendedMessageFormat.java",
             "if_has_bug": "Yes",
             "method_level": "public final void applyPattern(String pattern)",
-            "block_level": "if (escapingOn && c[start] == QUOTE) {\n        return appendTo == null ? null : appendTo.append(QUOTE);\n}"
+            "block_level": "if (escapingOn && c[start] == QUOTE) {\n        return appendTo == null ? null : appendTo.append(QUOTE);\n}",
+            "reason": "The bug described in the bug report is related to the handling of single quotes in the pattern. The specific code block mentioned in the bug report is within the 'applyPattern' method where the comparison for QUOTE is made. The bug fix provided in the bug report also points to this specific location."
         },
         {
             "file_name": "src/java/org/apache/commons/lang/text/FormatFactory.java",
             "if_has_bug": "No",
             "method_level": "",
-            "block_level": ""
+            "block_level": "",
+            "reason": "The checked code file 'FormatFactory.java' does not contain the bug described in the bug report. The bug report is related to ExtendedMessageFormat and the checked code is in FormatFactory interface, which is not related."
         },
         {
             "file_name": "src/java/org/apache/commons/lang/time/DateFormatUtils.java",
             "if_has_bug": "No",
             "method_level": "",
-            "block_level": ""
+            "block_level": "",
+            "reason": ""
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/text/CompositeFormat.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": "The checked code file 'CompositeFormat.java' does not contain the bug described in the bug report. The bug report is related to ExtendedMessageFormat, while the checked code is in CompositeFormat. Therefore, the bug described in the bug report does not exist in the checked code file."
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/Validate.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": ""
         }
     ]
 }

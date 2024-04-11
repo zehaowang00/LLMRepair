@@ -1,6 +1,10 @@
 {
-    "file_name": "src/main/java/org/apache/commons/lang3/SerializationUtils.java",
-    "if_has_bug": "Yes",
-    "method_level": "public static <T extends Serializable> T clone(T object) {",
-    "block_level": "Class cl = (Class) primClasses.get(name);\n\t    if (cl != null) {\n\t\treturn cl;\n\t    } else {\n\t\tthrow ex;\n\t    }"
+    "result": [
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/SerializationUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static <T extends Serializable> T clone(T object)",
+            "block_level": "try {\n            // stream closed in the finally\n            in = new ClassLoaderAwareObjectInputStream(bais, object.getClass().getClassLoader());\n            /*\n             * when we serialize and deserialize an object,\n             * it is reasonable to assume the deserialized object\n             * is of the same type as the original serialized object\n             */\n            @SuppressWarnings(\"unchecked\") // see above\n            T readObject = (T) in.readObject();\n            return readObject;\n\n        } catch (ClassNotFoundException ex) {\n            throw new SerializationException(\"ClassNotFoundException while reading cloned object data\", ex);\n        } catch (IOException ex) {\n            throw new SerializationException(\"IOException while reading cloned object data\", ex);\n        } finally {\n            try {\n                if (in != null) {\n                    in.close();\n                }\n            } catch (IOException ex) {\n                throw new SerializationException(\"IOException on closing cloned object data InputStream.\", ex);\n            }\n        }"
+        }
+    ]
 }

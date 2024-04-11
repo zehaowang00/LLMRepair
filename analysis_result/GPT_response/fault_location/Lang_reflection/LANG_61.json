@@ -1,6 +1,11 @@
 {
-    "file_name": "src/java/org/apache/commons/lang/builder/EqualsBuilder.java",
-    "if_has_bug": "No",
-    "method_level": "",
-    "block_level": ""
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/builder/ToStringBuilder.java",
+            "if_has_bug": "Yes",
+            "method_level": "public String toString() {",
+            "block_level": "if (this.getObject() == null) {\n            this.getStringBuffer().append(this.getStyle().getNullText());\n        } else {\n            style.appendEnd(this.getStringBuffer(), this.getObject());\n        }",
+            "reason": "The bug described in the bug report is related to ArrayIndexOutOfBoundsException, which is caused by accessing an array index out of bounds. The code snippet in the 'public String toString()' method checks if the object is null and appends the null text. This logic could potentially trigger an ArrayIndexOutOfBoundsException if not handled correctly."
+        }
+    ]
 }

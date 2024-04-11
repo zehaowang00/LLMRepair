@@ -4,19 +4,36 @@
             "file_name": "src/main/java/org/apache/commons/lang3/concurrent/ConstantInitializer.java",
             "if_has_bug": "No",
             "method_level": "",
-            "block_level": ""
+            "block_level": "",
+            "reason": ""
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/builder/EqualsBuilder.java",
             "if_has_bug": "Yes",
-            "method_level": "public boolean equals(Object obj)",
-            "block_level": "isEquals = lhs.equals(rhs);"
+            "method_level": "public EqualsBuilder append(Object lhs, Object rhs) {",
+            "block_level": "isEquals = lhs.equals(rhs);",
+            "reason": "The bug described in the bug report is related to the behavior of the StringUtils equals() method when the signature was changed to equals(CharSequence, CharSequence) but still relied on calling CharSequence#equals(Object) which may lead to undefined behavior. In the EqualsBuilder.java file, the append(Object lhs, Object rhs) method is where the actual comparison of objects is done, and the bug is triggered by the statement 'isEquals = lhs.equals(rhs);' which directly calls the equals method on the objects without considering the specific behavior of CharSequence objects as described in the bug report."
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/CharSequenceUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public static CharSequence subSequence(CharSequence cs, int start)",
-            "block_level": "return cs == null ? null : cs.subSequence(start, cs.length());"
+            "method_level": "static int indexOf(CharSequence cs, CharSequence searchChar, int start)",
+            "block_level": "return cs.toString().indexOf(searchChar.toString(), start);",
+            "reason": "The bug described in the bug report is related to the behavior of the StringUtils equals() method when the signature was changed to equals(CharSequence, CharSequence). The method indexOf(CharSequence cs, CharSequence searchChar, int start) in the checked code file contains the bug as it relies on calling toString() method which can lead to undefined behavior, similar to the bug described in the bug report."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/mutable/MutableObject.java",
+            "if_has_bug": "Yes",
+            "method_level": "public boolean equals(Object obj)",
+            "block_level": "return this.value.equals(that.value);",
+            "reason": "The bug described in the bug report is related to the behavior of the equals method when comparing CharSequence objects. In the checked code file, the equals method in the MutableObject class is implemented in a way that relies on calling the equals method of the 'value' object, which can lead to undefined behavior as described in the bug report."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/text/FormattableUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static Formatter append(CharSequence seq, Formatter formatter, int flags, int width, int precision, char padChar, CharSequence ellipsis)",
+            "block_level": "Validate.isTrue(ellipsis == null || precision < 0 || ellipsis.length() <= precision, \"Specified ellipsis '%1$s' exceeds precision of %2$s\", ellipsis, Integer.valueOf(precision));\nStringBuilder buf = new StringBuilder(seq);\nif (precision >= 0 && precision < seq.length()) {\n    CharSequence _ellipsis = ObjectUtils.defaultIfNull(ellipsis, StringUtils.EMPTY);\n    buf.replace(precision - _ellipsis.length(), seq.length(), _ellipsis.toString());\n}\nboolean leftJustify = (flags & LEFT_JUSTIFY) == LEFT_JUSTIFY;\nfor (int i = buf.length(); i < width; i++) {\n    buf.insert(leftJustify ? i : 0, padChar);\n}\nformatter.format(buf.toString());",
+            "reason": "The bug described in the bug report is related to the behavior of the StringUtils equals() method when the signature was changed to equals(CharSequence, CharSequence). The method 'public static Formatter append(CharSequence seq, Formatter formatter, int flags, int width, int precision, char padChar, CharSequence ellipsis)' in the FormattableUtils class is the method that contains the problematic behavior. The block-level code snippets provided are the ones that handle the truncation and padding logic, which is where the bug is triggered."
         }
     ]
 }

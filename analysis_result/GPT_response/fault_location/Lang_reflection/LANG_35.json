@@ -1,6 +1,10 @@
 {
-    "file_name": "src/main/java/org/apache/commons/lang3/exception/ExceptionContext.java",
-    "if_has_bug": "Yes",
-    "method_level": "public ExceptionContext addValue(String label, Object value)",
-    "block_level": "if (label == null) {\n    throw new IllegalArgumentException(\"The label cannot be null\");\n}\n\nif (value == null) {\n    throw new IllegalArgumentException(\"The value cannot be null\");\n}"
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/enum/ValuedEnum.java",
+            "if_has_bug": "Yes",
+            "method_level": "protected static Enum getEnum(Class enumClass, int value) {",
+            "block_level": "if (enumeration.getValue() == value) {\n                return enumeration;\n            }"
+        }
+    ]
 }

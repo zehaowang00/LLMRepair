@@ -1,6 +1,10 @@
 {
-    "file_name": "src/java/org/apache/commons/lang3/ObjectUtils.java",
-    "if_has_bug": "Yes",
-    "method_level": "public static Object defaultIfNull(Object object, Object defaultValue) {",
-    "block_level": "return object != null ? object : defaultValue;"
+    "result": [
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/time/FormatCache.java",
+            "if_has_bug": "Yes",
+            "method_level": "public F getInstance(String pattern, TimeZone timeZone, Locale locale)",
+            "block_level": "if (pattern == null) {\n            throw new NullPointerException(\"pattern must not be null\");\n        }"
+        }
+    ]
 }

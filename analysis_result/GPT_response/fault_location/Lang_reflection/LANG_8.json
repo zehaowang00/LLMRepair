@@ -1,6 +1,10 @@
 {
-    "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
-    "if_has_bug": "Yes",
-    "method_level": "public String format(Calendar calendar)",
-    "block_level": "return printer.format(calendar);"
+    "result": [
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/time/FastDatePrinter.java",
+            "if_has_bug": "Yes",
+            "method_level": "protected FastDatePrinter(String pattern, TimeZone timeZone, Locale locale) {",
+            "block_level": "TimeZoneNameRule(TimeZone timeZone, Locale locale, int style) {"
+        }
+    ]
 }

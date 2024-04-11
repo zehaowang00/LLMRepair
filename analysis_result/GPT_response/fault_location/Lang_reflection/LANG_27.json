@@ -1,6 +1,10 @@
 {
-    "file_name": "src/main/java/org/apache/commons/lang3/exception/ContextedRuntimeException.java",
-    "if_has_bug": "Yes",
-    "method_level": "public ContextedRuntimeException addValue(String label, Object value)",
-    "block_level": "exceptionContext.addValue(label, value);"
+    "result": [
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/math/NumberUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public Number createNumber(String str) throws NumberFormatException {",
+            "block_level": "if (str.startsWith(\"0x\") || str.startsWith(\"-0x\")) {\n            return createInteger(str);\n        }"
+        }
+    ]
 }

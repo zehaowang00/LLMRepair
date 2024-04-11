@@ -4,19 +4,36 @@
             "file_name": "src/java/org/apache/commons/lang/NumberUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public static Number createNumber(String val) throws NumberFormatException {",
-            "block_level": "if (val.startsWith(\"0x\") || val.startsWith(\"-0x\")) {\n            return createInteger(val);\n        }"
+            "block_level": "return createBigDecimal(numeric);",
+            "reason": "The bug described in the bug report is related to comparing BigDecimals using equals instead of compareTo. The method 'createNumber' in the 'NumberUtils.java' file contains the bug where it returns a BigDecimal using 'createBigDecimal' method which can lead to incorrect comparison results."
         },
         {
             "file_name": "src/java/org/apache/commons/lang/builder/EqualsBuilder.java",
             "if_has_bug": "Yes",
-            "method_level": "public EqualsBuilder append(Object lhs, Object rhs) {",
-            "block_level": "isEquals = lhs.equals(rhs);"
+            "method_level": "public EqualsBuilder append(Object lhs, Object rhs)",
+            "block_level": "isEquals = lhs.equals(rhs);",
+            "reason": "The bug in the bug report is related to comparing BigDecimals using equals instead of compareTo. In the method public EqualsBuilder append(Object lhs, Object rhs), the comparison is made using equals which is incorrect for BigDecimals."
         },
         {
             "file_name": "src/java/org/apache/commons/lang/builder/CompareToBuilder.java",
             "if_has_bug": "Yes",
-            "method_level": "public CompareToBuilder append(Object lhs, Object rhs, Comparator comparator) {",
-            "block_level": "comparison = ((Comparable) lhs).compareTo(rhs);"
+            "method_level": "public int reflectionCompare(Object lhs, Object rhs)",
+            "block_level": "return reflectionCompare(lhs, rhs, false, null, null);",
+            "reason": "The bug described in the bug report is related to comparing BigDecimals using equals instead of compareTo. This method 'reflectionCompare' is responsible for comparing two objects via reflection, which is where the bug is likely to occur."
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/math/NumberUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static boolean isNumber(String str) {",
+            "block_level": "if (chars[i] == 'e' || chars[i] == 'E') {",
+            "reason": "The method 'isNumber' in the 'NumberUtils.java' file contains the bug described in the bug report. The bug is triggered by the block of code that checks for the presence of 'e' or 'E' in the input string."
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/NumberRange.java",
+            "if_has_bug": "Yes",
+            "method_level": "public boolean includesNumber(Number number) {",
+            "block_level": "return !(min.doubleValue() > number.doubleValue()) &&\n                !(max.doubleValue() < number.doubleValue());",
+            "reason": "The bug report describes an issue with comparing BigDecimals using equals instead of compareTo. The method 'includesNumber' in the 'NumberRange' class compares numbers using double values, which can lead to incorrect comparisons with BigDecimals. The specific block of code mentioned in the bug report is where the comparison logic is implemented."
         }
     ]
 }

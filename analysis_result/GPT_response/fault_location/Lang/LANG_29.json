@@ -4,13 +4,29 @@
             "file_name": "src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java",
             "if_has_bug": "Yes",
             "method_level": "public String toString() {",
-            "block_level": "if (this.getObject() == null) {\n            this.getStringBuffer().append(this.getStyle().getNullText());\n        } else {\n            style.appendEnd(this.getStringBuffer(), this.getObject());\n        }"
+            "block_level": "style.appendEnd(this.getStringBuffer(), this.getObject());",
+            "reason": "The bug described in the bug report is related to the method 'toString' in the ToStringBuilder class. The bug is caused by the 'style.appendEnd' method call inside the 'toString' method."
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/builder/ReflectionToStringBuilder.java",
-            "if_has_bug": "No",
-            "method_level": "",
-            "block_level": ""
+            "if_has_bug": "Yes",
+            "method_level": "public static String toString(Object object)",
+            "block_level": "return toString(object, null, false, false, null);",
+            "reason": "The bug described in the bug report is related to the method 'SystemUtils.getJavaVersionAsFloat' which is called within the 'toString' method. The stack trace in the bug report matches the method signature and code structure of the 'toString' method in the checked code file."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/concurrent/ConcurrentRuntimeException.java",
+            "if_has_bug": "Yes",
+            "method_level": "public ConcurrentRuntimeException(String msg, Throwable cause)",
+            "block_level": "super(msg, ConcurrentUtils.checkedException(cause));",
+            "reason": "The bug described in the bug report is related to a StringIndexOutOfBoundsException thrown by SystemUtils.getJavaVersionAsFloat method. In the checked code file, the method public ConcurrentRuntimeException(String msg, Throwable cause) calls super(msg, ConcurrentUtils.checkedException(cause)), which could potentially lead to the same exception being thrown."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/exception/ExceptionUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String[] getStackFrames(Throwable throwable)",
+            "block_level": "String stackTrace = getStackTrace(t);\nString linebreak = SystemUtils.LINE_SEPARATOR;\nStringTokenizer frames = new StringTokenizer(stackTrace, linebreak);\nList<String> list = new ArrayList<String>();\nboolean traceStarted = false;\nwhile (frames.hasMoreTokens()) {\n    String token = frames.nextToken();\n    int at = token.indexOf(\"at\");\n    if (at != -1 && token.substring(0, at).trim().length() == 0) {\n        traceStarted = true;\n        list.add(token);\n    } else if (traceStarted) {\n        break;\n    }\n}",
+            "reason": "The method getStackFrames(Throwable throwable) contains the bug described in the bug report because it processes the stack trace of the throwable and extracts the stack frames. The bug causing code is identified in the block-level code snippet provided."
         }
     ]
 }

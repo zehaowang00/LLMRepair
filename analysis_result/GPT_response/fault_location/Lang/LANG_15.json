@@ -2,21 +2,38 @@
     "result": [
         {
             "file_name": "src/main/java/org/apache/commons/lang3/reflect/TypeUtils.java",
-            "if_has_bug": "Yes",
-            "method_level": "public static boolean isAssignable(Type type, Class<?> toClass)",
-            "block_level": "private static boolean isAssignable(Type type, ParameterizedType toParameterizedType, Map<TypeVariable<?>, Type> typeVarAssigns)"
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": ""
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/ClassUtils.java",
             "if_has_bug": "No",
             "method_level": "",
-            "block_level": ""
+            "block_level": "",
+            "reason": ""
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/reflect/MethodUtils.java",
             "if_has_bug": "No",
             "method_level": "",
-            "block_level": ""
+            "block_level": "",
+            "reason": ""
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/reflect/ConstructorUtils.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": ""
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/AnnotationUtils.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": ""
         }
     ]
 }

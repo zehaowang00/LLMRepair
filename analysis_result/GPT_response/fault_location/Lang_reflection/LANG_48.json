@@ -1,6 +1,10 @@
 {
-    "file_name": "src/java/org/apache/commons/lang/builder/EqualsBuilder.java",
-    "if_has_bug": "Yes",
-    "method_level": "public EqualsBuilder append(Object lhs, Object rhs) {",
-    "block_level": "isEquals = lhs.equals(rhs);"
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/NumberUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static Number createNumber(String val) throws NumberFormatException {",
+            "block_level": "return createBigDecimal(numeric);"
+        }
+    ]
 }

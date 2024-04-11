@@ -4,19 +4,29 @@
             "file_name": "src/java/org/apache/commons/lang/time/DateUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public static Date truncate(Date date, int field) {",
-            "block_level": "        // truncate milliseconds\n\n        // truncate seconds\n\n        // truncate minutes\n\n        // reset time\n        // ----------------- Fix for LANG-59 ---------------------- START ---------------\n        // see http://issues.apache.org/jira/browse/LANG-59\n        //\n        // Manually truncate milliseconds, seconds and minutes, rather than using\n        // Calendar methods."
+            "block_level": "offset = val.get(Calendar.DATE) - 1;\nroundUp = offset > 7;\nval.add(Calendar.DATE, -15);\nval.add(Calendar.MONTH, 1);",
+            "reason": "The bug described in the bug report is related to truncating a date by hour and getting an unexpected result. The method 'truncate' in the 'DateUtils.java' file is responsible for truncating dates, and the specific block of code mentioned above is where the bug occurs. The code snippet shows how the date is being manipulated incorrectly, resulting in the bug described in the bug report."
         },
         {
             "file_name": "src/java/org/apache/commons/lang/time/DateFormatUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public static String format(Date date, String pattern, TimeZone timeZone, Locale locale) {",
-            "block_level": "FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);\nreturn df.format(date);"
+            "method_level": "public static String format(Date date, String pattern)",
+            "block_level": "return format(date, pattern, null, null);",
+            "reason": "The bug described in the bug report is related to the truncation of hours during DST switching, which is directly related to the formatting of the date. The method 'public static String format(Date date, String pattern)' is responsible for formatting the date, hence it is the method where the bug is likely to be located."
         },
         {
             "file_name": "src/java/org/apache/commons/lang/time/FastDateFormat.java",
-            "if_has_bug": "No",
-            "method_level": "",
-            "block_level": ""
+            "if_has_bug": "Yes",
+            "method_level": "protected void init()",
+            "block_level": "List rulesList = parsePattern();\n        mRules = (Rule[]) rulesList.toArray(new Rule[rulesList.size()]);\n\n        int len = 0;\n        for (int i=mRules.length; --i >= 0; ) {\n            len += mRules[i].estimateLength();\n        }\n\n        mMaxLengthEstimate = len;",
+            "reason": "The init() method initializes the rulesList by parsing the pattern and then calculates the maximum length estimate based on the rules. This is where the bug related to truncating the date by hour may be occurring."
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/time/DurationFormatUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String formatDuration(long durationMillis, String format)",
+            "block_level": "if (Token.containsTokenWithValue(tokens, d) ) {\n            days = (int) (durationMillis / DateUtils.MILLIS_PER_DAY);\n            durationMillis = durationMillis - (days * DateUtils.MILLIS_PER_DAY);\n        }\n        if (Token.containsTokenWithValue(tokens, H) ) {\n            hours = (int) (durationMillis / DateUtils.MILLIS_PER_HOUR);\n            durationMillis = durationMillis - (hours * DateUtils.MILLIS_PER_HOUR);\n        }\n        if (Token.containsTokenWithValue(tokens, m) ) {\n            minutes = (int) (durationMillis / DateUtils.MILLIS_PER_MINUTE);\n            durationMillis = durationMillis - (minutes * DateUtils.MILLIS_PER_MINUTE);\n        }\n        if (Token.containsTokenWithValue(tokens, s) ) {\n            seconds = (int) (durationMillis / DateUtils.MILLIS_PER_SECOND);\n            durationMillis = durationMillis - (seconds * DateUtils.MILLIS_PER_SECOND);\n        }\n        if (Token.containsTokenWithValue(tokens, S) ) {\n            milliseconds = (int) durationMillis;\n        }",
+            "reason": "The bug described in the bug report is related to the truncation of time by hour, which results in an incorrect time value. The method 'formatDuration' in the 'DurationFormatUtils' class is responsible for formatting the time gap, and the specific block of code within this method is where the bug causing the incorrect truncation is located."
         }
     ]
 }

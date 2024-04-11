@@ -4,19 +4,36 @@
             "file_name": "src/java/org/apache/commons/lang/time/DateUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public static Date round(Date date, int field)",
-            "block_level": "if (field == Calendar.MINUTE) {\n    done = true;\n}\n"
+            "block_level": "time = time - (seconds * 1000L);\n        if (field == Calendar.MINUTE) {\n            done = true;\n        }",
+            "reason": "The bug described in the bug report related to rounding by minutes or seconds is found in the 'round' method of the 'DateUtils' class. Specifically, the code snippet where the 'seconds' are subtracted from the 'time' variable and the 'done' flag is set to true when the 'field' is equal to 'Calendar.MINUTE' is the part of the method that causes the bug."
         },
         {
             "file_name": "src/java/org/apache/commons/lang/time/FastDateFormat.java",
             "if_has_bug": "Yes",
             "method_level": "public void appendTo(StringBuffer buffer, Calendar calendar)",
-            "block_level": "if (offset < 0) {\n    buffer.append('-');\n    offset = -offset;\n} else {\n    buffer.append('+');\n}\n\nint hours = offset / (60 * 60 * 1000);\nbuffer.append((char)(hours / 10 + '0'));\nbuffer.append((char)(hours % 10 + '0'));\n\nif (mColon) {\n    buffer.append(':');\n}\n\nint minutes = offset / (60 * 1000) - 60 * hours;\nbuffer.append((char)(minutes / 10 + '0'));\nbuffer.append((char)(minutes % 10 + '0'));"
+            "block_level": "buffer.append(mDaylight);",
+            "reason": "The bug described in the bug report is related to the incorrect behavior of the rounding by minutes or seconds. The method 'appendTo' in the FastDateFormat.java file is responsible for formatting the time zone name based on daylight saving time. The incorrect formatting of the time zone name could lead to unexpected output for rounding by minutes or seconds."
         },
         {
             "file_name": "src/java/org/apache/commons/lang/time/DateFormatUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public static String format(Date date, String pattern, TimeZone timeZone, Locale locale) {",
-            "block_level": "return df.format(date);"
+            "method_level": "public static String formatUTC(Date date, String pattern)",
+            "block_level": "return format(date, pattern, DateUtils.UTC_TIME_ZONE, null);",
+            "reason": "The bug described in the bug report matches the behavior of the 'formatUTC' method in the 'DateFormatUtils.java' file. The method is responsible for formatting a date/time into a specific pattern using the UTC time zone, which aligns with the unexpected output for rounding by minutes or seconds described in the bug report."
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/time/DurationFormatUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String formatDuration",
+            "block_level": "if (Token.containsTokenWithValue(tokens, m) ) {\n            minutes = (int) (durationMillis / DateUtils.MILLIS_PER_MINUTE);\n            durationMillis = durationMillis - (minutes * DateUtils.MILLIS_PER_MINUTE);\n        }\n        if (Token.containsTokenWithValue(tokens, s) ) {\n            seconds = (int) (durationMillis / DateUtils.MILLIS_PER_SECOND);\n            durationMillis = durationMillis - (seconds * DateUtils.MILLIS_PER_SECOND);\n        }\n        if (Token.containsTokenWithValue(tokens, S) ) {\n            milliseconds = (int) durationMillis;\n        }",
+            "reason": "The bug described in the bug report is related to rounding by minutes or seconds. The method 'formatDuration' is responsible for formatting the time gap as a string, and it contains the logic for calculating minutes, seconds, and milliseconds. Therefore, the bug is likely to be in this method."
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/time/StopWatch.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": ""
         }
     ]
 }

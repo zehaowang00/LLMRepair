@@ -3,20 +3,37 @@
         {
             "file_name": "src/main/java/org/apache/commons/lang3/SerializationUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public static <T extends Serializable> T clone(T object) {",
-            "block_level": "Class cl = (Class) primClasses.get(name);\n\t    if (cl != null) {\n\t\treturn cl;\n\t    } else {\n\t\tthrow ex;\n\t    }"
+            "method_level": "public static <T extends Serializable> T clone(T object)",
+            "block_level": "try {\n            // stream closed in the finally\n            in = new ClassLoaderAwareObjectInputStream(bais, object.getClass().getClassLoader());\n            /*\n             * when we serialize and deserialize an object,\n             * it is reasonable to assume the deserialized object\n             * is of the same type as the original serialized object\n             */\n            @SuppressWarnings(\"unchecked\") // see above\n            T readObject = (T) in.readObject();\n            return readObject;\n\n        } catch (ClassNotFoundException ex) {\n            throw new SerializationException(\"ClassNotFoundException while reading cloned object data\", ex);\n        } catch (IOException ex) {\n            throw new SerializationException(\"IOException while reading cloned object data\", ex);\n        } finally {\n            try {\n                if (in != null) {\n                    in.close();\n                }\n            } catch (IOException ex) {\n                throw new SerializationException(\"IOException on closing cloned object data InputStream.\", ex);\n            }\n        }",
+            "reason": "The bug described in the bug report, where SerializationUtils throws ClassNotFoundException when cloning primitive classes, is present in the 'clone' method of the 'SerializationUtils' class. The code snippet provided in the 'block_level' section is where the bug occurs."
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/ClassUtils.java",
-            "if_has_bug": "Yes",
-            "method_level": "public Method getPublicMethod(Class<?> cls, String methodName, Class<?>... parameterTypes) throws SecurityException, NoSuchMethodException",
-            "block_level": "Method body starting from 'Method declaredMethod = cls.getMethod(methodName, parameterTypes);' to the end of the method."
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": ""
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/exception/ContextedRuntimeException.java",
             "if_has_bug": "No",
             "method_level": "",
-            "block_level": ""
+            "block_level": "",
+            "reason": "The checked code file 'ContextedRuntimeException.java' does not contain the bug described in the bug report. The bug report is related to SerializationUtils and cloning primitive classes, while the checked code file is about ContextedRuntimeException and adding contextual information to exceptions."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/event/EventListenerSupport.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": ""
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/exception/ContextedException.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": "The checked code file 'ContextedException.java' does not contain the bug described in the bug report. The bug report is related to SerializationUtils and primitive classes, while the checked code file is about ContextedException and adding contextual information to exceptions."
         }
     ]
 }

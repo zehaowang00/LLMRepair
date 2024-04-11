@@ -4,19 +4,36 @@
             "file_name": "src/java/org/apache/commons/lang3/math/NumberUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public static boolean isNumber(String str)",
-            "block_level": "if (chars[i] == '.') {\n    if (hasDecPoint || hasExp) {\n        // two decimal points or dec in exponent   \n        return false;\n    }\n    return foundDigit; // single trailing decimal point after non-exponent is ok\n}"
+            "block_level": "if (chars[i] == '.') {\n                if (hasDecPoint || hasExp) {\n                    // two decimal points or dec in exponent   \n                    return false;\n                }\n                hasDecPoint = true;\n            }",
+            "reason": "The isNumber() method in the NumberUtils.java file contains the bug described in the bug report. The specific block of code where the bug occurs is when checking for the presence of a decimal point. The condition for checking if a decimal point has already been found or if there is an exponent is incorrect, leading to incorrect behavior."
         },
         {
             "file_name": "src/java/org/apache/commons/lang3/BooleanUtils.java",
             "if_has_bug": "No",
             "method_level": "",
-            "block_level": ""
+            "block_level": "",
+            "reason": ""
         },
         {
             "file_name": "src/java/org/apache/commons/lang3/builder/HashCodeBuilder.java",
             "if_has_bug": "No",
             "method_level": "",
-            "block_level": ""
+            "block_level": "",
+            "reason": ""
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang3/text/translate/CodePointTranslator.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": "The checked code file does not contain the bug described in the bug report. The bug report is related to NumberUtils.isNumber() method which is not present in the checked CodePointTranslator.java file."
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang3/math/IEEE754rUtils.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": ""
         }
     ]
 }

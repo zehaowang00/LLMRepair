@@ -1,6 +1,10 @@
 {
-    "file_name": "src/java/org/apache/commons/lang/enums/ValuedEnum.java",
-    "if_has_bug": "Yes",
-    "method_level": "public int compareTo(Object other) {",
-    "block_level": "return iValue - ((ValuedEnum) other).iValue;"
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/enums/ValuedEnum.java",
+            "if_has_bug": "Yes",
+            "method_level": "public int compareTo(Object other) {",
+            "block_level": "return iValue - ((ValuedEnum) other).iValue;"
+        }
+    ]
 }

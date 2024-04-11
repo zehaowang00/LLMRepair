@@ -3,20 +3,37 @@
         {
             "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
             "if_has_bug": "Yes",
-            "method_level": "public Date parse(String source) throws ParseException {",
-            "block_level": "return parser.parse(source);"
+            "method_level": "protected StringBuffer applyRules(Calendar calendar, StringBuffer buf)",
+            "block_level": "return printer.applyRules(calendar, buf);",
+            "reason": "The bug described in the bug report is related to handling white-space properly in FastDateParser. The method 'applyRules' in FastDateFormat.java is responsible for formatting by applying rules to the calendar. This method interacts with the printer to format the calendar, which is where the bug related to white-space handling could potentially exist."
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateParser.java",
             "if_has_bug": "Yes",
             "method_level": "protected FastDateParser(String pattern, TimeZone timeZone, Locale locale) {",
-            "block_level": "StringBuilder regex= new StringBuilder();\n        List<Strategy> collector = new ArrayList<Strategy>();\n\n        Matcher patternMatcher= formatPattern.matcher(pattern);\n        if(!patternMatcher.lookingAt()) {\n            throw new IllegalArgumentException(\"Invalid pattern\");\n        }\n\n        currentFormatField= patternMatcher.group();\n        Strategy currentStrategy= getStrategy(currentFormatField);\n        for(;;) {\n            patternMatcher.region(patternMatcher.end(), patternMatcher.regionEnd());\n            if(!patternMatcher.lookingAt()) {\n                nextStrategy = null;\n                break;\n            }\n            String nextFormatField= patternMatcher.group();\n            nextStrategy = getStrategy(nextFormatField);\n            if(currentStrategy.addRegex(this, regex)) {\n                collector.add(currentStrategy);\n            }\n            currentFormatField= nextFormatField;\n            currentStrategy= nextStrategy;\n        }\n        if(currentStrategy.addRegex(this, regex)) {\n            collector.add(currentStrategy);\n        }\n        currentFormatField= null;\n        strategies= collector.toArray(new Strategy[collector.size()]);\n        parsePattern= Pattern.compile(regex.toString();"
+            "block_level": "thisYear= Calendar.getInstance(timeZone, locale).get(Calendar.YEAR);",
+            "reason": "The bug described in the bug report is related to the handling of white-space characters in the SimpleDateFormat. The method 'protected FastDateParser(String pattern, TimeZone timeZone, Locale locale)' initializes the 'thisYear' field by getting the current year from the Calendar instance. This method is crucial for the functionality of the FastDateParser, and any issue related to white-space handling could potentially be in this method."
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public static String format(Date date, String pattern)",
-            "block_level": "FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);\nreturn df.format(date);"
+            "block_level": "FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);\nreturn df.format(date);",
+            "reason": "The bug described in the bug report is related to the handling of white-space characters in date parsing. The method 'public static String format(Date date, String pattern)' in the 'DateFormatUtils.java' file uses FastDateFormat to format dates, which is where the bug is triggered due to the way white-space characters are handled."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/text/CompositeFormat.java",
+            "if_has_bug": "Yes",
+            "method_level": "public Object parseObject(String source, ParsePosition pos) {",
+            "block_level": "return parser.parseObject(source, pos);",
+            "reason": "The bug described in the bug report is related to how white-space is handled by FastDateParser. The method 'parseObject' in the 'CompositeFormat' class is responsible for parsing the input source, and it uses the 'parser' instance to parse the source. This method is where the bug is located because it directly interacts with the parser, which is the source of the issue."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/time/DateParser.java",
+            "if_has_bug": "Yes",
+            "method_level": "Date parse(String source) throws ParseException;",
+            "block_level": "FDP will parse dates that fail when parsed by SDP.",
+            "reason": "The bug report describes an issue with how FastDateParser handles white-space, which is present in the DateParser interface in the parse method."
         }
     ]
 }

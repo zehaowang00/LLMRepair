@@ -1,6 +1,10 @@
 {
-    "file_name": "src/java/org/apache/commons/lang/Entities.java",
-    "if_has_bug": "Yes",
-    "method_level": "public void testNumberOverflow() throws Exception",
-    "block_level": "doTestUnescapeEntity(\"&amp;#12345678;\", \"&amp;#12345678;\");\n        doTestUnescapeEntity(\"x&amp;#12345678;y\", \"x&amp;#12345678;y\");\n        doTestUnescapeEntity(\"&amp;#x12345678;\", \"&amp;#x12345678;\");\n        doTestUnescapeEntity(\"x&amp;#x12345678;y\", \"x&amp;#x12345678;y\");"
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/Entities.java",
+            "if_has_bug": "Yes",
+            "method_level": "public void testNumberOverflow() throws Exception",
+            "block_level": "doTestUnescapeEntity(\"&amp;#12345678;\", \"&amp;#12345678;\");\n        doTestUnescapeEntity(\"x&amp;#12345678;y\", \"x&amp;#12345678;y\");\n        doTestUnescapeEntity(\"&amp;#x12345678;\", \"&amp;#x12345678;\");\n        doTestUnescapeEntity(\"x&amp;#x12345678;y\", \"x&amp;#x12345678;y\");"
+        }
+    ]
 }

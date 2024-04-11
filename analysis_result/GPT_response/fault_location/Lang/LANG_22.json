@@ -3,20 +3,37 @@
         {
             "file_name": "src/main/java/org/apache/commons/lang3/math/Fraction.java",
             "if_has_bug": "Yes",
-            "method_level": "private Fraction getReducedFraction(int numerator, int denominator) {",
-            "block_level": "if (denominator == 0) {\n            throw new ArithmeticException(\"The denominator must not be zero\");\n        }\n        if (numerator==0) {\n            return ZERO; // normalize zero.\n        }\n        // allow 2^k/-2^31 as a valid fraction (where k>0)\n        if (denominator==Integer.MIN_VALUE && (numerator&1)==0) {\n            numerator/=2; denominator/=2;\n        }\n        if (denominator < 0) {\n            if (numerator==Integer.MIN_VALUE ||\n                    denominator==Integer.MIN_VALUE) {\n                throw new ArithmeticException(\"overflow: can't negate\");\n            }\n            numerator = -numerator;\n            denominator = -denominator;\n        }\n        // simplify fraction.\n        int gcd = greatestCommonDivisor(numerator, denominator);\n        numerator /= gcd;\n        denominator /= gcd;\n        return new Fraction(numerator, denominator);"
+            "method_level": "public static Fraction getReducedFraction(int numerator, int denominator) {",
+            "block_level": "if (denominator==Integer.MIN_VALUE && (numerator&1)==0) {\n            numerator/=2; denominator/=2;\n        }",
+            "reason": "The bug described in the bug report is located in the 'getReducedFraction' method. The specific block of code that causes the bug is when the denominator is equal to Integer.MIN_VALUE and the numerator is even. In this case, the code incorrectly divides the numerator and denominator by 2, causing the bug."
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/math/NumberUtils.java",
-            "if_has_bug": "No",
-            "method_level": "",
-            "block_level": ""
+            "if_has_bug": "Yes",
+            "method_level": "public Number createNumber(String str) throws NumberFormatException {",
+            "block_level": "if (str.startsWith(\"0x\") || str.startsWith(\"-0x\")) {\n            return createInteger(str);\n        }",
+            "reason": "The bug described in the bug report is related to the method 'createNumber' which is present in the 'NumberUtils.java' file. The specific block of code where the bug occurs is when the input string starts with '0x' or '-0x'. This block of code is responsible for handling hexadecimal numbers, and it is where the bug described in the bug report is triggered."
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/mutable/MutableInt.java",
             "if_has_bug": "No",
             "method_level": "",
-            "block_level": ""
+            "block_level": "",
+            "reason": "The bug described in the bug report is related to the Fraction class, specifically the greatestCommonDivisor method, which is not present in the MutableInt class. Therefore, the bug described in the bug report does not exist in the checked code file."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/math/IEEE754rUtils.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": "The bug described in the bug report is related to the Fraction class and the greatestCommonDivisor method, which is not present in the checked code file IEEE754rUtils.java. Therefore, the bug is not present in the checked code file."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/mutable/Mutable.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": "The bug report is related to the Fraction class in the org.apache.commons.lang3.math package, but the checked code is in the Mutable interface in the org.apache.commons.lang3.mutable package. There is no direct connection between the bug report and the checked code file."
         }
     ]
 }

@@ -4,13 +4,29 @@
             "file_name": "src/java/org/apache/commons/lang3/exception/ExceptionUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public static Throwable getCause(Throwable throwable)",
-            "block_level": "Method body starting from 'public static Throwable getCause(Throwable throwable)' until 'return cause;'"
+            "block_level": "synchronized(CAUSE_METHOD_NAMES_LOCK) {\n            return getCause(throwable, CAUSE_METHOD_NAMES);\n        }",
+            "reason": "The method 'getCause(Throwable throwable)' is the root method for finding the cause of a Throwable. It is synchronized and calls another method 'getCause(throwable, CAUSE_METHOD_NAMES)' to search for the cause of the Throwable using a list of method names. This method is crucial for identifying the root cause of the exception, as mentioned in the bug report."
         },
         {
             "file_name": "src/java/org/apache/commons/lang3/reflect/MethodUtils.java",
-            "if_has_bug": "Yes",
-            "method_level": "public static Method getMatchingAccessibleMethod(Class<?> cls, String methodName, Class<?>[] parameterTypes)",
-            "block_level": "MethodUtils.getAccessibleMethod(cls.getMethod(methodName, parameterTypes);\nMemberUtils.setAccessibleWorkaround(method);\nreturn method;"
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": ""
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang3/SystemUtils.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": ""
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang3/reflect/ConstructorUtils.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": ""
         }
     ]
 }

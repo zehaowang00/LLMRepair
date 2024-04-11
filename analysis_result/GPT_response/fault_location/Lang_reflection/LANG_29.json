@@ -1,6 +1,10 @@
 {
-    "file_name": "src/main/java/org/apache/commons/lang3/math/IEEE754rUtils.java",
-    "if_has_bug": "Yes",
-    "method_level": "public static double min(final double a, final double b)",
-    "block_level": "if(Double.isNaN(a)) {\n    return b;\n} else\nif(Double.isNaN(b)) {\n    return a;\n} else {\n    return Math.min(a, b);\n}"
+    "result": [
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/builder/ReflectionToStringBuilder.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String toString(Object object)",
+            "block_level": "return toString(object, null, false, false, null)"
+        }
+    ]
 }

@@ -1,6 +1,10 @@
 {
-    "file_name": "src/java/org/apache/commons/lang/StringEscapeUtils.java",
-    "if_has_bug": "Yes",
-    "method_level": "public static String escapeHtml(String str) {",
-    "block_level": "if (str == null) {\n    return null;\n}\ntry {\n    StringWriter writer = new StringWriter ((int)(str.length() * 1.5));\n    escapeHtml(writer, str);\n    return writer.toString();\n} catch (IOException ioe) {\n    //should be impossible\n    throw new UnhandledException(ioe);\n}"
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/StringEscapeUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String escapeHtml(String str) {",
+            "block_level": "out.write(CSV_QUOTE);\n        for (int i = 0; i < str.length(); i++) {\n            char c = str.charAt(i);\n            if (c == CSV_QUOTE) {\n                out.write(CSV_QUOTE); // escape double quote\n            }\n            out.write(c);\n        }\n        out.write(CSV_QUOTE);"
+        }
+    ]
 }

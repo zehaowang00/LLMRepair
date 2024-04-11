@@ -4,19 +4,36 @@
             "file_name": "src/java/org/apache/commons/lang/time/StopWatch.java",
             "if_has_bug": "Yes",
             "method_level": "public void suspend()",
-            "block_level": "if(this.runningState != STATE_RUNNING) {\n            throw new IllegalStateException(\"Stopwatch must be running to suspend. \");\n        }\n        stopTime = System.currentTimeMillis();\n        this.runningState = STATE_SUSPENDED;\n    }"
+            "block_level": "stopTime = System.currentTimeMillis();\nthis.runningState = STATE_SUSPENDED;",
+            "reason": "The bug described in the bug report is related to the behavior of suspend() method in the StopWatch class. The suspend() method should pause the time counter, but it seems to act as split() instead. The specific location of the bug is in the suspend() method where the stopTime is set to the current time and the runningState is changed to STATE_SUSPENDED."
         },
         {
             "file_name": "src/java/org/apache/commons/lang/time/FastDateFormat.java",
             "if_has_bug": "No",
             "method_level": "",
-            "block_level": ""
+            "block_level": "",
+            "reason": ""
         },
         {
             "file_name": "src/java/org/apache/commons/lang/time/DateFormatUtils.java",
             "if_has_bug": "No",
             "method_level": "",
-            "block_level": ""
+            "block_level": "",
+            "reason": ""
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/time/DateUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static boolean isSameInstant(Date date1, Date date2)",
+            "block_level": "return date1.getTime() == date2.getTime();",
+            "reason": "The method 'isSameInstant' compares the long millisecond time of two date objects, which is similar to the bug report description where it mentions the time counter not continuing after suspend()."
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/time/DurationFormatUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String formatPeriod(long startMillis, long endMillis, String format, boolean padWithZeros, TimeZone timezone)",
+            "block_level": "if (Token.containsTokenWithValue(tokens, M)) { ... }",
+            "reason": "The method 'formatPeriod' in the 'DurationFormatUtils.java' file contains the bug described in the bug report because it handles the calculation of months and days incorrectly, leading to incorrect results."
         }
     ]
 }

@@ -1,6 +1,10 @@
 {
-    "file_name": "src/java/org/apache/commons/lang3/math/NumberUtils.java",
-    "if_has_bug": "Yes",
-    "method_level": "public static boolean isNumber(String str)",
-    "block_level": "if (chars[i] == '.') {\n    if (hasDecPoint || hasExp) {\n        // two decimal points or dec in exponent   \n        return false;\n    }\n    return foundDigit; // single trailing decimal point after non-exponent is ok\n}"
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang3/math/NumberUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static boolean isNumber(String str)",
+            "block_level": "if (chars[i] == '.') {\n                if (hasDecPoint || hasExp) {\n                    // two decimal points or dec in exponent   \n                    return false;\n                }\n                hasDecPoint = true;\n            }"
+        }
+    ]
 }

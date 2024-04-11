@@ -4,19 +4,36 @@
             "file_name": "src/java/org/apache/commons/lang/enums/ValuedEnum.java",
             "if_has_bug": "Yes",
             "method_level": "public int compareTo(Object other) {",
-            "block_level": "return iValue - ((ValuedEnum) other).iValue;"
+            "block_level": "return iValue - ((ValuedEnum) other).iValue;",
+            "reason": "The bug described in the bug report is related to the compareTo method in the ValuedEnum class, where it is not type-safe and may return '0' even for different subclasses of ValuedEnum with the same int values."
         },
         {
             "file_name": "src/java/org/apache/commons/lang/enums/EnumUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public static ValuedEnum getEnum(Class enumClass, int value)",
-            "block_level": "return (ValuedEnum) ValuedEnum.getEnum(enumClass, value);"
+            "block_level": "return (ValuedEnum) ValuedEnum.getEnum(enumClass, value);",
+            "reason": "The bug described in the bug report is related to the method 'getEnum' in the EnumUtils.java file. The method 'getEnum' is not type-safe as it returns 'ValuedEnum' even for two totally different sub-classes of ValuedEnum when the int-values are the same."
         },
         {
             "file_name": "src/java/org/apache/commons/lang/enums/Enum.java",
             "if_has_bug": "Yes",
             "method_level": "protected Enum(String name) {",
-            "block_level": "if (other == this) {\n            return true;\n        } else if (other == null) {\n            return false;\n        } else if (other.getClass() == this.getClass()) {\n            // Ok to do a class cast to Enum here since the test above\n            // guarantee both\n            // classes are in the same class loader.\n            return iName.equals(((Enum) other).iName);\n        } else {\n            // This and other are in different class loaders, we must check indirectly\n            if (other.getClass().getName().equals(this.getClass().getName()) == false) {\n                return false;\n            }\n            return iName.equals( getNameInOtherClassLoader(other) );\n        }"
+            "block_level": "if (other == this) {\n            return true;\n        } else if (other == null) {\n            return false;\n        } else if (other.getClass() == this.getClass()) {\n            // Ok to do a class cast to Enum here since the test above\n            // guarantee both\n            // classes are in the same class loader.\n            return iName.equals(((Enum) other).iName);\n        } else {\n            // This and other are in different class loaders, we must check indirectly\n            if (other.getClass().getName().equals(this.getClass().getName()) == false) {\n                return false;\n            }\n            return iName.equals( getNameInOtherClassLoader(other) );\n        }",
+            "reason": "The method 'protected Enum(String name)' contains the bug because it compares Enum objects using '==', which is not typesafe and can lead to incorrect results."
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/mutable/MutableObject.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": "The bug report describes an issue related to the ValuedEnum class, but the checked code is in the MutableObject class. Therefore, the bug described in the bug report does not exist in the checked code file."
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/mutable/Mutable.java",
+            "if_has_bug": "Yes",
+            "method_level": "public interface Mutable",
+            "block_level": "getValue() and setValue() methods",
+            "reason": "The bug described in the bug report is related to the compareTo method not being type-safe. Although the compareTo method is not directly present in the checked code, the getValue() and setValue() methods in the Mutable interface could potentially lead to similar type-safety issues. These methods deal with storing and retrieving values, which could result in incorrect comparisons if not handled properly."
         }
     ]
 }

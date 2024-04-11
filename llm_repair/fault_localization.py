@@ -51,7 +51,7 @@ def has_reason_analysis():
 def main():
     prompt_localization = {
         "Role": "As a professional developers. You are responsible for locate if the provide code file has the bug described in the bug report carefully and accurately. If it is, you also should help to locate the speific location of bug.",
-        "Instruction": "check the bug report description/title and try to answer the question. Output in JSON format. Please use following for key for the four questison: file_name, if_has_bug, method_level, block_level",
+        "Instruction": "check the bug report description/title and try to answer the question. Output in JSON format. Please use following for key for the four questison: file_name, if_has_bug, method_level, block_level, reason",
         "Bug report description": "",
         "Bug report title": "",
         "Checked code": "",
@@ -61,6 +61,7 @@ def main():
                 Question2: If checked code has the bug that is described in the bug report? (Only Answer Yes or No.Only Answer Yes or No. The code file may have the bug described in the bug report or not, so you need to check carefully. If you answer yes, you must be very sure the bug in bug report happen in this code file no other source code file.)
                 Question3: In the checked code file, Which method in the code contains the bug in the bug report? (If the answer to question 2 is yes. You must be sure that the bug in bug report happens in this method you find. Please output the entire and complete method header. Engineer will try to solve the bug by addresing this method. ) 
                 Question4: In the method you find in answer3, which code statements cause the bug in the bug report?  (If the answer to question 2 is yes. The answer should be the block-level source code snippets that is inside the method you find in Question3 rather than natural language. Please provide the detailed block-level code snippets that include the bug triggering code for the bug in the bug report.)
+                Question5: What is the reason for you answer for the question3? please provide a detailed reason for the question 3. 
       """
     }
     # load api key - use your own openai key
@@ -94,7 +95,7 @@ def main():
             # if prob < 0.5:
 
             # by rank (eg: we only take the highest rank method)
-            if rank > 3:
+            if rank > 5:
                 break
             else:
                 fileName = predictionBugReport.fileName

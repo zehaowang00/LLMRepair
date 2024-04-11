@@ -4,13 +4,22 @@
             "file_name": "src/main/java/org/apache/commons/lang3/RandomStringUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public static String random(int count, int start, int end, boolean letters, boolean numbers, char... chars)",
-            "block_level": "ch = chars[random.nextInt(gap) + start];"
+            "block_level": "ch = chars[random.nextInt(gap) + start];",
+            "reason": "The bug described in the bug report is located in the 'random' method of the RandomStringUtils class. The specific block of code where the bug occurs is where the character 'ch' is assigned a value using 'chars[random.nextInt(gap) + start];'. This code snippet is identified as the source of the ArrayIndexOutOfBoundsException described in the bug report."
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/CharRange.java",
             "if_has_bug": "Yes",
             "method_level": "private CharRange(char start, char end, boolean negated) {",
-            "block_level": "if (start > end) {\n    char temp = start;\n    start = end;\n    end = temp;\n}\n\nthis.start = start;\nthis.end = end;\nthis.negated = negated;"
+            "block_level": "this.start = start;\nthis.end = end;\nthis.negated = negated;",
+            "reason": "The bug described in the bug report is related to the random index generation in the CharRange class. The method 'private CharRange(char start, char end, boolean negated)' is where the random index generation occurs, which matches the description in the bug report."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/CharSequenceUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "static int indexOf(CharSequence cs, int searchChar, int start)",
+            "block_level": "return -1;",
+            "reason": "The bug described in the bug report matches the code snippet in the indexOf method of the CharSequenceUtils.java file. The bug report mentions an exception occurring when the array is not null but empty, which aligns with the return -1 statement in the indexOf method."
         }
     ]
 }

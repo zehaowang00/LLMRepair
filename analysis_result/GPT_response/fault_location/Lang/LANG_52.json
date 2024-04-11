@@ -4,19 +4,29 @@
             "file_name": "src/java/org/apache/commons/lang/StringEscapeUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public static String escapeJavaScript(String str) {",
-            "block_level": "if (ch == '\\'' && escapeSingleQuote) {\n  out.write('\\\\');\n  out.write('\\'');\n} else if (ch == '\\'' && !escapeSingleQuote) {\n  out.write('\\'');\n} else {\n  out.write(ch);\n}"
+            "block_level": "out.write('\\\\');\nout.write('\\'');",
+            "reason": "The bug described in the bug report is related to the escapeJavaScript method in the StringEscapeUtils class. The incorrect escaping of the '/' character is happening in this method, specifically in the block-level code snippet provided."
         },
         {
             "file_name": "src/java/org/apache/commons/lang/SystemUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "private static float getJavaVersionAsFloat() {",
-            "block_level": "if (JAVA_VERSION_TRIMMED == null) {\n            return 0f;\n        }\n        String str = JAVA_VERSION_TRIMMED.substring(0, 3);\n        if (JAVA_VERSION_TRIMMED.length() >= 5) {\n            str = str + JAVA_VERSION_TRIMMED.substring(4, 5);\n        }\n        try {\n            return Float.parseFloat(str);\n        } catch (Exception ex) {\n            return 0;\n        }"
+            "method_level": "private static boolean getOSMatches(String osNamePrefix)",
+            "block_level": "if (OS_NAME == null) {\n            return false;\n        }\n        return OS_NAME.startsWith(osNamePrefix);",
+            "reason": "The method 'getOSMatches' in the checked code file contains the bug described in the bug report because it checks if the operating system name starts with a given prefix, which is similar to the bug report description of checking if a specific character sequence is present in the operating system name."
         },
         {
             "file_name": "src/java/org/apache/commons/lang/CharUtils.java",
             "if_has_bug": "No",
             "method_level": "",
-            "block_level": ""
+            "block_level": "",
+            "reason": ""
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/text/StrSubstitutor.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": ""
         }
     ]
 }

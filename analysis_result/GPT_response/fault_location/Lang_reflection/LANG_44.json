@@ -1,6 +1,10 @@
 {
-    "file_name": "src/java/org/apache/commons/lang/exception/NestableDelegate.java",
-    "if_has_bug": "Yes",
-    "method_level": "public void printStackTrace(PrintWriter out) {",
-    "block_level": "if (throwable instanceof Nestable) {\n                ((Nestable)throwable).printPartialStackTrace(out);\n            } else {\n                throwable.printStackTrace(out);\n            }\n            return;"
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/exception/NestableDelegate.java",
+            "if_has_bug": "Yes",
+            "method_level": "public String getMessage(int index) {",
+            "block_level": "if (Nestable.class.isInstance(t)) {\n            return ((Nestable) t).getMessage(0);\n        }\n        return t.getMessage();"
+        }
+    ]
 }

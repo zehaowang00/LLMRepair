@@ -4,19 +4,29 @@
             "file_name": "src/java/org/apache/commons/lang/LocaleUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public static Locale toLocale(String str)",
-            "block_level": "if (ch0 < 'a' || ch0 > 'z' || ch1 < 'a' || ch1 > 'z') {\n            throw new IllegalArgumentException(\"Invalid locale format: \" + str);\n        }"
+            "block_level": "if (ch0 < 'a' || ch0 > 'z' || ch1 < 'a' || ch1 > 'z') {\n            throw new IllegalArgumentException(\"Invalid locale format: \" + str);\n        }",
+            "reason": "The bug described in the bug report is related to case-insensitive string handling in the method toLocale(). The specific block of code mentioned above checks if the characters in the input string are lowercase alphabets, which is relevant to the bug report about locale-sensitive behavior."
         },
         {
             "file_name": "src/java/org/apache/commons/lang/builder/ToStringBuilder.java",
-            "if_has_bug": "Yes",
-            "method_level": "public ToStringBuilder(T object)",
-            "block_level": "style.append(buffer, null, obj, null);"
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": ""
         },
         {
             "file_name": "src/java/org/apache/commons/lang/BooleanUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public static boolean toBoolean(String str)",
-            "block_level": "        if (str == \"true\") {\n            return true;\n        }\n        if (str == null) {\n            return false;\n        }\n        switch (str.length()) {\n            case 2: {\n                char ch0 = str.charAt(0);\n                char ch1 = str.charAt(1);\n                return \n                    (ch0 == 'o' || ch0 == 'O') &&\n                    (ch1 == 'n' || ch1 == 'N');\n            }\n            case 3: {\n                char ch = str.charAt(0);\n                if (ch == 'y') {\n                    return \n                        (str.charAt(1) == 'e' || str.charAt(1) == 'E') &&\n                        (str.charAt(2) == 's' || str.charAt(2) == 'S');\n                }\n                if (ch == 'Y') {\n                    return \n                        (str.charAt(1) == 'E' || str.charAt(1) == 'e') &&\n                        (str.charAt(2) == 'S' || str.charAt(2) == 's');\n                }\n                return false;\n            }\n            case 4: {\n                char ch = str.charAt(0);\n                if (ch == 't') {\n                    return \n                        (str.charAt(1) == 'r' || str.charAt(1) == 'R') &&\n                        (str.charAt(2) == 'u' || str.charAt(2) == 'U') &&\n                        (str.charAt(3) == 'e' || str.charAt(3) == 'E');\n                }\n                if (ch == 'T') {\n                    return \n                        (str.charAt(1) == 'R' || str.charAt(1) == 'r') &&\n                        (str.charAt(2) == 'U' || str.charAt(2) == 'u') &&\n                        (str.charAt(3) == 'E' || str.charAt(3) == 'e');\n                }\n            }\n        }\n        return false;"
+            "block_level": "        if (str == \"true\") {\n            return true;\n        }\n        if (str == null) {\n            return false;\n        }\n        switch (str.length()) {\n            case 2: {\n                char ch0 = str.charAt(0);\n                char ch1 = str.charAt(1);\n                return \n                    (ch0 == 'o' || ch0 == 'O') &&\n                    (ch1 == 'n' || ch1 == 'N');\n            }\n            case 3: {\n                char ch = str.charAt(0);\n                if (ch == 'y') {\n                    return \n                        (str.charAt(1) == 'e' || str.charAt(1) == 'E') &&\n                        (str.charAt(2) == 's' || str.charAt(2) == 'S');\n                }\n                if (ch == 'Y') {\n                    return \n                        (str.charAt(1) == 'E' || str.charAt(1) == 'e') &&\n                        (str.charAt(2) == 'S' || str.charAt(2) == 's');\n                }\n                return false;\n            }\n            case 4: {\n                char ch = str.charAt(0);\n                if (ch == 't') {\n                    return \n                        (str.charAt(1) == 'r' || str.charAt(1) == 'R') &&\n                        (str.charAt(2) == 'u' || str.charAt(2) == 'U') &&\n                        (str.charAt(3) == 'e' || str.charAt(3) == 'E');\n                }\n                if (ch == 'T') {\n                    return \n                        (str.charAt(1) == 'R' || str.charAt(1) == 'r') &&\n                        (str.charAt(2) == 'U' || str.charAt(2) == 'u') &&\n                        (str.charAt(3) == 'E' || str.charAt(3) == 'e');\n                }\n            }\n        }\n        return false;",
+            "reason": "The method 'public static boolean toBoolean(String str)' contains the logic for converting a string to a boolean value. The code snippet provided at block level is the specific part of the method where the bug described in the bug report is present. The bug report mentions an issue with case-insensitive comparison in the 'String.to*Case()' method, and this method contains the logic for such comparisons."
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/builder/StandardToStringStyle.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": ""
         }
     ]
 }

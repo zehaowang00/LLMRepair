@@ -4,19 +4,36 @@
             "file_name": "src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public static String format(Date date, String pattern)",
-            "block_level": "FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);\nreturn df.format(date);"
+            "block_level": "return df.format(date);",
+            "reason": "The bug described in the bug report is related to the formatting of the year pattern 'Y' or 'YYY' in SimpleDateFormat. The method 'public static String format(Date date, String pattern)' is responsible for formatting the date, which aligns with the bug description. The specific line 'return df.format(date);' is where the formatting occurs and may be the location of the bug fix needed."
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
             "if_has_bug": "Yes",
-            "method_level": "protected FastDateFormat(String pattern, TimeZone timeZone, Locale locale) {",
-            "block_level": "rule = selectNumberRule(Calendar.YEAR, tokenLen);"
+            "method_level": "public void appendTo(StringBuffer buffer, Calendar calendar) {",
+            "block_level": "buffer.append(mValues[calendar.get(mField)]);",
+            "reason": "The bug described in the bug report is related to the formatting of the year pattern 'Y' or 'YYY' as '2003' instead of '03'. This bug is related to the formatting of the year pattern, which is handled in the 'appendTo' method within the 'TextField' inner class. The 'TextField' inner class is used to output one of a set of values based on the field values. Therefore, the issue described in the bug report is most likely to be found in the 'TextField' inner class."
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/time/FormatCache.java",
             "if_has_bug": "Yes",
             "method_level": "public F getDateTimeInstance(Integer dateStyle, Integer timeStyle, TimeZone timeZone, Locale locale) {",
-            "block_level": "if (dateStyle == null) {\n    formatter = DateFormat.getTimeInstance(timeStyle, locale);                    \n}\nelse if (timeStyle == null) {\n    formatter = DateFormat.getDateInstance(dateStyle, locale);                    \n}\nelse {\n    formatter = DateFormat.getDateTimeInstance(dateStyle, timeStyle, locale);\n}\npattern = ((SimpleDateFormat)formatter).toPattern();\nString previous = cDateTimeInstanceCache.putIfAbsent(key, pattern);\nif (previous != null) {\n    pattern= previous;\n}"
+            "block_level": "formatter = DateFormat.getDateTimeInstance(dateStyle, timeStyle, locale);\n                pattern = ((SimpleDateFormat)formatter).toPattern();",
+            "reason": "The bug described in the bug report is related to the formatting of year patterns in SimpleDateFormat in Java 7. The method 'getDateTimeInstance' in the 'FormatCache.java' file is responsible for creating date/time formatters based on the style, time zone, and locale. The specific block of code inside this method where the bug occurs is when it calls 'DateFormat.getDateTimeInstance' and then casts the formatter to 'SimpleDateFormat' to get the pattern. This is where the bug fix for year pattern formatting should be addressed."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/time/DurationFormatUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String formatDuration",
+            "block_level": "if (Token.containsTokenWithValue(tokens, d) ) {\n            days = (int) (durationMillis / DateUtils.MILLIS_PER_DAY);\n            durationMillis = durationMillis - (days * DateUtils.MILLIS_PER_DAY);\n        }\n        if (Token.containsTokenWithValue(tokens, H) ) {\n            hours = (int) (durationMillis / DateUtils.MILLIS_PER_HOUR);\n            durationMillis = durationMillis - (hours * DateUtils.MILLIS_PER_HOUR);\n        }\n        if (Token.containsTokenWithValue(tokens, m) ) {\n            minutes = (int) (durationMillis / DateUtils.MILLIS_PER_MINUTE);\n            durationMillis = durationMillis - (minutes * DateUtils.MILLIS_PER_MINUTE);\n        }\n        if (Token.containsTokenWithValue(tokens, s) ) {\n            seconds = (int) (durationMillis / DateUtils.MILLIS_PER_SECOND);\n            durationMillis = durationMillis - (seconds * DateUtils.MILLIS_PER_SECOND);\n        }\n        if (Token.containsTokenWithValue(tokens, S) ) {\n            milliseconds = (int) durationMillis;\n        }",
+            "reason": "The 'formatDuration' method in the 'DurationFormatUtils' class contains the bug described in the bug report because it handles the formatting of days, hours, minutes, seconds, and milliseconds based on specific tokens, which aligns with the bug report's description of SimpleDateFormat formatting behavior in Java 7."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/text/FormatFactory.java",
+            "if_has_bug": "Yes",
+            "method_level": "Format getFormat(String name, String arguments, Locale locale)",
+            "block_level": "The code statements inside the getFormat method that handle formatting the year pattern 'Y' or 'YYY'.",
+            "reason": "The getFormat method is responsible for creating or retrieving a format instance, and it is likely where the bug related to formatting the year pattern 'Y' or 'YYY' as '2003' instead of '03' is located."
         }
     ]
 }

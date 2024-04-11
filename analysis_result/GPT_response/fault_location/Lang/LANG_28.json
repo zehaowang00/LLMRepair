@@ -4,19 +4,36 @@
             "file_name": "src/main/java/org/apache/commons/lang3/StringEscapeUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public static final String escapeXml(String input) {",
-            "block_level": "if (code > 0xffff) {\n    i++;\n}"
+            "block_level": "writer.write(code);",
+            "reason": "The bug described in the bug report is related to the method escapeXML(). The method escapeXml(String input) in the checked code file corresponds to escapeXML(). The block-level code snippet 'writer.write(code);' is where the bug occurs as it does not handle UTF-16 supplementary characters correctly."
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/text/translate/NumericEntityEscaper.java",
             "if_has_bug": "No",
             "method_level": "",
-            "block_level": ""
+            "block_level": "",
+            "reason": "The checked code file does not contain the bug described in the bug report. The bug report is related to StringEscapeUtils.escapeXML() method, but the checked code file contains NumericEntityEscaper class which is not related to the reported bug."
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/text/translate/UnicodeEscaper.java",
             "if_has_bug": "No",
             "method_level": "",
-            "block_level": ""
+            "block_level": "",
+            "reason": "The checked code file 'UnicodeEscaper.java' does not contain the bug described in the bug report. The bug report is related to the StringEscapeUtils.escapeXML() method, but the checked code is in the UnicodeEscaper class."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java",
+            "if_has_bug": "Yes",
+            "method_level": "public final void translate(CharSequence input, Writer out) throws IOException {",
+            "block_level": "if (code &gt; 0xffff) {\n    i++;\n}",
+            "reason": "The bug described in the bug report is related to handling UTF-16 supplementary characters in the StringEscapeUtils.escapeXML() method. The method 'public final void translate(CharSequence input, Writer out)' in the checked code file is responsible for translating characters, and it contains the code snippet that handles characters above 0xffff, which is the same issue described in the bug report."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaper.java",
+            "if_has_bug": "Yes",
+            "method_level": "public int translate(CharSequence input, int index, Writer out) throws IOException",
+            "block_level": "if(input.charAt(index) == '&' && input.charAt(index + 1) == '#') {\n            int start = index + 2;\n            boolean isHex = false;\n\n            char firstChar = input.charAt(start);\n            if(firstChar == 'x' || firstChar == 'X') {\n                start++;\n                isHex = true;\n            }\n\n            int end = start;\n            while(input.charAt(end) != ';') {\n                end++;\n            }\n\n            int entityValue;\n            try {\n                if(isHex) {\n                    entityValue = Integer.parseInt(input.subSequence(start, end).toString(), 16);\n                } else {\n                    entityValue = Integer.parseInt(input.subSequence(start, end).toString(), 10);\n                }\n            } catch(NumberFormatException nfe) {\n                return 0;\n            }\n\n                out.write(entityValue);\n            return 2 + (end - start) + (isHex ? 1 : 0) + 1;\n        }",
+            "reason": "The method 'public int translate(CharSequence input, int index, Writer out) throws IOException' in the 'NumericEntityUnescaper.java' file contains the bug described in the bug report. The block-level code snippet provided matches the logic issue mentioned in the bug report about not handling UTF-16 supplementary characters correctly."
         }
     ]
 }

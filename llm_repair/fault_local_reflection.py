@@ -10,8 +10,9 @@ from unity_tool import load_api_key, preprocessing_title, get_report_map_dic, lo
 def fault_local_reflection(client, prompt, save_file_path):
     response = get_completion(client, json.dumps(prompt))
     #print(response)
+    saved_dict = {'result': [json.loads(response)]}
     with open(save_file_path, 'w') as file:
-        json.dump(json.loads(response), file, indent=4)
+        json.dump(saved_dict, file, indent=4)
     #return response
 
 

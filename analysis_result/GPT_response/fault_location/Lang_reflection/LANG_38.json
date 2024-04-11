@@ -1,6 +1,10 @@
 {
-    "file_name": "src/java/org/apache/commons/lang3/time/DateFormatUtils.java",
-    "if_has_bug": "Yes",
-    "method_level": "public static String format(Calendar calendar, String pattern)",
-    "block_level": "FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);\nreturn df.format(calendar);"
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang3/time/DateFormatUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String format(Calendar calendar, String pattern)",
+            "block_level": "return df.format(calendar);"
+        }
+    ]
 }

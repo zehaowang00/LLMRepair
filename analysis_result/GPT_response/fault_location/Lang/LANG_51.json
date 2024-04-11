@@ -4,19 +4,29 @@
             "file_name": "src/java/org/apache/commons/lang/BooleanUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public static Boolean toBooleanObject(String str)",
-            "block_level": "if (\"true\".equalsIgnoreCase(str)) {\n            return Boolean.TRUE;\n        } else if (\"false\".equalsIgnoreCase(str)) {\n            return Boolean.FALSE;\n        } else if (\"on\".equalsIgnoreCase(str)) {\n            return Boolean.TRUE;\n        } else if (\"off\".equalsIgnoreCase(str)) {\n            return Boolean.FALSE;\n        } else if (\"yes\".equalsIgnoreCase(str)) {\n            return Boolean.TRUE;\n        } else if (\"no\".equalsIgnoreCase(str)) {\n            return Boolean.FALSE;\n        }\n        // no match\n        return null;"
+            "block_level": "if (\"true\".equalsIgnoreCase(str)) {\n            return Boolean.TRUE;\n        } else if (\"false\".equalsIgnoreCase(str)) {\n            return Boolean.FALSE;\n        } else if (\"on\".equalsIgnoreCase(str)) {\n            return Boolean.TRUE;\n        } else if (\"off\".equalsIgnoreCase(str)) {\n            return Boolean.FALSE;\n        } else if (\"yes\".equalsIgnoreCase(str)) {\n            return Boolean.TRUE;\n        } else if (\"no\".equalsIgnoreCase(str)) {\n            return Boolean.FALSE;\n        }\n        // no match\n        return null;",
+            "reason": "The method 'toBooleanObject' in the checked code file contains the bug described in the bug report. The block-level code snippets provided are the exact code statements that cause the bug described in the bug report."
         },
         {
             "file_name": "src/java/org/apache/commons/lang/mutable/MutableBoolean.java",
             "if_has_bug": "Yes",
-            "method_level": "public boolean booleanValue()",
-            "block_level": "return value;"
+            "method_level": "public boolean booleanValue() {",
+            "block_level": "case 3: return false;",
+            "reason": "The bug report describes a case where the method BooleanUtils.toBoolean() has a drop-through from case 3 to case 4, causing a StringIndexOutOfBoundsException. The method booleanValue() in the checked code file MutableBoolean.java contains the necessary case statement and return statement to fix this bug."
         },
         {
             "file_name": "src/java/org/apache/commons/lang/exception/ExceptionUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public static Throwable getCause(Throwable throwable)",
-            "block_level": "Method body starting from 'return getCauseUsingWellKnownTypes(throwable);' to the end of the method."
+            "block_level": "return getCauseUsingMethodName(throwable, methodName);",
+            "reason": "The bug described in the bug report is related to the method BooleanUtils.toBoolean(). Although this method is not directly mentioned in the checked code, the method getCause(Throwable throwable) in ExceptionUtils.java is the method that handles the cause of a Throwable object. This method is crucial for identifying the root cause of exceptions, which is similar to the bug described in the bug report. Therefore, it is likely that the bug in the bug report is related to this method in the checked code."
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/exception/NestableDelegate.java",
+            "if_has_bug": "Yes",
+            "method_level": "public void printStackTrace(PrintWriter out) {",
+            "block_level": "if (throwable instanceof Nestable) {\n                ((Nestable)throwable).printPartialStackTrace(out);\n            } else {\n                throwable.printStackTrace(out);\n            }\n            return;",
+            "reason": "The bug described in the bug report regarding the drop-thru in case statement causing StringIndexOutOfBoundsException is not directly related to the code in the checked file. The method where the bug is reported is not present in the checked code file. Therefore, the bug is not located in the checked code file."
         }
     ]
 }

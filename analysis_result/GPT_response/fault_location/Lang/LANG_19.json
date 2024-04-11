@@ -3,20 +3,37 @@
         {
             "file_name": "src/main/java/org/apache/commons/lang3/StringEscapeUtils.java",
             "if_has_bug": "Yes",
-            "method_level": "public static final String unescapeHtml4(String input)",
-            "block_level": "public static final String unescapeHtml4(String input) {\n        return UNESCAPE_HTML4.translate(input);\n    }"
+            "method_level": "public static final String escapeHtml4(String input) {",
+            "block_level": "return ESCAPE_HTML4.translate(input);",
+            "reason": "The bug described in the bug report is related to the unescapeHtml4() method, which is part of the StringEscapeUtils class. Therefore, the method containing the bug is escapeHtml4(String input)."
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/text/translate/AggregateTranslator.java",
             "if_has_bug": "Yes",
             "method_level": "public int translate(CharSequence input, int index, Writer out) throws IOException",
-            "block_level": "int consumed = translator.translate(input, index, out);\nif(consumed != 0) {\n    return consumed;\n}"
+            "block_level": "for (CharSequenceTranslator translator : translators) {\n            int consumed = translator.translate(input, index, out);\n            if(consumed != 0) {\n                return consumed;\n            }\n        }",
+            "reason": "The bug described in the bug report is related to calling unescapeHtml4() method, which is part of the StringEscapeUtils class. In the checked code file, the translate method in AggregateTranslator.java is responsible for calling the translators, including the one that translates HTML entities. Therefore, this method is likely the one causing the issue described in the bug report."
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java",
             "if_has_bug": "Yes",
             "method_level": "public final void translate(CharSequence input, Writer out) throws IOException {",
-            "block_level": "for (int i = 0; i < sz; i++) {\n\n            // consumed is the number of codepoints consumed\n            int consumed = translate(input, i, out);\n\n            if (consumed == 0) {\n                out.write(Character.toChars(Character.codePointAt(input, i)));\n            } else {\n                // contract with translators is that they have to understand codepoints \n                // and they just took care of a surrogate pair\n                for (int j = 0; j < consumed; j++) {\n                    if (i < sz - 2) {\n                        i += Character.charCount(Character.codePointAt(input, i));\n                    } else {\n                        // If the String ends with a high surrogate, just add the 1 and don't worry about such things\n                        i++;\n                    }\n                }\n                // for loop will increment 1 anyway, so remove 1 to account for that\n                i--;\n            }\n        }"
+            "block_level": "for (int i = 0; i < sz; i++) {\n\n            // consumed is the number of codepoints consumed\n            int consumed = translate(input, i, out);\n\n            if (consumed == 0) {\n                out.write(Character.toChars(Character.codePointAt(input, i)));\n            } else {\n                // contract with translators is that they have to understand codepoints \n                // and they just took care of a surrogate pair\n                for (int j = 0; j < consumed; j++) {\n                    if (i < sz - 2) {\n                        i += Character.charCount(Character.codePointAt(input, i));\n                    } else {\n                        // If the String ends with a high surrogate, just add the 1 and don't worry about such things\n                        i++;\n                    }\n                }\n                // for loop will increment 1 anyway, so remove 1 to account for that\n                i--;\n            }\n        }",
+            "reason": "The bug described in the bug report is related to the unescapeHtml4 method, which is used in the translate method of CharSequenceTranslator.java. The translate method contains the code logic that processes the input text and handles codepoints. The bug causing the StringIndexOutOfBoundsException is likely to be in the for loop inside the translate method, where codepoints are consumed and processed. Therefore, the translate method is the likely location of the bug."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaper.java",
+            "if_has_bug": "Yes",
+            "method_level": "public int translate(CharSequence input, int index, Writer out) throws IOException",
+            "block_level": "while(input.charAt(end) != ';') \n{\n    end++;\n}\n\nint entityValue;\ntry {\n    if(isHex) {\n        entityValue = Integer.parseInt(input.subSequence(start, end).toString(), 16);\n    } else {\n        entityValue = Integer.parseInt(input.subSequence(start, end).toString(), 10);\n    }\n} catch(NumberFormatException nfe) {\nSystem.err.println(\"FAIL: \" + input.subSequence(start, end) + \"[\" + start +\"][\"+ end +\"]\");\n    return 0;\n}",
+            "reason": "The bug described in the bug report is related to the method 'translate' in the 'NumericEntityUnescaper' class. The method contains the code snippet where the bug occurs, specifically in the while loop that searches for the ';' character and the subsequent code that tries to parse the entity value. The bug leads to a StringIndexOutOfBoundsException as described in the bug report."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/Validate.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static void matchesPattern(CharSequence input, String pattern)",
+            "block_level": "if (Pattern.matches(pattern, input) == false) {\n            throw new IllegalArgumentException(String.format(DEFAULT_MATCHES_PATTERN_EX, input, pattern));\n        }",
+            "reason": "The matchesPattern method in the Validate.java file matches the bug description provided in the bug report. The code snippet inside the if statement is responsible for throwing an IllegalArgumentException when the pattern does not match the input."
         }
     ]
 }

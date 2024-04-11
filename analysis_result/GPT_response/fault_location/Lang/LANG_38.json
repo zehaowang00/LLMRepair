@@ -3,14 +3,30 @@
         {
             "file_name": "src/java/org/apache/commons/lang3/time/FastDateFormat.java",
             "if_has_bug": "Yes",
-            "method_level": "public void appendTo(StringBuffer buffer, Calendar calendar)",
-            "block_level": "if (mTimeZoneForced) {\n    if (mTimeZone.useDaylightTime() && calendar.get(Calendar.DST_OFFSET) != 0) {\n        buffer.append(mDaylight);\n    } else {\n        buffer.append(mStandard);\n    }\n} else {\n    TimeZone timeZone = calendar.getTimeZone();\n    if (timeZone.useDaylightTime() && calendar.get(Calendar.DST_OFFSET) != 0) {\n        buffer.append(getTimeZoneDisplay(timeZone, true, mStyle, mLocale));\n    } else {\n        buffer.append(getTimeZoneDisplay(timeZone, false, mStyle, mLocale));\n    }\n}"
+            "method_level": "public void testFormat_CalendarIsoMsZulu()",
+            "block_level": "cal.getTime();",
+            "reason": "The bug described in the bug report is related to the behavior of Calendar.setTimeZone method, which does not correctly change the Calendar's fields in certain situations. The method 'testFormat_CalendarIsoMsZulu' in the checked code file contains the bug because it constructs a Calendar object in a way that triggers the issue described in the bug report."
         },
         {
             "file_name": "src/java/org/apache/commons/lang3/time/DateFormatUtils.java",
             "if_has_bug": "Yes",
             "method_level": "public static String format(Calendar calendar, String pattern)",
-            "block_level": "FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);\nreturn df.format(calendar);"
+            "block_level": "return df.format(calendar);",
+            "reason": "The bug described in the bug report is related to the incorrect change of Calendar TimeZone in certain situations. The method 'public static String format(Calendar calendar, String pattern)' in the checked code file is responsible for formatting a calendar into a specific pattern. The bug seems to be happening in this method because it deals with Calendar objects and their formatting, which aligns with the issue described in the bug report."
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang3/time/DurationFormatUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String formatPeriod(long startMillis, long endMillis, String format)",
+            "block_level": "while (months < 0) {\n                months += 12;\n                years -= 1;\n            }\n\n            if (!Token.containsTokenWithValue(tokens, y) && years != 0) {\n                while (years != 0) {\n                    months += 12 * years;\n                    years = 0;\n                }\n            }",
+            "reason": "The bug described in the bug report is related to the incorrect handling of Calendar TimeZone when constructing a Calendar object. The method 'formatPeriod' in the 'DurationFormatUtils.java' file contains the logic for calculating the time gap between two dates, which involves manipulating months and years. The bug seems to be happening in the block of code where negative months are adjusted by adding 12 and decrementing years. This incorrect handling of months and years can lead to incorrect time calculations, similar to the bug described in the bug report."
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang3/text/FormatFactory.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": ""
         }
     ]
 }

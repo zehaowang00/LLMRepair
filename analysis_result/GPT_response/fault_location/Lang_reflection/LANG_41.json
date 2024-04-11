@@ -1,6 +1,10 @@
 {
-    "file_name": "src/java/org/apache/commons/lang/ClassUtils.java",
-    "if_has_bug": "Yes",
-    "method_level": "public static String getShortClassName(Object object, String valueIfNull)",
-    "block_level": "if (object == null) {\n    return valueIfNull;\n}\nreturn getShortClassName(object.getClass());"
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/ClassUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public Method getPublicMethod(Class<?> cls, String methodName, Class<?> parameterTypes[])",
+            "block_level": "Method body"
+        }
+    ]
 }

@@ -4,19 +4,36 @@
             "file_name": "src/java/org/apache/commons/lang/math/Fraction.java",
             "if_has_bug": "Yes",
             "method_level": "private Fraction addSub(Fraction fraction, boolean isAdd) {",
-            "block_level": "int d1 = greatestCommonDivisor(denominator, fraction.denominator);\n        if (d1==1) {\n            int uvp = mulAndCheck(numerator, fraction.denominator);\n            int upv = mulAndCheck(fraction.numerator, denominator);\n            return new Fraction\n                (isAdd ? addAndCheck(uvp, upv) : subAndCheck(uvp, upv),\n                 mulPosAndCheck(denominator, fraction.denominator));\n        }\n        int t = isAdd ? uvp.add(upv) : uvp.subtract(upv);\n        int tmodd1 = t.mod(BigInteger.valueOf(d1)).intValue();\n        int d2 = (tmodd1==0)?d1:greatestCommonDivisor(tmodd1, d1);\n        BigInteger w = t.divide(BigInteger.valueOf(d2));\n        return new Fraction\n            (w.intValue(),\n             mulPosAndCheck(denominator, fraction.denominator));"
+            "block_level": "int d1 = greatestCommonDivisor(denominator, fraction.denominator);\n        if (d1==1) {\n            int uvp = mulAndCheck(numerator, fraction.denominator);\n            int upv = mulAndCheck(fraction.numerator, denominator);\n            return new Fraction\n                (isAdd ? addAndCheck(uvp, upv) : subAndCheck(uvp, upv),\n                 mulPosAndCheck(denominator, fraction.denominator));\n        }",
+            "reason": "The 'addSub' method contains the logic for adding or subtracting fractions. The bug described in the bug report is related to an infinite loop in 'Fraction.reduce' when the numerator is equal to 0. This method is responsible for performing arithmetic operations on fractions, so it is likely the source of the bug."
         },
         {
             "file_name": "src/java/org/apache/commons/lang/builder/StandardToStringStyle.java",
             "if_has_bug": "No",
             "method_level": "",
-            "block_level": ""
+            "block_level": "",
+            "reason": ""
         },
         {
             "file_name": "src/java/org/apache/commons/lang/enum/ValuedEnum.java",
             "if_has_bug": "No",
             "method_level": "",
-            "block_level": ""
+            "block_level": "",
+            "reason": "The checked code file 'ValuedEnum.java' does not contain the bug described in the bug report 'infinite loop in Fraction.reduce when numerator == 0'."
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/enum/Enum.java",
+            "if_has_bug": "Yes",
+            "method_level": "protected Enum(String name) {",
+            "block_level": "if (StringUtils.isEmpty(name)) {\n            throw new IllegalArgumentException(\"The Enum name must not be empty or null\");\n        }",
+            "reason": "The bug described in the bug report is related to an infinite loop in Fraction.reduce when numerator == 0. The method 'protected Enum(String name)' in the checked code file contains a similar condition where it throws an IllegalArgumentException if the name is empty or null. This indicates that the method is responsible for handling input validation and potential issues related to the name parameter, which aligns with the bug report description."
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/enum/EnumUtils.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": "The checked code file EnumUtils.java does not contain the bug described in the bug report 'infinite loop in Fraction.reduce when numerator == 0'. The bug report is related to a Fraction class and its reduce method, which is not present in the EnumUtils.java file. Therefore, the bug is not present in the checked code file."
         }
     ]
 }

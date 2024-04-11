@@ -1,6 +1,10 @@
 {
-    "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
-    "if_has_bug": "Yes",
-    "method_level": "public void appendTo(StringBuffer buffer, Calendar calendar)",
-    "block_level": "case 'H': // hour in day (number, 0..23)\n                rule = selectNumberRule(Calendar.HOUR_OF_DAY, tokenLen);\n                break;"
+    "result": [
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
+            "if_has_bug": "Yes",
+            "method_level": "public void appendTo(StringBuffer buffer, Calendar calendar)",
+            "block_level": "if (mTimeZoneForced) {\n                if (mTimeZone.useDaylightTime() && calendar.get(Calendar.DST_OFFSET) != 0) {\n                    buffer.append(mDaylight);\n                } else {\n                    buffer.append(mStandard);\n                }\n            } else {\n                TimeZone timeZone = calendar.getTimeZone();\n                if (timeZone.useDaylightTime() && calendar.get(Calendar.DST_OFFSET) != 0) {\n                    buffer.append(getTimeZoneDisplay(timeZone, true, mStyle, mLocale));\n                } else {\n                    buffer.append(getTimeZoneDisplay(timeZone, false, mStyle, mLocale));\n                }\n            }"
+        }
+    ]
 }

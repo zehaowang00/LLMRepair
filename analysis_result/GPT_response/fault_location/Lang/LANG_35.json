@@ -2,15 +2,31 @@
     "result": [
         {
             "file_name": "src/main/java/org/apache/commons/lang3/exception/ExceptionContext.java",
-            "if_has_bug": "Yes",
-            "method_level": "public ExceptionContext addValue(String label, Object value)",
-            "block_level": "if (label == null) {\n    throw new IllegalArgumentException(\"The label cannot be null\");\n}\n\nif (value == null) {\n    throw new IllegalArgumentException(\"The value cannot be null\");\n}"
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": "The bug described in the bug report is related to the ArrayUtils class and the add() method, which is not present in the checked code file ExceptionContext.java. Therefore, the bug described in the bug report does not exist in the checked code file."
         },
         {
             "file_name": "src/main/java/org/apache/commons/lang3/ClassUtils.java",
             "if_has_bug": "No",
             "method_level": "",
-            "block_level": ""
+            "block_level": "",
+            "reason": ""
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/exception/ContextedRuntimeException.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": "The bug described in the bug report is related to the ArrayUtils.add method, which is not present in the checked code file ContextedRuntimeException.java. Therefore, the bug described in the bug report does not exist in this code file."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/exception/ContextedException.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": "",
+            "reason": "The checked code file 'ContextedException.java' does not contain the bug described in the bug report. The bug report is related to the ArrayUtils class, specifically the add() method, which is not present in the 'ContextedException.java' file."
         }
     ]
 }
