@@ -2,9 +2,7 @@ import pandas as pd
 import os
 import json
 from openai import OpenAI
-import re
-
-from fault_localization import get_completion, load_json, load_api_key, preprocessing_title, get_report_map_dic
+from unity_tool import get_completion, load_json, load_api_key, preprocessing_title, get_report_map_dic, load_source_code
 
 
 def patch_generation(client, prompt, few_shots, save_file_path):
@@ -19,13 +17,6 @@ def test_generation(client, prompt, few_shots, save_file_path):
     response = get_completion(client, json.dumps(prompt))
     with open(save_file_path, 'w') as file:
         json.dump(json.loads(response), file, indent=4)
-
-
-def load_source_code(file_path):
-    with open(file_path, 'r') as file:
-        source_code = file.read()
-        return source_code
-
 
 def prompt_init_patch(prompt, example, description, title, file_name, method_buggy_code, suspicious_code):
     prompt['Fix Patch format Example'] = "git diff format"

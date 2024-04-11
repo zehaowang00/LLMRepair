@@ -4,6 +4,7 @@ import os
 import json
 import re
 from openai import OpenAI
+from unity_tool import load_api_key, preprocessing_title, get_report_map_dic, load_json, load_bug_report, get_completion, load_source_code
 
 
 class PredictionBugReport:
@@ -13,16 +14,15 @@ class PredictionBugReport:
         self.prob = float(prob) if isinstance(prob, str) else prob
 
 
-def get_completion(client, prompt):
-    messages = [{"role": "user", "content": prompt}]
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo-0125",
-        # model = 'gpt-4',
-        messages=messages,
-        response_format={"type": "json_object"},
-        temperature=0.3,
-    )
-    return response.choices[0].message.content
+def get_predict_file_map_dic(predict_df):
+    predict_df['rank'] = predict_df['rank'].apply(lambda x: int(x))
+    predict_df['bugReport'] = predict_df['bugReport'].apply(lambda x: x.replace('-', '_'))
+    predict_df['fileName'] = predict_df['fileName'].apply(lambda x: str(x))
+    predict_df['prob'] = predict_df['prob'].apply(lambda x: str(x))
+    bug_reports_dict = {row['rank']: PredictionBugReport(row['bugReport'], row['fileName'], row['prob'])
+                        for _, row in predict_df.iterrows()}
+
+    return bug_reports_dict
 
 
 def fault_localization(client, prompt, few_shots, save_file_path):
@@ -30,32 +30,6 @@ def fault_localization(client, prompt, few_shots, save_file_path):
     # with open(save_file_path, 'w') as file:
     #     json.dump(json.loads(response), file, indent=4)
     return response
-
-
-def load_bug_report(file_path):
-    with open(file_path, 'r') as file:
-        data = json.load(file)
-        return data
-
-
-def preprocessing_title(report_title):
-    processed_str = re.sub(r"\[LANG-\d+\]", "", report_title)
-    return processed_str.strip()
-
-
-def load_source_code(file_path):
-    try:
-        with open(file_path, 'r') as file:
-            source_code = file.read()
-            return source_code
-    except Exception as e:
-        return f"Error: {e}" + f"on path: {file_path}"
-
-
-def load_api_key(key_path):
-    with open(key_path, 'r') as file:
-        data = json.load(file)
-        return data['Key']
 
 
 def prompt_init(prompt, description, title, source_code, file_name):
@@ -70,31 +44,8 @@ def prompt_reason_fault(prompt):
     return prompt
 
 
-def get_report_map_dic(report_df):
-    report_df['Lang ID'] = report_df['Bug ID'].apply(lambda x: 'LANG_' + str(x))
-    report_df['Report ID'] = report_df['Report ID'].apply(lambda x: x.replace('-', '_'))
-    return report_df.set_index('Lang ID')['Report ID'].to_dict()
-
-
-def get_predict_file_map_dic(predict_df):
-    predict_df['rank'] = predict_df['rank'].apply(lambda x: int(x))
-    predict_df['bugReport'] = predict_df['bugReport'].apply(lambda x: x.replace('-', '_'))
-    predict_df['fileName'] = predict_df['fileName'].apply(lambda x: str(x))
-    predict_df['prob'] = predict_df['prob'].apply(lambda x: str(x))
-    bug_reports_dict = {row['rank']: PredictionBugReport(row['bugReport'], row['fileName'], row['prob'])
-                        for _, row in predict_df.iterrows()}
-
-    return bug_reports_dict
-
-
 def has_reason_analysis():
     return False
-
-
-def load_json(file_path):
-    with open(file_path, 'r') as file:
-        data = json.load(file)
-        return data
 
 
 def main():

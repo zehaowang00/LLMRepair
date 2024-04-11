@@ -4,6 +4,7 @@ import os
 import json
 import re
 from openai import OpenAI
+from unity_tool import load_api_key, preprocessing_title, get_report_map_dic, load_json, load_bug_report, get_completion, load_source_code
 
 
 class PredictionBugReport:
@@ -30,33 +31,6 @@ def fault_localization(client, prompt, few_shots, save_file_path):
     #with open(save_file_path, 'w') as file:
     #    json.dump(json.loads(response), file, indent=4)
     return response
-
-
-def load_bug_report(file_path):
-    with open(file_path, 'r') as file:
-        data = json.load(file)
-        return data
-
-
-def preprocessing_title(report_title):
-    processed_str = re.sub(r"\[LANG-\d+\]", "", report_title)
-    return processed_str.strip()
-
-
-def load_source_code(file_path):
-    try:
-        with open(file_path, 'r') as file:
-            source_code = file.read()
-            return source_code
-    except Exception as e:
-        return f"Error: {e}" + f"on path: {file_path}"
-
-
-def load_api_key(key_path):
-    with open(key_path, 'r') as file:
-        data = json.load(file)
-        return data['Key']
-
 
 def prompt_init(prompt, description, title, source_code):
     prompt['Bug report description'] = description

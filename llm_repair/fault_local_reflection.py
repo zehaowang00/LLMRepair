@@ -4,8 +4,8 @@ import os
 import json
 import re
 from openai import OpenAI
+from unity_tool import load_api_key, preprocessing_title, get_report_map_dic, load_json, load_bug_report, get_completion
 
-from fault_localization import load_api_key, preprocessing_title, get_report_map_dic, load_json, load_bug_report, get_completion
 
 def fault_local_reflection(client, prompt, save_file_path):
     response = get_completion(client, json.dumps(prompt))
