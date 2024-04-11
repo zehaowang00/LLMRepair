@@ -3,15 +3,9 @@ import os
 import json
 
 
-def load_json(file_path):
-    with open(file_path, 'r') as file:
-        data = json.load(file)
-        return data
-
-
 def check_method_level(method_code, ground_method_truth, file_prediction):
     if "False" == file_prediction:
-        return "False"
+        return "In Wrong File"
     if len(ground_method_truth) == 0:
         return "no ground truth method"
     if len(method_code) == 0:
@@ -32,20 +26,24 @@ def check_method_level(method_code, ground_method_truth, file_prediction):
 
 
 def check_file_level(file_name, ground_method_truth, if_has_bug):
-    if len(ground_method_truth) > 0:
-        ground_file_name = ground_method_truth.split('.')[-2]
-        if if_has_bug == "Yes":
-            if ground_file_name in file_name:
-                return "True"
-            else:
-                return "False"
-        else:
-            if ground_file_name in file_name:
-                return "False"
-            else:
-                return "True"
+    if len(ground_method_truth) == 0:
+        return "no ground truth File"
+    if "," in ground_method_truth:
+        truth_list = ground_method_truth.strip().split(',')
     else:
-        return "no ground truth method"
+        truth_list = [ground_method_truth.strip()]
+    if if_has_bug == "Yes":
+        for truth in truth_list:
+            ground_file_name = truth.split('.')[-2]
+            if ground_file_name in file_name:
+                return "True"
+        return "False"
+    elif if_has_bug == "No":
+        for truth in truth_list:
+            ground_file_name = truth.split('.')[-2]
+            if ground_file_name in file_name:
+                return "False"
+        return "True"
 
 
 def is_code_part_of(main, part):
@@ -53,8 +51,8 @@ def is_code_part_of(main, part):
 
 
 def check_block_level(line_code, ground_line_truth, bug_ID, file_prediction):
-    if "FALSE" == file_prediction:
-        return "False"
+    if "False" == file_prediction:
+        return "In Wrong File"
     if bug_ID in line_unprocessed_bugId or len(ground_line_truth) == 0:
         return "no ground truth block"
     if len(line_code) == 0:
@@ -77,10 +75,10 @@ ground_truth_methods = '../dataset/localization_groudtruth/buggy-methods/'
 projects = ['Lang']
 dicts = []
 num_files = 0
-method_unprocessed_bugId = []
-line_unprocessed_bugId = []
+method_unprocessed_bugId = set()
+line_unprocessed_bugId = set()
 for project in projects:
-    localization_file_path = "../analysis_result/GPT_response/fault_location/Lang/"
+    localization_file_path = "../analysis_result/GPT_response/fault_location/Lang_reflection/"
     files = os.listdir(localization_file_path)
     num_files += len(files)
     for filename in files:
@@ -98,7 +96,7 @@ for project in projects:
                     method_ground_truth = method_ground_truth[method_ground_truth['value'] == 1]
                     fault_localization_info['Ground_Method_Truth'] = ",".join(method_ground_truth['method'])
                 except Exception as e:
-                    method_unprocessed_bugId.append(bug_id)
+                    method_unprocessed_bugId.add(bug_id)
                 # process block/line data
                 try:
                     ground_truth_line_path = os.path.join(ground_truth_lines, f"{bug_id}.buggy.lines".replace('_', "-"))
@@ -107,9 +105,8 @@ for project in projects:
                     line_ground_truth['code'] = line_ground_truth['code'].str.lstrip()
                     fault_localization_info['Ground_Line_Truth'] = ",".join(line_ground_truth['code'])
                 except Exception as e:
-                    line_unprocessed_bugId.append(bug_id)
+                    line_unprocessed_bugId.add(bug_id)
                 dicts.append(fault_localization_info)
-
 
 fault_df = pd.DataFrame(dicts)
 fault_df['Locate Correct File'] = fault_df.apply(
@@ -120,18 +117,42 @@ fault_df['Locate Correct Block'] = fault_df.apply(
     lambda row: check_block_level(row['block_level'], row['Ground_Line_Truth'], row['Bug_ID'],
                                   row['Locate Correct File']), axis=1)
 
-fault_df.to_csv("../analysis_result/evaluation/fault_location_eval.csv", index=False)
 
-df_file_filtered = fault_df[fault_df['Locate Correct File'].isin(['True', 'False'])]
-df_dedupe_file = df_file_filtered.drop_duplicates(subset='Bug_ID', keep='first')
-checked_len_file = len(df_dedupe_file['Bug_ID'])
-recall_success_count = df_file_filtered.groupby('Bug_ID')['Locate Correct File'].apply(lambda x: 'True' in x.values).sum()
-accuracy_count = df_file_filtered[df_file_filtered["Locate Correct File"] == "True"].shape[0]
+def eval_with_reflection(fault_df):
+    fault_df.to_csv("../analysis_result/evaluation/fault_location_eval.csv", index=False)
+    # file level evaluation
+    df_file_filtered = fault_df[fault_df['Locate Correct File'].isin(['True', 'False'])]
+    # Calculate True Positives (TP)
+    tp_file = df_file_filtered[(df_file_filtered['if_has_bug'] == 'Yes')
+                               & (df_file_filtered['Locate Correct File'] == 'True')].shape[0]
+    # Calculate False Positives (FP)
+    fp_file = df_file_filtered[(df_file_filtered['if_has_bug'] == 'Yes')
+                               & (df_file_filtered['Locate Correct File'] == 'False')].shape[0]
+    # Calculate False Negative (FN)
+    fn_file = df_file_filtered[(df_file_filtered['if_has_bug'] == 'No')
+                               & (df_file_filtered['Locate Correct File'] == 'False')].shape[0]
+    file_recall = tp_file / (tp_file + fn_file)
+    file_precision = tp_file / (tp_file + fp_file) if (tp_file + fp_file) > 0 else 0
+    print("File level recall:" + str(file_recall) + ", accuracy:"
+          + str(file_precision))
 
-file_recall = recall_success_count / checked_len_file if checked_len_file > 0 else 0
-file_accuracy = accuracy_count / len(df_file_filtered) if len(df_file_filtered) > 0 else 0
-print("File level recall:" + str(file_recall) + ", accuracy:"
-      + str(file_accuracy))
+    # method level evaluation
+    df_method_filtered = fault_df[fault_df['Locate Correct Method'].isin(['True', 'False'])]
+    df_method_true = df_method_filtered[(df_method_filtered['Locate Correct Method'] == 'True')].shape[0]
+    method_accuracy = df_method_true / len(df_method_filtered) if len(df_method_filtered) > 0 else 0
+    print("Method level accuracy:" + str(method_accuracy))
 
-print(("Method Unprocessed bug id: {}".format(method_unprocessed_bugId)))
-print(("Block Unprocessed bug id: {}".format(line_unprocessed_bugId)))
+    # block level evaluation
+    df_block_filtered = fault_df[fault_df['Locate Correct Block'].isin(['True', 'False'])]
+    df_block_true = df_block_filtered[(df_block_filtered['Locate Correct Block'] == 'True')].shape[0]
+    block_accuracy = df_block_true / len(df_block_filtered) if len(df_block_filtered) > 0 else 0
+    print("Block level accuracy:" + str(block_accuracy))
+
+
+eval_with_reflection(fault_df)
+
+
+if len(method_unprocessed_bugId) > 0:
+    print(("Method Unprocessed bug id: {}".format(method_unprocessed_bugId)))
+if len(line_unprocessed_bugId) > 0:
+    print(("Block Unprocessed bug id: {}".format(line_unprocessed_bugId)))
