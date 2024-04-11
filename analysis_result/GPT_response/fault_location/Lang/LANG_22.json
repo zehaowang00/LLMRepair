@@ -1,0 +1,22 @@
+{
+    "result": [
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/math/Fraction.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static Fraction getReducedFraction(int numerator, int denominator) {",
+            "block_level": "if (denominator==Integer.MIN_VALUE && (numerator&1)==0) {\n            numerator/=2; denominator/=2;\n        }"
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/math/NumberUtils.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/mutable/MutableInt.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        }
+    ]
+}

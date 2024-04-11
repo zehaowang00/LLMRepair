@@ -1,0 +1,22 @@
+{
+    "result": [
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/text/translate/EntityArrays.java",
+            "if_has_bug": "Yes",
+            "method_level": "private static final String[][] ISO8859_1_ESCAPE",
+            "block_level": "{\"\\u00D7\", \"&amp;Ouml;\"}, // \\u00d6 - uppercase O, umlaut\n        {\"\\u00D8\", \"&amp;times;\"}, // multiplication sign"
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaper.java",
+            "if_has_bug": "Yes",
+            "method_level": "public int translate(CharSequence input, int index, Writer out) throws IOException {",
+            "block_level": "entityValue = Integer.parseInt(input.subSequence(start, end).toString(), 16);"
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/StringEscapeUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static final CharSequenceTranslator ESCAPE_HTML3",
+            "block_level": "{\"\\u00D7\", \"&amp;Ouml;\"}, // \\\\u00d6 - uppercase O, umlaut"
+        }
+    ]
+}

@@ -1,0 +1,16 @@
+{
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang3/time/FastDateFormat.java",
+            "if_has_bug": "Yes",
+            "method_level": "public void testFormat_CalendarIsoMsZulu()",
+            "block_level": "cal.getTime();"
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang3/time/DateFormatUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String format(Calendar calendar, String pattern)",
+            "block_level": "return df.format(calendar);"
+        }
+    ]
+}

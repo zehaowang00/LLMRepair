@@ -1,0 +1,16 @@
+{
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang3/exception/ExceptionUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static boolean setCause(Throwable target, Throwable cause) {",
+            "block_level": "THROWABLE_INITCAUSE_METHOD = causeMethod;"
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang3/reflect/MethodUtils.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        }
+    ]
+}

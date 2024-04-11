@@ -1,0 +1,22 @@
+{
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/BooleanUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static boolean toBoolean(Boolean bool) {\n        if (bool == null) {\n            return false;\n        }\n        return bool.booleanValue() ? true : false;\n    }",
+            "block_level": "return bool.booleanValue() ? true : false;"
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/mutable/MutableBoolean.java",
+            "if_has_bug": "Yes",
+            "method_level": "public boolean booleanValue() {\n        return value;\n    }",
+            "block_level": "The end of case 3 should return false."
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/exception/ExceptionUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static Throwable getCause(Throwable throwable)",
+            "block_level": "The end of case 3 should return false."
+        }
+    ]
+}

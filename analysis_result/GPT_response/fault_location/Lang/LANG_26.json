@@ -1,0 +1,16 @@
+{
+    "result": [
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
+            "if_has_bug": "Yes",
+            "method_level": "format() method",
+            "block_level": "The bug is caused by the incorrect handling of the time zone in the format() method."
+        }
+    ]
+}

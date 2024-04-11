@@ -1,0 +1,22 @@
+{
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/text/ExtendedMessageFormat.java",
+            "if_has_bug": "Yes",
+            "method_level": "public final void applyPattern(String pattern)",
+            "block_level": "if (escapingOn && c[start] == QUOTE) {\n        return appendTo == null ? null : appendTo.append(QUOTE);\n}"
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/text/FormatFactory.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/time/DateFormatUtils.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        }
+    ]
+}

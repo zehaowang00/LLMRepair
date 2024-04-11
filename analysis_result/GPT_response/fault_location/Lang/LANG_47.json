@@ -1,0 +1,16 @@
+{
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/ObjectUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static Object defaultIfNull(Object object, Object defaultValue) { \n        return object != null ? object : defaultValue;\n    }",
+            "block_level": "return object != null ? object : defaultValue;"
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/builder/CompareToBuilder.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        }
+    ]
+}

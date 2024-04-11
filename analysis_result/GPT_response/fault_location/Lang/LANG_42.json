@@ -1,0 +1,22 @@
+{
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/StringEscapeUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String escapeHtml(String str) { ... }",
+            "block_level": "return Entities.HTML40.escape(str);"
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/CharUtils.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/SerializationUtils.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        }
+    ]
+}

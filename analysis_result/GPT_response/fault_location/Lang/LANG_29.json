@@ -1,0 +1,16 @@
+{
+    "result": [
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/builder/ReflectionToStringBuilder.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String toString(Object object, ToStringStyle style)",
+            "block_level": "return toString(object, style, false, false, null);"
+        }
+    ]
+}

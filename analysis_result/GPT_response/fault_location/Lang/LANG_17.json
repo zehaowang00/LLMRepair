@@ -1,0 +1,22 @@
+{
+    "result": [
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/StringEscapeUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static final String escapeXml(String input) {\n        return ESCAPE_XML.translate(input);\n    }",
+            "block_level": "The cause of this problem is that the loop to translate input character by character is wrong."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/text/translate/UnicodeEscaper.java",
+            "if_has_bug": "Yes",
+            "method_level": "public boolean translate(int codepoint, Writer out) throws IOException {",
+            "block_level": "if (codepoint > 0xffff) {\n            // TODO: Figure out what to do. Output as two unicodes?\n            //       Does this make this a Java-specific output class?\n            out.write(\"\\\\u\" + hex(codepoint));\n        } else if (codepoint > 0xfff) {\n            out.write(\"\\\\u\" + hex(codepoint));\n        } else if (codepoint > 0xff) {\n            out.write(\"\\\\u0\" + hex(codepoint));\n        } else if (codepoint > 0xf) {\n            out.write(\"\\\\u00\" + hex(codepoint));\n        } else {\n            out.write(\"\\\\u000\" + hex(codepoint));\n        }"
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/text/translate/NumericEntityEscaper.java",
+            "if_has_bug": "Yes",
+            "method_level": "public boolean translate(int codepoint, Writer out) throws IOException {",
+            "block_level": "out.write(\"&#\");\nout.write(Integer.toString(codepoint, 10));\nout.write(';');"
+        }
+    ]
+}

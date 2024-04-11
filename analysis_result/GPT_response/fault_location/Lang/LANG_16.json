@@ -1,0 +1,22 @@
+{
+    "result": [
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/math/NumberUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public Number createNumber(String str) throws NumberFormatException {",
+            "block_level": "if (str.startsWith(\"0x\") || str.startsWith(\"-0x\")) {\n            return createInteger(str);\n        }"
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/text/FormatFactory.java",
+            "if_has_bug": "Yes",
+            "method_level": "getFormat method",
+            "block_level": "0X1234 generates a NumberFormatException"
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/exception/ExceptionContext.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        }
+    ]
+}

@@ -1,0 +1,22 @@
+{
+    "result": [
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String formatUTC(long millis, String pattern)",
+            "block_level": "return format(new Date(millis), pattern, UTC_TIME_ZONE, null);"
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/time/FastDateFormat.java",
+            "if_has_bug": "Yes",
+            "method_level": "protected void init() {\n        List<Rule> rulesList = parsePattern();\n        mRules = rulesList.toArray(new Rule[rulesList.size()]);\n\n        int len = 0;\n        for (int i=mRules.length; --i >= 0; ) {\n            len += mRules[i].estimateLength();\n        }\n\n        mMaxLengthEstimate = len;\n    }",
+            "block_level": "mRules = rulesList.toArray(new Rule[rulesList.size()]);"
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/time/FormatCache.java",
+            "if_has_bug": "Yes",
+            "method_level": "getDateTimeInstance",
+            "block_level": "pattern = ((SimpleDateFormat)formatter).toPattern();"
+        }
+    ]
+}

@@ -1,0 +1,22 @@
+{
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/Entities.java",
+            "if_has_bug": "Yes",
+            "method_level": "public void testNumberOverflow() throws Exception {\n        doTestUnescapeEntity(\"&amp;#12345678;\", \"&amp;#12345678;\");\n        doTestUnescapeEntity(\"x&amp;#12345678;y\", \"x&amp;#12345678;y\");\n        doTestUnescapeEntity(\"&amp;#x12345678;\", \"&amp;#x12345678;\");\n        doTestUnescapeEntity(\"x&amp;#x12345678;y\", \"x&amp;#x12345678;y\");\n    }",
+            "block_level": "doTestUnescapeEntity(\"&amp;#12345678;\", \"&amp;#12345678;\");"
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/StringEscapeUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String escapeXml(String str) {\n        if (str == null) {\n            return null;\n        }\n        return Entities.XML.escape(str);\n    }",
+            "block_level": "return Entities.XML.escape(str);"
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/exception/Nestable.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        }
+    ]
+}

@@ -1,0 +1,22 @@
+{
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/NumberUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static Number createNumber(String val) throws NumberFormatException { ... }",
+            "block_level": "line 455 return false as numeric.substring(1) is an empty string for \"1l\""
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/math/NumberUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public Number createNumber(String str) throws NumberFormatException {",
+            "block_level": "if (chars[i] == 'e' || chars[i] == 'E') {"
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/text/CompositeFormat.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        }
+    ]
+}

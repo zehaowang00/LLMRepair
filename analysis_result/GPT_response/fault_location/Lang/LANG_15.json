@@ -1,0 +1,22 @@
+{
+    "result": [
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/reflect/TypeUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static boolean isAssignable(Type type, Type toType, Map<TypeVariable<?>, Type> typeVarAssigns)",
+            "block_level": "return isAssignable(type, (ParameterizedType) toType, typeVarAssigns);"
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/ClassUtils.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/reflect/MethodUtils.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        }
+    ]
+}

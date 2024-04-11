@@ -1,0 +1,22 @@
+{
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/StringEscapeUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String escapeJava(String str) {\n        return escapeJavaStyleString(str, false);\n    }",
+            "block_level": "case '/' :\n                        out.write('\\\\');\n                        out.write('/');\n                        break;"
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/CharUtils.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/IllegalClassException.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        }
+    ]
+}

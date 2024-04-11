@@ -1,0 +1,16 @@
+{
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/ClassUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String getShortClassName(String className)",
+            "block_level": "out = out.replace(INNER_CLASS_SEPARATOR_CHAR, PACKAGE_SEPARATOR_CHAR);"
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/builder/StandardToStringStyle.java",
+            "if_has_bug": "Yes",
+            "method_level": "public String getShortClassName(Object object, String valueIfNull)",
+            "block_level": "String shortClassName = getShortClassName(object);"
+        }
+    ]
+}

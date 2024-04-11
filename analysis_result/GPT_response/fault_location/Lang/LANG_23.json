@@ -1,0 +1,22 @@
+{
+    "result": [
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/text/ExtendedMessageFormat.java",
+            "if_has_bug": "Yes",
+            "method_level": "public final void applyPattern(String pattern)",
+            "block_level": "super.applyPattern(pattern);"
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/text/FormatFactory.java",
+            "if_has_bug": "Yes",
+            "method_level": "getFormat(String name, String arguments, Locale locale)",
+            "block_level": "This class extends a class that defines an equals method and adds fields, but doesn't define an equals method itself."
+        },
+        {
+            "file_name": "src/main/java/org/apache/commons/lang3/builder/StandardToStringStyle.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        }
+    ]
+}

@@ -1,0 +1,22 @@
+{
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/StringEscapeUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String escapeJavaScript(String str) {",
+            "block_level": "out.write('\\'');"
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/SystemUtils.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/CharUtils.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        }
+    ]
+}

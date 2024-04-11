@@ -1,0 +1,22 @@
+{
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/time/FastDateFormat.java",
+            "if_has_bug": "Yes",
+            "method_level": "TimeZoneNameRule",
+            "block_level": "buffer.append(mStandard);"
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/time/DateFormatUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String formatUTC(Date date, String pattern)",
+            "block_level": "mRules transient"
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/time/DateUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static void modify(Calendar val, int field, boolean round) { ... }",
+            "block_level": "val.add(fields[i][0], 1);"
+        }
+    ]
+}

@@ -1,0 +1,16 @@
+{
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang3/builder/EqualsBuilder.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang3/ObjectUtils.java",
+            "if_has_bug": "No",
+            "method_level": "",
+            "block_level": ""
+        }
+    ]
+}

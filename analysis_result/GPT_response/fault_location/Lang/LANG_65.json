@@ -1,0 +1,22 @@
+{
+    "result": [
+        {
+            "file_name": "src/java/org/apache/commons/lang/time/DateUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static Date truncate(Date date, int field) {\n        if (date == null) {\n            throw new IllegalArgumentException(\"The date must not be null\");\n        }\n        Calendar gval = Calendar.getInstance();\n        gval.setTime(date);\n        modify(gval, field, false);\n        return gval.getTime();\n    }",
+            "block_level": "// truncate milliseconds\n\n        // truncate seconds\n\n        // truncate minutes\n\n        // reset time"
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/time/DateFormatUtils.java",
+            "if_has_bug": "Yes",
+            "method_level": "public static String format(Date date, String pattern)",
+            "block_level": "return df.format(date);"
+        },
+        {
+            "file_name": "src/java/org/apache/commons/lang/time/FastDateFormat.java",
+            "if_has_bug": "Yes",
+            "method_level": "protected void init() {\n        List rulesList = parsePattern();\n        mRules = (Rule[]) rulesList.toArray(new Rule[rulesList.size()]);\n\n        int len = 0;\n        for (int i=mRules.length; --i >= 0; ) {\n            len += mRules[i].estimateLength();\n        }\n\n        mMaxLengthEstimate = len;\n    }",
+            "block_level": "List rulesList = parsePattern();\n        mRules = (Rule[]) rulesList.toArray(new Rule[rulesList.size()]);\n\n        int len = 0;\n        for (int i=mRules.length; --i >= 0; ) {\n            len += mRules[i].estimateLength();\n        }\n\n        mMaxLengthEstimate = len;"
+        }
+    ]
+}
