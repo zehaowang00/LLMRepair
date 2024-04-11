@@ -1,28 +1,343 @@
+file_name,if_has_bug,method_level,block_level,Bug_ID,Ground_Method_Truth,Ground_Line_Truth,Locate Correct File,Locate Correct Method,Locate Correct Block
+src/main/java/org/apache/commons/lang3/exception/ContextedRuntimeException.java,Yes,"public ContextedRuntimeException addValue(String label, Object value)","exceptionContext.addValue(label, value);",LANG_27,org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,"if (expPos < decPos) {,FAULT_OF_OMISSION",False,False,False
+src/main/java/org/apache/commons/lang3/exception/ContextedException.java,Yes,"public ContextedException addValue(String label, Object value)","exceptionContext.addValue(label, value);",LANG_27,org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,"if (expPos < decPos) {,FAULT_OF_OMISSION",False,False,False
+src/main/java/org/apache/commons/lang3/RandomStringUtils.java,Yes,"public static String random(int count, int start, int end, boolean letters, boolean numbers, char[] chars, Random random)","if(ch >= 56320 && ch <= 57343) {
+                    if(count == 0) {
+                        count++;
+                    } else {
+                        // low surrogate, insert high surrogate after putting it in
+                        buffer[count] = ch;
+                        count--;
+                        buffer[count] = (char) (55296 + random.nextInt(128));
+                    }
+                } else if(ch >= 55296 && ch <= 56191) {
+                    if(count == 0) {
+                        count++;
+                    } else {
+                        // high surrogate, insert low surrogate before putting it in
+                        buffer[count] = (char) (56320 + random.nextInt(128));
+                        count--;
+                        buffer[count] = ch;
+                    }
+                } else if(ch >= 56192 && ch <= 56319) {
+                    // private high surrogate, no effing clue, so skip it
+                    count++;
+                } else {
+                    buffer[count] = ch;
+                }",LANG_27,org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,"if (expPos < decPos) {,FAULT_OF_OMISSION",False,False,False
+src/main/java/org/apache/commons/lang3/math/NumberUtils.java,Yes,public static Number createNumber(final String str) throws NumberFormatException {,"final String[] hex_prefixes = {""0x"", ""0X"", ""-0x"", ""-0X"", ""#"", ""-#""};
+int pfxLen = 0;
+for(final String pfx : hex_prefixes) {
+    if (str.startsWith(pfx)) {
+        pfxLen += pfx.length();
+        break;
+    }
+}
+if (pfxLen > 0) { // we have a hex number
+    final int hexDigits = str.length() - pfxLen;
+    if (hexDigits > 16) { // too many for Long
+        return createBigInteger(str);
+    }
+    if (hexDigits > 8) { // too many for an int
+        return createLong(str);
+    }
+    return createInteger(str);
+}
+final char lastChar = str.charAt(str.length() - 1);
+String mant;
+String dec;
+String exp;
+final int decPos = str.indexOf('.');
+final int expPos = str.indexOf('e') + str.indexOf('E') + 1; // assumes both not present
+// if both e and E are present, this is caught by the checks on expPos (which prevent IOOBE)
+// and the parsing which will detect if e or E appear in a number due to using the wrong offset
 
-src/java/org/apache/commons/lang/StringEscapeUtils.java,Yes,"public static String escapeJava(String str) {
-        return escapeJavaStyleString(str, false);
-    }","case '/' :
-                        out.write('\\');
-                        out.write('/');
+int numDecimals = 0; // Check required precision (LANG-693)
+if (decPos > -1) { // there is a decimal point
 
-src/java/org/apache/commons/lang/BooleanUtils.java,Yes,"public static boolean toBoolean(Boolean bool) {
-        if (bool == null) {
-            return false;
+    if (expPos > -1) { // there is an exponent
+        if (expPos < decPos || expPos > str.length()) { // prevents double exponent causing IOOBE
+            throw new NumberFormatException(str + "" is not a valid number."");
         }
-        return bool.booleanValue() ? true : false;
-artsWith(""--"")) {
+        dec = str.substring(decPos + 1, expPos);
+    } else {
+        dec = str.substring(decPos + 1);
+    }
+    mant = str.substring(0, decPos);
+    numDecimals = dec.length(); // gets number of digits past the decimal to ensure no loss of precision for floating point numbers.
+} else {
+    if (expPos > -1) {
+        if (expPos > str.length()) { // prevents double exponent causing IOOBE
+            throw new NumberFormatException(str + "" is not a valid number."");
+        }
+        mant = str.substring(0, expPos);
+    } else {
+        mant = str;
+    }
+    dec = null;
+}
+if (!Character.isDigit(lastChar) && lastChar != '.') {
+    if (expPos > -1 && expPos < str.length() - 1) {
+        exp = str.substring(expPos + 1, str.length() - 1);
+    } else {
+        exp = null;
+    }
+    //Requesting a specific type..
+    final String numeric = str.substring(0, str.length() - 1);
+    final boolean allZeros = isAllZeros(mant) && isAllZeros(exp);
+    switch (lastChar) {
+        case 'l' :
+        case 'L' :
+            if (dec == null
+                && exp == null
+                && (numeric.charAt(0) == '-' && isDigits(numeric.substring(1)) || isDigits(numeric))) {
+                try {
+                    return createLong(numeric);
+                } catch (final NumberFormatException nfe) { // NOPMD
+                    // Too big for a long
+                }
+                return createBigInteger(numeric);
 
-            return null;
-        }",LANG_7,"org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,org.apache.commons.lang3.math.NumberUtils.createBigDecimal(Ljava/lang/String;)Ljava/math/BigDecimal;","if (str.startsWith(""--"")) {,return null;,},FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,True,True
+            }
+            throw new NumberFormatException(str + "" is not a valid number."");
+        case 'f' :
+        case 'F' :
+            try {
+                final Float f = NumberUtils.createFloat(numeric);
+                if (!(f.isInfinite() || (f.floatValue() == 0.0F && !allZeros))) {
+                    //If it's too big for a float or the float value = 0 and the string
+                    //has non-zeros in it, then float does not have the precision we want
+                    return f;
+                }
+
+            } catch (final NumberFormatException nfe) { // NOPMD
+                // ignore the bad number
+            }
+            //$FALL-THROUGH$
+        case 'd' :
+        case 'D' :
+            try {
+                final Double d = NumberUtils.createDouble(numeric);
+                if (!(d.isInfinite() || (d.floatValue() == 0.0D && !allZeros))) {
+                    return d;
+                }
+            } catch (final NumberFormatException nfe) { // NOPMD
+                // ignore the bad number
+            }
+            try {
+                return createBigDecimal(numeric);
+            } catch (final NumberFormatException e) { // NOPMD
+                // ignore the bad number
+            }
+            //$FALL-THROUGH$
+        default :
+            throw new NumberFormatException(str + "" is not a valid number."");
+
+    }
+}
+//User doesn't have a preference on the return type, so let's start
+//small and go from there...
+if (expPos > -1 && expPos < str.length() - 1) {
+    exp = str.substring(expPos + 1, str.length());
+} else {
+    exp = null;
+}
+if (dec == null && exp == null) { // no decimal point and no exponent
+//Must be an Integer, Long, Biginteger
+try {
+    return createInteger(str);
+} catch (final NumberFormatException nfe) { // NOPMD
+    // ignore the bad number
+}
+try {
+    return createLong(str);
+} catch (final NumberFormatException nfe) { // NOPMD
+    // ignore the bad number
+}
+return createBigInteger(str);
+}
+//Must be a Float, Double, BigDecimal
+final boolean allZeros = isAllZeros(mant) && isAllZeros(exp);
+try {
+    if(numDecimals <= 7){// If number has 7 or fewer digits past the decimal point then make it a float
+        final Float f = createFloat(str);
+        if (!(f.isInfinite() || (f.floatValue() == 0.0F && !allZeros))) {
+            return f;
+        }
+    }
+} catch (final NumberFormatException nfe) { // NOPMD
+    // ignore the bad number
+}
+try {
+    if(numDecimals <= 16){// If number has between 8 and 16 digits past the decimal point then make it a double
+        final Double d = createDouble(str);
+        if (!(d.isInfinite() || (d.doubleValue() == 0.0D && !allZeros))) {
+            return d;
+        }
+    }
+} catch (final NumberFormatException nfe) { // NOPMD
+    // ignore the bad number
+}
+return createBigDecimal(str);",LANG_1,org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,"if (hexDigits > 16) { // too many for Long,if (hexDigits > 8) { // too many for an int,FAULT_OF_OMISSION",True,True,True
+src/main/java/org/apache/commons/lang3/mutable/MutableLong.java,No,,,LANG_1,org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,"if (hexDigits > 16) { // too many for Long,if (hexDigits > 8) { // too many for an int,FAULT_OF_OMISSION",True,cannot locate method,cannot locate code block
+src/main/java/org/apache/commons/lang3/math/IEEE754rUtils.java,No,,,LANG_1,org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,"if (hexDigits > 16) { // too many for Long,if (hexDigits > 8) { // too many for an int,FAULT_OF_OMISSION",True,cannot locate method,cannot locate code block
+src/java/org/apache/commons/lang/time/FastDateFormat.java,No,,,LANG_50,"org.apache.commons.lang.time.FastDateFormat.getDateInstance(ILjava/util/TimeZone;Ljava/util/Locale;)Lorg/apache/commons/lang/time/FastDateFormat;,org.apache.commons.lang.time.FastDateFormat.getDateTimeInstance(IILjava/util/TimeZone;Ljava/util/Locale;)Lorg/apache/commons/lang/time/FastDateFormat;","if (locale != null) {,key = new Pair(key, locale);,if (locale == null) {,locale = Locale.getDefault();,},if (locale != null) {,key = new Pair(key, locale);,if (locale == null) {,locale = Locale.getDefault();,},FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,cannot locate code block
+src/java/org/apache/commons/lang/time/DateFormatUtils.java,Yes,"public static String format(Date date, String pattern, TimeZone timeZone, Locale locale) {","FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);
+return df.format(date);",LANG_50,"org.apache.commons.lang.time.FastDateFormat.getDateInstance(ILjava/util/TimeZone;Ljava/util/Locale;)Lorg/apache/commons/lang/time/FastDateFormat;,org.apache.commons.lang.time.FastDateFormat.getDateTimeInstance(IILjava/util/TimeZone;Ljava/util/Locale;)Lorg/apache/commons/lang/time/FastDateFormat;","if (locale != null) {,key = new Pair(key, locale);,if (locale == null) {,locale = Locale.getDefault();,},if (locale != null) {,key = new Pair(key, locale);,if (locale == null) {,locale = Locale.getDefault();,},FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,True
+src/java/org/apache/commons/lang/text/DefaultMetaFormatFactory.java,Yes,public static Format getFormat(final Locale locale),"If the locale is null, then it is not made part of the key, but the stored object is created using the current default locale.",LANG_50,"org.apache.commons.lang.time.FastDateFormat.getDateInstance(ILjava/util/TimeZone;Ljava/util/Locale;)Lorg/apache/commons/lang/time/FastDateFormat;,org.apache.commons.lang.time.FastDateFormat.getDateTimeInstance(IILjava/util/TimeZone;Ljava/util/Locale;)Lorg/apache/commons/lang/time/FastDateFormat;","if (locale != null) {,key = new Pair(key, locale);,if (locale == null) {,locale = Locale.getDefault();,},if (locale != null) {,key = new Pair(key, locale);,if (locale == null) {,locale = Locale.getDefault();,},FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,False
+src/main/java/org/apache/commons/lang3/RandomStringUtils.java,Yes,"public static String random(int count, int start, int end, boolean letters, boolean numbers, char... chars)","if (count < 0) {
+    throw new IllegalArgumentException(""Requested random string length "" + count + "" is less than 0."");
+}
+if (chars != null && chars.length == 0) {
+    throw new IllegalArgumentException(""The chars array must not be empty"");
+}",LANG_11,org.apache.commons.lang3.RandomStringUtils.random(IIIZZ[CLjava/util/Random;)Ljava/lang/String;,FAULT_OF_OMISSION,True,True,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/CharRange.java,No,,,LANG_11,org.apache.commons.lang3.RandomStringUtils.random(IIIZZ[CLjava/util/Random;)Ljava/lang/String;,FAULT_OF_OMISSION,True,cannot locate method,cannot locate code block
+src/main/java/org/apache/commons/lang3/builder/StandardToStringStyle.java,No,,,LANG_11,org.apache.commons.lang3.RandomStringUtils.random(IIIZZ[CLjava/util/Random;)Ljava/lang/String;,FAULT_OF_OMISSION,True,cannot locate method,cannot locate code block
+src/java/org/apache/commons/lang/StringEscapeUtils.java,Yes,public static String escapeJava(String str) {,"case '/' :
+    out.write('\\');
+    out.write('/');
+    break;",LANG_46,"org.apache.commons.lang.StringEscapeUtils.escapeJava(Ljava/lang/String;)Ljava/lang/String;,org.apache.commons.lang.StringEscapeUtils.escapeJava(Ljava/io/Writer;Ljava/lang/String;)V,org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(Ljava/lang/String;)Ljava/lang/String;,org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(Ljava/io/Writer;Ljava/lang/String;)V,org.apache.commons.lang.StringEscapeUtils.escapeJavaStyleString(Ljava/lang/String;Z)Ljava/lang/String;,org.apache.commons.lang.StringEscapeUtils.escapeJavaStyleString(Ljava/io/Writer;Ljava/lang/String;Z)V","return escapeJavaStyleString(str, false);,escapeJavaStyleString(out, str, false);,return escapeJavaStyleString(str, true);,escapeJavaStyleString(out, str, true);,private static String escapeJavaStyleString(String str, boolean escapeSingleQuotes) {,escapeJavaStyleString(writer, str, escapeSingleQuotes);,private static void escapeJavaStyleString(Writer out, String str, boolean escapeSingleQuote) throws IOException {,FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,True,False
+src/java/org/apache/commons/lang/CharUtils.java,No,,,LANG_46,"org.apache.commons.lang.StringEscapeUtils.escapeJava(Ljava/lang/String;)Ljava/lang/String;,org.apache.commons.lang.StringEscapeUtils.escapeJava(Ljava/io/Writer;Ljava/lang/String;)V,org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(Ljava/lang/String;)Ljava/lang/String;,org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(Ljava/io/Writer;Ljava/lang/String;)V,org.apache.commons.lang.StringEscapeUtils.escapeJavaStyleString(Ljava/lang/String;Z)Ljava/lang/String;,org.apache.commons.lang.StringEscapeUtils.escapeJavaStyleString(Ljava/io/Writer;Ljava/lang/String;Z)V","return escapeJavaStyleString(str, false);,escapeJavaStyleString(out, str, false);,return escapeJavaStyleString(str, true);,escapeJavaStyleString(out, str, true);,private static String escapeJavaStyleString(String str, boolean escapeSingleQuotes) {,escapeJavaStyleString(writer, str, escapeSingleQuotes);,private static void escapeJavaStyleString(Writer out, String str, boolean escapeSingleQuote) throws IOException {,FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,cannot locate method,cannot locate code block
+src/java/org/apache/commons/lang/IllegalClassException.java,No,,,LANG_46,"org.apache.commons.lang.StringEscapeUtils.escapeJava(Ljava/lang/String;)Ljava/lang/String;,org.apache.commons.lang.StringEscapeUtils.escapeJava(Ljava/io/Writer;Ljava/lang/String;)V,org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(Ljava/lang/String;)Ljava/lang/String;,org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(Ljava/io/Writer;Ljava/lang/String;)V,org.apache.commons.lang.StringEscapeUtils.escapeJavaStyleString(Ljava/lang/String;Z)Ljava/lang/String;,org.apache.commons.lang.StringEscapeUtils.escapeJavaStyleString(Ljava/io/Writer;Ljava/lang/String;Z)V","return escapeJavaStyleString(str, false);,escapeJavaStyleString(out, str, false);,return escapeJavaStyleString(str, true);,escapeJavaStyleString(out, str, true);,private static String escapeJavaStyleString(String str, boolean escapeSingleQuotes) {,escapeJavaStyleString(writer, str, escapeSingleQuotes);,private static void escapeJavaStyleString(Writer out, String str, boolean escapeSingleQuote) throws IOException {,FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,cannot locate method,cannot locate code block
+src/java/org/apache/commons/lang/ObjectUtils.java,Yes,"public static Object appendFixedWidth(StringBuffer buffer, String str, int fieldWidth, int offset, String nullText)","if (str == null) {
+            str = getNullText();
+        }
+        if (str.length() > fieldWidth) {
+            str.getChars(0, fieldWidth, buffer, offset);
+        } else {
+            int padSize = fieldWidth - str.length();
+            if (padSize > 0) {
+                for (int i = 0; i < padSize; i++) {
+                    buffer.append(' ');
+                }
+            }
+            buffer.append(str);
+        }",LANG_47,"org.apache.commons.lang.text.StrBuilder.appendFixedWidthPadLeft(Ljava/lang/Object;IC)Lorg/apache/commons/lang/text/StrBuilder;,org.apache.commons.lang.text.StrBuilder.appendFixedWidthPadRight(Ljava/lang/Object;IC)Lorg/apache/commons/lang/text/StrBuilder;","FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,ground truth are al FoOs
+src/java/org/apache/commons/lang/builder/CompareToBuilder.java,No,,,LANG_47,"org.apache.commons.lang.text.StrBuilder.appendFixedWidthPadLeft(Ljava/lang/Object;IC)Lorg/apache/commons/lang/text/StrBuilder;,org.apache.commons.lang.text.StrBuilder.appendFixedWidthPadRight(Ljava/lang/Object;IC)Lorg/apache/commons/lang/text/StrBuilder;","FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,cannot locate method,cannot locate code block
+src/main/java/org/apache/commons/lang3/time/FastDateFormat.java,Yes,public Date parse(String source) throws ParseException {,return parser.parse(source);,LANG_10,org.apache.commons.lang3.time.FastDateParser.escapeRegex(Ljava/lang/StringBuilder;Ljava/lang/String;Z)Ljava/lang/StringBuilder;,"boolean wasWhite= false;,if(Character.isWhitespace(c)) {,if(!wasWhite) {,wasWhite= true;,regex.append(""\\s*+"");,},continue;,},wasWhite= false;",False,False,False
+src/main/java/org/apache/commons/lang3/time/FastDateParser.java,Yes,"protected FastDateParser(String pattern, TimeZone timeZone, Locale locale) {","StringBuilder regex= new StringBuilder();
+        List<Strategy> collector = new ArrayList<Strategy>();
+
+        Matcher patternMatcher= formatPattern.matcher(pattern);
+        if(!patternMatcher.lookingAt()) {
+            throw new IllegalArgumentException(""Invalid pattern"");
+        }
+
+        currentFormatField= patternMatcher.group();
+        Strategy currentStrategy= getStrategy(currentFormatField);
+        for(;;) {
+            patternMatcher.region(patternMatcher.end(), patternMatcher.regionEnd());
+            if(!patternMatcher.lookingAt()) {
+                nextStrategy = null;
+                break;
+            }
+            String nextFormatField= patternMatcher.group();
+            nextStrategy = getStrategy(nextFormatField);
+            if(currentStrategy.addRegex(this, regex)) {
+                collector.add(currentStrategy);
+            }
+            currentFormatField= nextFormatField;
+            currentStrategy= nextStrategy;
+        }
+        if(currentStrategy.addRegex(this, regex)) {
+            collector.add(currentStrategy);
+        }
+        currentFormatField= null;
+        strategies= collector.toArray(new Strategy[collector.size()]);
+        parsePattern= Pattern.compile(regex.toString();",LANG_10,org.apache.commons.lang3.time.FastDateParser.escapeRegex(Ljava/lang/StringBuilder;Ljava/lang/String;Z)Ljava/lang/StringBuilder;,"boolean wasWhite= false;,if(Character.isWhitespace(c)) {,if(!wasWhite) {,wasWhite= true;,regex.append(""\\s*+"");,},continue;,},wasWhite= false;",True,False,True
+src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java,Yes,"public static String format(Date date, String pattern)","FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);
+return df.format(date);",LANG_10,org.apache.commons.lang3.time.FastDateParser.escapeRegex(Ljava/lang/StringBuilder;Ljava/lang/String;Z)Ljava/lang/StringBuilder;,"boolean wasWhite= false;,if(Character.isWhitespace(c)) {,if(!wasWhite) {,wasWhite= true;,regex.append(""\\s*+"");,},continue;,},wasWhite= false;",False,False,False
+src/java/org/apache/commons/lang/BooleanUtils.java,Yes,public static Boolean toBooleanObject(String str),"if (""true"".equalsIgnoreCase(str)) {
+            return Boolean.TRUE;
+        } else if (""false"".equalsIgnoreCase(str)) {
+            return Boolean.FALSE;
+        } else if (""on"".equalsIgnoreCase(str)) {
+            return Boolean.TRUE;
+        } else if (""off"".equalsIgnoreCase(str)) {
+            return Boolean.FALSE;
+        } else if (""yes"".equalsIgnoreCase(str)) {
+            return Boolean.TRUE;
+        } else if (""no"".equalsIgnoreCase(str)) {
+            return Boolean.FALSE;
+        }
+        // no match
+        return null;",LANG_51,org.apache.commons.lang.BooleanUtils.toBoolean(Ljava/lang/String;)Z,FAULT_OF_OMISSION,True,False,ground truth are al FoOs
+src/java/org/apache/commons/lang/mutable/MutableBoolean.java,Yes,public boolean booleanValue(),return value;,LANG_51,org.apache.commons.lang.BooleanUtils.toBoolean(Ljava/lang/String;)Z,FAULT_OF_OMISSION,False,False,ground truth are al FoOs
+src/java/org/apache/commons/lang/exception/ExceptionUtils.java,Yes,public static Throwable getCause(Throwable throwable),Method body starting from 'return getCauseUsingWellKnownTypes(throwable);' to the end of the method.,LANG_51,org.apache.commons.lang.BooleanUtils.toBoolean(Ljava/lang/String;)Z,FAULT_OF_OMISSION,False,False,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java,Yes,"public static String format(Date date, String pattern)","FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);
+return df.format(date);",LANG_26,org.apache.commons.lang3.time.FastDateFormat.format(Ljava/util/Date;)Ljava/lang/String;,Calendar c = new GregorianCalendar(mTimeZone);,False,False,False
+src/main/java/org/apache/commons/lang3/time/FastDateFormat.java,Yes,"public void appendTo(StringBuffer buffer, Calendar calendar)","if (timeZoneForced) {
+    if (mTimeZone.useDaylightTime() && calendar.get(Calendar.DST_OFFSET) != 0) {
+        buffer.append(mDaylight);
+    } else {
+        buffer.append(mStandard);
+    }
+} else {
+    TimeZone timeZone = calendar.getTimeZone();
+    if (timeZone.useDaylightTime() && calendar.get(Calendar.DST_OFFSET) != 0) {
+        buffer.append(getTimeZoneDisplay(timeZone, true, mStyle, mLocale));
+    } else {
+        buffer.append(getTimeZoneDisplay(timeZone, false, mStyle, mLocale));
+    }
+}",LANG_26,org.apache.commons.lang3.time.FastDateFormat.format(Ljava/util/Date;)Ljava/lang/String;,Calendar c = new GregorianCalendar(mTimeZone);,True,False,False
+src/main/java/org/apache/commons/lang3/math/NumberUtils.java,Yes,public Number createNumber(String str) throws NumberFormatException {,"if (str.startsWith(""--"")) {
+    return null;
+}",LANG_7,"org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,org.apache.commons.lang3.math.NumberUtils.createBigDecimal(Ljava/lang/String;)Ljava/math/BigDecimal;","if (str.startsWith(""--"")) {,return null;,},FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,True,True
 src/main/java/org/apache/commons/lang3/JavaVersion.java,No,,,LANG_7,"org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,org.apache.commons.lang3.math.NumberUtils.createBigDecimal(Ljava/lang/String;)Ljava/math/BigDecimal;","if (str.startsWith(""--"")) {,return null;,},FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,cannot locate method,cannot locate code block
-src/main/java/org/apache/commons/lang3/exception/ExceptionContext.java,No,,,LANG_7,"org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,org.apache.commons.lang3.math.NumberUtils.createBigDecimal(Ljava/lang/String;)Ljava/math/BigDecimal;","if (str.startsWith(""--"")) {,return null;,},FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,cannot locate method,cannot locate code block
-src/java/org/apache/commons/lang/time/FastDateFormat.java,Yes,TimeZoneNameRule,buffer.append(mStandard);,LANG_56,,"private Rule[] mRules;,private int mMaxLengthEstimate;,FAULT_OF_OMISSION",no ground truth method,no ground truth method,False
-src/java/org/apache/commons/lang/time/DateFormatUtils.java,Yes,"public static String formatUTC(Date date, String pattern)",mRules transient,LANG_56,,"private Rule[] mRules;,private int mMaxLengthEstimate;,FAULT_OF_OMISSION",no ground truth method,no ground truth method,False
-src/java/org/apache/commons/lang/time/DateUtils.java,Yes,"public static void modify(Calendar val, int field, boolean round) { ... }","val.add(fields[i][0], 1);",LANG_56,,"private Rule[] mRules;,private int mMaxLengthEstimate;,FAULT_OF_OMISSION",no ground truth method,no ground truth method,False
-src/main/java/org/apache/commons/lang3/StringEscapeUtils.java,Yes,"public static final String escapeXml(String input) {
-        return ESCAPE_XML.translate(input);
-    }",The cause of this problem is that the loop to translate input character by character is wrong.,LANG_17,org.apache.commons.lang3.text.translate.CharSequenceTranslator.translate(Ljava/lang/CharSequence;Ljava/io/Writer;)V,"int len = Character.codePointCount(input, 0, input.length());,else {,if (pos < len - 2) {,} else {,pos++;,},},pos--;,pos++;,FAULT_OF_OMISSION",False,False,False
-src/main/java/org/apache/commons/lang3/text/translate/UnicodeEscaper.java,Yes,"public boolean translate(int codepoint, Writer out) throws IOException {","if (codepoint > 0xffff) {
+src/main/java/org/apache/commons/lang3/exception/ExceptionContext.java,Yes,"public ExceptionContext addContextValue(String label, Object value)","if (label == null) {
+    throw new IllegalArgumentException(""The label must not be null"");
+}
+if (value == null) {
+    throw new IllegalArgumentException(""The value must not be null"");
+}
+if (contextValues.containsKey(label)) {
+    List<Object> list = contextValues.get(label);
+    list.add(value);
+} else {
+    List<Object> list = new ArrayList<>();
+    list.add(value);
+    contextValues.put(label, list);
+}",LANG_7,"org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,org.apache.commons.lang3.math.NumberUtils.createBigDecimal(Ljava/lang/String;)Ljava/math/BigDecimal;","if (str.startsWith(""--"")) {,return null;,},FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,True
+src/java/org/apache/commons/lang/time/FastDateFormat.java,Yes,"public void appendTo(StringBuffer buffer, Calendar calendar)","if (mTimeZoneForced) {
+    if (mTimeZone.useDaylightTime() && calendar.get(Calendar.DST_OFFSET) != 0) {
+        buffer.append(mDaylight);
+    } else {
+        buffer.append(mStandard);
+    }
+} else {
+    TimeZone timeZone = calendar.getTimeZone();
+    if (timeZone.useDaylightTime() && calendar.get(Calendar.DST_OFFSET) != 0) {
+        buffer.append(getTimeZoneDisplay(timeZone, true, mStyle, mLocale));
+    } else {
+        buffer.append(getTimeZoneDisplay(timeZone, false, mStyle, mLocale));
+    }
+}",LANG_56,,"private Rule[] mRules;,private int mMaxLengthEstimate;,FAULT_OF_OMISSION",no ground truth method,no ground truth method,False
+src/java/org/apache/commons/lang/time/DateFormatUtils.java,Yes,"public static String format(Date date, String pattern, TimeZone timeZone, Locale locale) {","FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);
+return df.format(date);",LANG_56,,"private Rule[] mRules;,private int mMaxLengthEstimate;,FAULT_OF_OMISSION",no ground truth method,no ground truth method,False
+src/java/org/apache/commons/lang/time/DateUtils.java,Yes,"public static void modify(Calendar val, int field, boolean round)","if (fields[i][j] == field) {
+                    //This is our field... we stop looping
+                    if (round && roundUp) {
+                        if (field == DateUtils.SEMI_MONTH) {
+                            //This is a special case that's hard to generalize
+                            //If the date is 1, we round up to 16, otherwise
+                            //  we subtract 15 days and add 1 month
+                            if (val.get(Calendar.DATE) == 1) {
+                                val.add(Calendar.DATE, 15);
+                            } else {
+                                val.add(Calendar.DATE, -15);
+                                val.add(Calendar.MONTH, 1);
+                            }
+                        } else {
+                            //We need at add one to this field since the
+                            //  last number causes us to round up
+                            val.add(fields[i][0], 1);
+                        }
+                    }
+                    return;
+                }",LANG_56,,"private Rule[] mRules;,private int mMaxLengthEstimate;,FAULT_OF_OMISSION",no ground truth method,no ground truth method,False
+src/main/java/org/apache/commons/lang3/StringEscapeUtils.java,Yes,public static final String escapeXml(String input) {,"loop counter ""i"" moves from 0 to Character.codePointCount(input, 0, input.length()),
+but it should move from 0 to input.length().",LANG_17,org.apache.commons.lang3.text.translate.CharSequenceTranslator.translate(Ljava/lang/CharSequence;Ljava/io/Writer;)V,"int len = Character.codePointCount(input, 0, input.length());,else {,if (pos < len - 2) {,} else {,pos++;,},},pos--;,pos++;,FAULT_OF_OMISSION",False,False,True
+src/main/java/org/apache/commons/lang3/text/translate/UnicodeEscaper.java,Yes,"public boolean translate(int codepoint, Writer out) throws IOException","if (codepoint > 0xffff) {
             // TODO: Figure out what to do. Output as two unicodes?
             //       Does this make this a Java-specific output class?
             out.write(""\\u"" + hex(codepoint));
@@ -35,12 +350,12 @@ src/main/java/org/apache/commons/lang3/text/translate/UnicodeEscaper.java,Yes,"p
         } else {
             out.write(""\\u000"" + hex(codepoint));
         }",LANG_17,org.apache.commons.lang3.text.translate.CharSequenceTranslator.translate(Ljava/lang/CharSequence;Ljava/io/Writer;)V,"int len = Character.codePointCount(input, 0, input.length());,else {,if (pos < len - 2) {,} else {,pos++;,},},pos--;,pos++;,FAULT_OF_OMISSION",False,False,True
-src/main/java/org/apache/commons/lang3/text/translate/NumericEntityEscaper.java,Yes,"public boolean translate(int codepoint, Writer out) throws IOException {","out.write(""&#"");
-out.write(Integer.toString(codepoint, 10));
-out.write(';');",LANG_17,org.apache.commons.lang3.text.translate.CharSequenceTranslator.translate(Ljava/lang/CharSequence;Ljava/io/Writer;)V,"int len = Character.codePointCount(input, 0, input.length());,else {,if (pos < len - 2) {,} else {,pos++;,},},pos--;,pos++;,FAULT_OF_OMISSION",False,False,True
-src/java/org/apache/commons/lang/LocaleUtils.java,Yes,public static Locale toLocale(String str) {,if (ch0 < 'a' || ch0 > 'z' || ch1 < 'a' || ch1 > 'z') {,LANG_40,org.apache.commons.lang.StringUtils.containsIgnoreCase(Ljava/lang/String;Ljava/lang/String;)Z,"return contains(str.toUpperCase(), searchStr.toUpperCase());",False,False,False
-src/java/org/apache/commons/lang/builder/ToStringBuilder.java,No,,,LANG_40,org.apache.commons.lang.StringUtils.containsIgnoreCase(Ljava/lang/String;Ljava/lang/String;)Z,"return contains(str.toUpperCase(), searchStr.toUpperCase());",True,cannot locate method,cannot locate code block
-src/java/org/apache/commons/lang/BooleanUtils.java,Yes,public static boolean toBoolean(String str),"if (str == ""true"") {
+src/main/java/org/apache/commons/lang3/text/translate/NumericEntityEscaper.java,No,,,LANG_17,org.apache.commons.lang3.text.translate.CharSequenceTranslator.translate(Ljava/lang/CharSequence;Ljava/io/Writer;)V,"int len = Character.codePointCount(input, 0, input.length());,else {,if (pos < len - 2) {,} else {,pos++;,},},pos--;,pos++;,FAULT_OF_OMISSION",True,cannot locate method,cannot locate code block
+src/java/org/apache/commons/lang/LocaleUtils.java,Yes,public static Locale toLocale(String str),"if (ch0 < 'a' || ch0 > 'z' || ch1 < 'a' || ch1 > 'z') {
+            throw new IllegalArgumentException(""Invalid locale format: "" + str);
+        }",LANG_40,org.apache.commons.lang.StringUtils.containsIgnoreCase(Ljava/lang/String;Ljava/lang/String;)Z,"return contains(str.toUpperCase(), searchStr.toUpperCase());",False,False,False
+src/java/org/apache/commons/lang/builder/ToStringBuilder.java,Yes,public ToStringBuilder(T object),"style.append(buffer, null, obj, null);",LANG_40,org.apache.commons.lang.StringUtils.containsIgnoreCase(Ljava/lang/String;Ljava/lang/String;)Z,"return contains(str.toUpperCase(), searchStr.toUpperCase());",False,False,False
+src/java/org/apache/commons/lang/BooleanUtils.java,Yes,public static boolean toBoolean(String str),"        if (str == ""true"") {
             return true;
         }
         if (str == null) {
@@ -84,78 +399,501 @@ src/java/org/apache/commons/lang/BooleanUtils.java,Yes,public static boolean toB
                 }
             }
         }
+        return false;",LANG_40,org.apache.commons.lang.StringUtils.containsIgnoreCase(Ljava/lang/String;Ljava/lang/String;)Z,"return contains(str.toUpperCase(), searchStr.toUpperCase());",False,False,False
+src/java/org/apache/commons/lang3/exception/ExceptionUtils.java,Yes,public static Throwable getCause(Throwable throwable),Method body starting from 'public static Throwable getCause(Throwable throwable)' until 'return cause;',LANG_37,org.apache.commons.lang3.ArrayUtils.addAll([Ljava/lang/Object;[Ljava/lang/Object;)[Ljava/lang/Object;,"FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,ground truth are al FoOs
+src/java/org/apache/commons/lang3/reflect/MethodUtils.java,Yes,"public static Method getMatchingAccessibleMethod(Class<?> cls, String methodName, Class<?>[] parameterTypes)","MethodUtils.getAccessibleMethod(cls.getMethod(methodName, parameterTypes);
+MemberUtils.setAccessibleWorkaround(method);
+return method;",LANG_37,org.apache.commons.lang3.ArrayUtils.addAll([Ljava/lang/Object;[Ljava/lang/Object;)[Ljava/lang/Object;,"FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/time/FastDateFormat.java,Yes,"public void appendTo(StringBuffer buffer, Calendar calendar)","case 'H': // hour in day (number, 0..23)
+                rule = selectNumberRule(Calendar.HOUR_OF_DAY, tokenLen);
+                break;",LANG_21,org.apache.commons.lang3.time.DateUtils.isSameLocalTime(Ljava/util/Calendar;Ljava/util/Calendar;)Z,cal1.get(Calendar.HOUR) == cal2.get(Calendar.HOUR) &&,False,False,False
+src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java,Yes,"public static String format(Date date, String pattern)",return df.format(date);,LANG_21,org.apache.commons.lang3.time.DateUtils.isSameLocalTime(Ljava/util/Calendar;Ljava/util/Calendar;)Z,cal1.get(Calendar.HOUR) == cal2.get(Calendar.HOUR) &&,False,False,False
+src/main/java/org/apache/commons/lang3/ObjectUtils.java,Yes,public static <T> T clone(final T obj) {,"final Method clone = obj.getClass().getMethod(""clone"");
+result = clone.invoke(obj);",LANG_20,"org.apache.commons.lang3.StringUtils.join([Ljava/lang/Object;CII)Ljava/lang/String;,org.apache.commons.lang3.StringUtils.join([Ljava/lang/Object;Ljava/lang/String;II)Ljava/lang/String;","StringBuilder buf = new StringBuilder((array[startIndex] == null ? 16 : array[startIndex].toString().length()) + 1);,StringBuilder buf = new StringBuilder((array[startIndex] == null ? 16 : array[startIndex].toString().length()) + separator.length());",False,False,False
+src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java,Yes,public String toString() {,"if (this.getObject() == null) {
+            this.getStringBuffer().append(this.getStyle().getNullText());
+        } else {
+            style.appendEnd(this.getStringBuffer(), this.getObject());
+        }",LANG_20,"org.apache.commons.lang3.StringUtils.join([Ljava/lang/Object;CII)Ljava/lang/String;,org.apache.commons.lang3.StringUtils.join([Ljava/lang/Object;Ljava/lang/String;II)Ljava/lang/String;","StringBuilder buf = new StringBuilder((array[startIndex] == null ? 16 : array[startIndex].toString().length()) + 1);,StringBuilder buf = new StringBuilder((array[startIndex] == null ? 16 : array[startIndex].toString().length()) + separator.length());",False,False,False
+src/main/java/org/apache/commons/lang3/BooleanUtils.java,No,,,LANG_20,"org.apache.commons.lang3.StringUtils.join([Ljava/lang/Object;CII)Ljava/lang/String;,org.apache.commons.lang3.StringUtils.join([Ljava/lang/Object;Ljava/lang/String;II)Ljava/lang/String;","StringBuilder buf = new StringBuilder((array[startIndex] == null ? 16 : array[startIndex].toString().length()) + 1);,StringBuilder buf = new StringBuilder((array[startIndex] == null ? 16 : array[startIndex].toString().length()) + separator.length());",True,cannot locate method,cannot locate code block
+src/java/org/apache/commons/lang3/math/NumberUtils.java,Yes,public static boolean isNumber(String str),"if (chars[i] == '.') {
+    if (hasDecPoint || hasExp) {
+        // two decimal points or dec in exponent   
+        return false;
+    }
+    return foundDigit; // single trailing decimal point after non-exponent is ok
+}",LANG_36,"org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,org.apache.commons.lang3.math.NumberUtils.isNumber(Ljava/lang/String;)Z","if (!Character.isDigit(lastChar)) {,FAULT_OF_OMISSION",True,True,False
+src/java/org/apache/commons/lang3/BooleanUtils.java,No,,,LANG_36,"org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,org.apache.commons.lang3.math.NumberUtils.isNumber(Ljava/lang/String;)Z","if (!Character.isDigit(lastChar)) {,FAULT_OF_OMISSION",True,cannot locate method,cannot locate code block
+src/java/org/apache/commons/lang3/builder/HashCodeBuilder.java,No,,,LANG_36,"org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,org.apache.commons.lang3.math.NumberUtils.isNumber(Ljava/lang/String;)Z","if (!Character.isDigit(lastChar)) {,FAULT_OF_OMISSION",True,cannot locate method,cannot locate code block
+src/java/org/apache/commons/lang/ClassUtils.java,Yes,"public static String getShortClassName(Object object, String valueIfNull)","if (object == null) {
+    return valueIfNull;
+}
+return getShortClassName(object.getClass());",LANG_41,"org.apache.commons.lang.ClassUtils.getShortClassName(Ljava/lang/String;)Ljava/lang/String;,org.apache.commons.lang.ClassUtils.getPackageName(Ljava/lang/String;)Ljava/lang/String;","return out;,if (className == null) {,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,True,False
+src/java/org/apache/commons/lang/builder/StandardToStringStyle.java,Yes,public class StandardToStringStyle extends ToStringStyle {,"return super.getArrayEnd();
+    }
 
-src/main/java/org/apache/commons/lang3/time/FastDateFormat.java,Yes,"protected void init() {
-        List<Rule> rulesList = parsePattern();
-        mRules = rulesList.toArray(new Rule[rulesList.size()]);
+    /**
+     * <p>Sets the array end text.</p>
+     *
+     * <p><code>null</code> is accepted, but will be converted
+     * to an empty String.</p>
+     *
+     * @param arrayEnd  the new array end text
+     */
+    @Override
+    public void setArrayEnd(String arrayEnd) {
+        super.setArrayEnd(arrayEnd);
+    }",LANG_41,"org.apache.commons.lang.ClassUtils.getShortClassName(Ljava/lang/String;)Ljava/lang/String;,org.apache.commons.lang.ClassUtils.getPackageName(Ljava/lang/String;)Ljava/lang/String;","return out;,if (className == null) {,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,False
+src/main/java/org/apache/commons/lang3/math/NumberUtils.java,Yes,public Number createNumber(String str) throws NumberFormatException {,"if (str.startsWith(""0x"") || str.startsWith(""-0x"")) {
+            return createInteger(str);
+        }",LANG_16,org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,"if (str.startsWith(""0x"") || str.startsWith(""-0x"")) {",True,True,True
+src/main/java/org/apache/commons/lang3/text/FormatFactory.java,Yes,"Format getFormat(String name, String arguments, Locale locale)","Currently, the method getFormat() in FormatFactory.java does not handle upper-case hex values like 0X1234. This causes a NumberFormatException when trying to create a number from such values. The issue lies in the implementation of the method that does not account for upper-case hex values.",LANG_16,org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,"if (str.startsWith(""0x"") || str.startsWith(""-0x"")) {",False,False,False
+src/main/java/org/apache/commons/lang3/exception/ExceptionContext.java,Yes,"public ExceptionContext addContextValue(String label, Object value)",The bug is caused by the fact that the method addContextValue() does not handle upper-case hex values like 0X1234 correctly. The specific code snippet causing the bug is not provided in the checked code.,LANG_16,org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,"if (str.startsWith(""0x"") || str.startsWith(""-0x"")) {",False,False,False
+src/java/org/apache/commons/lang/LocaleUtils.java,Yes,public static boolean isAvailableLocale(Locale locale) {,return cAvailableLocaleSet.contains(locale);,LANG_57,org.apache.commons.lang.LocaleUtils.isAvailableLocale(Ljava/util/Locale;)Z,return cAvailableLocaleSet.contains(locale);,True,True,True
+src/java/org/apache/commons/lang/CharSet.java,No,,,LANG_57,org.apache.commons.lang.LocaleUtils.isAvailableLocale(Ljava/util/Locale;)Z,return cAvailableLocaleSet.contains(locale);,True,cannot locate method,cannot locate code block
+src/java/org/apache/commons/lang/exception/ExceptionUtils.java,Yes,public static Throwable getCause(Throwable throwable),"return getCause(throwable, CAUSE_METHOD_NAMES);",LANG_57,org.apache.commons.lang.LocaleUtils.isAvailableLocale(Ljava/util/Locale;)Z,return cAvailableLocaleSet.contains(locale);,False,False,False
+src/main/java/org/apache/commons/lang3/StringEscapeUtils.java,Yes,"public final void translate(CharSequence input, Writer out) throws IOException","out.write(CSV_QUOTE);
+out.write(StringUtils.replace(input.toString(), CSV_QUOTE_STR, CSV_QUOTE_STR + CSV_QUOTE_STR));
+out.write(CSV_QUOTE);",LANG_6,org.apache.commons.lang3.text.translate.CharSequenceTranslator.translate(Ljava/lang/CharSequence;Ljava/io/Writer;)V,"pos += Character.charCount(Character.codePointAt(input, pos));",False,False,False
+src/main/java/org/apache/commons/lang3/text/translate/AggregateTranslator.java,Yes,"public int translate(CharSequence input, int index, Writer out) throws IOException","for (CharSequenceTranslator translator : translators) {
+    int consumed = translator.translate(input, index, out);
+    if(consumed != 0) {
+        return consumed;
+    }
+}",LANG_6,org.apache.commons.lang3.text.translate.CharSequenceTranslator.translate(Ljava/lang/CharSequence;Ljava/io/Writer;)V,"pos += Character.charCount(Character.codePointAt(input, pos));",False,False,False
+src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java,Yes,"public final void translate(CharSequence input, Writer out) throws IOException","int consumed = translate(input, pos, out);
+if (consumed == 0) {
+    char[] c = Character.toChars(Character.codePointAt(input, pos));
+    out.write(c);
+    pos+= c.length;
+    continue;
+}
+// contract with translators is that they have to understand codepoints 
+// and they just took care of a surrogate pair
+for (int pt = 0; pt < consumed; pt++) {
+    pos += Character.charCount(Character.codePointAt(input, pos));
+}",LANG_6,org.apache.commons.lang3.text.translate.CharSequenceTranslator.translate(Ljava/lang/CharSequence;Ljava/io/Writer;)V,"pos += Character.charCount(Character.codePointAt(input, pos));",True,True,True
+src/java/org/apache/commons/lang/StringEscapeUtils.java,Yes,public static String escapeHtml(String str) {,"if (str == null) {
+    return null;
+}
+try {
+    StringWriter writer = new StringWriter ((int)(str.length() * 1.5));
+    escapeHtml(writer, str);
+    return writer.toString();
+} catch (IOException ioe) {
+    //should be impossible
+    throw new UnhandledException(ioe);
+}",LANG_42,org.apache.commons.lang.Entities.escape(Ljava/io/Writer;Ljava/lang/String;)V,"char c = str.charAt(i);,if (c > 0x7F) {",False,False,False
+src/java/org/apache/commons/lang/CharUtils.java,No,,,LANG_42,org.apache.commons.lang.Entities.escape(Ljava/io/Writer;Ljava/lang/String;)V,"char c = str.charAt(i);,if (c > 0x7F) {",True,cannot locate method,cannot locate code block
+src/java/org/apache/commons/lang/SerializationUtils.java,Yes,"public static void serialize(Serializable obj, OutputStream outputStream)","try {
+            // stream closed in the finally
+            out = new ObjectOutputStream(outputStream);
+            out.writeObject(obj);
+            
+        } catch (IOException ex) {
+            throw new SerializationException(ex);
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException ex) {
+                // ignore close exception
+            }
+        }",LANG_42,org.apache.commons.lang.Entities.escape(Ljava/io/Writer;Ljava/lang/String;)V,"char c = str.charAt(i);,if (c > 0x7F) {",False,False,False
+src/main/java/org/apache/commons/lang3/reflect/TypeUtils.java,Yes,"public static boolean isAssignable(Type type, Class<?> toClass)","private static boolean isAssignable(Type type, ParameterizedType toParameterizedType, Map<TypeVariable<?>, Type> typeVarAssigns)",LANG_15,"org.apache.commons.lang3.reflect.TypeUtils.isAssignable(Ljava/lang/reflect/Type;Ljava/lang/reflect/ParameterizedType;Ljava/util/Map;)Z,org.apache.commons.lang3.reflect.TypeUtils.getTypeArguments(Ljava/lang/Class;Ljava/lang/Class;Ljava/util/Map;)Ljava/util/Map;","for (Map.Entry<TypeVariable<?>, Type> entry : toTypeVarAssigns.entrySet()) {,Type toTypeArg = entry.getValue();,Type fromTypeArg = fromTypeVarAssigns.get(entry.getKey());,if (cls.getTypeParameters().length > 0 || toClass.equals(cls)) {",True,True,False
+src/main/java/org/apache/commons/lang3/ClassUtils.java,No,,,LANG_15,"org.apache.commons.lang3.reflect.TypeUtils.isAssignable(Ljava/lang/reflect/Type;Ljava/lang/reflect/ParameterizedType;Ljava/util/Map;)Z,org.apache.commons.lang3.reflect.TypeUtils.getTypeArguments(Ljava/lang/Class;Ljava/lang/Class;Ljava/util/Map;)Ljava/util/Map;","for (Map.Entry<TypeVariable<?>, Type> entry : toTypeVarAssigns.entrySet()) {,Type toTypeArg = entry.getValue();,Type fromTypeArg = fromTypeVarAssigns.get(entry.getKey());,if (cls.getTypeParameters().length > 0 || toClass.equals(cls)) {",True,cannot locate method,cannot locate code block
+src/main/java/org/apache/commons/lang3/reflect/MethodUtils.java,No,,,LANG_15,"org.apache.commons.lang3.reflect.TypeUtils.isAssignable(Ljava/lang/reflect/Type;Ljava/lang/reflect/ParameterizedType;Ljava/util/Map;)Z,org.apache.commons.lang3.reflect.TypeUtils.getTypeArguments(Ljava/lang/Class;Ljava/lang/Class;Ljava/util/Map;)Ljava/util/Map;","for (Map.Entry<TypeVariable<?>, Type> entry : toTypeVarAssigns.entrySet()) {,Type toTypeArg = entry.getValue();,Type fromTypeArg = fromTypeVarAssigns.get(entry.getKey());,if (cls.getTypeParameters().length > 0 || toClass.equals(cls)) {",True,cannot locate method,cannot locate code block
+src/java/org/apache/commons/lang/LocaleUtils.java,Yes,public static Locale toLocale(String str),"if (len != 2 && len != 5 && len < 7) {
+    throw new IllegalArgumentException(""Invalid locale format: "" + str);
+}",LANG_54,org.apache.commons.lang.LocaleUtils.toLocale(Ljava/lang/String;)Ljava/util/Locale;,FAULT_OF_OMISSION,True,True,ground truth are al FoOs
+src/java/org/apache/commons/lang/time/DateFormatUtils.java,Yes,"public static String format(Date date, String pattern, TimeZone timeZone, Locale locale) {","FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);
+return df.format(date);",LANG_54,org.apache.commons.lang.LocaleUtils.toLocale(Ljava/lang/String;)Ljava/util/Locale;,FAULT_OF_OMISSION,False,False,ground truth are al FoOs
+src/java/org/apache/commons/lang/time/FastDateFormat.java,Yes,protected void init(),"List rulesList = parsePattern();
+        mRules = (Rule[]) rulesList.toArray(new Rule[rulesList.size()]);
 
         int len = 0;
         for (int i=mRules.length; --i >= 0; ) {
             len += mRules[i].estimateLength();
         }
 
-        mMaxLengthEstimate = len;
+        mMaxLengthEstimate = len;",LANG_54,org.apache.commons.lang.LocaleUtils.toLocale(Ljava/lang/String;)Ljava/util/Locale;,FAULT_OF_OMISSION,False,False,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/LocaleUtils.java,Yes,public static Locale toLocale(final String str),"if (str.charAt(2) != '_') {
+    throw new IllegalArgumentException(""Invalid locale format: "" + str);
+}",LANG_5,org.apache.commons.lang3.LocaleUtils.toLocale(Ljava/lang/String;)Ljava/util/Locale;,"FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,True,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/text/FormatFactory.java,Yes,"Format getFormat(String name, String arguments, Locale locale)",The bug is caused by not handling the case where the input string starts with an underscore in the getFormat method.,LANG_5,org.apache.commons.lang3.LocaleUtils.toLocale(Ljava/lang/String;)Ljava/util/Locale;,"FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/time/DateParser.java,Yes,public interface DateParser {,LocaleUtils.toLocale method,LANG_5,org.apache.commons.lang3.LocaleUtils.toLocale(Ljava/lang/String;)Ljava/util/Locale;,"FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,ground truth are al FoOs
+src/java/org/apache/commons/lang3/builder/EqualsBuilder.java,No,,,LANG_39,org.apache.commons.lang3.StringUtils.replaceEach(Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;ZI)Ljava/lang/String;,FAULT_OF_OMISSION,True,cannot locate method,cannot locate code block
+src/java/org/apache/commons/lang3/ObjectUtils.java,Yes,"public static Object defaultIfNull(Object object, Object defaultValue) {",return object != null ? object : defaultValue;,LANG_39,org.apache.commons.lang3.StringUtils.replaceEach(Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;ZI)Ljava/lang/String;,FAULT_OF_OMISSION,False,False,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/StringEscapeUtils.java,Yes,public static final String unescapeHtml4(String input),"public static final String unescapeHtml4(String input) {
+        return UNESCAPE_HTML4.translate(input);
+    }",LANG_19,org.apache.commons.lang3.text.translate.NumericEntityUnescaper.translate(Ljava/lang/CharSequence;ILjava/io/Writer;)I,,False,False,no ground truth block
+src/main/java/org/apache/commons/lang3/text/translate/AggregateTranslator.java,Yes,"public int translate(CharSequence input, int index, Writer out) throws IOException","int consumed = translator.translate(input, index, out);
+if(consumed != 0) {
+    return consumed;
+}",LANG_19,org.apache.commons.lang3.text.translate.NumericEntityUnescaper.translate(Ljava/lang/CharSequence;ILjava/io/Writer;)I,,False,False,no ground truth block
+src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java,Yes,"public final void translate(CharSequence input, Writer out) throws IOException {","for (int i = 0; i < sz; i++) {
 
-src/java/org/apache/commons/lang3/math/NumberUtils.java,Yes,public static Number createNumber(String str) throws NumberFormatException {,"if (chars[i] == '.') {
-    if (hasDecPoint || hasExp) {
-        // two decimal points or dec in exponent   
-        return false;
-    }
-    return foundDigit; // single trailing decimal point after non-exponent is ok
+            // consumed is the number of codepoints consumed
+            int consumed = translate(input, i, out);
 
-        }
-
-        // Loops through array, comparing each item
-        int trueCount = 0;
-        for (boolean element : array) {
-            // If item is true, and trueCount is < 1, increments count
-            // Else, xor fails
-            if (element) {
-                if (trueCount < 1) {
-                    trueCount++;
-                } else {
-                    return false;
-                }
-            }
-        }
-
-        // Returns true if there was exactly 1 true item
-        return trueCount == 1;
-    }","if (element) {
-                if (trueCount < 1) {
-                    trueCount++;
-                } else {
-                    return false;
-                }
-            }",LANG_36,"org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,org.apache.commons.lang3.math.NumberUtils.isNumber(Ljava/lang/String;)Z","if (!Character.isDigit(lastChar)) {,FAULT_OF_OMISSION",False,False,False
-src/java/org/apache/commons/lang3/builder/HashCodeBuilder.java,No,,,LANG_36,"org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,org.apache.commons.lang3.math.NumberUtils.isNumber(Ljava/lang/String;)Z","if (!Character.isDigit(lastChar)) {,FAULT_OF_OMISSION",True,cannot locate method,cannot locate code block
-src/java/org/apache/commons/lang/ClassUtils.java,Yes,public static String getShortClassName(String className),"out = out.replace(INNER_CLASS_SEPARATOR_CHAR, PACKAGE_SEPARATOR_CHAR);",LANG_41,"org.apache.commons.lang.ClassUtils.getShortClassName(Ljava/lang/String;)Ljava/lang/String;,org.apache.commons.lang.ClassUtils.getPackageName(Ljava/lang/String;)Ljava/lang/String;","return out;,if (className == null) {,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,True,False
-src/java/org/apache/commons/lang/builder/StandardToStringStyle.java,Yes,"public String getShortClassName(Object object, String valueIfNull)",String shortClassName = getShortClassName(object);,LANG_41,"org.apache.commons.lang.ClassUtils.getShortClassName(Ljava/lang/String;)Ljava/lang/String;,org.apache.commons.lang.ClassUtils.getPackageName(Ljava/lang/String;)Ljava/lang/String;","return out;,if (className == null) {,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,False
-src/main/java/org/apache/commons/lang3/math/NumberUtils.java,Yes,public Number createNumber(String str) throws NumberFormatException {,"if (str.startsWith(""0x"") || str.startsWith(""-0x"")) {
-            return createInteger(str);
-
-            if (str.charAt(2) != '_') {
-                throw new IllegalArgumentException(""Invalid locale format: "" + str);
-            }
-            char ch3 = str.charAt(3);
-            char ch4 = str.charAt(4);
-            if (ch3 < 'A' || ch3 > 'Z' || ch4 < 'A' || ch4 > 'Z') {
-                throw new IllegalArgumentException(""Invalid locale format: "" + str);
-            }
-            if (len == 5) {
-                return new Locale(str.substring(0, 2), str.substring(3, 5));
+            if (consumed == 0) {
+                out.write(Character.toChars(Character.codePointAt(input, i)));
             } else {
-                if (str.charAt(5) != '_') {
-                    throw new IllegalArgumentException(""Invalid locale format: "" + str);
+                // contract with translators is that they have to understand codepoints 
+                // and they just took care of a surrogate pair
+                for (int j = 0; j < consumed; j++) {
+                    if (i < sz - 2) {
+                        i += Character.charCount(Character.codePointAt(input, i));
+                    } else {
+                        // If the String ends with a high surrogate, just add the 1 and don't worry about such things
+                        i++;
+                    }
                 }
-                return new Locale(str.substring(0, 2), str.substring(3, 5), str.substring(6));
+                // for loop will increment 1 anyway, so remove 1 to account for that
+                i--;
             }
-        }",LANG_54,org.apache.commons.lang.LocaleUtils.toLocale(Ljava/lang/String;)Ljava/util/Locale;,FAULT_OF_OMISSION,True,True,ground truth are al FoOs
-src/java/org/apache/commons/lang/time/DateFormatUtils.java,No,,,LANG_54,org.apache.commons.lang.LocaleUtils.toLocale(Ljava/lang/String;)Ljava/util/Locale;,FAULT_OF_OMISSION,True,cannot locate method,cannot locate code block
-src/java/org/apache/commons/lang/time/FastDateFormat.java,No,,,LANG_54,org.apache.commons.lang.LocaleUtils.toLocale(Ljava/lang/String;)Ljava/util/Locale;,FAULT_OF_OMISSION,True,cannot locate method,cannot locate code block
-src/main/java/org/apache/commons/lang3/LocaleUtils.java,Yes,public static Locale toLocale(final String str) {,"if (str.charAt(2) != '_') {
-                throw new IllegalArgumentException(""Invalid locale format: "" + str);
+        }",LANG_19,org.apache.commons.lang3.text.translate.NumericEntityUnescaper.translate(Ljava/lang/CharSequence;ILjava/io/Writer;)I,,False,False,no ground truth block
+src/java/org/apache/commons/lang/NumberUtils.java,Yes,public static Number createNumber(String val) throws NumberFormatException {,"if (val.startsWith(""0x"") || val.startsWith(""-0x"")) {
+            return createInteger(val);
+        }   
+        char lastChar = val.charAt(val.length() - 1);
+        String mant;
+        String dec;
+        String exp;
+        int decPos = val.indexOf('.');
+        int expPos = val.indexOf('e') + val.indexOf('E') + 1;
 
+        if (decPos > -1) {
+
+            if (expPos > -1) {
+                if (expPos < decPos) {
+                    throw new NumberFormatException(val + "" is not a valid number."");
+                }
+                dec = val.substring(decPos + 1, expPos);
+            } else {
+                dec = val.substring(decPos + 1);
+            }
+            mant = val.substring(0, decPos);
+        } else {
+            if (expPos > -1) {
+                mant = val.substring(0, expPos);
+            } else {
+                mant = val;
+            }
+            dec = null;
+        }
+        if (!Character.isDigit(lastChar)) {
+            if (expPos > -1 && expPos < val.length() - 1) {
+                exp = val.substring(expPos + 1, val.length() - 1);
+            } else {
+                exp = null;
+            }
+            //Requesting a specific type..
+            String numeric = val.substring(0, val.length() - 1);
+            boolean allZeros = isAllZeros(mant) && isAllZeros(exp);
+            switch (lastChar) {
+                case 'l' :
+                case 'L' :
+                    if (dec == null
+                        && exp == null
+                        && (numeric.charAt(0) == '-' && isDigits(numeric.substring(1)) || isDigits(numeric))) {
+                        try {
+                            return createLong(numeric);
+                        } catch (NumberFormatException nfe) {
+                            //Too big for a long
+                        }
+                        return createBigInteger(numeric);
+
+                    }
+                    throw new NumberFormatException(val + "" is not a valid number."");
+                case 'f' :
+                case 'F' :
+                    try {
+                        Float f = NumberUtils.createFloat(numeric);
+                        if (!(f.isInfinite() || (f.floatValue() == 0.0F && !allZeros))) {
+                            //If it's too big for a float or the float value = 0 and the string
+                            //has non-zeros in it, then float does not have the precision we want
+                            return f;
+                        }
+
+                    } catch (NumberFormatException e) {
+                        // ignore the bad number
+                    }
+                    //Fall through
+                case 'd' :
+                case 'D' :
+                    try {
+                        Double d = NumberUtils.createDouble(numeric);
+                        if (!(d.isInfinite() || (d.floatValue() == 0.0D && !allZeros))) {
+                            return d;
+                        }
+                    } catch (NumberFormatException nfe) {
+                        // empty catch
+                    }
+                    try {
+                        return createBigDecimal(numeric);
+                    } catch (NumberFormatException e) {
+                        // empty catch
+                    }
+                    //Fall through
+                default :
+                    throw new NumberFormatException(val + "" is not a valid number."");
+
+            }
+        } else {
+            //User doesn't have a preference on the return type, so let's start
+            //small and go from there...
+            if (expPos > -1 && expPos < val.length() - 1) {
+                exp = val.substring(expPos + 1, val.length());
+            } else {
+                exp = null;
+            }
+            if (dec == null && exp == null) {
+                //Must be an int,long,bigint
+                try {
+                    return createInteger(val);
+                } catch (NumberFormatException nfe) {
+                    // empty catch
+                }
+                try {
+                    return createLong(val);
+                } catch (NumberFormatException nfe) {
+                    // empty catch
+                }
+                return createBigInteger(val);
+
+            } else {
+                //Must be a float,double,BigDec
+                boolean allZeros = isAllZeros(mant) && isAllZeros(exp);
+                try {
+                    Float f = createFloat(val);
+                    if (!(f.isInfinite() || (f.floatValue() == 0.0F && !allZeros))) {
+                        return f;
+                    }
+                } catch (NumberFormatException nfe) {
+                    // empty catch
+                }
+                try {
+                    Double d = createDouble(val);
+                    if (!(d.isInfinite() || (d.doubleValue() == 0.0D && !allZeros))) {
+                        return d;
+                    }
+                } catch (NumberFormatException nfe) {
+                    // empty catch
+                }
+
+                return createBigDecimal(val);
+
+            }
+
+        }",LANG_58,org.apache.commons.lang.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,"&& isDigits(numeric.substring(1)),&& (numeric.charAt(0) == '-' || Character.isDigit(numeric.charAt(0)))) {",True,True,True
+src/java/org/apache/commons/lang/math/NumberUtils.java,Yes,public Number createNumber(String str) throws NumberFormatException {,"if (lhsBits == rhsBits) {
+            return 0;
+        }
+        // Something exotic! A comparison to NaN or 0.0 vs -0.0
+        // Fortunately NaN's long is > than everything else
+        // Also negzeros bits < poszero
+        // NAN: 9221120237041090560
+        // MAX: 9218868437227405311
+        // NEGZERO: -9223372036854775808
+        if (lhsBits < rhsBits) {
+            return -1;
+        } else {
+            return +1;
+        }",LANG_58,org.apache.commons.lang.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,"&& isDigits(numeric.substring(1)),&& (numeric.charAt(0) == '-' || Character.isDigit(numeric.charAt(0)))) {",True,True,False
+src/java/org/apache/commons/lang/text/CompositeFormat.java,Yes,"public Object parseObject(String source, ParsePosition pos) {","return parser.parseObject(source,pos);",LANG_58,org.apache.commons.lang.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,"&& isDigits(numeric.substring(1)),&& (numeric.charAt(0) == '-' || Character.isDigit(numeric.charAt(0)))) {",False,False,False
+src/main/java/org/apache/commons/lang3/text/ExtendedMessageFormat.java,Yes,public final void applyPattern(String pattern),"switch (c[pos.getIndex()]) {
+            case QUOTE:
+                appendQuotedString(pattern, pos, stripCustom, true);
+                break;
+            case START_FE:
+                fmtCount++;
+                seekNonWs(pattern, pos);
+                int start = pos.getIndex();
+                int index = readArgumentIndex(pattern, next(pos));
+                stripCustom.append(START_FE).append(index);
+                seekNonWs(pattern, pos);
+                Format format = null;
+                String formatDescription = null;
+                if (c[pos.getIndex()] == START_FMT) {
+                    formatDescription = parseFormatDescription(pattern,
+                            next(pos));
+                    format = getFormat(formatDescription);
+                    if (format == null) {
+                        stripCustom.append(START_FMT).append(formatDescription);
+                    }
+                }
+                foundFormats.add(format);
+                foundDescriptions.add(format == null ? null : formatDescription);
+                Validate.isTrue(foundFormats.size() == fmtCount);
+                Validate.isTrue(foundDescriptions.size() == fmtCount);
+                if (c[pos.getIndex()] != END_FE) {
+                    throw new IllegalArgumentException(
+                            ""Unreadable format element at position "" + start);
+                }
+                //$FALL-THROUGH$
+            default:
+                stripCustom.append(c[pos.getIndex()]);
+                next(pos);
+            }",LANG_23,,"FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",no ground truth method,no ground truth method,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/text/FormatFactory.java,Yes,"Format getFormat(String name, String arguments, Locale locale)","This class extends a class that defines an equals method and adds fields, but doesn't define an equals method itself.",LANG_23,,"FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",no ground truth method,no ground truth method,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/builder/StandardToStringStyle.java,Yes,public class StandardToStringStyle extends ToStringStyle {,"public boolean isUseClassName() {
+        return super.isUseClassName();
+    }
+
+    public boolean isUseShortClassName() {
+        return super.isUseShortClassName();
+    }
+
+    public boolean isUseIdentityHashCode() {
+        return super.isUseIdentityHashCode();
+    }
+
+    public boolean isUseFieldNames() {
+        return super.isUseFieldNames();
+    }
+
+    public boolean isDefaultFullDetail() {
+        return super.isDefaultFullDetail();
+    }
+
+    public boolean isArrayContentDetail() {
+        return super.isArrayContentDetail();
+    }
+
+    public String getArrayStart() {
+        return super.getArrayStart();
+    }
+
+    public String getArrayEnd() {
+        return super.getArrayEnd();
+    }
+
+    public String getArraySeparator() {
+        return super.getArraySeparator();
+    }
+
+    public String getContentStart() {
+        return super.getContentStart();
+    }
+
+    public String getContentEnd() {
+        return super.getContentEnd();
+    }
+
+    public String getFieldNameValueSeparator() {
+        return super.getFieldNameValueSeparator();
+    }
+
+    public String getFieldSeparator() {
+        return super.getFieldSeparator();
+    }
+
+    public boolean isFieldSeparatorAtStart() {
+        return super.isFieldSeparatorAtStart();
+    }
+
+    public boolean isFieldSeparatorAtEnd() {
+        return super.isFieldSeparatorAtEnd();
+    }
+
+    public String getNullText() {
+        return super.getNullText();
+    }
+
+    public String getSizeStartText() {
+        return super.getSizeStartText();
+    }
+
+    public String getSizeEndText() {
+        return super.getSizeEndText();
+    }
+
+    public String getSummaryObjectStartText() {
+        return super.getSummaryObjectStartText();
+    }
+
+    public String getSummaryObjectEndText() {
+        return super.getSummaryObjectEndText();
+    }",LANG_23,,"FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",no ground truth method,no ground truth method,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/time/FastDateFormat.java,Yes,public Date parse(String source) throws ParseException {,return parser.parse(source);,LANG_9,org.apache.commons.lang3.time.FastDateParser.init()V,FAULT_OF_OMISSION,False,False,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java,Yes,"public static String format(Date date, String pattern)","FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);
+return df.format(date);",LANG_9,org.apache.commons.lang3.time.FastDateParser.init()V,FAULT_OF_OMISSION,False,False,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/time/DateParser.java,Yes,DateParser interface,parse(String source) method,LANG_9,org.apache.commons.lang3.time.FastDateParser.init()V,FAULT_OF_OMISSION,False,False,ground truth are al FoOs
+src/java/org/apache/commons/lang/Entities.java,Yes,public void testNumberOverflow() throws Exception,"doTestUnescapeEntity(""&amp;#12345678;"", ""&amp;#12345678;"");
+        doTestUnescapeEntity(""x&amp;#12345678;y"", ""x&amp;#12345678;y"");
+        doTestUnescapeEntity(""&amp;#x12345678;"", ""&amp;#x12345678;"");
+        doTestUnescapeEntity(""x&amp;#x12345678;y"", ""x&amp;#x12345678;y"");",LANG_62,"org.apache.commons.lang.Entities.unescape(Ljava/lang/String;)Ljava/lang/String;,org.apache.commons.lang.Entities.unescape(Ljava/io/Writer;Ljava/lang/String;)V","FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,False,ground truth are al FoOs
+src/java/org/apache/commons/lang/StringEscapeUtils.java,Yes,public static String escapeJava(String str) {,"if (ch > 0xfff) {
+    out.write(""\\u"" + hex(ch));
+} else if (ch > 0xff) {
+    out.write(""\\u0"" + hex(ch));
+} else if (ch > 0x7f) {
+    out.write(""\\u00"" + hex(ch));
+} else if (ch < 32) {
+    switch (ch) {
+        case '\b':
+            out.write('\\');
+            out.write('b');
+            break;
+        case '\n':
+            out.write('\\');
+            out.write('n');
+            break;
+        case '\t':
+            out.write('\\');
+            out.write('t');
+            break;
+        case '\f':
+            out.write('\\');
+            out.write('f');
+            break;
+        case '\r':
+            out.write('\\');
+            out.write('r');
+            break;
+        default :
+            if (ch > 0xf) {
+                out.write(""\\u00"" + hex(ch));
+            } else {
+                out.write(""\\u000"" + hex(ch));
+            }
+            break;
+    }
+} else {
+    switch (ch) {
+        case '\\':
+            out.write('\\');
+            out.write('\\');
+            break;
+        case '""':
+            out.write('\\');
+            out.write('""');
+            break;
+        default :
+            out.write(ch);
+            break;
+    }
+}",LANG_62,"org.apache.commons.lang.Entities.unescape(Ljava/lang/String;)Ljava/lang/String;,org.apache.commons.lang.Entities.unescape(Ljava/io/Writer;Ljava/lang/String;)V","FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,ground truth are al FoOs
+src/java/org/apache/commons/lang/exception/Nestable.java,No,,,LANG_62,"org.apache.commons.lang.Entities.unescape(Ljava/lang/String;)Ljava/lang/String;,org.apache.commons.lang.Entities.unescape(Ljava/io/Writer;Ljava/lang/String;)V","FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,cannot locate method,cannot locate code block
+src/main/java/org/apache/commons/lang3/exception/ExceptionContext.java,Yes,"public ExceptionContext addValue(String label, Object value)","if (label == null) {
+    throw new IllegalArgumentException(""The label cannot be null"");
+}
+
+if (value == null) {
+    throw new IllegalArgumentException(""The value cannot be null"");
+}",LANG_35,"org.apache.commons.lang3.ArrayUtils.add([Ljava/lang/Object;Ljava/lang/Object;)[Ljava/lang/Object;,org.apache.commons.lang3.ArrayUtils.add([Ljava/lang/Object;ILjava/lang/Object;)[Ljava/lang/Object;","type = Object.class;,return (T[]) new Object[] { null };",False,False,False
+src/main/java/org/apache/commons/lang3/ClassUtils.java,No,,,LANG_35,"org.apache.commons.lang3.ArrayUtils.add([Ljava/lang/Object;Ljava/lang/Object;)[Ljava/lang/Object;,org.apache.commons.lang3.ArrayUtils.add([Ljava/lang/Object;ILjava/lang/Object;)[Ljava/lang/Object;","type = Object.class;,return (T[]) new Object[] { null };",True,cannot locate method,cannot locate code block
+src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java,Yes,public String toString(),"if (this.getObject() == null) {
+    this.getStringBuffer().append(this.getStyle().getNullText());
+} else {
+    style.appendEnd(this.getStringBuffer(), this.getObject());
+}",LANG_34,"org.apache.commons.lang3.builder.ToStringStyle.getRegistry()Ljava/util/Map;,org.apache.commons.lang3.builder.ToStringStyle.isRegistered(Ljava/lang/Object;)Z","return REGISTRY.get() != null ? REGISTRY.get() : Collections.<Object, Object>emptyMap();,return m.containsKey(value);",False,False,False
+src/main/java/org/apache/commons/lang3/LocaleUtils.java,Yes,public static Locale toLocale(String str),"if (len != 2 && len != 5 && len < 7) {
+    throw new IllegalArgumentException(""Invalid locale format: "" + str);
+}",LANG_34,"org.apache.commons.lang3.builder.ToStringStyle.getRegistry()Ljava/util/Map;,org.apache.commons.lang3.builder.ToStringStyle.isRegistered(Ljava/lang/Object;)Z","return REGISTRY.get() != null ? REGISTRY.get() : Collections.<Object, Object>emptyMap();,return m.containsKey(value);",False,False,False
+src/main/java/org/apache/commons/lang3/builder/ReflectionToStringBuilder.java,Yes,public static String toString(Object object),"return toString(object, null, false, false, null);",LANG_34,"org.apache.commons.lang3.builder.ToStringStyle.getRegistry()Ljava/util/Map;,org.apache.commons.lang3.builder.ToStringStyle.isRegistered(Ljava/lang/Object;)Z","return REGISTRY.get() != null ? REGISTRY.get() : Collections.<Object, Object>emptyMap();,return m.containsKey(value);",False,False,False
 src/java/org/apache/commons/lang/time/DurationFormatUtils.java,Yes,"public static String formatDuration(long durationMillis, String format)","if (Token.containsTokenWithValue(tokens, d) ) {
             days = (int) (durationMillis / DateUtils.MILLIS_PER_DAY);
             durationMillis = durationMillis - (days * DateUtils.MILLIS_PER_DAY);
@@ -174,128 +912,423 @@ src/java/org/apache/commons/lang/time/DurationFormatUtils.java,Yes,"public stati
         }
         if (Token.containsTokenWithValue(tokens, S) ) {
             milliseconds = (int) durationMillis;
+        }",LANG_63,"org.apache.commons.lang.time.DurationFormatUtils.formatPeriod(JJLjava/lang/String;ZLjava/util/TimeZone;)Ljava/lang/String;,org.apache.commons.lang.time.DurationFormatUtils.format([Lorg/apache/commons/lang/time/DurationFormatUtils$Token;IIIIIIIZ)Ljava/lang/String;,org.apache.commons.lang.time.DurationFormatUtils.reduceAndCorrect(Ljava/util/Calendar;Ljava/util/Calendar;II)I","days += 31;,milliseconds -= reduceAndCorrect(start, end, Calendar.MILLISECOND, milliseconds);,seconds -= reduceAndCorrect(start, end, Calendar.SECOND, seconds);,minutes -= reduceAndCorrect(start, end, Calendar.MINUTE, minutes);,hours -= reduceAndCorrect(start, end, Calendar.HOUR_OF_DAY, hours);,days -= reduceAndCorrect(start, end, Calendar.DAY_OF_MONTH, days);,months -= reduceAndCorrect(start, end, Calendar.MONTH, months);,years -= reduceAndCorrect(start, end, Calendar.YEAR, years);,},static int reduceAndCorrect(Calendar start, Calendar end, int field, int difference) {,end.add( field, -1 * difference );,int endValue = end.get(field);,int startValue = start.get(field);,if (endValue < startValue) {,int newdiff = startValue - endValue;,end.add( field, newdiff );,return newdiff;,} else {,return 0;,},FAULT_OF_OMISSION",True,False,True
+src/java/org/apache/commons/lang/time/DateFormatUtils.java,Yes,"public static String formatUTC(long millis, String pattern)","return format(new Date(millis), pattern, DateUtils.UTC_TIME_ZONE, null);",LANG_63,"org.apache.commons.lang.time.DurationFormatUtils.formatPeriod(JJLjava/lang/String;ZLjava/util/TimeZone;)Ljava/lang/String;,org.apache.commons.lang.time.DurationFormatUtils.format([Lorg/apache/commons/lang/time/DurationFormatUtils$Token;IIIIIIIZ)Ljava/lang/String;,org.apache.commons.lang.time.DurationFormatUtils.reduceAndCorrect(Ljava/util/Calendar;Ljava/util/Calendar;II)I","days += 31;,milliseconds -= reduceAndCorrect(start, end, Calendar.MILLISECOND, milliseconds);,seconds -= reduceAndCorrect(start, end, Calendar.SECOND, seconds);,minutes -= reduceAndCorrect(start, end, Calendar.MINUTE, minutes);,hours -= reduceAndCorrect(start, end, Calendar.HOUR_OF_DAY, hours);,days -= reduceAndCorrect(start, end, Calendar.DAY_OF_MONTH, days);,months -= reduceAndCorrect(start, end, Calendar.MONTH, months);,years -= reduceAndCorrect(start, end, Calendar.YEAR, years);,},static int reduceAndCorrect(Calendar start, Calendar end, int field, int difference) {,end.add( field, -1 * difference );,int endValue = end.get(field);,int startValue = start.get(field);,if (endValue < startValue) {,int newdiff = startValue - endValue;,end.add( field, newdiff );,return newdiff;,} else {,return 0;,},FAULT_OF_OMISSION",False,False,False
+src/java/org/apache/commons/lang/time/FastDateFormat.java,Yes,protected void init(),"List rulesList = parsePattern();
+        mRules = (Rule[]) rulesList.toArray(new Rule[rulesList.size()]);
 
         int len = 0;
         for (int i=mRules.length; --i >= 0; ) {
             len += mRules[i].estimateLength();
         }
 
-        mMaxLengthEstimate = len;
-    }","for (int i = 0; i < length; i++) {
-            indexRef[0] = i;
-            String token = parseToken(mPattern, indexRef);
-            i = indexRef[0];
-
-            int tokenLen = token.length();
-            if (tokenLen == 0) {
-                break;
-            }
-
-            Rule rule;
-            char c = token.charAt(0);
-
-            switch (c) {
-            case 'G': // era designator (text)
-                rule = new TextField(Calendar.ERA, ERAs);
-                break;
-            case 'y': // year (number)
-                if (tokenLen >= 4) {
-                    rule = selectNumberRule(Calendar.YEAR, tokenLen);
-                } else {
-                    rule = TwoDigitYearField.INSTANCE;
-                }
-                break;
-            case 'M': // month in year (text and number)
-                if (tokenLen >= 4) {
-                    rule = new TextField(Calendar.MONTH, months);
-                } else if (tokenLen == 3) {
-                    rule = new TextField(Calendar.MONTH, shortMonths);
-                } else if (tokenLen == 2) {
-                    rule = TwoDigitMonthField.INSTANCE;
-                } else {
-                    rule = UnpaddedMonthField.INSTANCE;
-                }
-                break;
-            case 'd': // day in month (number)
-                rule = selectNumberRule(Calendar.DAY_OF_MONTH, tokenLen);
-                break;
-            case 'h': // hour in am/pm (number, 1..12)
-                rule = new TwelveHourField(selectNumberRule(Calendar.HOUR, tokenLen));
-                break;
-            case 'H': // hour in day (number, 0..23)
-                rule = selectNumberRule(Calendar.HOUR_OF_DAY, tokenLen);
-                break;
-            case 'm': // minute in hour (number)
-                rule = selectNumberRule(Calendar.MINUTE, tokenLen);
-                break;
-            case 's': // second in minute (number)
-                rule = selectNumberRule(Calendar.SECOND, tokenLen);
-                break;
-            case 'S': // millisecond (number)
-                rule = selectNumberRule(Calendar.MILLISECOND, tokenLen);
-                break;
-            case 'E': // day in week (text)
-                rule = new TextField(Calendar.DAY_OF_WEEK, tokenLen < 4 ? shortWeekdays : weekdays);
-                break;
-            case 'D': // day in year (number)
-                rule = selectNumberRule(Calendar.DAY_OF_YEAR, tokenLen);
-                break;
-            case 'F': // day of week in month (number)
-                rule = selectNumberRule(Calendar.DAY_OF_WEEK_IN_MONTH, tokenLen);
-                break;
-            case 'w': // week in year (number)
-                rule = selectNumberRule(Calendar.WEEK_OF_YEAR, tokenLen);
-                break;
-            case 'W': // week in month (number)
-                rule = selectNumberRule(Calendar.WEEK_OF_MONTH, tokenLen);
-                break;
-            case 'a': // am/pm marker (text)
-                rule = new TextField(Calendar.AM_PM, AmPmStrings);
-                break;
-            case 'k': // hour in day (1..24)
-                rule = new TwentyFourHourField(selectNumberRule(Calendar.HOUR_OF_DAY, tokenLen));
-                break;
-            case 'K': // hour in am/pm (0..11)
-                rule = selectNumberRule(Calendar.HOUR, tokenLen);
-                break;
-            case 'z': // time zone (text)
-                if (tokenLen >= 4) {
-                    rule = new TimeZoneNameRule(mTimeZone, mTimeZoneForced, mLocale, TimeZone.LONG);
-                } else {
-                    rule = new TimeZoneNameRule(mTimeZone, mTimeZoneForced, mLocale, TimeZone.SHORT);
-                }
-                break;
-            case 'Z': // time zone (value)
-                if (tokenLen == 1) {
-                    rule = TimeZoneNumberRule.INSTANCE_NO_COLON;
-                } else {
-                    rule = TimeZoneNumberRule.INSTANCE_COLON;
-                }
-                break;
-            case '\'': // literal text
-                String sub = token.substring(1);
-                if (sub.length() == 1) {
-                    rule = new CharacterLiteral(sub.charAt(0));
-                } else {
-                    rule = new StringLiteral(sub);
-                }
-                break;
-            default:
-                throw new IllegalArgumentException(""Illegal pattern component: "" + token);
-            }
-
-            rules.add(rule);
-
-        if (date == null) {
-            throw new IllegalArgumentException(""The date must not be null"");
+        mMaxLengthEstimate = len;",LANG_63,"org.apache.commons.lang.time.DurationFormatUtils.formatPeriod(JJLjava/lang/String;ZLjava/util/TimeZone;)Ljava/lang/String;,org.apache.commons.lang.time.DurationFormatUtils.format([Lorg/apache/commons/lang/time/DurationFormatUtils$Token;IIIIIIIZ)Ljava/lang/String;,org.apache.commons.lang.time.DurationFormatUtils.reduceAndCorrect(Ljava/util/Calendar;Ljava/util/Calendar;II)I","days += 31;,milliseconds -= reduceAndCorrect(start, end, Calendar.MILLISECOND, milliseconds);,seconds -= reduceAndCorrect(start, end, Calendar.SECOND, seconds);,minutes -= reduceAndCorrect(start, end, Calendar.MINUTE, minutes);,hours -= reduceAndCorrect(start, end, Calendar.HOUR_OF_DAY, hours);,days -= reduceAndCorrect(start, end, Calendar.DAY_OF_MONTH, days);,months -= reduceAndCorrect(start, end, Calendar.MONTH, months);,years -= reduceAndCorrect(start, end, Calendar.YEAR, years);,},static int reduceAndCorrect(Calendar start, Calendar end, int field, int difference) {,end.add( field, -1 * difference );,int endValue = end.get(field);,int startValue = start.get(field);,if (endValue < startValue) {,int newdiff = startValue - endValue;,end.add( field, newdiff );,return newdiff;,} else {,return 0;,},FAULT_OF_OMISSION",False,False,True
+src/main/java/org/apache/commons/lang3/time/FastDateFormat.java,Yes,public String format(Calendar calendar),return printer.format(calendar);,LANG_8,"org.apache.commons.lang3.time.FastDatePrinter$TimeZoneNameRule.<init>(Ljava/util/TimeZone;Ljava/util/Locale;I)V,org.apache.commons.lang3.time.FastDatePrinter$TimeZoneNameRule.appendTo(Ljava/lang/StringBuffer;Ljava/util/Calendar;)V","private final TimeZone zone;,zone = timeZone;,FAULT_OF_OMISSION",False,False,False
+src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java,Yes,"public static String format(Date date, String pattern)","FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);
+return df.format(date);",LANG_8,"org.apache.commons.lang3.time.FastDatePrinter$TimeZoneNameRule.<init>(Ljava/util/TimeZone;Ljava/util/Locale;I)V,org.apache.commons.lang3.time.FastDatePrinter$TimeZoneNameRule.appendTo(Ljava/lang/StringBuffer;Ljava/util/Calendar;)V","private final TimeZone zone;,zone = timeZone;,FAULT_OF_OMISSION",False,False,False
+src/main/java/org/apache/commons/lang3/time/FastDateParser.java,Yes,private void init() {,"Matcher patternMatcher= formatPattern.matcher(pattern);
+        if(!patternMatcher.lookingAt()) {
+            throw new IllegalArgumentException(
+                    ""Illegal pattern character '"" + pattern.charAt(patternMatcher.regionStart()) + ""'"");
         }
-        Calendar gval = Calendar.getInstance();
-        gval.setTime(date);
-        modify(gval, field, false);
-        return gval.getTime();
 
+        currentFormatField= patternMatcher.group();
+        Strategy currentStrategy= getStrategy(currentFormatField, definingCalendar);
+        for(;;) {
+            patternMatcher.region(patternMatcher.end(), patternMatcher.regionEnd());
+            if(!patternMatcher.lookingAt()) {
+                nextStrategy = null;
+                break;
+            }
+            String nextFormatField= patternMatcher.group();
+            nextStrategy = getStrategy(nextFormatField, definingCalendar);
+            if(currentStrategy.addRegex(this, regex)) {
+                collector.add(currentStrategy);
+            }
+            currentFormatField= nextFormatField;
+            currentStrategy= nextStrategy;
+        }
+        if (patternMatcher.regionStart() != patternMatcher.regionEnd()) {
+            throw new IllegalArgumentException(""Failed to parse \""""+pattern+""\"" ; gave up at index ""+patternMatcher.regionStart());
+        }
+        if(currentStrategy.addRegex(this, regex)) {
+            collector.add(currentStrategy);
+        }
+        currentFormatField= null;
+        strategies= collector.toArray(new Strategy[collector.size()]);
+        parsePattern= Pattern.compile(regex.toString());",LANG_8,"org.apache.commons.lang3.time.FastDatePrinter$TimeZoneNameRule.<init>(Ljava/util/TimeZone;Ljava/util/Locale;I)V,org.apache.commons.lang3.time.FastDatePrinter$TimeZoneNameRule.appendTo(Ljava/lang/StringBuffer;Ljava/util/Calendar;)V","private final TimeZone zone;,zone = timeZone;,FAULT_OF_OMISSION",False,False,False
+src/main/java/org/apache/commons/lang3/math/Fraction.java,Yes,"private Fraction getReducedFraction(int numerator, int denominator) {","if (denominator == 0) {
+            throw new ArithmeticException(""The denominator must not be zero"");
+        }
+        if (numerator==0) {
+            return ZERO; // normalize zero.
+        }
+        // allow 2^k/-2^31 as a valid fraction (where k>0)
+        if (denominator==Integer.MIN_VALUE && (numerator&1)==0) {
+            numerator/=2; denominator/=2;
+        }
+        if (denominator < 0) {
+            if (numerator==Integer.MIN_VALUE ||
+                    denominator==Integer.MIN_VALUE) {
+                throw new ArithmeticException(""overflow: can't negate"");
+            }
+            numerator = -numerator;
+            denominator = -denominator;
+        }
+        // simplify fraction.
+        int gcd = greatestCommonDivisor(numerator, denominator);
+        numerator /= gcd;
+        denominator /= gcd;
+        return new Fraction(numerator, denominator);",LANG_22,org.apache.commons.lang3.math.Fraction.greatestCommonDivisor(II)I,"if (Math.abs(u) <= 1 || Math.abs(v) <= 1) {,FAULT_OF_OMISSION",True,False,False
+src/main/java/org/apache/commons/lang3/math/NumberUtils.java,No,,,LANG_22,org.apache.commons.lang3.math.Fraction.greatestCommonDivisor(II)I,"if (Math.abs(u) <= 1 || Math.abs(v) <= 1) {,FAULT_OF_OMISSION",True,cannot locate method,cannot locate code block
+src/main/java/org/apache/commons/lang3/mutable/MutableInt.java,No,,,LANG_22,org.apache.commons.lang3.math.Fraction.greatestCommonDivisor(II)I,"if (Math.abs(u) <= 1 || Math.abs(v) <= 1) {,FAULT_OF_OMISSION",True,cannot locate method,cannot locate code block
+src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java,Yes,"public static String format(Date date, String pattern)","FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);
+return df.format(date);",LANG_18,org.apache.commons.lang3.time.FastDateFormat.parsePattern()Ljava/util/List;,"if (tokenLen >= 4) {,rule = selectNumberRule(Calendar.YEAR, tokenLen);,} else {,FAULT_OF_OMISSION",False,False,False
+src/main/java/org/apache/commons/lang3/time/FastDateFormat.java,Yes,"protected FastDateFormat(String pattern, TimeZone timeZone, Locale locale) {","rule = selectNumberRule(Calendar.YEAR, tokenLen);",LANG_18,org.apache.commons.lang3.time.FastDateFormat.parsePattern()Ljava/util/List;,"if (tokenLen >= 4) {,rule = selectNumberRule(Calendar.YEAR, tokenLen);,} else {,FAULT_OF_OMISSION",True,False,True
+src/main/java/org/apache/commons/lang3/time/FormatCache.java,Yes,"public F getDateTimeInstance(Integer dateStyle, Integer timeStyle, TimeZone timeZone, Locale locale) {","if (dateStyle == null) {
+    formatter = DateFormat.getTimeInstance(timeStyle, locale);                    
+}
+else if (timeStyle == null) {
+    formatter = DateFormat.getDateInstance(dateStyle, locale);                    
+}
+else {
+    formatter = DateFormat.getDateTimeInstance(dateStyle, timeStyle, locale);
+}
+pattern = ((SimpleDateFormat)formatter).toPattern();
+String previous = cDateTimeInstanceCache.putIfAbsent(key, pattern);
+if (previous != null) {
+    pattern= previous;
+}",LANG_18,org.apache.commons.lang3.time.FastDateFormat.parsePattern()Ljava/util/List;,"if (tokenLen >= 4) {,rule = selectNumberRule(Calendar.YEAR, tokenLen);,} else {,FAULT_OF_OMISSION",False,False,False
+src/java/org/apache/commons/lang3/time/FastDateFormat.java,Yes,"public void appendTo(StringBuffer buffer, Calendar calendar)","if (mTimeZoneForced) {
+    if (mTimeZone.useDaylightTime() && calendar.get(Calendar.DST_OFFSET) != 0) {
+        buffer.append(mDaylight);
+    } else {
+        buffer.append(mStandard);
+    }
+} else {
+    TimeZone timeZone = calendar.getTimeZone();
+    if (timeZone.useDaylightTime() && calendar.get(Calendar.DST_OFFSET) != 0) {
+        buffer.append(getTimeZoneDisplay(timeZone, true, mStyle, mLocale));
+    } else {
+        buffer.append(getTimeZoneDisplay(timeZone, false, mStyle, mLocale));
+    }
+}",LANG_38,org.apache.commons.lang3.time.FastDateFormat.format(Ljava/util/Calendar;Ljava/lang/StringBuffer;)Ljava/lang/StringBuffer;,FAULT_OF_OMISSION,True,False,ground truth are al FoOs
+src/java/org/apache/commons/lang3/time/DateFormatUtils.java,Yes,"public static String format(Calendar calendar, String pattern)","FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);
+return df.format(calendar);",LANG_38,org.apache.commons.lang3.time.FastDateFormat.format(Ljava/util/Calendar;Ljava/lang/StringBuffer;)Ljava/lang/StringBuffer;,FAULT_OF_OMISSION,False,False,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/text/translate/AggregateTranslator.java,Yes,"public int translate(final CharSequence input, final int index, final Writer out) throws IOException","for (final CharSequenceTranslator translator : translators) {
+    final int consumed = translator.translate(input, index, out);
+    if(consumed != 0) {
+        return consumed;
+    }
+}",LANG_4,"org.apache.commons.lang3.text.translate.LookupTranslator.<init>([[Ljava/lang/CharSequence;)V,org.apache.commons.lang3.text.translate.LookupTranslator.translate(Ljava/lang/CharSequence;ILjava/io/Writer;)I","private final HashMap<CharSequence, CharSequence> lookupMap;,lookupMap = new HashMap<CharSequence, CharSequence>();,this.lookupMap.put(seq[0], seq[1]);,final CharSequence result = lookupMap.get(subSeq);",False,False,False
+src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java,Yes,"public final void translate(final CharSequence input, final Writer out) throws IOException {","            final int consumed = translate(input, pos, out);
+            if (consumed == 0) {
+                final char[] c = Character.toChars(Character.codePointAt(input, pos));
+                out.write(c);
+                pos+= c.length;
+                continue;
+            }",LANG_4,"org.apache.commons.lang3.text.translate.LookupTranslator.<init>([[Ljava/lang/CharSequence;)V,org.apache.commons.lang3.text.translate.LookupTranslator.translate(Ljava/lang/CharSequence;ILjava/io/Writer;)I","private final HashMap<CharSequence, CharSequence> lookupMap;,lookupMap = new HashMap<CharSequence, CharSequence>();,this.lookupMap.put(seq[0], seq[1]);,final CharSequence result = lookupMap.get(subSeq);",False,False,False
+src/main/java/org/apache/commons/lang3/text/translate/LookupTranslator.java,Yes,"public int translate(final CharSequence input, final int index, final Writer out) throws IOException","for (int i = max; i >= shortest; i--) {
+            final CharSequence subSeq = input.subSequence(index, index + i);
+            final CharSequence result = lookupMap.get(subSeq);
+            if (result != null) {
+                out.write(result.toString());
+                return i;
+            }
+        }",LANG_4,"org.apache.commons.lang3.text.translate.LookupTranslator.<init>([[Ljava/lang/CharSequence;)V,org.apache.commons.lang3.text.translate.LookupTranslator.translate(Ljava/lang/CharSequence;ILjava/io/Writer;)I","private final HashMap<CharSequence, CharSequence> lookupMap;,lookupMap = new HashMap<CharSequence, CharSequence>();,this.lookupMap.put(seq[0], seq[1]);,final CharSequence result = lookupMap.get(subSeq);",True,True,True
+src/java/org/apache/commons/lang/time/StopWatch.java,Yes,public void suspend(),"if(this.runningState != STATE_RUNNING) {
+            throw new IllegalStateException(""Stopwatch must be running to suspend. "");
+        }
+        stopTime = System.currentTimeMillis();
+        this.runningState = STATE_SUSPENDED;
+    }",LANG_55,org.apache.commons.lang.time.StopWatch.stop()V,"FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,False,ground truth are al FoOs
+src/java/org/apache/commons/lang/time/FastDateFormat.java,No,,,LANG_55,org.apache.commons.lang.time.StopWatch.stop()V,"FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,cannot locate method,cannot locate code block
+src/java/org/apache/commons/lang/time/DateFormatUtils.java,No,,,LANG_55,org.apache.commons.lang.time.StopWatch.stop()V,"FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,cannot locate method,cannot locate code block
+src/main/java/org/apache/commons/lang3/concurrent/ConstantInitializer.java,No,,,LANG_14,org.apache.commons.lang3.StringUtils.equals(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Z,"FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,cannot locate method,cannot locate code block
+src/main/java/org/apache/commons/lang3/builder/EqualsBuilder.java,Yes,public boolean equals(Object obj),isEquals = lhs.equals(rhs);,LANG_14,org.apache.commons.lang3.StringUtils.equals(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Z,"FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/CharSequenceUtils.java,Yes,"public static CharSequence subSequence(CharSequence cs, int start)","return cs == null ? null : cs.subSequence(start, cs.length());",LANG_14,org.apache.commons.lang3.StringUtils.equals(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Z,"FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,ground truth are al FoOs
+src/java/org/apache/commons/lang/text/ExtendedMessageFormat.java,Yes,public final void applyPattern(String pattern),"if (escapingOn && c[start] == QUOTE) {
+        return appendTo == null ? null : appendTo.append(QUOTE);
+}",LANG_43,org.apache.commons.lang.text.ExtendedMessageFormat.appendQuotedString(Ljava/lang/String;Ljava/text/ParsePosition;Ljava/lang/StringBuffer;Z)Ljava/lang/StringBuffer;,FAULT_OF_OMISSION,True,False,ground truth are al FoOs
+src/java/org/apache/commons/lang/text/FormatFactory.java,No,,,LANG_43,org.apache.commons.lang.text.ExtendedMessageFormat.appendQuotedString(Ljava/lang/String;Ljava/text/ParsePosition;Ljava/lang/StringBuffer;Z)Ljava/lang/StringBuffer;,FAULT_OF_OMISSION,True,cannot locate method,cannot locate code block
+src/java/org/apache/commons/lang/time/DateFormatUtils.java,No,,,LANG_43,org.apache.commons.lang.text.ExtendedMessageFormat.appendQuotedString(Ljava/lang/String;Ljava/text/ParsePosition;Ljava/lang/StringBuffer;Z)Ljava/lang/StringBuffer;,FAULT_OF_OMISSION,True,cannot locate method,cannot locate code block
+src/java/org/apache/commons/lang/NumberUtils.java,Yes,public static Number createNumber(String val) throws NumberFormatException {,"if (val.startsWith(""0x"") || val.startsWith(""-0x"")) {
+            return createInteger(val);
+        }",LANG_48,org.apache.commons.lang.builder.EqualsBuilder.append(Ljava/lang/Object;Ljava/lang/Object;)Lorg/apache/commons/lang/builder/EqualsBuilder;,"FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,ground truth are al FoOs
+src/java/org/apache/commons/lang/builder/EqualsBuilder.java,Yes,"public EqualsBuilder append(Object lhs, Object rhs) {",isEquals = lhs.equals(rhs);,LANG_48,org.apache.commons.lang.builder.EqualsBuilder.append(Ljava/lang/Object;Ljava/lang/Object;)Lorg/apache/commons/lang/builder/EqualsBuilder;,"FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,True,ground truth are al FoOs
+src/java/org/apache/commons/lang/builder/CompareToBuilder.java,Yes,"public CompareToBuilder append(Object lhs, Object rhs, Comparator comparator) {",comparison = ((Comparable) lhs).compareTo(rhs);,LANG_48,org.apache.commons.lang.builder.EqualsBuilder.append(Ljava/lang/Object;Ljava/lang/Object;)Lorg/apache/commons/lang/builder/EqualsBuilder;,"FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/text/translate/EntityArrays.java,Yes,private static final String[][] ISO8859_1_ESCAPE,"        {""\u00D7"", ""&amp;Ouml;""}, // 
+        {""\u00D8"", ""&amp;times;""}, // multiplication sign",LANG_25,org.apache.commons.lang3.text.translate.EntityArrays.<clinit>()V,,True,False,no ground truth block
+src/main/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaper.java,Yes,"public int translate(CharSequence input, int index, Writer out) throws IOException {","if(input.charAt(index) == '&' && input.charAt(index + 1) == '#') {
+            int start = index + 2;
+            boolean isHex = false;
+
+            char firstChar = input.charAt(start);
+            if(firstChar == 'x' || firstChar == 'X') {
+                start++;
+                isHex = true;
+            }
+
+            int end = start;
+            while(input.charAt(end) != ';') {
+                end++;
+            }
+
+            int entityValue;
+            try {
+                if(isHex) {
+                    entityValue = Integer.parseInt(input.subSequence(start, end).toString(), 16);
+                } else {
+                    entityValue = Integer.parseInt(input.subSequence(start, end).toString(), 10);
+                }
+            } catch(NumberFormatException nfe) {
+                return 0;
+            }
+
+            if(entityValue > 0xFFFF) {
+                char[] chrs = Character.toChars(entityValue);
+                out.write(chrs[0]);
+                out.write(chrs[1]);
+            } else {
+                out.write(entityValue);
+            }
+            return 2 + (end - start) + (isHex ? 1 : 0) + 1;
+        }",LANG_25,org.apache.commons.lang3.text.translate.EntityArrays.<clinit>()V,,False,False,no ground truth block
+src/main/java/org/apache/commons/lang3/StringEscapeUtils.java,Yes,public static final CharSequenceTranslator ESCAPE_HTML3,new LookupTranslator(EntityArrays.ISO8859_1_ESCAPE(),LANG_25,org.apache.commons.lang3.text.translate.EntityArrays.<clinit>()V,,False,False,no ground truth block
+src/java/org/apache/commons/lang/enums/ValuedEnum.java,Yes,public int compareTo(Object other) {,return iValue - ((ValuedEnum) other).iValue;,LANG_64,org.apache.commons.lang.enums.ValuedEnum.compareTo(Ljava/lang/Object;)I,"FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,True,ground truth are al FoOs
+src/java/org/apache/commons/lang/enums/EnumUtils.java,Yes,"public static ValuedEnum getEnum(Class enumClass, int value)","return (ValuedEnum) ValuedEnum.getEnum(enumClass, value);",LANG_64,org.apache.commons.lang.enums.ValuedEnum.compareTo(Ljava/lang/Object;)I,"FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,ground truth are al FoOs
+src/java/org/apache/commons/lang/enums/Enum.java,Yes,protected Enum(String name) {,"if (other == this) {
+            return true;
+        } else if (other == null) {
+            return false;
+        } else if (other.getClass() == this.getClass()) {
+            // Ok to do a class cast to Enum here since the test above
+            // guarantee both
+            // classes are in the same class loader.
+            return iName.equals(((Enum) other).iName);
+        } else {
+            // This and other are in different class loaders, we must check indirectly
+            if (other.getClass().getName().equals(this.getClass().getName()) == false) {
+                return false;
+            }
+            return iName.equals( getNameInOtherClassLoader(other) );
+        }",LANG_64,org.apache.commons.lang.enums.ValuedEnum.compareTo(Ljava/lang/Object;)I,"FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/ClassUtils.java,No,,,LANG_33,org.apache.commons.lang3.ClassUtils.toClass([Ljava/lang/Object;)[Ljava/lang/Class;,classes[i] = array[i].getClass();,False,False,cannot locate code block
+src/main/java/org/apache/commons/lang3/builder/StandardToStringStyle.java,No,,,LANG_33,org.apache.commons.lang3.ClassUtils.toClass([Ljava/lang/Object;)[Ljava/lang/Class;,classes[i] = array[i].getClass();,True,cannot locate method,cannot locate code block
+src/java/org/apache/commons/lang/exception/NestableDelegate.java,Yes,public void printStackTrace(PrintWriter out) {,"if (throwable instanceof Nestable) {
+                ((Nestable)throwable).printPartialStackTrace(out);
+            } else {
+                throwable.printStackTrace(out);
+            }
+            return;",LANG_44,org.apache.commons.lang.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,FAULT_OF_OMISSION,False,False,ground truth are al FoOs
+src/java/org/apache/commons/lang/exception/Nestable.java,No,,,LANG_44,org.apache.commons.lang.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,FAULT_OF_OMISSION,True,cannot locate method,cannot locate code block
+src/java/org/apache/commons/lang/exception/NestableRuntimeException.java,Yes,public NestableRuntimeException(String msg),"if (super.getMessage() != null) {
+    return super.getMessage();
+} else if (cause != null) {
+    return cause.toString();
+} else {
+    return null;
+}",LANG_44,org.apache.commons.lang.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,FAULT_OF_OMISSION,False,False,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/SerializationUtils.java,Yes,public static <T extends Serializable> T clone(T object) {,"Class cl = (Class) primClasses.get(name);
+	    if (cl != null) {
+		return cl;
+	    } else {
+		throw ex;
+	    }",LANG_13,"org.apache.commons.lang3.SerializationUtils$ClassLoaderAwareObjectInputStream.<init>(Ljava/io/InputStream;Ljava/lang/ClassLoader;)V,org.apache.commons.lang3.SerializationUtils$ClassLoaderAwareObjectInputStream.resolveClass(Ljava/io/ObjectStreamClass;)Ljava/lang/Class;","FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/ClassUtils.java,Yes,"public Method getPublicMethod(Class<?> cls, String methodName, Class<?>... parameterTypes) throws SecurityException, NoSuchMethodException","Method body starting from 'Method declaredMethod = cls.getMethod(methodName, parameterTypes);' to the end of the method.",LANG_13,"org.apache.commons.lang3.SerializationUtils$ClassLoaderAwareObjectInputStream.<init>(Ljava/io/InputStream;Ljava/lang/ClassLoader;)V,org.apache.commons.lang3.SerializationUtils$ClassLoaderAwareObjectInputStream.resolveClass(Ljava/io/ObjectStreamClass;)Ljava/lang/Class;","FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/exception/ContextedRuntimeException.java,No,,,LANG_13,"org.apache.commons.lang3.SerializationUtils$ClassLoaderAwareObjectInputStream.<init>(Ljava/io/InputStream;Ljava/lang/ClassLoader;)V,org.apache.commons.lang3.SerializationUtils$ClassLoaderAwareObjectInputStream.resolveClass(Ljava/io/ObjectStreamClass;)Ljava/lang/Class;","FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,cannot locate method,cannot locate code block
+src/java/org/apache/commons/lang/StringEscapeUtils.java,Yes,public static String escapeJavaScript(String str) {,"if (ch == '\'' && escapeSingleQuote) {
+  out.write('\\');
+  out.write('\'');
+} else if (ch == '\'' && !escapeSingleQuote) {
+  out.write('\'');
+} else {
+  out.write(ch);
+}",LANG_52,org.apache.commons.lang.StringEscapeUtils.escapeJavaStyleString(Ljava/io/Writer;Ljava/lang/String;Z)V,FAULT_OF_OMISSION,True,False,ground truth are al FoOs
+src/java/org/apache/commons/lang/SystemUtils.java,Yes,private static float getJavaVersionAsFloat() {,"if (JAVA_VERSION_TRIMMED == null) {
+            return 0f;
+        }
+        String str = JAVA_VERSION_TRIMMED.substring(0, 3);
+        if (JAVA_VERSION_TRIMMED.length() >= 5) {
+            str = str + JAVA_VERSION_TRIMMED.substring(4, 5);
+        }
+        try {
+            return Float.parseFloat(str);
+        } catch (Exception ex) {
+            return 0;
+        }",LANG_52,org.apache.commons.lang.StringEscapeUtils.escapeJavaStyleString(Ljava/io/Writer;Ljava/lang/String;Z)V,FAULT_OF_OMISSION,False,False,ground truth are al FoOs
+src/java/org/apache/commons/lang/CharUtils.java,No,,,LANG_52,org.apache.commons.lang.StringEscapeUtils.escapeJavaStyleString(Ljava/io/Writer;Ljava/lang/String;Z)V,FAULT_OF_OMISSION,True,cannot locate method,cannot locate code block
+src/main/java/org/apache/commons/lang3/math/NumberUtils.java,Yes,public Number createNumber(final String str) throws NumberFormatException {,"if (pfxLen > 0) {
+    final int hexDigits = str.length() - pfxLen;
+    if (hexDigits > 16) {
+        return createBigInteger(str);
+    }
+    if (hexDigits > 8) {
+        return createLong(str);
+    }
+    return createInteger(str);
+}",LANG_3,org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,"FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,True,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/mutable/MutableFloat.java,Yes,public MutableFloat(final String value) throws NumberFormatException,this.value = Float.parseFloat(value);,LANG_3,org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,"FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/math/IEEE754rUtils.java,Yes,"public static double min(final double a, final double b)","if(Double.isNaN(a)) {
+    return b;
+} else
+if(Double.isNaN(b)) {
+    return a;
+} else {
+    return Math.min(a, b);
+}",LANG_3,org.apache.commons.lang3.math.NumberUtils.createNumber(Ljava/lang/String;)Ljava/lang/Number;,"FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java,Yes,public String toString() {,"if (this.getObject() == null) {
+            this.getStringBuffer().append(this.getStyle().getNullText());
+        } else {
+            style.appendEnd(this.getStringBuffer(), this.getObject());
+        }",LANG_29,org.apache.commons.lang3.SystemUtils.toJavaVersionInt(Ljava/lang/String;)F,static float toJavaVersionInt(String version) {,False,False,False
+src/main/java/org/apache/commons/lang3/builder/ReflectionToStringBuilder.java,No,,,LANG_29,org.apache.commons.lang3.SystemUtils.toJavaVersionInt(Ljava/lang/String;)F,static float toJavaVersionInt(String version) {,True,cannot locate method,cannot locate code block
+src/main/java/org/apache/commons/lang3/StringEscapeUtils.java,Yes,public static final String escapeXml(String input) {,"if (code > 0xffff) {
+    i++;
+}",LANG_28,org.apache.commons.lang3.text.translate.NumericEntityUnescaper.translate(Ljava/lang/CharSequence;ILjava/io/Writer;)I,"FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/text/translate/NumericEntityEscaper.java,No,,,LANG_28,org.apache.commons.lang3.text.translate.NumericEntityUnescaper.translate(Ljava/lang/CharSequence;ILjava/io/Writer;)I,"FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,cannot locate method,cannot locate code block
+src/main/java/org/apache/commons/lang3/text/translate/UnicodeEscaper.java,No,,,LANG_28,org.apache.commons.lang3.text.translate.NumericEntityUnescaper.translate(Ljava/lang/CharSequence;ILjava/io/Writer;)I,"FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,cannot locate method,cannot locate code block
+src/java/org/apache/commons/lang/time/DateUtils.java,Yes,"public static Date round(Date date, int field)","if (field == Calendar.MINUTE) {
+    done = true;
+}
+",LANG_53,org.apache.commons.lang.time.DateUtils.modify(Ljava/util/Calendar;IZ)V,"},},FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,False,True
+src/java/org/apache/commons/lang/time/FastDateFormat.java,Yes,"public void appendTo(StringBuffer buffer, Calendar calendar)","if (offset < 0) {
+    buffer.append('-');
+    offset = -offset;
+} else {
+    buffer.append('+');
+}
+
+int hours = offset / (60 * 60 * 1000);
+buffer.append((char)(hours / 10 + '0'));
+buffer.append((char)(hours % 10 + '0'));
+
+if (mColon) {
+    buffer.append(':');
+}
+
+int minutes = offset / (60 * 1000) - 60 * hours;
+buffer.append((char)(minutes / 10 + '0'));
+buffer.append((char)(minutes % 10 + '0'));",LANG_53,org.apache.commons.lang.time.DateUtils.modify(Ljava/util/Calendar;IZ)V,"},},FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,True
+src/java/org/apache/commons/lang/time/DateFormatUtils.java,Yes,"public static String format(Date date, String pattern, TimeZone timeZone, Locale locale) {",return df.format(date);,LANG_53,org.apache.commons.lang.time.DateUtils.modify(Ljava/util/Calendar;IZ)V,"},},FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,False
+src/main/java/org/apache/commons/lang3/RandomStringUtils.java,Yes,"public static String random(int count, int start, int end, boolean letters, boolean numbers, char... chars)",ch = chars[random.nextInt(gap) + start];,LANG_12,org.apache.commons.lang3.RandomStringUtils.random(IIIZZ[CLjava/util/Random;)Ljava/lang/String;,"FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,True,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/CharRange.java,Yes,"private CharRange(char start, char end, boolean negated) {","if (start > end) {
+    char temp = start;
+    start = end;
+    end = temp;
+}
+
+this.start = start;
+this.end = end;
+this.negated = negated;",LANG_12,org.apache.commons.lang3.RandomStringUtils.random(IIIZZ[CLjava/util/Random;)Ljava/lang/String;,"FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,ground truth are al FoOs
+src/java/org/apache/commons/lang/WordUtils.java,Yes,"public static String abbreviate(String str, int lower, int upper, String appendToEnd)","if (index == -1) {
+    result.append(str.substring(0, upper));
+    // only if abbreviation has occured do we append the appendToEnd value
+    if (upper != str.length()) {
+        result.append(StringUtils.defaultString(appendToEnd));
+    }
+} else if (index > upper) {
+    result.append(str.substring(0, upper));
+    result.append(StringUtils.defaultString(appendToEnd));
+} else {
+    result.append(str.substring(0, index));
+    result.append(StringUtils.defaultString(appendToEnd));
+}",LANG_45,org.apache.commons.lang.WordUtils.abbreviate(Ljava/lang/String;IILjava/lang/String;)Ljava/lang/String;,FAULT_OF_OMISSION,True,True,ground truth are al FoOs
+src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java,Yes,public String toString(),"if (this.getObject() == null) {
+            this.getStringBuffer().append(this.getStyle().getNullText());
+        } else {
+            style.appendEnd(this.getStringBuffer(), this.getObject());
+        }",LANG_32,"org.apache.commons.lang3.builder.HashCodeBuilder.<clinit>()V,org.apache.commons.lang3.builder.HashCodeBuilder.isRegistered(Ljava/lang/Object;)Z,org.apache.commons.lang3.builder.HashCodeBuilder.register(Ljava/lang/Object;)V,org.apache.commons.lang3.builder.HashCodeBuilder.unregister(Ljava/lang/Object;)V,org.apache.commons.lang3.builder.HashCodeBuilder$1.initialValue()Ljava/util/Set;","private static final ThreadLocal<Set<IDKey>> REGISTRY = new ThreadLocal<Set<IDKey>>() {,@Override,protected Set<IDKey> initialValue() {,return new HashSet<IDKey>();,},};,return getRegistry().contains(new IDKey(value));,getRegistry().remove(new IDKey(value));,FAULT_OF_OMISSION",False,False,True
+src/main/java/org/apache/commons/lang3/LocaleUtils.java,Yes,public static Locale toLocale(String str),"if (str == null) {
+    return null;
+}
+int len = str.length();
+if (len != 2 && len != 5 && len < 7) {
+    throw new IllegalArgumentException(""Invalid locale format: "" + str);
+}
+char ch0 = str.charAt(0);
+char ch1 = str.charAt(1);
+if (ch0 < 'a' || ch0 > 'z' || ch1 < 'a' || ch1 > 'z') {
+    throw new IllegalArgumentException(""Invalid locale format: "" + str);
+}
+if (len == 2) {
+    return new Locale(str, """");
+} else {
+    if (str.charAt(2) != '_') {
+        throw new IllegalArgumentException(""Invalid locale format: "" + str);
+    }
+    char ch3 = str.charAt(3);
+    if (ch3 == '_') {
+        return new Locale(str.substring(0, 2), """", str.substring(4));
+    }
+    char ch4 = str.charAt(4);
+    if (ch3 < 'A' || ch3 > 'Z' || ch4 < 'A' || ch4 > 'Z') {
+        throw new IllegalArgumentException(""Invalid locale format: "" + str);
+    }
+    if (len == 5) {
+        return new Locale(str.substring(0, 2), str.substring(3, 5));
+    } else {
+        if (str.charAt(5) != '_') {
+            throw new IllegalArgumentException(""Invalid locale format: "" + str);
+        }
+        return new Locale(str.substring(0, 2), str.substring(3, 5), str.substring(6));
+    }
+}",LANG_32,"org.apache.commons.lang3.builder.HashCodeBuilder.<clinit>()V,org.apache.commons.lang3.builder.HashCodeBuilder.isRegistered(Ljava/lang/Object;)Z,org.apache.commons.lang3.builder.HashCodeBuilder.register(Ljava/lang/Object;)V,org.apache.commons.lang3.builder.HashCodeBuilder.unregister(Ljava/lang/Object;)V,org.apache.commons.lang3.builder.HashCodeBuilder$1.initialValue()Ljava/util/Set;","private static final ThreadLocal<Set<IDKey>> REGISTRY = new ThreadLocal<Set<IDKey>>() {,@Override,protected Set<IDKey> initialValue() {,return new HashSet<IDKey>();,},};,return getRegistry().contains(new IDKey(value));,getRegistry().remove(new IDKey(value));,FAULT_OF_OMISSION",False,False,True
+src/main/java/org/apache/commons/lang3/builder/ReflectionToStringBuilder.java,Yes,public static String toString(Object object),"return toString(object, null, false, false, null);",LANG_32,"org.apache.commons.lang3.builder.HashCodeBuilder.<clinit>()V,org.apache.commons.lang3.builder.HashCodeBuilder.isRegistered(Ljava/lang/Object;)Z,org.apache.commons.lang3.builder.HashCodeBuilder.register(Ljava/lang/Object;)V,org.apache.commons.lang3.builder.HashCodeBuilder.unregister(Ljava/lang/Object;)V,org.apache.commons.lang3.builder.HashCodeBuilder$1.initialValue()Ljava/util/Set;","private static final ThreadLocal<Set<IDKey>> REGISTRY = new ThreadLocal<Set<IDKey>>() {,@Override,protected Set<IDKey> initialValue() {,return new HashSet<IDKey>();,},};,return getRegistry().contains(new IDKey(value));,getRegistry().remove(new IDKey(value));,FAULT_OF_OMISSION",False,False,False
+src/java/org/apache/commons/lang/time/DateUtils.java,Yes,"public static Date truncate(Date date, int field) {","        // truncate milliseconds
 
         // truncate seconds
 
         // truncate minutes
 
+        // reset time
+        // ----------------- Fix for LANG-59 ---------------------- START ---------------
+        // see http://issues.apache.org/jira/browse/LANG-59
+        //
+        // Manually truncate milliseconds, seconds and minutes, rather than using
+        // Calendar methods.",LANG_65,org.apache.commons.lang.time.DateUtils.modify(Ljava/util/Calendar;IZ)V,"FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,False,ground truth are al FoOs
+src/java/org/apache/commons/lang/time/DateFormatUtils.java,Yes,"public static String format(Date date, String pattern, TimeZone timeZone, Locale locale) {","FastDateFormat df = FastDateFormat.getInstance(pattern, timeZone, locale);
+return df.format(date);",LANG_65,org.apache.commons.lang.time.DateUtils.modify(Ljava/util/Calendar;IZ)V,"FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",False,False,ground truth are al FoOs
+src/java/org/apache/commons/lang/time/FastDateFormat.java,No,,,LANG_65,org.apache.commons.lang.time.DateUtils.modify(Ljava/util/Calendar;IZ)V,"FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION,FAULT_OF_OMISSION",True,cannot locate method,cannot locate code block
+src/main/java/org/apache/commons/lang3/math/NumberUtils.java,Yes,public static boolean isNumber(String str),"if (chars[i] == 'l'
+                || chars[i] == 'L') {
+                // not allowing L with an exponent
+                return foundDigit && !hasExp;
+            }
+
+            to:
+
+            if (chars[i] == 'l'
+                || chars[i] == 'L') {
+                // not allowing L with an exponent
+                return foundDigit && !hasExp && !hasDecPoint;
+            }",LANG_24,org.apache.commons.lang3.math.NumberUtils.isNumber(Ljava/lang/String;)Z,return foundDigit && !hasExp;,True,True,True
+src/main/java/org/apache/commons/lang3/Pair.java,Yes,"public Pair(L left, R right) {","if (chars[i] == 'l'
+                || chars[i] == 'L') {
+                // not allowing L with an exponent
+                return foundDigit && !hasExp && !hasDecPoint;
+            }",LANG_24,org.apache.commons.lang3.math.NumberUtils.isNumber(Ljava/lang/String;)Z,return foundDigit && !hasExp;,False,False,False
+src/main/java/org/apache/commons/lang3/BooleanUtils.java,Yes,public static boolean xor(boolean... array) {,"if (element) {
+                if (trueCount < 1) {
+                    trueCount++;
+                } else {
+                    return false;
+                }
+            }",LANG_24,org.apache.commons.lang3.math.NumberUtils.isNumber(Ljava/lang/String;)Z,return foundDigit && !hasExp;,False,False,False
+src/java/org/apache/commons/lang/math/Fraction.java,Yes,"private Fraction addSub(Fraction fraction, boolean isAdd) {","int d1 = greatestCommonDivisor(denominator, fraction.denominator);
+        if (d1==1) {
+            int uvp = mulAndCheck(numerator, fraction.denominator);
+            int upv = mulAndCheck(fraction.numerator, denominator);
+            return new Fraction
+                (isAdd ? addAndCheck(uvp, upv) : subAndCheck(uvp, upv),
+                 mulPosAndCheck(denominator, fraction.denominator));
+        }
+        int t = isAdd ? uvp.add(upv) : uvp.subtract(upv);
+        int tmodd1 = t.mod(BigInteger.valueOf(d1)).intValue();
+        int d2 = (tmodd1==0)?d1:greatestCommonDivisor(tmodd1, d1);
+        BigInteger w = t.divide(BigInteger.valueOf(d2));
+        return new Fraction
+            (w.intValue(),
+             mulPosAndCheck(denominator, fraction.denominator));",LANG_49,org.apache.commons.lang.math.Fraction.reduce()Lorg/apache/commons/lang/math/Fraction;,FAULT_OF_OMISSION,True,False,ground truth are al FoOs
+src/java/org/apache/commons/lang/builder/StandardToStringStyle.java,No,,,LANG_49,org.apache.commons.lang.math.Fraction.reduce()Lorg/apache/commons/lang/math/Fraction;,FAULT_OF_OMISSION,True,cannot locate method,cannot locate code block
+src/java/org/apache/commons/lang/enum/ValuedEnum.java,No,,,LANG_49,org.apache.commons.lang.math.Fraction.reduce()Lorg/apache/commons/lang/math/Fraction;,FAULT_OF_OMISSION,True,cannot locate method,cannot locate code block
