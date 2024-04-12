@@ -46,12 +46,13 @@ def check_file_level(file_name, ground_method_truth, if_has_bug):
         return "True"
 
 
-def load_defect4j(file_path, start_line, end_line):
+def load_defect4j(file_path, line_number):
     try:
         with open(file_path, 'r') as file:
-            lines = file.readlines()
-            code_segment = lines[start_line - 1:end_line]
-            return ''.join(code_segment)
+            lines = file.readlines()  # Read all lines of the file into a list
+            # Access the specific line; adjust for zero-based index
+            code_segment = lines[int(line_number) - 1]
+            return code_segment
     except Exception as e:
         return f"Error: {e} on path: {file_path}"
 
@@ -60,15 +61,24 @@ def is_code_part_of(main, part):
     return part.strip() in main.strip()
 
 
+def found_in_missing(main, part_list):
+    for part in part_list:
+        if "" == part:
+            continue
+        if part.strip() in main.strip():
+            return "True"
+    return "False"
+
+
 def find_block_from_defect4j(bug_ID, line_info, file_name):
     # line info has sorted lines for bugs
     line_info = line_info.strip().split(',')
-    start_line = int(line_info[0])
-    end_line = int(line_info[-1])
-    # change to your defect4J path
     defect4j_path = '/Users/linqiangguo/IdeaProjects/defects4j/Data/Lang'
     file_path = defect4j_path + '/' + bug_ID.lower() + '_b/'
-    return load_defect4j(file_path + file_name, start_line, end_line).strip()
+    found_truth = []
+    for line in line_info:
+        found_truth.append(load_defect4j(file_path + file_name, line).strip())
+    return found_truth
 
 
 def check_block_level(line_code, ground_line_truth, bug_ID, file_prediction, line_info, file_name):
@@ -82,22 +92,14 @@ def check_block_level(line_code, ground_line_truth, bug_ID, file_prediction, lin
         ground_line_truth_list = ground_line_truth.split(',')
         if all(truth == 'FAULT_OF_OMISSION' for truth in ground_line_truth_list):
             missing_truth = find_block_from_defect4j(bug_ID, line_info, file_name)
-            if is_code_part_of(missing_truth, line_code) or is_code_part_of(line_code, missing_truth):
-                return "True"
-            return "False"
-        # TODO: Need to discuss: should we get a range or just single line code if one of it truth is FoO
-        for truth in ground_line_truth_list:
-            if truth == 'FAULT_OF_OMISSION':
-                truth = find_block_from_defect4j(bug_ID, line_info, file_name)
-            if is_code_part_of(truth, line_code) or is_code_part_of(line_code, truth):
-                return "True"
+            res = found_in_missing(line_code, missing_truth)
+            return res
 
-        # for i in range(len(ground_line_truth_list)):
-        #    if ground_line_truth_list[i] == 'FAULT_OF_OMISSION':
-        #        ground_line_truth_list[i] = find_block_from_defect4j(bug_ID, line_info, file_name)
-        #    if is_code_part_of(ground_line_truth_list[i], line_code) or is_code_part_of(line_code,
-        #                                                                                ground_line_truth_list[i]):
-        #        return "True"
+        for i in range(len(ground_line_truth_list)):
+            if ground_line_truth_list[i] == 'FAULT_OF_OMISSION':
+                ground_line_truth_list[i] = find_block_from_defect4j(bug_ID, line_info, file_name)
+                re = found_in_missing(line_code, ground_line_truth_list[i])
+                return re
     return "False"
 
 
