@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "public void testInfiniteLoopWhenNumeratorIsZero() {\n        Fraction fraction = getFraction(0, 1);\n        // Add test logic here to trigger the infinite loop\n    }"
+    "Fault Triggering Test": "Fraction fraction = new Fraction(0, 1);\nFraction result = addSub(fraction, true);"
 }

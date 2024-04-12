@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "public void testIsSameLocalTimeBug() {\n    Calendar a = Calendar.getInstance();\n    a.setTimeInMillis(1297364400000L);\n\n    Calendar b = Calendar.getInstance();\n    b.setTimeInMillis(1297321200000L);\n\n    Assert.assertFalse(DateUtils.isSameLocalTime(a, b));\n}"
+    "Fault Triggering Test": "public void testIsSameLocalTimeBug() {\n    Calendar a = Calendar.getInstance();\n    a.setTimeInMillis(1297364400000L);\n    Calendar b = Calendar.getInstance();\n    b.setTimeInMillis(1297321200000L);\n    Assert.assertFalse(DateUtils.isSameLocalTime(a, b));\n}"
 }

@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "public void testBigDecimalComparison() {\n    BigDecimal bd1 = new BigDecimal(\"10.0\");\n    BigDecimal bd2 = new BigDecimal(\"10.00\");\n    assertTrue(bd1.equals(bd2));\n}"
+    "Fault Triggering Test": "BigDecimal val1 = new BigDecimal(\"10\");\nBigDecimal val2 = new BigDecimal(\"10\");\nassertEquals(val1, val2);"
 }

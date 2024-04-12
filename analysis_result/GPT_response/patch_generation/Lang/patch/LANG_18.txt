@@ -1,12 +1,12 @@
-diff --git a/src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java b/src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java
-index 1234567..890abcde 100644
---- a/src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java
-+++ b/src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java
-@@ -100,7 +100,7 @@ public static String format(Date date, String pattern) {
+diff --git a/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java b/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
+index 5f5b9a3..d0e0b5b 100644
+--- a/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
++++ b/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
+@@ -123,7 +123,7 @@ public class FastDateFormat extends Format {
+         if (pattern.equals("Y") || pattern.equals("YYY")) {
+             pattern = "yy";
          }
- 
-         SimpleDateFormat df = new SimpleDateFormat(pattern);
--        return df.format(date);
-+        return FastDateFormat.getInstance(pattern).format(date);
+-        return new SimpleDateFormat(pattern, locale);
++        return new SimpleDateFormat(pattern.replace("Y", "yy"), locale);
      }
  }

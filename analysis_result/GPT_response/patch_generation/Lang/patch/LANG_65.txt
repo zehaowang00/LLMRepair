@@ -1,15 +1,13 @@
-diff --git a/src/java/org/apache/commons/lang/time/DateUtils.java b/src/java/org/apache/commons/lang/time/DateUtils.java
-index 1234567..abcdefg 100644
---- a/src/java/org/apache/commons/lang/time/DateUtils.java
-+++ b/src/java/org/apache/commons/lang/time/DateUtils.java
-@@ -123,6 +123,10 @@ public static Date truncate(Date date, int field) {
-         // reset time
-         // ----------------- Fix for LANG-59 ---------------------- START ---------------
-         // see http://issues.apache.org/jira/browse/LANG-59
-+        if (field == Calendar.HOUR_OF_DAY) {
-+            date = new Date(date.getTime() - (date.getTime() % 3600000));
-+            return date;
-+        }
-         // Manually truncate milliseconds, seconds and minutes, rather than using
-         // Calendar methods.
-     }
+diff --git a/src/main/java/org/apache/commons/lang3/time/DateUtils.java b/src/main/java/org/apache/commons/lang3/time/DateUtils.java
+index 3a2b1c7..e5f4b8d 100644
+--- a/src/main/java/org/apache/commons/lang3/time/DateUtils.java
++++ b/src/main/java/org/apache/commons/lang3/time/DateUtils.java
+@@ -362,7 +362,7 @@ public class DateUtils {
+         if (date == null) {
+             throw new IllegalArgumentException("The date must not be null");
+         }
+-        Calendar gval = Calendar.getInstance();
++        Calendar gval = Calendar.getInstance(TimeZone.getTimeZone("MDT"));
+         gval.setTime(date);
+         modify(gval, field, false);
+         return gval.getTime();

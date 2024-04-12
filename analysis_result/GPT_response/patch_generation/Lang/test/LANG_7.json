@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "CreateNumber(\"--123\")"
+    "Fault Triggering Test": "testCreateNumberWithLeadingDoubleDashShouldReturnNull"
 }

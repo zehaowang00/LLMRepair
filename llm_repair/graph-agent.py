@@ -15,10 +15,10 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langgraph.graph import END, StateGraph
 from langgraph.prebuilt.tool_executor import ToolExecutor, ToolInvocation
 from langchain_core.tools import tool
-from tool_agents import get_method_code, patch_generation, test_generation, save_patch_result
+from tool_agents import get_method_code, patch_generation, test_generation
 import operator
 from typing import Annotated, List, Sequence, Tuple, TypedDict, Union
-#from langchain.agents import create_openai_functions_agent
+# from langchain.agents import create_openai_functions_agent
 from langchain.tools.render import format_tool_to_openai_function
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
@@ -27,10 +27,14 @@ import functools
 from unity_tool import get_report_map_dic, load_bug_report, load_json, load_api_key
 from typing import Any
 from openai import OpenAI
+#os.environ["LANGCHAIN_TRACING_V2"] = "true"
+#os.environ["LANGCHAIN_API_KEY"] = "ls__2da3e5fd338a44808cc78ba610275498"
 
 def _set_if_undefined(var: str):
     if not os.environ.get(var):
         os.environ[var] = getpass(f"Please provide your {var}")
+
+
 def create_agent(llm, tools, system_message: str):
     """Create an agent."""
     functions = [format_tool_to_openai_function(t) for t in tools]
@@ -44,7 +48,7 @@ def create_agent(llm, tools, system_message: str):
                 " If you are unable to fully answer, that's OK, another assistant with different tools "
                 " will help where you left off. Execute what you can to make progress."
                 " If you or any of the other assistants have the final answer or deliverable,"
-                #" prefix your response with FINAL ANSWER so the team knows to stop."
+                # " prefix your response with FINAL ANSWER so the team knows to stop."
                 " You don't need to thank you for each other once the work is done."
                 " You have access to the following tools: {tool_names}.\n{system_message}",
             ),
@@ -54,6 +58,8 @@ def create_agent(llm, tools, system_message: str):
     prompt = prompt.partial(system_message=system_message)
     prompt = prompt.partial(tool_names=", ".join([tool.name for tool in tools]))
     return prompt | llm.bind_functions(functions)
+
+
 class AgentState(TypedDict):
     messages: Annotated[Sequence[BaseMessage], operator.add]
     bug_id: str
@@ -63,11 +69,20 @@ class AgentState(TypedDict):
     method_code_file_path: str
     client: Any
     json_result: Any
+    method_code_body: str
+    generated_patch:str
+
 
 def agent_node(state, agent, name):
+    method_code_body = state["method_code_body"]
+    last_message = state["messages"][-1]
     result = agent.invoke(state)
-    if isinstance(state["messages"][-1], FunctionMessage):
-        state["method_code_body"] = "d"
+    if isinstance(last_message, FunctionMessage):
+        content = last_message.content
+        if "get_method_code response: " in content:
+            method_code_body = content.replace("get_method_code response: ", "")
+#       if "patch_generation response:" in content:
+#            bug_id = state['bug_id']
     # We convert the agent output into a format that is suitable to append to the global state
     if isinstance(result, FunctionMessage):
         pass
@@ -78,7 +93,9 @@ def agent_node(state, agent, name):
         # Since we have a strict workflow, we can
         # track the sender so we know who to pass to next.
         "sender": name,
+        "method_code_body": method_code_body
     }
+
 
 def tool_node(state):
     """This runs tools in the graph
@@ -98,7 +115,7 @@ def tool_node(state):
     tool_name = last_message.additional_kwargs["function_call"]["name"]
     action = ToolInvocation(
         tool=tool_name,
-        tool_input={"state":state},
+        tool_input={"state": state},
     )
     # We call the tool_executor and get back a response
     response = tool_executor.invoke(action)
@@ -108,6 +125,7 @@ def tool_node(state):
     )
     # We return a list, because this will get added to the existing list
     return {"messages": [function_message]}
+
 
 def router(state):
     # This is the router
@@ -121,21 +139,27 @@ def router(state):
         return "end"
     return "continue"
 
+
 _set_if_undefined("OPENAI_API_KEY")
 llm = ChatOpenAI(model="gpt-3.5-turbo")
-system_message_developer = ("You are responsible for generating the patch for program repair. You need follow the steps: "
-                            "1. Get the buggy method code"
-                            "2. You need to talk to another agent to get the fault-triggering test cases. "
-                            "3. You need to generate the patch for the bug."
-                            "4. You need to share your generated patch to another agent for checking." 
-                            "5. Once another agent agree that your patch can pass the test, you can save the patch result")
+system_message_developer = (
+    "You are responsible for generating the patch for program repair. You need follow the steps: "
+    "1. Get the buggy method code"
+    "2. You need to talk to another agent to get the fault-triggering test cases from another agent."
+    "3. Once you have the testing case information, you are allowed to generate the patch for the bug."
+    "4. You should share your generated patch to another agent for checking."
+    "5. Once another agent thinks the generated patch is ok, you should response with FINAL ANSWER so the team knows to stop, Otherwise, you should to go back to step3.")
 
-system_message_tester = ("You are responsible for generating the testing cases for the bug in the bug report based on the buggy method."                           "You need to follow the following steps: "
-                         "1. get the buggy method code" 
-                         "2. for the buggy method, generate the fault triggering test for triggering the bug describe in the bug report." "3. Another agent will give you the patch that is used to fix program. You need to check if the patch can pass" "the test and fix the bug in the bug report and tell the result to another agent.")  
+system_message_tester = (
+    "You are responsible for generating the testing cases for the bug in the bug report based on the buggy method."                           "You need to follow the following steps: "
+    "1. Get the buggy method code"
+    "2. Once you get the buggy method, you should start to generate the fault triggering test for triggering the bug describe in the bug report and share the testing cases inforamtion to another agent." 
+    "3. Once you sent the test cases information to another agent, another agent will give you the patch that is used to fix program. You need to check if the patch can fix the bug and pass the test by using your knowledge rather than using tool." 
+    " If the patch can work ,you should tell another agent that the patch is good and it is the time to ask another agent end the teamwork. if the patch doesn't work, you should explain the reason to another agent."
+    )
 developer_agent = create_agent(
     llm,
-    [get_method_code, patch_generation, save_patch_result],
+    [get_method_code, patch_generation],
     system_message=system_message_developer,
 )
 developer_node = functools.partial(agent_node, agent=developer_agent, name="Developer")
@@ -150,7 +174,7 @@ tester_node = functools.partial(
     agent_node, agent=tester_agent, name="Tester"
 )
 
-tools = [get_method_code, patch_generation, test_generation, save_patch_result]
+tools = [get_method_code, patch_generation, test_generation]
 tool_executor = ToolExecutor(tools)
 
 workflow = StateGraph(AgentState)
@@ -193,8 +217,12 @@ client = OpenAI(api_key=api_key)
 for filename in os.listdir(fault_path):
     if filename.endswith(".json"):
         bug_id = filename.split('.')[0]
+        save_file_path = f"../analysis_result/GPT_response/patch_generation/Lang/patch/{bug_id}.json"
+        if os.path.exists(save_file_path):
+            print(bug_id)
+            continue
         bug_report_des_path = '../analysis_result/parsed_bug_reports/Lang/' + bug_report_map[bug_id] + '.json'
-        #report_id = report_id.replace("_", "-")
+        # report_id = report_id.replace("_", "-")
         report = load_bug_report(bug_report_des_path)
         bug_description = report[0]['description']
         bug_title = report[0]['title']
@@ -204,9 +232,21 @@ for filename in os.listdir(fault_path):
         method_code_file_path = '/Users/wang/Documents/project/defects4j/Data/Lang/' + bug_id.lower() + '_b/' + short_code_path
         input = {"messages": [HumanMessage(content=message)], "bug_id": bug_id, "bug_report_title": bug_title,
                  "bug_report_describe": bug_description, "method_code_file_path": method_code_file_path,
-                 'json_result':result, 'client': client}
-        graph.invoke(input)
-#index = 0
+                 "method_code_body": "",
+                 "generated_patch": "",
+                 'json_result': result, 'client': client}
+        if not os.path.exists(method_code_file_path):
+            continue
+        try:
+            result_conversations = graph.invoke(input)
+            save_file_path = f"../analysis_result/GPT_response/patch_generation/Lang/conversation/{bug_id}.json"
+            result_conversations['messages'] = [f"{x.type} +=+ {x.name} +=+ {x.content}" for x in result_conversations['messages']]
+            del result_conversations['client']
+            with open(save_file_path, "w") as f:
+                json.dump(result_conversations, f)
+        except Exception as e:
+            print("faild save concersation: " + str(bug_id))
+# index = 0
 # for option_name in option_names:
 #     message = f"Target configuration: {option_name} for {project} project"
 #     input = {"messages": [HumanMessage(content=message)]}
@@ -230,9 +270,3 @@ for filename in os.listdir(fault_path):
 # ):
 #     print(s)
 #     print("----")
-
-
-
-
-
-

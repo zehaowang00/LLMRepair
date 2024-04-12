@@ -1,8 +1,8 @@
-diff --git a/src/java/org/apache/commons/lang/text/ExtendedMessageFormat.java b/src/java/org/apache/commons/lang/text/ExtendedMessageFormat.java
-index 1234567..890abcde 100644
---- a/src/java/org/apache/commons/lang/text/ExtendedMessageFormat.java
-+++ b/src/java/org/apache/commons/lang/text/ExtendedMessageFormat.java
-@@ -421,7 +421,8 @@
+diff --git a/src/main/java/org/apache/commons/lang3/text/ExtendedMessageFormat.java b/src/main/java/org/apache/commons/lang3/text/ExtendedMessageFormat.java
+index abcdef1..1234567 100644
+--- a/src/main/java/org/apache/commons/lang3/text/ExtendedMessageFormat.java
++++ b/src/main/java/org/apache/commons/lang3/text/ExtendedMessageFormat.java
+@@ -421,7 +421,7 @@ public final void applyPattern(String pattern) {
          if (escapingOn && c[start] == QUOTE) {
 +            next(pos);
              return appendTo == null ? null : appendTo.append(QUOTE);

@@ -1,15 +1,13 @@
 diff --git a/src/main/java/org/apache/commons/lang3/math/Fraction.java b/src/main/java/org/apache/commons/lang3/math/Fraction.java
-index 1234567..7654321 100644
+index b36a156..0fdfc36 100644
 --- a/src/main/java/org/apache/commons/lang3/math/Fraction.java
 +++ b/src/main/java/org/apache/commons/lang3/math/Fraction.java
-@@ -123,6 +123,11 @@ public static Fraction getReducedFraction(int numerator, int denominator) {
-         if (denominator==Integer.MIN_VALUE && (numerator&1)==0) {
-             numerator/=2; denominator/=2;
+@@ -581,7 +581,7 @@ public final class Fraction extends Number implements Comparable<Fraction> {
+     private static int greatestCommonDivisor(int u, int v) {
+         // From Commons Math:
+         //if either operand is abs 1, return 1:
+-        if (Math.abs(u) <= 1 || Math.abs(v) <= 1) {
++        if (Math.abs(u)==1 || Math.abs(v) <= 1) {
+             return 1;
          }
-+        if (numerator == Integer.MIN_VALUE && denominator == (int)Math.pow(2, k)) {
-+            numerator /= 2;
-+            denominator /= 2;
-+        }
-+
-         return new Fraction(numerator, denominator);
-     }
+         // keep u and v negative, as negative integers range down to

@@ -1,13 +1,14 @@
-diff --git a/src/java/org/apache/commons/lang/LocaleUtils.java b/src/java/org/apache/commons/lang/LocaleUtils.java
-index 1234567..7654321 100644
---- a/src/java/org/apache/commons/lang/LocaleUtils.java
-+++ b/src/java/org/apache/commons/lang/LocaleUtils.java
-@@ -100,7 +100,7 @@ public class LocaleUtils {
-         if (language.length() == 0 && country.length() == 0 && variant.length() > 0) {
-             throw new IllegalArgumentException("Invalid locale format: " + locale);
+diff --git a/src/main/java/org/apache/commons/lang3/LocaleUtils.java b/src/main/java/org/apache/commons/lang3/LocaleUtils.java
+index 5c7b1c5..a3f3d8a 100644
+--- a/src/main/java/org/apache/commons/lang3/LocaleUtils.java
++++ b/src/main/java/org/apache/commons/lang3/LocaleUtils.java
+@@ -35,6 +35,7 @@ public class LocaleUtils {
+         if (str == null) {
+             return null;
          }
--        if (language.length() == 0 && country.length() == 0 && variant.length() == 0) {
-+        if (language.length() == 0 && country.length() == 0) {
-             return new Locale("");
-         }
-         return new Locale(language, country, variant);
++        if (len == 2 && str.charAt(1) == '_') {
++            return new Locale(str, "");
++        }
+         int len = str.length();
+         if (len != 2 && len != 5 && len < 7) {
+             throw new IllegalArgumentException("Invalid locale format: " + str);

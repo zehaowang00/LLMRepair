@@ -1,13 +1,13 @@
-diff --git a/src/main/java/org/apache/commons/lang3/StringEscapeUtils.java b/src/main/java/org/apache/commons/lang3/StringEscapeUtils.java
-index 1234567..890abcde 100644
---- a/src/main/java/org/apache/commons/lang3/StringEscapeUtils.java
-+++ b/src/main/java/org/apache/commons/lang3/StringEscapeUtils.java
-@@ -100,7 +100,7 @@ public static final String unescapeHtml4(String input) {
-         return UNESCAPE_HTML4.translate(input);
-     }
- 
--    private static final CharSequenceTranslator UNESCAPE_HTML4 = new AggregateTranslator(
-+    private static final CharSequenceTranslator UNESCAPE_HTML4 = new AggregateTranslator(new NumericEntityUnescaper(),
-             new LookupTranslator(EntityArrays.ISO8859_1_UNESCAPE),
-             new LookupTranslator(EntityArrays.HTML40_EXTENDED_UNESCAPE),
-             new LookupTranslator(EntityArrays.BASIC_UNESCAPE),
+diff --git a/src/main/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaper.java b/src/main/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaper.java
+index 5f6a3c4..e4c2f7a 100644
+--- a/src/main/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaper.java
++++ b/src/main/java/org/apache/commons/lang3/text/translate/NumericEntityUnescaper.java
+@@ -46,7 +46,7 @@ public class NumericEntityUnescaper extends CharSequenceTranslator {
+     @Override
+     public int translate(CharSequence input, int index, Writer out) throws IOException {
+         int seqEnd = input.length();
+-        if (input.charAt(index) == '&' && index < seqEnd - 2 && input.charAt(index + 1) == '#') {
++        if (index < seqEnd - 2 && input.charAt(index) == '&' && input.charAt(index + 1) == '#') {
+             int start = index + 2;
+             boolean isHex = false;
+             char firstChar = input.charAt(start);

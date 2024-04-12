@@ -1,13 +1,20 @@
-diff --git a/src/java/org/apache/commons/lang/WordUtils.java b/src/java/org/apache/commons/lang/WordUtils.java
-index abcdef1..1234567 100644
---- a/src/java/org/apache/commons/lang/WordUtils.java
-+++ b/src/java/org/apache/commons/lang/WordUtils.java
-@@ -100,7 +100,7 @@ public static String abbreviate(String str, int lower, int upper, String appendT
-     // adjust lower if necessary
-     if (lower > str.length()) {
-         lower = str.length();
--    }
-+    }
-     int index = StringUtils.indexOf(str, " ", lower);
-     if (index == -1) {
-         if (str.length() <= upper) {
+diff --git a/src/main/java/org/apache/commons/lang3/text/WordUtils.java b/src/main/java/org/apache/commons/lang3/text/WordUtils.java
+index 5b4a9d2..e5b6c2e 100644
+--- a/src/main/java/org/apache/commons/lang3/text/WordUtils.java
++++ b/src/main/java/org/apache/commons/lang3/text/WordUtils.java
+@@ -228,6 +228,10 @@ public class WordUtils {
+         int index = StringUtils.indexOf(str, " ", lower);
+         if (index == -1) {
+             result.append(str.substring(0, str.length()));
++            if (str.length() != upper) {
++                result.append(StringUtils.defaultString(appendToEnd));
++            }
+         } else if (index > upper) {
+             result.append(str.substring(0, str.length()));
+             result.append(StringUtils.defaultString(appendToEnd));
+         } else {
+             result.append(str.substring(0, index));
+             result.append(StringUtils.defaultString(appendToEnd));
+         }
+         return result.toString();
+     }

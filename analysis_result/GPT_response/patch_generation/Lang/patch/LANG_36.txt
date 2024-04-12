@@ -1,17 +1,14 @@
-diff --git a/src/java/org/apache/commons/lang3/math/NumberUtils.java b/src/java/org/apache/commons/lang3/math/NumberUtils.java
-index 1234567..7654321 100644
---- a/src/java/org/apache/commons/lang3/math/NumberUtils.java
-+++ b/src/java/org/apache/commons/lang3/math/NumberUtils.java
-@@ -1444,6 +1444,13 @@ public static Number createNumber(String str) throws NumberFormatException {
+diff --git a/src/main/java/org/apache/commons/lang3/math/NumberUtils.java b/src/main/java/org/apache/commons/lang3/math/NumberUtils.java
+index 5c6b5b3..a2f3c4d 100644
+--- a/src/main/java/org/apache/commons/lang3/math/NumberUtils.java
++++ b/src/main/java/org/apache/commons/lang3/math/NumberUtils.java
+@@ -1447,6 +1447,9 @@ public static boolean isNumber(String str) {
+             return false;
          }
-     }
- 
-+    if (chars[i] == '.') {
-+        if (hasDecPoint || hasExp) {
-+            // two decimal points or dec in exponent   
-+            return false;
+         sz--; // don't want to loop to the last char, check it afterwords
++        if (chars[sz] == '.') {
++            return false; // trailing decimal point
 +        }
-+        return foundDigit; // single trailing decimal point after non-exponent is ok
-+    }
-     return false;
- }
+         // for type qualifiers
+         int i = start;
+         // loop to the next to last char or to the last char if we need another digit to

@@ -1,12 +1,12 @@
-diff --git a/src/java/org/apache/commons/lang/LocaleUtils.java b/src/java/org/apache/commons/lang/LocaleUtils.java
-index 1234567..7654321 100644
---- a/src/java/org/apache/commons/lang/LocaleUtils.java
-+++ b/src/java/org/apache/commons/lang/LocaleUtils.java
-@@ -100,7 +100,7 @@ public static boolean isAvailableLocale(Locale locale) {
-     // Fixing the bug by initializing cAvailableLocaleSet
-     if (cAvailableLocaleSet == null) {
-         cAvailableLocaleSet = availableLocaleSet();
+diff --git a/src/main/java/org/apache/commons/lang3/LocaleUtils.java b/src/main/java/org/apache/commons/lang3/LocaleUtils.java
+index 5f4c6a4..d9a7b5c 100644
+--- a/src/main/java/org/apache/commons/lang3/LocaleUtils.java
++++ b/src/main/java/org/apache/commons/lang3/LocaleUtils.java
+@@ -96,6 +96,7 @@ public class LocaleUtils {
+         }
      }
--    return cAvailableLocaleSet.contains(locale);
-+    return cAvailableLocaleSet != null && cAvailableLocaleSet.contains(locale);
- }
+ 
++    private static Set<Locale> cAvailableLocaleSet = availableLocaleSet();
+     public static boolean isAvailableLocale(Locale locale) {
+         return cAvailableLocaleSet.contains(locale);
+     }

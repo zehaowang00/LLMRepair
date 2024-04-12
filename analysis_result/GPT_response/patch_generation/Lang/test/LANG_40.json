@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "public void testToLocale() {\n    String str = \"en_US\";\n    Locale locale = toLocale(str);\n    assertEquals(Locale.US, locale);\n}"
+    "Fault Triggering Test": "assertEquals(true, toBoolean(\"true\"));"
 }

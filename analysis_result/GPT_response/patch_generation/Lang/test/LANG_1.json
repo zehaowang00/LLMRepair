@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "public void testCreateNumberWithLongHex() {\n    String hexNumber = \"0x123456789abcdef\";\n    Number result = NumberUtils.createNumber(hexNumber);\n    assertEquals(Long.decode(hexNumber), result);\n}"
+    "Fault Triggering Test": "CreateNumber(\"0x123456789ABCDEF\")"
 }

@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "public void testEscapeXmlWithSupplementaryPlaneCharacters() {\n    String str1 = \"\\uD842\\uDFB7\" + \"A\";\n    String str2 = StringEscapeUtils.escapeXml(str1);\n    assertEquals(str1, str2);\n}"
+    "Fault Triggering Test": "String str1 = \"\\uD842\\uDFB7\" + \"A\";\nString str2 = StringEscapeUtils.escapeXml(str1);\nassertEquals(str1, str2);"
 }

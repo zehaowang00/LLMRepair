@@ -1,12 +1,14 @@
-diff --git a/src/java/org/apache/commons/lang/StringEscapeUtils.java b/src/java/org/apache/commons/lang/StringEscapeUtils.java
-index 1234567..7654321 100644
---- a/src/java/org/apache/commons/lang/StringEscapeUtils.java
-+++ b/src/java/org/apache/commons/lang/StringEscapeUtils.java
-@@ -1,6 +1,6 @@
- public static String escapeHtml(String str) {
+diff --git a/src/main/java/org/apache/commons/lang/StringEscapeUtils.java b/src/main/java/org/apache/commons/lang/StringEscapeUtils.java
+index 8c9d3a1..f6a7b9e 100644
+--- a/src/main/java/org/apache/commons/lang/StringEscapeUtils.java
++++ b/src/main/java/org/apache/commons/lang/StringEscapeUtils.java
+@@ -67,7 +67,7 @@ public class StringEscapeUtils {
+     public static String escapeHtml(String str) {
          if (str == null) {
              return null;
          }
--        return StringUtils.replace(str, "'", "''");
-+        return str;
+-        StringWriter writer = new StringWriter ((int)(str.length() * 1.5));
++        StringWriter writer = new StringWriter(str.length());
+         escapeHtml(writer, str);
+         return writer.toString();
      }

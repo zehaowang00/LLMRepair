@@ -1,13 +1,19 @@
 diff --git a/src/main/java/org/apache/commons/lang3/SerializationUtils.java b/src/main/java/org/apache/commons/lang3/SerializationUtils.java
-index abcdef1..1234567 100644
+index 1234567..abcdefg 100644
 --- a/src/main/java/org/apache/commons/lang3/SerializationUtils.java
 +++ b/src/main/java/org/apache/commons/lang3/SerializationUtils.java
-@@ -100,7 +100,7 @@ public static <T extends Serializable> T clone(T object) { ... }
+@@ -123,7 +123,7 @@ public static <T extends Serializable> T clone(T object) {
+         } catch (ClassNotFoundException ex) {
+             throw new SerializationException("ClassNotFoundException while reading cloned object data", ex);
+         } catch (IOException ex) {
+             throw new SerializationException("IOException while reading cloned object data", ex);
+         } finally {
+             try {
+                 if (in != null) {
+                     in.close();
+                 }
+             } catch (IOException ex) {
+                 throw new SerializationException("IOException on closing cloned object data InputStream.", ex);
              }
          }
-     } catch (ClassNotFoundException ex) {
--        throw new SerializationException("ClassNotFoundException while cloning: " + ex.getMessage(), ex);
-+        return null; // Return null instead of throwing exception
      }
- }
- 

@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "Fault Triggering Test: Can you provide one test case for testing the bug? (Please generate a complete and compilable test case code for trigger the bug in the bug report. No other words)"
+    "Fault Triggering Test": "public void testCompareToNotTypesafe() {\n    MyValuedEnum enum1 = MyValuedEnum.VALUE1;\n    MyValuedEnum enum2 = MyValuedEnum.VALUE2;\n    int result = enum1.compareTo(enum2);\n    assertEquals(0, result);\n}"
 }

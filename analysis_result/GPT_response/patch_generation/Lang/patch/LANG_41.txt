@@ -1,12 +1,17 @@
-diff --git a/src/java/org/apache/commons/lang/ClassUtils.java b/src/java/org/apache/commons/lang/ClassUtils.java
-index 1234567..7654321 100644
---- a/src/java/org/apache/commons/lang/ClassUtils.java
-+++ b/src/java/org/apache/commons/lang/ClassUtils.java
-@@ -123,7 +123,7 @@ public static String getShortClassName(String className) {
-         if (className == null) {
-             return null;
+diff --git a/src/main/java/org/apache/commons/lang3/ClassUtils.java b/src/main/java/org/apache/commons/lang3/ClassUtils.java
+index 5f4f2a7..d8c4f0d 100644
+--- a/src/main/java/org/apache/commons/lang3/ClassUtils.java
++++ b/src/main/java/org/apache/commons/lang3/ClassUtils.java
+@@ -1178,7 +1178,7 @@ public class ClassUtils {
+         if (clazz.isArray()) {
+             StringBuilder className = new StringBuilder();
+             while (clazz.isArray()) {
+-                className.append(';');
++                className.append('[]');
+                 clazz = clazz.getComponentType();
+             }
+             className.insert(0, clazz.getName());
+             return className.toString();
          }
--        return className.substring(lastDotIdx + 1);
-+        return className.substring(lastDotIdx + 1).replace(INNER_CLASS_SEPARATOR_CHAR, PACKAGE_SEPARATOR_CHAR);
+         return clazz.getName();
      }
- }

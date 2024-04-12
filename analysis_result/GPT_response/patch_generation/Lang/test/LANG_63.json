@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "public void testWrongResultOnDec31_2005() {\n        Calendar cal = Calendar.getInstance();\n        cal.set(Calendar.MONTH, Calendar.DECEMBER);\n        cal.set(Calendar.DAY_OF_MONTH, 31);\n        cal.set(Calendar.YEAR, 2005);\n        cal.set(Calendar.HOUR_OF_DAY, 0);\n        cal.set(Calendar.MINUTE, 0);\n        cal.set(Calendar.SECOND, 0);\n        cal.set(Calendar.MILLISECOND, 0);\n\n        String result = DurationFormatUtils.formatPeriod(cal.getTimeInMillis(), System.currentTimeMillis(), \"MM\");\n        assertEquals(\"-2\", result);\n    }"
+    "Fault Triggering Test": "Create a test case where the Date is set to December 31, 2005 and call the method formatDurationISO with the given date. This should trigger the bug where the result is incorrect."
 }

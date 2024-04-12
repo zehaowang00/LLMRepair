@@ -1,3 +1,5 @@
 {
-    "Fault Triggering Test": "import java.util.Calendar;\nimport java.util.Date;\nimport java.util.Locale;\nimport java.text.SimpleDateFormat;\n\nimport org.apache.commons.lang.time.FastDateFormat;\n\npublic class FastDateFormatWeekBugDemo {\n    public static void main(String[] args) {\n        Locale.setDefault(new Locale(\"en\", \"US\"));\n        Locale locale = new Locale(\"sv\", \"SE\");\n\n        Calendar cal = Calendar.getInstance();\n        cal.set(2010, 0, 1, 12, 0, 0);\n        Date d = cal.getTime();\n\n        FastDateFormat fdf = FastDateFormat.getInstance(\"EEEE', week 'ww\", locale);\n        SimpleDateFormat sdf = new SimpleDateFormat(\"EEEE', week 'ww\", locale);\n        System.out.println(\"FastDateFormat:   \" + fdf.format(d));\n        System.out.println(\"SimpleDateFormat: \" + sdf.format(d));\n    }\n}"
+    "Fault Triggering Test": {
+        "Test Case": "Locale.setDefault(new Locale(\"sv\", \"SE\"));"
+    }
 }

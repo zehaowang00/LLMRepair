@@ -1,11 +1,12 @@
-diff --git a/src/java/org/apache/commons/lang/NumberUtils.java b/src/java/org/apache/commons/lang/NumberUtils.java
-index 1234567..7654321 100644
---- a/src/java/org/apache/commons/lang/NumberUtils.java
-+++ b/src/java/org/apache/commons/lang/NumberUtils.java
-@@ -100,7 +100,7 @@ public static Number createNumber(String val) throws NumberFormatException {
+diff --git a/src/main/java/org/apache/commons/lang3/NumberUtils.java b/src/main/java/org/apache/commons/lang3/NumberUtils.java
+index 3a2b1c4..f6e8d9a 100644
+--- a/src/main/java/org/apache/commons/lang3/NumberUtils.java
++++ b/src/main/java/org/apache/commons/lang3/NumberUtils.java
+@@ -1234,7 +1234,7 @@ public final class NumberUtils {
          }
+         if (val.startsWith("0x") || val.startsWith("-0x")) {
+             return createInteger(val);
+         }
+-        return createBigDecimal(val);
++        return new BigDecimal(val);
      }
-     // Fix bug by using compareTo instead of equals
--    return null;
-+    return new BigDecimal(val);
- }

@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "public void testRandomStringUtilsIllegalArgumentException() {\n    RandomStringUtils.random(5, 10, 5, true, false, 'a', 'b', 'c');\n}"
+    "Fault Triggering Test": "public void testRandomUtilsBug() {\n    RandomStringUtils.random(5, 10, 5, true, false);\n}"
 }

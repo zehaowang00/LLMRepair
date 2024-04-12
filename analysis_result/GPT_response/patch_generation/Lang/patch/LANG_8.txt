@@ -1,11 +1,12 @@
-diff --git a/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java b/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
-index 1234567..7654321 100644
---- a/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
-+++ b/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
-@@ -123,7 +123,7 @@ protected StringBuffer applyRules(Calendar calendar, StringBuffer buf) {
-         return printer.applyRules(calendar, buf);
-     }
- 
--    Calendar myCal = Calendar.getInstance(TimeZone.getTimeZone("US/Central"));
-+    Calendar myCal = Calendar.getInstance(TimeZone.getTimeZone("US/Eastern"));
-     System.out.println(FastDateFormat.getInstance("h:mma z").format(myCal));
+diff --git a/src/main/java/org/apache/commons/lang3/time/FastDatePrinter.java b/src/main/java/org/apache/commons/lang3/time/FastDatePrinter.java
+index 1234567..abcdefg 100644
+--- a/src/main/java/org/apache/commons/lang3/time/FastDatePrinter.java
++++ b/src/main/java/org/apache/commons/lang3/time/FastDatePrinter.java
+@@ -123,7 +123,7 @@ protected FastDatePrinter(String pattern, TimeZone timeZone, Locale locale) {
+     mPattern = pattern;
+     mTimeZone = null; // Set timeZone to null initially
+     mLocale = locale;
+
+-    init(); // Remove the init() method call
++    // init(); // Comment out the init() method call
+ }

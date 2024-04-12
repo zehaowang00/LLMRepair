@@ -1,11 +1,13 @@
-diff --git a/src/java/org/apache/commons/lang/LocaleUtils.java b/src/java/org/apache/commons/lang/LocaleUtils.java
-index 1234567..abcdefg 100644
---- a/src/java/org/apache/commons/lang/LocaleUtils.java
-+++ b/src/java/org/apache/commons/lang/LocaleUtils.java
-@@ -123,7 +123,7 @@ public static Locale toLocale(String str) {
-         if (ch0 < 'a' || ch0 > 'z' || ch1 < 'a' || ch1 > 'z') {
-             throw new IllegalArgumentException("Invalid locale format: " + str);
+diff --git a/src/main/java/org/apache/commons/lang3/math/Fraction.java b/src/main/java/org/apache/commons/lang3/math/Fraction.java
+index b36a156..0fdfc36 100644
+--- a/src/main/java/org/apache/commons/lang3/math/Fraction.java
++++ b/src/main/java/org/apache/commons/lang3/math/Fraction.java
+@@ -581,7 +581,7 @@ public final class Fraction extends Number implements Comparable<Fraction> {
+     private static int greatestCommonDivisor(int u, int v) {
+         // From Commons Math:
+         //if either operand is abs 1, return 1:
+-        if (Math.abs(u) <= 1 || Math.abs(v) <= 1) {
++        if (Math.abs(u)==1 || Math.abs(v) <= 1) {
+             return 1;
          }
--        return new Locale(str);
-+        return new Locale(str.toUpperCase());
-     }
+         // keep u and v negative, as negative integers range down to

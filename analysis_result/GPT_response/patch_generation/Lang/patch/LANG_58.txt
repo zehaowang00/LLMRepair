@@ -1,20 +1,9 @@
-diff --git a/src/java/org/apache/commons/lang/NumberUtils.java b/src/java/org/apache/commons/lang/NumberUtils.java
-index 1234567..7654321 100644
---- a/src/java/org/apache/commons/lang/NumberUtils.java
-+++ b/src/java/org/apache/commons/lang/NumberUtils.java
+diff --git a/src/main/java/org/apache/commons/lang3/math/NumberUtils.java b/src/main/java/org/apache/commons/lang3/math/NumberUtils.java
+index abcdef1..1234567 100644
+--- a/src/main/java/org/apache/commons/lang3/math/NumberUtils.java
++++ b/src/main/java/org/apache/commons/lang3/math/NumberUtils.java
 @@ -455,7 +455,7 @@ public static Number createNumber(String val) throws NumberFormatException {
-                         && (numeric.charAt(0) == '-' && isDigits(numeric.substring(1)) || isDigits(numeric))) {
-                         try {
-                             return createLong(numeric);
--                        } catch (NumberFormatException nfe) {
-+                        } catch (NumberFormatException nfe) {
-+                            throw new NumberFormatException(val + " is not a valid number.");
-                         }
--                        return createBigInteger(numeric);
-+
-                     }
--                    throw new NumberFormatException(val + " is not a valid number.");
-+                    return createBigInteger(numeric);
-
-                 }
-             }
+         if (val.startsWith("0x") || val.startsWith("-0x")) {
+-            return createInteger(val);
++            return createLong(val);
+         }

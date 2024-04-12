@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "public static void main(String[] args) {\n        ClassUtils.getPublicMethod(null, \"methodName\", new Class<?>[]{String.class});\n    }"
+    "Fault Triggering Test": "public class TestClass {\n    public static void main(String[] args) {\n        Class<?> cls = null;\n        String methodName = \"testMethod\";\n        Class<?>[] parameterTypes = null;\n        try {\n            Method result = ClassUtils.getPublicMethod(cls, methodName, parameterTypes);\n        } catch (Exception e) {\n            e.printStackTrace();\n        }\n    }\n}"
 }

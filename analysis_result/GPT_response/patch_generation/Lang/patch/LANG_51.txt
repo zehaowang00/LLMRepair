@@ -1,11 +1,20 @@
-diff --git a/src/java/org/apache/commons/lang/BooleanUtils.java b/src/java/org/apache/commons/lang/BooleanUtils.java
-index 1234567..abcdefg 100644
---- a/src/java/org/apache/commons/lang/BooleanUtils.java
-+++ b/src/java/org/apache/commons/lang/BooleanUtils.java
-@@ -3,7 +3,7 @@ public static boolean toBoolean(Boolean bool) {
-         if (bool == null) {
-             return false;
+diff --git a/src/main/java/org/apache/commons/lang3/BooleanUtils.java b/src/main/java/org/apache/commons/lang3/BooleanUtils.java
+index 1234567..7654321 100644
+--- a/src/main/java/org/apache/commons/lang3/BooleanUtils.java
++++ b/src/main/java/org/apache/commons/lang3/BooleanUtils.java
+@@ -123,7 +123,7 @@ public static Boolean toBooleanObject(String str) {
+         } else if ("false".equalsIgnoreCase(str)) {
+             return Boolean.FALSE;
+         } else if ("on".equalsIgnoreCase(str)) {
+-            return Boolean.TRUE;
++            return Boolean.FALSE;
+         } else if ("off".equalsIgnoreCase(str)) {
+-            return Boolean.FALSE;
++            return Boolean.TRUE;
+         } else if ("yes".equalsIgnoreCase(str)) {
+             return Boolean.TRUE;
+         } else if ("no".equalsIgnoreCase(str)) {
+             return Boolean.FALSE;
          }
--        return bool.booleanValue() ? true : false;
-+        return bool.booleanValue();
-     }
+         // no match
+         return null;

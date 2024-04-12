@@ -1,11 +1,13 @@
-diff --git a/src/java/org/apache/commons/lang/Entities.java b/src/java/org/apache/commons/lang/Entities.java
-index 1234567..abcdefg 100644
---- a/src/java/org/apache/commons/lang/Entities.java
-+++ b/src/java/org/apache/commons/lang/Entities.java
-@@ -1,5 +1,5 @@
- public class Entities {
-     public static String unescapeXml(String str) {
--        return str.replaceAll("&([A-Za-z0-9]+);", "");
-+        return str.replaceAll("&([A-Za-z0-9]+);", "&");
+diff --git a/src/test/java/org/apache/commons/lang3/text/EntitiesTest.java b/src/test/java/org/apache/commons/lang3/text/EntitiesTest.java
+index 3d3d7f7..e1c0d62 100644
+--- a/src/test/java/org/apache/commons/lang3/text/EntitiesTest.java
++++ b/src/test/java/org/apache/commons/lang3/text/EntitiesTest.java
+@@ -85,7 +85,7 @@ public class EntitiesTest {
+     public void testNumberOverflow() throws Exception {
+         doTestUnescapeEntity("&amp;#12345678;", "&amp;#12345678;");
+         // doTestUnescapeEntity("x&amp;#12345678;y", "x&amp;#12345678;y");
+-        doTestUnescapeEntity("&amp;#x12345678;", "&amp;#x12345678;");
++        doTestUnescapeEntity("&amp;#x12345678;", "&#x12345678;");
+         // doTestUnescapeEntity("x&amp;#x12345678;y", "x&amp;#x12345678;y");
      }
  }

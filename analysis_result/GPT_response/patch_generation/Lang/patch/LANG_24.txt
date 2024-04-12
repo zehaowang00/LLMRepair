@@ -1,12 +1,11 @@
 diff --git a/src/main/java/org/apache/commons/lang3/math/NumberUtils.java b/src/main/java/org/apache/commons/lang3/math/NumberUtils.java
-index 1234567..890abcde 100644
+index abcdef1..1234567 100644
 --- a/src/main/java/org/apache/commons/lang3/math/NumberUtils.java
 +++ b/src/main/java/org/apache/commons/lang3/math/NumberUtils.java
-@@ -123,7 +123,7 @@ public static boolean isNumber(String str) {
+@@ -123,7 +123,7 @@ public final class NumberUtils {
              || chars[i] == 'L') {
              // not allowing L with an exponent
 -            return foundDigit && !hasExp;
 +            return foundDigit && !hasExp && !hasDecPoint;
          }
      }
-     return foundDigit;

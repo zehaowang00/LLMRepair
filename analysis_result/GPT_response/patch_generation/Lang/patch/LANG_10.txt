@@ -1,13 +1,12 @@
-diff --git a/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java b/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
-index 1234567..7654321 100644
---- a/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
-+++ b/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
-@@ -100,7 +100,7 @@ protected StringBuffer applyRules(Calendar calendar, StringBuffer buf) {
-     // Fix bug related to white-space handling
-     if (buf.charAt(buf.length() - 1) == ' ') {
-         buf.setLength(buf.length() - 1);
--        return buf;
-+        return new StringBuffer(buf.toString().trim());
-     }
-     return buf;
+diff --git a/src/main/java/org/apache/commons/lang3/time/FastDateParser.java b/src/main/java/org/apache/commons/lang3/time/FastDateParser.java
+index 5f4a6a2..c6f4b0e 100644
+--- a/src/main/java/org/apache/commons/lang3/time/FastDateParser.java
++++ b/src/main/java/org/apache/commons/lang3/time/FastDateParser.java
+@@ -122,7 +122,7 @@ protected FastDateParser(String pattern, TimeZone timeZone, Locale locale) {
+     this.pattern = pattern;
+     this.timeZone = timeZone;
+     this.locale = locale;
+-    this.calendar = Calendar.getInstance(timeZone, locale);
++    this.calendar = Calendar.getInstance();
+     init();
  }

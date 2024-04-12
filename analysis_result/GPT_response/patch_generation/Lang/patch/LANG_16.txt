@@ -1,13 +1,13 @@
-diff --git a/src/main/java/org/apache/commons/lang3/math/NumberUtils.java b/src/main/java/org/apache/commons/lang3/math/NumberUtils.java
-index 5d6f3a0..e4d7c1e 100644
---- a/src/main/java/org/apache/commons/lang3/math/NumberUtils.java
-+++ b/src/main/java/org/apache/commons/lang3/math/NumberUtils.java
-@@ -69,7 +69,7 @@ public Number createNumber(String str) throws NumberFormatException {
+diff --git a/src/main/java/org/apache/commons/lang3/NumberUtils.java b/src/main/java/org/apache/commons/lang3/NumberUtils.java
+index 5c3a2f4..d0b3a6b 100644
+--- a/src/main/java/org/apache/commons/lang3/NumberUtils.java
++++ b/src/main/java/org/apache/commons/lang3/NumberUtils.java
+@@ -1297,7 +1297,7 @@ public final class NumberUtils {
+         if (str == null) {
+             return null;
          }
-         if (str.startsWith("0x") || str.startsWith("-0x") || str.startsWith("0X") || str.startsWith("-0X")) {
-             return createInteger(str);
--        }
-+        }
-         char lastChar = str.charAt(str.length() - 1);
-         String mant;
-         String dec;
+-        if (StringUtils.isBlank(str)) {
++        if (StringUtils.isBlank(str) || str.length() < 3) {
+             throw new NumberFormatException("A blank string is not a valid number");
+         }  
+         if (str.startsWith("--")) {

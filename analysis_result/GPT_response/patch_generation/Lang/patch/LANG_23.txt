@@ -1,11 +1,19 @@
 diff --git a/src/main/java/org/apache/commons/lang3/text/ExtendedMessageFormat.java b/src/main/java/org/apache/commons/lang3/text/ExtendedMessageFormat.java
-index 1234567..7654321 100644
+index 3f2b2c0..1a9f8d1 100644
 --- a/src/main/java/org/apache/commons/lang3/text/ExtendedMessageFormat.java
 +++ b/src/main/java/org/apache/commons/lang3/text/ExtendedMessageFormat.java
-@@ -123,6 +123,7 @@ public final void applyPattern(String pattern) {
-             //$FALL-THROUGH$
-         default:
-             stripCustom.append(c[pos.getIndex()]);
-+            next(pos);
+@@ -123,6 +123,14 @@ public final class ExtendedMessageFormat extends MessageFormat {
+         Validate.isTrue(foundFormats.size() == fmtCount, "foundFormats size not equal to fmtCount");
+         Validate.isTrue(foundDescriptions.size() == fmtCount, "foundDescriptions size not equal to fmtCount");
+         if (c[pos.getIndex()] != END_FE) {
+             throw new IllegalArgumentException("Unreadable format element at position " + start);
          }
++        for (int i = 0; i < foundFormats.size(); i++) {
++            Format f = foundFormats.get(i);
++            String desc = foundDescriptions.get(i);
++            if (f != null) {
++                origFormats[i] = f;
++            }
++        }
++        super.setFormats(origFormats);
      }

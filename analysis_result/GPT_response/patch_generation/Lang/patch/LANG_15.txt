@@ -1,13 +1,13 @@
 diff --git a/src/main/java/org/apache/commons/lang3/reflect/TypeUtils.java b/src/main/java/org/apache/commons/lang3/reflect/TypeUtils.java
-index abcdef1..1234567 100644
+index 5b1a4f2..f8d2b4c 100644
 --- a/src/main/java/org/apache/commons/lang3/reflect/TypeUtils.java
 +++ b/src/main/java/org/apache/commons/lang3/reflect/TypeUtils.java
-@@ -1234,7 +1234,7 @@ private static boolean isAssignable(Type type, Type toType, Map<TypeVariable<?>, T
-             return isAssignable(type, (GenericArrayType) toType, typeVarAssigns);
+@@ -1234,7 +1234,7 @@ public class TypeUtils {
          }
  
--        if (toType instanceof WildcardType) {
-+        if (toType instanceof WildcardType && !(toType instanceof TypeVariable<?>)) {
-             return isAssignable(type, (WildcardType) toType, typeVarAssigns);
-         }
+         // Populate the type-to-type-variables map
+-        populateTypeMap(type, typeVarAssigns);
++        populateTypeMap(type, typeVarAssigns, rawType);
  
+         // Populate the type-to-bounds map
+         populateWildcardTypeMap(type, typeVarAssigns, rawType);

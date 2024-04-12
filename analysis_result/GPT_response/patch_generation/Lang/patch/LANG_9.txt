@@ -1,14 +1,15 @@
-diff --git a/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java b/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
-index 1234567..7654321 100644
---- a/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
-+++ b/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
-@@ -100,7 +100,7 @@ protected FastDateFormat(String pattern, TimeZone timeZone, Locale locale) {
-         printer= new FastDatePrinter(pattern, timeZone, locale);
-         parser= new FastDateParser(pattern, timeZone, locale);
+diff --git a/src/main/java/org/apache/commons/lang3/time/FastDateParser.java b/src/main/java/org/apache/commons/lang3/time/FastDateParser.java
+index 5c7a3b6..a2e1a1f 100644
+--- a/src/main/java/org/apache/commons/lang3/time/FastDateParser.java
++++ b/src/main/java/org/apache/commons/lang3/time/FastDateParser.java
+@@ -144,7 +144,7 @@ public class FastDateParser {
+     private void handleQuote(StringBuilder pattern, ParsePosition pos, boolean inLiteral) {
+         if (inLiteral) {
+             pattern.append(''');
+-            pos.setIndex(pos.getIndex() + 1);
++            pos.setIndex(pos.getIndex() + 2);
+         } else {
+             pattern.append(''');
+             pos.setIndex(pos.getIndex() + 1);
+         }
      }
--    // Add fix for handling unterminated quotes
-+    // Fix for handling unterminated quotes
-+    if (pattern.contains("'")) {
-+        throw new IllegalArgumentException("Unterminated quotes in pattern");
-+    }
- }

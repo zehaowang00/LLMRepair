@@ -1,13 +1,22 @@
-diff --git a/src/main/java/org/apache/commons/lang3/StringEscapeUtils.java b/src/main/java/org/apache/commons/lang3/StringEscapeUtils.java
-index 1234567..7654321 100644
---- a/src/main/java/org/apache/commons/lang3/StringEscapeUtils.java
-+++ b/src/main/java/org/apache/commons/lang3/StringEscapeUtils.java
-@@ -100,7 +100,7 @@ public static final String escapeXml(String input) {
+diff --git a/src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java b/src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java
+index 5b1d3a2..d8c7b8c 100644
+--- a/src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java
++++ b/src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java
+@@ -36,7 +36,7 @@ public abstract class CharSequenceTranslator {
+      */
+     public abstract int translate(CharSequence input, int index, Writer out) throws IOException;
+ 
+-    public int translate(CharSequence input, Writer out) throws IOException {
++    public final int translate(CharSequence input, Writer out) throws IOException {
+         if (input == null) {
+             return 0;
+         }
+@@ -46,7 +46,7 @@ public abstract class CharSequenceTranslator {
+         int pos = 0;
+         for (int i = 0; i < input.length(); i++) {
+             pos += translate(input, i, out);
+-            if(pos < 0) {
++            if (pos < 0) {
+                 break;
              }
          }
-     }
--    for (int i = 0; i < Character.codePointCount(input, 0, input.length()); i++) {
-+    for (int i = 0; i < input.length(); i++) {
-         int c = input.codePointAt(i);
-         if (c < ESCAPE_XML.length && ESCAPE_XML[c] != null) {
-             out.write(ESCAPE_XML[c]);

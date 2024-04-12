@@ -1,13 +1,13 @@
-diff --git a/src/main/java/org/apache/commons/lang3/text/translate/AggregateTranslator.java b/src/main/java/org/apache/commons/lang3/text/translate/AggregateTranslator.java
-index abcdef1..1234567 100644
---- a/src/main/java/org/apache/commons/lang3/text/translate/AggregateTranslator.java
-+++ b/src/main/java/org/apache/commons/lang3/text/translate/AggregateTranslator.java
-@@ -100,7 +100,7 @@ public class AggregateTranslator extends CharSequenceTranslator {
+diff --git a/src/main/java/org/apache/commons/lang3/text/translate/LookupTranslator.java b/src/main/java/org/apache/commons/lang3/text/translate/LookupTranslator.java
+index 5f8c3b7..b0b6c8e 100644
+--- a/src/main/java/org/apache/commons/lang3/text/translate/LookupTranslator.java
++++ b/src/main/java/org/apache/commons/lang3/text/translate/LookupTranslator.java
+@@ -69,7 +69,7 @@ public class LookupTranslator extends CharSequenceTranslator {
+             final CharSequence subSeq = input.subSequence(index, index + i);
+             final CharSequence result = lookupMap.get(subSeq.toString());
+             if (result != null) {
+-                out.write(result.toString());
++                out.write(result);
+                 return i;
+             }
          }
-     }
- 
--    private static final CharSequenceTranslator ESCAPE_HTML4 = new LookupTranslator(
-+    private static final CharSequenceTranslator ESCAPE_HTML4 = new LookupTranslator(new HashMap<CharSequence, CharSequence>(lookupMap.size())) {
-         {
-             put("<", "&lt;");
-             put(">", "&gt;");

@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "public void testCreateNumberWithExponentIndicators() {\n    NumberUtils.createNumber(\"1eE\");\n}"
+    "Fault Triggering Test": "assertEquals(NumberUtils.createNumber(\"1eE\"), null);"
 }

@@ -1,17 +1,21 @@
-diff --git a/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java b/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
-index 1234567..890abcde 100644
---- a/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
-+++ b/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
-@@ -123,7 +123,7 @@ protected void init() {
-        List<Rule> rulesList = parsePattern();
-        Rule[] rulesArray = new Rule[rulesList.size()];
-        rulesArray = rulesList.toArray(rulesArray);
-        mRules = rulesArray;
-
-        int len = 0;
-        for (int i=mRules.length; --i >= 0; ) {
-            len += mRules[i].estimateLength();
-        }
-
-        mMaxLengthEstimate = len;
-    }
+diff --git a/src/main/java/org/apache/commons/lang3/time/DateUtils.java b/src/main/java/org/apache/commons/lang3/time/DateUtils.java
+index 5f4a6b7..d3f8e5c 100644
+--- a/src/main/java/org/apache/commons/lang3/time/DateUtils.java
++++ b/src/main/java/org/apache/commons/lang3/time/DateUtils.java
+@@ -597,7 +597,7 @@ public class DateUtils {
+     public static boolean isSameLocalTime(Calendar cal1, Calendar cal2) {
+         if (cal1.get(Calendar.YEAR) != cal2.get(Calendar.YEAR)) {
+             return false;
+         }
+-        if (cal1.get(Calendar.HOUR) != cal2.get(Calendar.HOUR)) {
++        if (cal1.get(Calendar.HOUR_OF_DAY) != cal2.get(Calendar.HOUR_OF_DAY)) {
+             return false;
+         }
+         if (cal1.get(Calendar.MINUTE) != cal2.get(Calendar.MINUTE)) {
+             return false;
+         }
+         if (cal1.get(Calendar.SECOND) != cal2.get(Calendar.SECOND)) {
+             return false;
+         }
+         return true;
+     }

@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "SimpleDateFormat sdf = new SimpleDateFormat(\"yyyy-MM-dd HH:mm:ss\");\nDate date = sdf.parse(\"2022-01-01 12:00:00\");"
+    "Fault Triggering Test": "Fault Triggering Test: Can you provide one test case for testing the bug? (Please generate a complete and compilable test case code for trigger the bug in the bug report. No other words)"
 }

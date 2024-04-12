@@ -1,1 +1,14 @@
-diff --git a/src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java b/src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java\nindex 1234567..890abcde 100644\n--- a/src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java\n+++ b/src/main/java/org/apache/commons/lang3/time/DateFormatUtils.java\n@@ -123,7 +123,7 @@ public class DateFormatUtils {\n     public static String format(Date date, String pattern, Locale locale) {\n         FastDateFormat fdf = FastDateFormat.getInstance(pattern, locale);\n         return fdf.format(date);\n-    }\n+    }\n }
+diff --git a/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java b/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
+index 3f7f4c1..e3c2d8e 100644
+--- a/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
++++ b/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java
+@@ -1234,6 +1234,8 @@ public class FastDateFormat extends Format {
+         int weekYear = cal.getWeekYear();
+         if (weekYear == cal.get(Calendar.YEAR)) {
+             weekYear = cal.get(Calendar.YEAR);
++            if (cal.get(Calendar.MONTH) == Calendar.JANUARY && cal.get(Calendar.WEEK_OF_YEAR) > 50) {
++                weekYear--;
++            }
+         }
+         return weekYear;
+     }

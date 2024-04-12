@@ -1,11 +1,12 @@
-diff --git a/src/java/org/apache/commons/lang/enums/ValuedEnum.java b/src/java/org/apache/commons/lang/enums/ValuedEnum.java
-index 1234567..7654321 100644
---- a/src/java/org/apache/commons/lang/enums/ValuedEnum.java
-+++ b/src/java/org/apache/commons/lang/enums/ValuedEnum.java
-@@ -1,5 +1,5 @@
- package org.apache.commons.lang.enums;
- 
--public int compareTo(Object other) {
-+public int compareTo(ValuedEnum other) {
-     return iValue - other.iValue;
+diff --git a/src/main/java/org/apache/commons/lang3/enums/ValuedEnum.java b/src/main/java/org/apache/commons/lang3/enums/ValuedEnum.java
+index abcdef1..1234567 100644
+--- a/src/main/java/org/apache/commons/lang3/enums/ValuedEnum.java
++++ b/src/main/java/org/apache/commons/lang3/enums/ValuedEnum.java
+@@ -123,7 +123,7 @@ public int compareTo(Object other) {
+     if (other instanceof ValuedEnum) {
+         return Integer.compare(this.getValue(), ((ValuedEnum) other).getValue());
+     } else {
+-        throw new IllegalArgumentException("Object is not an instance of ValuedEnum");
++        throw new IllegalArgumentException("Object is not an instance of ValuedEnum. Expected ValuedEnum instance.");
+     }
  }

@@ -1,13 +1,13 @@
-diff --git a/src/java/org/apache/commons/lang/StringEscapeUtils.java b/src/java/org/apache/commons/lang/StringEscapeUtils.java
-index 1234567..7654321 100644
---- a/src/java/org/apache/commons/lang/StringEscapeUtils.java
-+++ b/src/java/org/apache/commons/lang/StringEscapeUtils.java
-@@ -100,7 +100,7 @@ public static String escapeJavaScript(String str) { 
-             // escape '/' into '\/'
-             case '/':
-                 out.write('\/');
--                break;
-+                continue;
-             // escape other characters
-             default:
-                 out.write(c);
+diff --git a/src/main/java/org/apache/commons/lang3/StringEscapeUtils.java b/src/main/java/org/apache/commons/lang3/StringEscapeUtils.java
+index 5f4f3a2..8c0d7e0 100644
+--- a/src/main/java/org/apache/commons/lang3/StringEscapeUtils.java
++++ b/src/main/java/org/apache/commons/lang3/StringEscapeUtils.java
+@@ -115,7 +115,7 @@ public class StringEscapeUtils {
+     public static String escapeJavaScript(String input) {
+         if (input == null) {
+             return null;
+         }
+-        return input.replaceAll("\\", "\\\\").replaceAll("'", "\\'");
++        return input.replaceAll("/", "\\/").replaceAll("'", "\\'");
+     }
+ }

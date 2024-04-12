@@ -1,13 +1,22 @@
-diff --git a/src/main/java/org/apache/commons/lang3/ObjectUtils.java b/src/main/java/org/apache/commons/lang3/ObjectUtils.java
-index 1234567..7654321 100644
---- a/src/main/java/org/apache/commons/lang3/ObjectUtils.java
-+++ b/src/main/java/org/apache/commons/lang3/ObjectUtils.java
-@@ -100,7 +100,7 @@ public static <T> T clone(final T obj) { ... }
-         if (obj instanceof Object[]) {
-             result = ((Object[]) obj).clone();
-         } else {
--            result = obj;
-+            result = obj.clone();
+diff --git a/src/main/java/org/apache/commons/lang3/StringUtils.java b/src/main/java/org/apache/commons/lang3/StringUtils.java
+index 1234567..abcdefg 100644
+--- a/src/main/java/org/apache/commons/lang3/StringUtils.java
++++ b/src/main/java/org/apache/commons/lang3/StringUtils.java
+@@ -123,7 +123,7 @@ public class StringUtils {
+     public static String join(Object[] array, String separator) {
+         if (array == null) {
+             return null;
          }
-         return result;
+-        StringBuilder sb = new StringBuilder();
++        StringBuilder sb = new StringBuilder(array.length * 16);
+         for (int i = 0; i < array.length; i++) {
+             if (i > 0) {
+                 sb.append(separator);
+             }
+             if (array[i] != null) {
+                 sb.append(array[i]);
+             }
+         }
+         return sb.toString();
      }
+}

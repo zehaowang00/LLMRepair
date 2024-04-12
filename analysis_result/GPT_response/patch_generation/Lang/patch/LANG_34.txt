@@ -1,13 +1,47 @@
-diff --git a/src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java b/src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java
-index 1234567..7654321 100644
---- a/src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java
-+++ b/src/main/java/org/apache/commons/lang3/builder/ToStringBuilder.java
-@@ -100,7 +100,7 @@ public String toString() {
+diff --git a/src/main/java/org/apache/commons/lang3/builder/ToStringStyle.java b/src/main/java/org/apache/commons/lang3/builder/ToStringStyle.java
+index 7b5a5d5..f2c3e4f 100644
+--- a/src/main/java/org/apache/commons/lang3/builder/ToStringStyle.java
++++ b/src/main/java/org/apache/commons/lang3/builder/ToStringStyle.java
+@@ -27,6 +27,7 @@ import java.io.Serializable;
+ import java.util.concurrent.atomic.AtomicLong;
+ import org.apache.commons.lang3.ClassUtils;
+ import org.apache.commons.lang3.ObjectUtils;
++import org.apache.commons.lang3.builder.ToStringStyle.ThreadLocalMemoryLeakFix;
+ 
+ /**
+  * <p>Style for creating a <code>toString</code>.</p>
+@@ -34,6 +35,10 @@ import org.apache.commons.lang3.ObjectUtils;
+  * <p>This class provides the common implementation of {@link Object#toString()}.
+  * Subclasses can override the various methods to change the output.</p>
+  *
++ * <p>This class also provides a static inner class ThreadLocalMemoryLeakFix
++ * that can be used to remove the thread local reference and prevent memory leaks.</p>
++ *
++ *
+  * @since 2.0
+  */
+ public abstract class ToStringStyle implements Serializable {
+@@ -56,6 +61,7 @@ public abstract class ToStringStyle implements Serializable {
+     /**
+      * <p>ThreadLocal to prevent infinite loops caused by cycles in the object graph.</p>
+      */
++    private static final ThreadLocal<ThreadLocalMemoryLeakFix> TL = new ThreadLocal<>();
+ 
+     /**
+      * <p>Whether to use the class name.</p>
+@@ -107,6 +113,15 @@ public abstract class ToStringStyle implements Serializable {
+         return this.useShortClassName;
      }
  
-     public String getString() {
--        return getStringBuffer().toString();
-+        return getStringBuffer().toString().trim();
-     }
++    /**
++     * <p>Removes the thread local reference to prevent memory leaks.</p>
++     */
++    public static void removeThreadLocal() {
++        if (TL.get() != null) {
++            TL.remove();
++        }
++    }
++
+     //---------------------------------------------------------------------
  
-     public StringBuffer getStringBuffer() {
+     /**

@@ -1,3 +1,3 @@
 {
-    "Fault Triggering Test": "public void testEqualsMethod() {\n    Name name = new NameImpl(\"test\");\n    String str = \"test\";\n    boolean result = StringUtils.equals(name, str);\n    assertFalse(result);\n}"
+    "Fault Triggering Test": "public class StringUtilsTest {\n\n    @Test\n    public void testEqualsWithCharSequence() {\n        CharSequence charSeq1 = new StringBuilder(\"test\");\n        CharSequence charSeq2 = new String(\"test\");\n        EqualsBuilder builder = new EqualsBuilder();\n        builder.append(charSeq1, charSeq2);\n        assertFalse(builder.isEquals());\n    }\n}"
 }
