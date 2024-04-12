@@ -46,11 +46,32 @@ def check_file_level(file_name, ground_method_truth, if_has_bug):
         return "True"
 
 
+def load_defect4j(file_path, start_line, end_line):
+    try:
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+            code_segment = lines[start_line - 1:end_line]
+            return ''.join(code_segment)
+    except Exception as e:
+        return f"Error: {e} on path: {file_path}"
+
+
 def is_code_part_of(main, part):
     return part.strip() in main.strip()
 
 
-def check_block_level(line_code, ground_line_truth, bug_ID, file_prediction):
+def find_block_from_defect4j(bug_ID, line_info, file_name):
+    # line info has sorted lines for bugs
+    line_info = line_info.strip().split(',')
+    start_line = int(line_info[0])
+    end_line = int(line_info[-1])
+    # change to your defect4J path
+    defect4j_path = '/Users/linqiangguo/IdeaProjects/defects4j/Data/Lang'
+    file_path = defect4j_path + '/' + bug_ID.lower() + '_b/'
+    return load_defect4j(file_path + file_name, start_line, end_line).strip()
+
+
+def check_block_level(line_code, ground_line_truth, bug_ID, file_prediction, line_info, file_name):
     if "False" == file_prediction:
         return "In Wrong File"
     if bug_ID in line_unprocessed_bugId or len(ground_line_truth) == 0:
@@ -60,13 +81,23 @@ def check_block_level(line_code, ground_line_truth, bug_ID, file_prediction):
     if len(ground_line_truth) > 0:
         ground_line_truth_list = ground_line_truth.split(',')
         if all(truth == 'FAULT_OF_OMISSION' for truth in ground_line_truth_list):
-            return "ground truth are al FoOs"
+            missing_truth = find_block_from_defect4j(bug_ID, line_info, file_name)
+            if is_code_part_of(missing_truth, line_code) or is_code_part_of(line_code, missing_truth):
+                return "True"
+            return "False"
+        # TODO: Need to discuss: should we get a range or just single line code if one of it truth is FoO
         for truth in ground_line_truth_list:
             if truth == 'FAULT_OF_OMISSION':
-                continue
+                truth = find_block_from_defect4j(bug_ID, line_info, file_name)
             if is_code_part_of(truth, line_code) or is_code_part_of(line_code, truth):
                 return "True"
 
+        # for i in range(len(ground_line_truth_list)):
+        #    if ground_line_truth_list[i] == 'FAULT_OF_OMISSION':
+        #        ground_line_truth_list[i] = find_block_from_defect4j(bug_ID, line_info, file_name)
+        #    if is_code_part_of(ground_line_truth_list[i], line_code) or is_code_part_of(line_code,
+        #                                                                                ground_line_truth_list[i]):
+        #        return "True"
     return "False"
 
 
@@ -104,6 +135,8 @@ for project in projects:
                                                     names=['file', 'line', 'code'])
                     line_ground_truth['code'] = line_ground_truth['code'].str.lstrip()
                     fault_localization_info['Ground_Line_Truth'] = ",".join(line_ground_truth['code'])
+                    fault_localization_info['Ground_Line_Location'] = ",".join(str(int(line))
+                                                                               for line in line_ground_truth['line'])
                 except Exception as e:
                     line_unprocessed_bugId.add(bug_id)
                 dicts.append(fault_localization_info)
@@ -115,7 +148,7 @@ fault_df['Locate Correct Method'] = fault_df.apply(
     lambda row: check_method_level(row['method_level'], row['Ground_Method_Truth'], row['Locate Correct File']), axis=1)
 fault_df['Locate Correct Block'] = fault_df.apply(
     lambda row: check_block_level(row['block_level'], row['Ground_Line_Truth'], row['Bug_ID'],
-                                  row['Locate Correct File']), axis=1)
+                                  row['Locate Correct File'], row['Ground_Line_Location'], row['file_name']), axis=1)
 
 
 def eval_with_reflection(fault_df):
@@ -133,8 +166,12 @@ def eval_with_reflection(fault_df):
                                & (df_file_filtered['Locate Correct File'] == 'False')].shape[0]
     file_recall = tp_file / (tp_file + fn_file)
     file_precision = tp_file / (tp_file + fp_file) if (tp_file + fp_file) > 0 else 0
-    print("File level recall:" + str(file_recall) + ", accuracy:"
-          + str(file_precision))
+    file_f1_score = 2 * (file_precision * file_recall) / (file_precision + file_recall) if (
+                                                                                                   file_precision + file_recall) != 0 else 0
+    df_file_true = df_file_filtered[(df_file_filtered['Locate Correct File'] == 'True')].shape[0]
+    file_acc = df_file_true / len(df_file_filtered) if df_file_true > 0 else 0
+    print("File level: accuracy: " + str(file_acc) + ", recall: " + str(file_recall) + ", precision: "
+          + str(file_precision) + ", f1: " + str(file_f1_score))
 
     # method level evaluation
     df_method_filtered = fault_df[fault_df['Locate Correct Method'].isin(['True', 'False'])]
@@ -150,7 +187,6 @@ def eval_with_reflection(fault_df):
 
 
 eval_with_reflection(fault_df)
-
 
 if len(method_unprocessed_bugId) > 0:
     print(("Method Unprocessed bug id: {}".format(method_unprocessed_bugId)))
