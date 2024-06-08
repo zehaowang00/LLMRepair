@@ -1,0 +1,3 @@
+{
+    "Fault Triggering Test": "public void testAppendFixedWidthNull() {\n        StrBuilder strBuilder = new StrBuilder();\n        strBuilder.appendFixedWidth(null, 5);\n    }"
+}

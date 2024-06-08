@@ -151,7 +151,8 @@ system_message_developer = (
     "5. Once another agent thinks the generated patch is ok, you should response with FINAL ANSWER so the team knows to stop, Otherwise, you should to go back to step3.")
 
 system_message_tester = (
-    "You are responsible for generating the testing cases for the bug in the bug report based on the buggy method."                           "You need to follow the following steps: "
+    "You are responsible for generating the testing cases for the bug in the bug report based on the buggy method."                           
+    "You need to follow the following steps: "
     "1. Get the buggy method code"
     "2. Once you get the buggy method, you should start to generate the fault triggering test for triggering the bug describe in the bug report and share the testing cases inforamtion to another agent." 
     "3. Once you sent the test cases information to another agent, another agent will give you the patch that is used to fix program. You need to check if the patch can fix the bug and pass the test by using your knowledge rather than using tool." 

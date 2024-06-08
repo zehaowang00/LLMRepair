@@ -1,0 +1,13 @@
+diff --git a/src/main/java/org/apache/commons/lang3/StrBuilder.java b/src/main/java/org/apache/commons/lang3/StrBuilder.java
+index 5f4a2c1..c8b4d1e 100644
+--- a/src/main/java/org/apache/commons/lang3/StrBuilder.java
++++ b/src/main/java/org/apache/commons/lang3/StrBuilder.java
+@@ -1234,7 +1234,7 @@ public class StrBuilder implements CharSequence, Appendable {
+     public StrBuilder appendFixedWidth(Object obj, int width) {
+         if (obj == null) {
+             if (getNullText() == null) {
+-                return appendNullText();
++                return appendNullText().appendPadding(width - 1);
+             }
+             return append(getNullText()).appendPadding(width - getNullText().length());
+         }
